@@ -1,0 +1,196 @@
+<style>
+    :root {
+        --app-header: #000;
+        --wh-header-height-lg: 64px;
+        --vite-cyan: #00aeef;
+        --vite-sidebar: #191c1f;
+        --vite-sidebar-border: #384147;
+    }
+
+    .app__header {
+        border-bottom: 1px solid #20262a;
+        background: #000 !important;
+    }
+
+    .wh-header {
+        font-family: Inter, "Segoe UI", Arial, sans-serif;
+    }
+
+    .wh-header__product-name {
+        letter-spacing: .035em;
+        text-transform: uppercase;
+    }
+
+    .wh-header__divider {
+        display: flex;
+        min-width: 0;
+        margin-left: clamp(18px, 2.5vw, 42px);
+        align-items: center;
+    }
+
+    .vite-primary-nav {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: clamp(18px, 2.4vw, 34px);
+        white-space: nowrap;
+    }
+
+    .vite-primary-nav__link {
+        color: rgba(255, 255, 255, .82);
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1;
+        text-decoration: none;
+        transition: color 120ms ease;
+    }
+
+    .vite-primary-nav__link:hover,
+    .vite-primary-nav__link:focus-visible {
+        color: var(--vite-cyan);
+    }
+
+    .vite-primary-nav__link:focus-visible {
+        border-radius: 2px;
+        outline: 2px solid var(--vite-cyan);
+        outline-offset: 5px;
+    }
+
+    .wh-header__download {
+        min-height: 44px;
+        padding-right: 22px !important;
+        padding-left: 22px !important;
+        border-color: var(--vite-cyan) !important;
+        border-radius: 2px !important;
+        color: #fff !important;
+        background: var(--vite-cyan) !important;
+        font-weight: 700 !important;
+    }
+
+    .wh-header__download:hover,
+    .wh-header__download:focus-visible {
+        border-color: #35c7ff !important;
+        background: #35c7ff !important;
+    }
+
+    /* Keep the documentation tree visually distinct, as in the reference. */
+    .app__sidebar,
+    .toc,
+    .toc--theme-light,
+    .toc--theme-dark {
+        background: var(--vite-sidebar) !important;
+    }
+
+    .app__sidebar {
+        border-right: 1px solid var(--vite-sidebar-border) !important;
+    }
+
+    .toc-item,
+    .toc-item--theme-light,
+    .toc-item--theme-dark {
+        padding-top: 7px;
+        padding-bottom: 7px;
+        color: #d8dadd !important;
+        background: transparent !important;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+    }
+
+    .toc-item:hover,
+    .toc-item--theme-light:hover,
+    .toc-item--theme-dark:hover {
+        color: #fff !important;
+        background: rgba(255, 255, 255, .045) !important;
+    }
+
+    .toc-item--selected,
+    .toc-item--selected:hover,
+    .toc-item--selected.toc-item--theme-light,
+    .toc-item--selected.toc-item--theme-dark {
+        color: var(--vite-cyan) !important;
+        background: transparent !important;
+    }
+
+    .toc-icon {
+        color: #73787b;
+    }
+
+    .toc-icon--opened {
+        color: #fff;
+    }
+
+    .toc-node--selected::after {
+        display: none;
+    }
+
+    @media screen and (max-width: 1180px) {
+        .vite-primary-nav {
+            gap: 16px;
+        }
+
+        .vite-primary-nav__link {
+            font-size: 13px;
+        }
+    }
+
+    @media screen and (max-width: 1000px) {
+        .wh-header__divider {
+            margin-left: 0;
+        }
+
+        .vite-primary-nav {
+            display: none;
+        }
+    }
+
+    @media print {
+        .vite-primary-nav {
+            display: none;
+        }
+    }
+</style>
+
+<script>
+    (() => {
+        const links = [
+            ["Repo", "https://github.com/GapingPixel/UnrealEngineVite-PhysX", true],
+            ["Projects", "projectsanddemos.html", false],
+            ["Project Samples", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
+            ["Public Vite Drive", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true]
+        ];
+
+        const mountNavigation = () => {
+            const divider = document.querySelector(".wh-header__divider");
+            if (!divider || divider.querySelector(".vite-primary-nav")) {
+                return;
+            }
+
+            const navigation = document.createElement("nav");
+            navigation.className = "vite-primary-nav";
+            navigation.setAttribute("aria-label", "VITE resources");
+
+            for (const [label, href, external] of links) {
+                const anchor = document.createElement("a");
+                anchor.className = "vite-primary-nav__link";
+                anchor.href = href;
+                anchor.textContent = label;
+                if (external) {
+                    anchor.target = "_blank";
+                    anchor.rel = "noopener noreferrer";
+                }
+                navigation.append(anchor);
+            }
+
+            divider.append(navigation);
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            mountNavigation();
+            new MutationObserver(mountNavigation).observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        });
+    })();
+</script>

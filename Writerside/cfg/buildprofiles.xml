@@ -6,6 +6,19 @@
     <variables>
         <header-logo>Logo.png</header-logo>
         <custom-favicons>logo-Small.png</custom-favicons>
+        <product-web-url>https://vitestudio-tech.github.io/UnrealEngineVite-Docs/</product-web-url>
+
+        <!-- CRYENGINE-inspired visual system and resource navigation. -->
+        <primary-color>#00AEEF</primary-color>
+        <color-preset>vivid</color-preset>
+        <sidebar-width>320</sidebar-width>
+        <resizable-sidebar>true</resizable-sidebar>
+        <include-in-head>vite-theme.html</include-in-head>
+
+        <!-- Writerside's download CTA is repurposed as the Community link. -->
+        <download-title>Community</download-title>
+        <download-page>https://discord.gg/n9zQrYFhMb</download-page>
+        <showDownloadButton>true</showDownloadButton>
     </variables>
 
 </buildprofiles>

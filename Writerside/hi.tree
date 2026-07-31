@@ -3,11 +3,11 @@
         SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
 
 <instance-profile id="hi"
-                 name="Vite Documentation"
+                 name="VITE Documentation"
                  start-page="Default-topic.md">
 
-    <toc-element topic="Default-topic.md">
-        <toc-element topic="ProjectsAndDemos.md">
+    <toc-element topic="Default-topic.md" toc-title="VITE Unreal Manual">
+        <toc-element topic="ProjectsAndDemos.md" toc-title="Projects &amp; Demos">
             <toc-element topic="400-Characters-CMC-Bench.md"/>
             <toc-element topic="Abandone-Apartment.md"/>
             <toc-element topic="Attic-Scene.md"/>
@@ -19,11 +19,11 @@
             <toc-element topic="Stylized-Raytracing-Demo.md"/>
             <toc-element topic="Tech-Demo-Project.md"/>
         </toc-element>
-        <toc-element topic="Technical-Documentation.md">
+        <toc-element topic="Technical-Documentation.md" toc-title="Technical Documentation">
             <toc-element topic="Engine-Coding-Guidelines.md"/>
             <toc-element topic="Engine-Systems.md"/>
         </toc-element>
-        <toc-element topic="Feature-Documentation.md">
+        <toc-element topic="Feature-Documentation.md" toc-title="Feature Documentation">
             <toc-element topic="DDGI-and-Raytracing.md" />
             <toc-element topic="Proposed-Plugins.md" />
         </toc-element>
