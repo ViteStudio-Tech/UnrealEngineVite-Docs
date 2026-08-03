@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE vars SYSTEM "https://resources.jetbrains.com/writerside/1.0/vars.dtd">
 <vars>
-    <var name="product" value="Writerside"/>
+    <var name="product" value="Unreal Engine Vite"/>
+    <var name="engine_version" value="4.27"/>
+    <var name="engine_association" value="UE_ViteFork"/>
 </vars>

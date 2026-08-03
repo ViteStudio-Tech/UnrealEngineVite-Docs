@@ -3,30 +3,103 @@
         SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
 
 <instance-profile id="hi"
-                 name="VITE Documentation"
+                 name="Unreal Engine Vite"
                  start-page="Default-topic.md">
 
-    <toc-element topic="Default-topic.md" toc-title="VITE Unreal Manual">
-        <toc-element topic="ProjectsAndDemos.md" toc-title="Projects &amp; Demos">
-            <toc-element topic="400-Characters-CMC-Bench.md"/>
-            <toc-element topic="Abandone-Apartment.md"/>
-            <toc-element topic="Attic-Scene.md"/>
-            <toc-element topic="Callisto-BRDF-Demos.md"/>
-            <toc-element topic="Crash-Bandicoot.md"/>
-            <toc-element topic="Physics-Cube-Bench.md"/>
-            <toc-element topic="PhysX-Instanced-Subsystem.md"/>
-            <toc-element topic="PhysXTest.md"/>
-            <toc-element topic="Stylized-Raytracing-Demo.md"/>
-            <toc-element topic="Tech-Demo-Project.md"/>
+    <toc-element topic="Default-topic.md" toc-title="Unreal Engine Vite Manual"/>
+
+    <toc-element topic="Getting-Started.md" toc-title="Getting Started">
+        <toc-element topic="Introduction-to-Vite.md"/>
+        <toc-element topic="System-Requirements.md"/>
+        <toc-element topic="Toolchain-Requirements.md"/>
+        <toc-element topic="Install-Binary-Build.md"/>
+        <toc-element topic="Build-From-Source.md"/>
+        <toc-element topic="Build-Troubleshooting.md"/>
+        <toc-element topic="First-Project.md"/>
+        <toc-element topic="Migrating-From-UE5.md"/>
+    </toc-element>
+
+    <toc-element topic="Engine-Overview.md" toc-title="Engine Overview">
+        <toc-element topic="Why-NvRTX-427.md"/>
+        <toc-element topic="Performance-Targets.md"/>
+        <toc-element topic="UE4-Versus-UE5-Cost-Analysis.md"/>
+        <toc-element topic="Release-Notes.md"/>
+    </toc-element>
+
+    <toc-element topic="Rendering.md" toc-title="Rendering">
+        <toc-element topic="Global-Illumination.md">
+            <toc-element topic="DDGI-Dynamic.md"/>
+            <toc-element topic="DDGI-Static.md"/>
+            <toc-element topic="SSGI.md"/>
         </toc-element>
-        <toc-element topic="Technical-Documentation.md" toc-title="Technical Documentation">
-            <toc-element topic="Engine-Coding-Guidelines.md"/>
-            <toc-element topic="Engine-Systems.md"/>
+        <toc-element topic="Ray-Tracing.md">
+            <toc-element topic="RT-Reflections.md"/>
+            <toc-element topic="RT-Shadows-And-Ambient-Occlusion.md"/>
+            <toc-element topic="RT-Translucency-And-Caustics.md"/>
+            <toc-element topic="RTXDI.md"/>
+            <toc-element topic="Path-Tracing.md"/>
         </toc-element>
-        <toc-element topic="Feature-Documentation.md" toc-title="Feature Documentation">
-            <toc-element topic="DDGI-and-Raytracing.md" />
-            <toc-element topic="Proposed-Plugins.md" />
-        </toc-element>
+        <toc-element topic="Shading-Models.md"/>
+        <toc-element topic="Anti-Aliasing.md"/>
+        <toc-element topic="Upscalers.md"/>
+        <toc-element topic="Ambient-Occlusion.md"/>
+        <toc-element topic="Tessellation.md"/>
+        <toc-element topic="Hair-Rendering.md"/>
+        <toc-element topic="Color-Management.md"/>
+    </toc-element>
+
+    <toc-element topic="Physics.md" toc-title="Physics">
+        <toc-element topic="PhysX.md"/>
+        <toc-element topic="Fixed-Timestep.md"/>
+        <toc-element topic="Destruction-And-Cloth.md"/>
+        <toc-element topic="Instanced-Physics.md"/>
+    </toc-element>
+
+    <toc-element topic="Performance.md" toc-title="Performance and Optimization">
+        <toc-element topic="Profiling.md"/>
+        <toc-element topic="Engine-Defaults.md"/>
+        <toc-element topic="Compile-Time-Switches.md"/>
+        <toc-element topic="Shader-Compilation-And-PSO.md"/>
+        <toc-element topic="Debloat-Guide.md"/>
+    </toc-element>
+
+    <toc-element topic="Platforms.md" toc-title="Platforms"/>
+
+    <toc-element topic="Plugins.md" toc-title="Plugins">
+        <toc-element topic="Bundled-Plugins.md"/>
+        <toc-element topic="Proposed-Plugins.md"/>
+    </toc-element>
+
+    <toc-element topic="Tools.md" toc-title="Tools and Automation">
+        <toc-element topic="ViteSetup.md"/>
+        <toc-element topic="Installed-Builds.md"/>
+        <toc-element topic="Cache-Management.md"/>
+    </toc-element>
+
+    <toc-element topic="ProjectsAndDemos.md" toc-title="Projects and Demos">
+        <toc-element topic="Tech-Demo-Project.md"/>
+        <toc-element topic="Stylized-Raytracing-Demo.md"/>
+        <toc-element topic="Callisto-BRDF-Demos.md"/>
+        <toc-element topic="Abandone-Apartment.md" toc-title="Abandoned Apartment"/>
+        <toc-element topic="Attic-Scene.md"/>
+        <toc-element topic="Crash-Bandicoot.md"/>
+        <toc-element topic="400-Characters-CMC-Bench.md"/>
+        <toc-element topic="Physics-Cube-Bench.md"/>
+        <toc-element topic="PhysXTest.md" toc-title="PhysX Test"/>
+        <toc-element topic="PhysX-Instanced-Subsystem.md"/>
+    </toc-element>
+
+    <toc-element topic="Contributing.md" toc-title="Contributing">
+        <toc-element topic="Coding-Guidelines.md"/>
+        <toc-element topic="Commit-Conventions.md"/>
+        <toc-element topic="Backporting.md"/>
+        <toc-element topic="Documentation-Contributions.md"/>
+    </toc-element>
+
+    <toc-element topic="Reference.md" toc-title="Reference">
+        <toc-element topic="Console-Variables.md"/>
+        <toc-element topic="Glossary.md"/>
+        <toc-element topic="FAQ.md"/>
     </toc-element>
 
 </instance-profile>
