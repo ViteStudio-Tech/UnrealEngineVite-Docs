@@ -27,8 +27,6 @@ sampling all lights while evaluating only a few, and the cost becomes roughly in
 The practical effect is that light count stops being a budget you manage. You can light a scene with the
 number of emitters it physically has rather than the number the renderer can afford.
 
-<img src="https://github.com/user-attachments/assets/8978ec33-df26-4bbf-9f46-36feff4d1455" alt="RTXDI in Vite" width="2350" height="1390"/>
-
 ## The standalone distinction
 
 This matters and is easy to miss.

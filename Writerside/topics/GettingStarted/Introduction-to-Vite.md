@@ -13,6 +13,13 @@ production. Its long-term goal is a continuously evolving modern engine that del
 throughput competitive with proprietary in-house engines, with ongoing performance, stability and
 graphics-pipeline work aimed at contemporary console hardware.
 
+The objective is specific enough to be falsifiable: **beat Epic's UE5 on fidelity per millisecond and on
+simulation scale**, and be competitive with the proprietary AAA engines on both. Fidelity per millisecond
+is what [Performance Targets](Performance-Targets.md) and
+[UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md) measure. Simulation scale is what the
+[physics](Physics-Cube-Bench.md) and [character](400-Characters-CMC-Bench.md) benchmarks measure. Where
+Vite does not currently win, this manual says so.
+
 ## The design argument
 
 Epic's Unreal Engine 5.7 and 5.8 target roughly 60 FPS at dynamic internal resolutions of 720p&ndash;1080p
@@ -55,8 +62,8 @@ On top of that base:
 - Epic's UE 4.27 Plus branch is fully merged.
 - NVIDIA's NvRTX 5.0 branch is merged.
 - Rendering features from AMD's engine branches are integrated.
-- More than 250 backports from UE 5.0 through 5.7 are in the release branch, with over 1,200 integrated in
-  internal staging branches.
+- More than 300 backports from UE 5.0 through the 5.8 era are in the release branch, with over 1,200
+  integrated in internal staging branches.
 
 The integration work is done by engine programmers with extensive Unreal Engine source experience, using
 proper code guards, managed shader permutations, and manual adaptation of each cherry-picked UE5 change to

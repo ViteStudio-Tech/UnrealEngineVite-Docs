@@ -39,13 +39,14 @@ Control, The Witcher 3, Warhammer 40,000: Darktide, DOOM: The Dark Ages, Indiana
 Anvil and Snowdrop use DDGI probes as part of their ray-traced GI pipelines. The technique was designed to
 scale across a wide hardware range, starting from GTX 1060 class GPUs.
 
-<img src="https://github.com/user-attachments/assets/005c2527-3011-4048-8552-6e76e2204924" alt="811 FPS on RTX 4080 Super at 1440p native with Dynamic DDGI" width="1800" height="1013"/>
+<img src="StylizedRTDemo.png" alt="Stylized scene lit by Dynamic DDGI with the frame counter reading 811 FPS" border-effect="line"/>
 
-*811 FPS, RTX 4080 Super, 1440p native, Dynamic DDGI.*
+*811 FPS, RTX 4080 Super, 1440p native, Dynamic DDGI. The same scene on Lumen in 5.7 measures 324 FPS.*
 
-<img src="https://github.com/user-attachments/assets/a53249ff-868b-4656-8964-ca8f5d929e6d" alt="245 FPS on AMD RX 6600 at 1080p native with Dynamic DDGI" width="1808" height="1010"/>
+<img src="DDGIEmissiveSurfaces.png" alt="Interior lit by emissive surfaces contributing to DDGI" border-effect="line"/>
 
-*AMD RX 6600, RDNA2, 1080p native, Dynamic DDGI.*
+*Emissive materials contribute to DDGI directly, so a scene can be lit from emissive geometry without
+placing light actors for it.*
 
 ## Why pair DDGI with SSGI
 

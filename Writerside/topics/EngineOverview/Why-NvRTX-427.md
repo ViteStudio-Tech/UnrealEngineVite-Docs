@@ -71,7 +71,7 @@ Vite is not frozen at its base. The following are fully merged:
 | Epic UE 4.27 Plus | Ongoing community and studio fixes to 4.27, plus the last toolchain compliance updates |
 | NvRTX 5.0 | Further NVIDIA rendering work backported down |
 | AMD GPUOpen engine branches | FSR, AMD-specific rendering optimisations relevant to console GPUs |
-| UE 5.0&ndash;5.7 | 250+ individually adapted backports in release; 1,200+ in internal staging |
+| UE 5.0&ndash;5.8 | 300+ individually adapted backports in release; 1,200+ in internal staging |
 
 Backports are not blind cherry-picks. Each one is manually adapted to the Vite codebase with appropriate
 code guards and managed shader permutations, by engineers with existing Unreal source experience. The

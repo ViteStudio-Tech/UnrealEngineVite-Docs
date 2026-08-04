@@ -59,6 +59,20 @@ individual effects off.
 UV generation and a number of plugins differ from stock. These changes affect gameplay behaviour, not just
 frame time, so read [Engine Default Changes](Engine-Defaults.md) before you ship.
 
+## Unreal Engine fundamentals
+
+This manual documents the fork, not the engine underneath it. Everything Vite does not change works the way
+Unreal Engine 4.27 works, and Epic's own 4.27 documentation is the correct reference for it:
+
+| Topic | Epic's 4.27 documentation |
+|---|---|
+| Projects, templates and directory structure | [Working with Unreal Projects and Templates](https://dev.epicgames.com/documentation/unreal-engine/working-with-unreal-projects-and-templates?application_version=4.27) |
+| Setting up Visual Studio for source builds | [Setting Up Visual Studio](https://dev.epicgames.com/documentation/en-us/unreal-engine/setting-up-visual-studio-development-environment-for-cplusplus-projects-in-unreal-engine?application_version=4.27) |
+| Blueprints and the gameplay framework | [Unreal Engine 4.27 documentation](https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-4-27-documentation) |
+
+Keep the version selector on 4.27. UE5 documentation describes systems Vite deliberately does not have,
+and following it is a common source of confusion for people arriving from UE5.
+
 ## See also
 
 - [Introduction to Vite](Introduction-to-Vite.md)

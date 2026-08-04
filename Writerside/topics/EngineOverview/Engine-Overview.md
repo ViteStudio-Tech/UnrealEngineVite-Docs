@@ -3,7 +3,7 @@
 <tldr>
 <p>
 Vite is Unreal Engine 4.27.2 (<code>++UE4+Release-4.27</code>) forked from NvRTX 4.27 Caustics, with UE 4.27
-Plus, NvRTX 5.0 and AMD branch features merged in, plus 250+ hand-adapted backports from UE 5.0&ndash;5.7.
+Plus, NvRTX 5.0 and AMD branch features merged in, plus 300+ hand-adapted backports from UE 5.0&ndash;5.8.
 </p>
 </tldr>
 
@@ -21,7 +21,7 @@ If you just want to get the engine running, go to [Getting Started](Getting-Star
 | Branch name | `++UE4+Release-4.27` |
 | Upstream base | NvRTX 4.27 Caustics |
 | Merged branches | UE 4.27 Plus, NvRTX 5.0, AMD GPUOpen engine branches |
-| UE5 backports | 250+ in release, 1,200+ in internal staging |
+| UE5 backports | 300+ in release, 1,200+ in internal staging |
 | Physics backend | PhysX 3.4 |
 | Renderer | Deferred, SM5, agnostic DXR ray tracing pipeline |
 

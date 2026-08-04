@@ -3,9 +3,20 @@
         --app-header: #000;
         --wh-header-height-lg: 64px;
         --vite-cyan: #00aeef;
+        --vite-cyan-bright: #35c7ff;
         --vite-sidebar: #191c1f;
         --vite-sidebar-border: #384147;
+
+        /* Surface tints expressed as overlays so they read correctly in both themes. */
+        --vite-surface: rgba(127, 139, 148, .09);
+        --vite-surface-strong: rgba(127, 139, 148, .16);
+        --vite-hairline: rgba(127, 139, 148, .28);
+        --vite-muted: rgba(127, 139, 148, .95);
     }
+
+    /* ------------------------------------------------------------------ *
+     * Header and primary navigation
+     * ------------------------------------------------------------------ */
 
     .app__header {
         border-bottom: 1px solid #20262a;
@@ -69,11 +80,14 @@
 
     .wh-header__download:hover,
     .wh-header__download:focus-visible {
-        border-color: #35c7ff !important;
-        background: #35c7ff !important;
+        border-color: var(--vite-cyan-bright) !important;
+        background: var(--vite-cyan-bright) !important;
     }
 
-    /* Keep the documentation tree visually distinct, as in the reference. */
+    /* ------------------------------------------------------------------ *
+     * Documentation tree
+     * ------------------------------------------------------------------ */
+
     .app__sidebar,
     .toc,
     .toc--theme-light,
@@ -124,6 +138,325 @@
         display: none;
     }
 
+    /* ------------------------------------------------------------------ *
+     * Article width
+     *
+     * The stock column is ~650px, which is fine for prose and far too
+     * narrow for the screenshots and wide reference tables this manual is
+     * built around. Widen the column, then hold running text to a readable
+     * measure inside it so figures, tables and code can use the full width.
+     * ------------------------------------------------------------------ */
+
+    .layout--container-content {
+        max-width: 1440px !important;
+    }
+
+    .app__article {
+        max-width: 1024px !important;
+    }
+
+    .article {
+        max-width: none !important;
+    }
+
+    .article__p,
+    .article__list,
+    .article ul,
+    .article ol,
+    .article blockquote {
+        max-width: 74ch;
+    }
+
+    .article__figure,
+    .table__wrapper,
+    .code-block,
+    .article dl {
+        max-width: none;
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Headings
+     * ------------------------------------------------------------------ */
+
+    .article__h1 h1 {
+        letter-spacing: -.01em;
+        line-height: 1.12;
+    }
+
+    .article__h2 {
+        margin-top: 46px !important;
+        padding-top: 22px;
+        border-top: 1px solid var(--vite-hairline);
+    }
+
+    .article__h2 h2 {
+        letter-spacing: -.005em;
+    }
+
+    /* First H2 on a page sits under the intro, so it does not need the rule. */
+    .article > .chapter:first-of-type > .article__h2 {
+        padding-top: 0;
+        border-top: 0;
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Figures
+     *
+     * Screenshots are the substance of several pages here, so they are
+     * matted rather than dropped inline as bare bitmaps.
+     * ------------------------------------------------------------------ */
+
+    .article__figure {
+        margin: 26px 0 10px;
+        padding: 10px;
+        border: 1px solid var(--vite-hairline);
+        border-radius: 4px;
+        background: var(--vite-surface);
+    }
+
+    .article__img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 2px;
+    }
+
+    .article__img.article__bordered-element {
+        border: 1px solid var(--vite-hairline) !important;
+    }
+
+    /* A wholly italic paragraph directly after a figure is its caption. */
+    .article__figure + .article__p {
+        margin-top: 0 !important;
+        padding-left: 12px;
+        border-left: 2px solid var(--vite-cyan);
+        color: var(--vite-muted);
+        font-size: 13.5px;
+        line-height: 1.55;
+    }
+
+    .article__figure + .article__p em {
+        font-style: normal;
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Tables
+     * ------------------------------------------------------------------ */
+
+    .table__wrapper {
+        overflow-x: auto;
+        margin: 22px 0;
+        border: 1px solid var(--vite-hairline);
+        border-radius: 4px;
+    }
+
+    .table__content {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .table__content thead th {
+        padding: 11px 14px !important;
+        border-bottom: 2px solid var(--vite-cyan) !important;
+        background: var(--vite-surface-strong) !important;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .table__content tbody td {
+        padding: 10px 14px !important;
+        border-top: 1px solid var(--vite-hairline) !important;
+        vertical-align: top;
+    }
+
+    .table__content tbody tr:nth-child(even) td {
+        background: var(--vite-surface);
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Summary block at the top of each topic
+     * ------------------------------------------------------------------ */
+
+    .micro-format {
+        padding: 16px 20px !important;
+        border-left: 3px solid var(--vite-cyan);
+        border-radius: 0 4px 4px 0;
+        background: var(--vite-surface) !important;
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Definition lists rendered as a card grid
+     * ------------------------------------------------------------------ */
+
+    .article dl {
+        display: grid;
+        margin: 24px 0;
+        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+    }
+
+    .article dl > dt {
+        margin: 0;
+        padding: 16px 18px 0;
+        border: 1px solid var(--vite-hairline);
+        border-bottom: 0;
+        border-radius: 4px 4px 0 0;
+        background: var(--vite-surface);
+        color: var(--vite-cyan);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        grid-column: auto;
+    }
+
+    .article dl > dd {
+        margin: 0;
+        padding: 8px 18px 18px;
+        border: 1px solid var(--vite-hairline);
+        border-top: 0;
+        border-radius: 0 0 4px 4px;
+        background: var(--vite-surface);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .article dl > dd > :first-child {
+        margin-top: 0 !important;
+    }
+
+    .article dl > dd > :last-child {
+        margin-bottom: 0 !important;
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Code
+     * ------------------------------------------------------------------ */
+
+    .code-block {
+        border: 1px solid var(--vite-hairline);
+        border-radius: 4px;
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Landing page hero
+     * ------------------------------------------------------------------ */
+
+    .vite-hero {
+        margin: 0 0 34px;
+        padding: 34px 34px 30px;
+        border: 1px solid var(--vite-sidebar-border);
+        border-radius: 6px;
+        background:
+            radial-gradient(120% 150% at 8% 0%, rgba(0, 174, 239, .22) 0%, rgba(0, 174, 239, 0) 58%),
+            linear-gradient(180deg, #1d2226 0%, #131619 100%);
+        color: #e7eaed;
+    }
+
+    .vite-hero__eyebrow {
+        margin: 0 0 12px;
+        color: var(--vite-cyan);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+    }
+
+    .vite-hero__title {
+        margin: 0 0 14px;
+        color: #fff;
+        font-size: clamp(30px, 4.4vw, 44px);
+        font-weight: 800;
+        letter-spacing: -.02em;
+        line-height: 1.05;
+    }
+
+    .vite-hero__lede {
+        max-width: 62ch;
+        margin: 0;
+        color: #b9c0c6;
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .vite-hero__stats {
+        display: grid;
+        margin: 26px 0 0;
+        padding: 22px 0 0;
+        border-top: 1px solid rgba(255, 255, 255, .1);
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+
+    .vite-hero__stat-value {
+        display: block;
+        color: var(--vite-cyan);
+        font-size: 23px;
+        font-weight: 800;
+        letter-spacing: -.01em;
+    }
+
+    .vite-hero__stat-label {
+        display: block;
+        margin-top: 4px;
+        color: #9aa3aa;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .05em;
+        line-height: 1.35;
+        text-transform: uppercase;
+    }
+
+    .vite-hero__actions {
+        display: flex;
+        margin-top: 26px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .vite-hero__action {
+        padding: 11px 20px;
+        border: 1px solid var(--vite-cyan);
+        border-radius: 3px;
+        color: var(--vite-cyan);
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background-color 120ms ease, color 120ms ease;
+    }
+
+    .vite-hero__action:hover,
+    .vite-hero__action:focus-visible {
+        color: #06181f;
+        background: var(--vite-cyan);
+    }
+
+    .vite-hero__action--primary {
+        color: #06181f;
+        background: var(--vite-cyan);
+    }
+
+    .vite-hero__action--primary:hover,
+    .vite-hero__action--primary:focus-visible {
+        border-color: var(--vite-cyan-bright);
+        background: var(--vite-cyan-bright);
+    }
+
+    /* The hero carries the page title, so the stock H1 is redundant. */
+    .vite-has-hero .article__h1,
+    .vite-has-hero .sub-title--related-h1 {
+        display: none;
+    }
+
+    @media screen and (max-width: 640px) {
+        .vite-hero {
+            padding: 24px 20px 22px;
+        }
+    }
+
     @media screen and (max-width: 1180px) {
         .vite-primary-nav {
             gap: 16px;
@@ -145,7 +478,8 @@
     }
 
     @media print {
-        .vite-primary-nav {
+        .vite-primary-nav,
+        .vite-hero__actions {
             display: none;
         }
     }
@@ -185,9 +519,98 @@
             divider.append(navigation);
         };
 
-        document.addEventListener("DOMContentLoaded", () => {
+        /* --------------------------------------------------------------- *
+         * Landing page hero
+         *
+         * Built here rather than in the topic because Writerside Markdown
+         * has no layout primitive for it. If this never runs the page still
+         * renders its own H1 and intro, so the failure mode is cosmetic.
+         * --------------------------------------------------------------- */
+
+        const heroStats = [
+            ["Up to 2.5x", "Real game FPS vs UE 5.7"],
+            ["4K native", "60 FPS on PS5-class GPUs"],
+            ["250+", "UE5 backports integrated"],
+            ["PhysX 3.4", "Not Chaos"]
+        ];
+
+        const heroActions = [
+            ["Get started", "getting-started.html", true],
+            ["Why NvRTX 4.27", "why-nvrtx-427.html", false],
+            ["Projects and demos", "projectsanddemos.html", false]
+        ];
+
+        const isLandingPage = () => /(^|\/)default-topic\.html$/.test(location.pathname)
+            || /(^|\/)UnrealEngineVite-Docs\/?$/.test(location.pathname);
+
+        const mountHero = () => {
+            if (!isLandingPage()) {
+                return;
+            }
+
+            const article = document.querySelector(".article");
+            if (!article || article.querySelector(".vite-hero")) {
+                return;
+            }
+
+            const hero = document.createElement("section");
+            hero.className = "vite-hero";
+
+            const eyebrow = document.createElement("p");
+            eyebrow.className = "vite-hero__eyebrow";
+            eyebrow.textContent = "Unreal Engine Vite — Engine Manual";
+            hero.append(eyebrow);
+
+            const title = document.createElement("h1");
+            title.className = "vite-hero__title";
+            title.textContent = "A performance-first Unreal Engine";
+            hero.append(title);
+
+            const lede = document.createElement("p");
+            lede.className = "vite-hero__lede";
+            lede.textContent = "Vite is a fork of NvRTX 4.27 Caustics built for fidelity per millisecond: "
+                + "ray-traced global illumination without Lumen, PhysX instead of Chaos, and native-resolution "
+                + "frame rates on console-class hardware.";
+            hero.append(lede);
+
+            const stats = document.createElement("div");
+            stats.className = "vite-hero__stats";
+            for (const [value, label] of heroStats) {
+                const stat = document.createElement("div");
+                const statValue = document.createElement("span");
+                statValue.className = "vite-hero__stat-value";
+                statValue.textContent = value;
+                const statLabel = document.createElement("span");
+                statLabel.className = "vite-hero__stat-label";
+                statLabel.textContent = label;
+                stat.append(statValue, statLabel);
+                stats.append(stat);
+            }
+            hero.append(stats);
+
+            const actions = document.createElement("div");
+            actions.className = "vite-hero__actions";
+            for (const [label, href, primary] of heroActions) {
+                const anchor = document.createElement("a");
+                anchor.className = "vite-hero__action" + (primary ? " vite-hero__action--primary" : "");
+                anchor.href = href;
+                anchor.textContent = label;
+                actions.append(anchor);
+            }
+            hero.append(actions);
+
+            article.prepend(hero);
+            article.classList.add("vite-has-hero");
+        };
+
+        const mountAll = () => {
             mountNavigation();
-            new MutationObserver(mountNavigation).observe(document.body, {
+            mountHero();
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            mountAll();
+            new MutationObserver(mountAll).observe(document.body, {
                 childList: true,
                 subtree: true
             });

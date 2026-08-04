@@ -12,6 +12,13 @@ Vite enables most of them by default. Enable <a href="DDGI-Dynamic.md">DDGI</a> 
 Project creation in Vite works exactly as it does in stock Unreal Engine 4.27. What differs is the default
 rendering configuration, so this page focuses on what to do immediately after the project opens.
 
+<note>
+This manual documents what Vite changes, not Unreal Engine itself. For the parts that are unchanged
+&mdash; project structure, templates, content browser, Blueprints, materials, packaging &mdash; Epic's
+4.27 documentation applies directly and remains the reference:
+<a href="https://dev.epicgames.com/documentation/unreal-engine/working-with-unreal-projects-and-templates?application_version=4.27">Working with Unreal Projects and Templates (4.27)</a>.
+</note>
+
 ## Create the project
 
 <procedure title="Create a new Vite project" id="create-project">

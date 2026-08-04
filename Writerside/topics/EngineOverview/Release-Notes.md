@@ -67,7 +67,7 @@ Work-in-progress changes belong on a branch, not on release. See
 ### Build, tooling and content
 
 - Full merge of UE 4.27 Plus, NvRTX 4.27, NvRTX 5.0, DLSS, TressFX, FSR and AMD patches.
-- Over **250 backports** from UE 5.0&ndash;5.7.
+- Over **300 backports** from UE 5.0 through the 5.8 era.
 - MSVC toolchain compliance up to **14.50 (Visual Studio 2026)**.
 - Shader compilation improvements.
 - Debloated **runtime PSOs** in Shipping configuration.

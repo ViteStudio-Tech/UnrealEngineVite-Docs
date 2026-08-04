@@ -32,36 +32,61 @@ event. In a stock project the majority of primitives generate overlap events tha
 explicitly. Trigger volumes, pickup detection and anything driven by `OnComponentBeginOverlap` need the
 flag set. This is the most likely source of "my trigger stopped working" after migrating a project.
 
+<img src="OverlapEventsDisabled.png" alt="Commit diff replacing SetGenerateOverlapEvents(true) with bGenerateOverlapEvents = false in PrimitiveComponent.cpp" border-effect="line"/>
+
+*One line in `UPrimitiveComponent`, applied to every primitive in every project.*
+
 [Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/02d7c0ad0a7542b382a70dc3e37877d6ec052d76)
 
 ### Optimised actor runtime
 
-Actor runtime defaults are changed to reduce per-actor overhead.
+Actor runtime defaults are changed to reduce per-actor overhead in `AActor::InitializeDefaults`:
+
+| Default | Stock 4.27 | Vite | Why |
+|---|---|---|---|
+| `SetCanBeDamaged` | `true` | `false` | Only actors that use the damage system need it |
+| `bRelevantForNetworkReplays` | `true` | `false` | Keeps actors out of demo net recording unless wanted |
+| `bRelevantForLevelBounds` | `true` | `false` | Avoids level-bounds iteration over actors that do not define bounds |
+
+<img src="OptimizedActorRuntime.png" alt="Commit diff in Actor.cpp changing SetCanBeDamaged, bRelevantForNetworkReplays and bRelevantForLevelBounds defaults" border-effect="line"/>
+
+*Large meshes, blocking volumes and foliage that must define world bounds need `bRelevantForLevelBounds`
+set back to `true`.*
 
 [Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/970cbb989c3712f13be1fa370b778e769e5d864c)
 
 ### Skeletal mesh optimised configuration
 
-Skeletal mesh component defaults are tuned for performance:
+Skeletal meshes are among the top CPU offenders in most projects, so `USkeletalMeshComponent` ships with
+performance-oriented defaults instead of Epic's fully featured ones. In-world assets often contain many
+skeletal meshes, which makes enabling optimised settings per component impractical; configuring the cheap
+path as the default and opting into the expensive options where they are needed is the workable order.
 
-```c++
-bAllowClothActors = true;
-bPostEvaluatingAnimation = false;
-bAllowAnimCurveEvaluation = true;
-bDisablePostProcessBlueprint = false;
+| Default | Stock 4.27 | Vite |
+|---|---|---|
+| `VisibilityBasedAnimTickOption` | `AlwaysTickPoseAndRefreshBones` | `OnlyTickPoseWhenRendered` |
+| `bEnableUpdateRateOptimizations` | `false` | `true` |
+| `bHasCustomNavigableGeometry` | `Yes` | `No` |
+| `bDisablePostProcessBlueprint` | `false` | `true` |
+| `bUpdateOverlapsOnAnimationFinalize` | `true` | `false` |
 
-// By default enable overlaps when blending physics - user can disable if they are sure it's unnecessary
-bUpdateOverlapsOnAnimationFinalize = true;
+<img src="SkeletalMeshesOptimizedConfig.png" alt="Commit diff in SkeletalMeshComponent.cpp showing the five changed defaults against Epic's originals" border-effect="line"/>
 
-bPropagateCurvesToSlaves = false;
+*Each changed line keeps Epic's original value in a trailing comment, so the stock behaviour is recoverable
+without consulting upstream.*
 
-bSkipKinematicUpdateWhenInterpolating = false;
-bSkipBoundsUpdateWhenInterpolating = false;
-```
+`VisibilityBasedAnimTickOption` is the one to watch. `OnlyTickPoseWhenRendered` means an off-screen
+character stops evaluating its pose entirely; gameplay that reads bone transforms or sockets on unrendered
+characters &mdash; weapon muzzle positions, IK targets, attach points on a distant actor &mdash; must set
+the component back to `AlwaysTickPose` or `AlwaysTickPoseAndRefreshBones`.
 
-`bPropagateCurvesToSlaves = false` is the one to watch. If your character uses leader/follower component
-setups that depend on animation curves propagating &mdash; facial animation driven from a leader mesh, for
-instance &mdash; you must enable it explicitly.
+`bDisablePostProcessBlueprint = true` is the second: post-process anim Blueprints, commonly used for IK
+and bone corrections, no longer run unless re-enabled per component.
+
+<img src="SkeletalMeshDefault.png" alt="SkeletalMeshComponent.cpp constructor showing the surrounding default block" border-effect="line"/>
+
+*The surrounding constructor block in `SkeletalMeshComponent.cpp`, for context on where these defaults are
+set.*
 
 [Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/33fe7c638829b8120e8a02ecc639acda761df835)
 
@@ -98,6 +123,10 @@ time, module load count and packaged build size.
 
 The SpeedTree tick in `LevelTick.cpp` is optimised. SpeedTree ticking runs regardless of whether a project
 uses SpeedTree assets, so this is a saving every project gets.
+
+<img src="SpeedTreeTick.png" alt="LevelTick.cpp showing the UpdateSpeedTreeWind call inside the world tick" border-effect="line"/>
+
+*`Scene->UpdateSpeedTreeWind` in the world tick &mdash; unconditional in stock 4.27.*
 
 [Source](https://github.com/GapingPixel/UE5-PhysX-Vite/blob/3e4a16aa89de4f4c37da300c945d6a14dc62edd7/Engine/Source/Runtime/Engine/Private/LevelTick.cpp#L1709)
 

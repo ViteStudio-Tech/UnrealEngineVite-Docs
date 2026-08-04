@@ -7,6 +7,10 @@ tracing only serves photorealism.
 </p>
 </tldr>
 
+<img src="StylizedRTDemo.png" alt="Stylized outdoor scene lit by dynamic DDGI, frame counter reading 811 FPS" border-effect="line"/>
+
+*Dynamic DDGI, no baked lighting. The counter reads 811 FPS at 1440p native on an RTX 4080 Super.*
+
 ## Download
 
 [Stylized Raytracing Demo](https://drive.google.com/file/d/1M0H60ESNuvUltF9eePO-CHrlUuBzvFHh/view)

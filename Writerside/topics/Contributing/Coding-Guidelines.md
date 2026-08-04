@@ -2,8 +2,9 @@
 
 <tldr>
 <p>
-Stability first, performance-focused, strict Clang 16+ compliance, copyright-clean, ABI-safe. No recursion,
-no new virtuals, no new Blueprint exposure, minimal templates.
+Stability first, performance-focused, strict Clang 22 compliance, copyright-clean, ABI-safe. No recursion,
+no new virtuals, no new Blueprint exposure, minimal templates. Gate anything that adds overhead or changes
+behaviour behind a guard in <code>CoreDefines.h</code>.
 </p>
 </tldr>
 
@@ -23,8 +24,9 @@ All changes must consider CPU, GPU and memory impact, with an ARM-class ~1 GHz C
 Performance measured on a local desktop CPU must not be treated as sufficient or representative of
 real-world target hardware.
 </def>
-<def title="Strict Clang 16+ compliance">
-No MSVC-specific behaviour, compiler extensions or undefined constructs.
+<def title="Strict Clang 22 compliance">
+No MSVC-specific behaviour, compiler extensions or undefined constructs. Code that only builds because MSVC
+is permissive about it does not meet this bar, even when MSVC is the compiler you personally use.
 </def>
 <def title="Licensing clarity">
 All contributions must be copyright-clean. Code may be included only if it is original work by the
@@ -122,6 +124,27 @@ clean.
 - No changes to payloads, bitmask layouts, uniform buffers or reflection flags.
 - ABI violations result in immediate rejection.
 
+### Code gating
+
+Anything that adds overhead or changes existing behaviour must sit behind a guard defined in
+`Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h`:
+
+```c++
+#ifndef VITE_MY_FEATURE
+	#define VITE_MY_FEATURE 0
+#endif
+```
+
+Two rules follow from that. The default must leave the existing path untouched &mdash; a guard whose
+default value changes behaviour is not a guard. And the guarded code must actually be excluded when the
+switch is off, rather than compiled in and skipped at runtime, or the overhead you were gating is still
+being paid.
+
+This is what makes optional features free for projects that do not use them, and it is why
+`VITE_PHYSX_FIXED_TIMESTEP` and the rest of the
+[compile-time switches](Compile-Time-Switches.md) exist in the form they do. Document every new switch on
+that page in the same change.
+
 ## Review checklist
 
 Confirm all of these before opening a pull request:
@@ -138,6 +161,8 @@ Confirm all of these before opening a pull request:
 | No performance regressions | ☐ |
 | No unnecessary binary size increases | ☐ |
 | No shader or RHI ABI mismatches | ☐ |
+| Overhead or behaviour changes gated in `CoreDefines.h`, defaulting off | ☐ |
+| New compile-time switches documented | ☐ |
 
 ## Marking your changes
 

@@ -14,6 +14,15 @@ material pins for retroreflection, diffuse Fresnel and terminator control.
 | Male character | [Download](https://drive.google.com/file/d/133RwxvHT9jELgXWn338hieiAJUUeIoVq/view?usp=sharing) |
 | Female character | [Download](https://mega.nz/file/5I1STApA#zmKqFu_8X1bYZPakb2VvAbCF-GPQhmR98Iot3QVJtRM) |
 
+<img src="CallistoMale.png" alt="Male character rendered with the Callisto BRDF shading model" border-effect="line"/>
+
+*Male demo character. Retroreflection and diffuse Fresnel are doing the work at grazing angles.*
+
+<img src="CallistoFemale.png" alt="Female character rendered with the Callisto BRDF shading model" border-effect="line"/>
+
+*Female demo character. Smooth Terminator softens the shadow line across the curved surfaces of the face
+and arms.*
+
 ## What Callisto BRDF does
 
 Unreal's default lit model is a good general-purpose BRDF and a mediocre skin and character model. Callisto

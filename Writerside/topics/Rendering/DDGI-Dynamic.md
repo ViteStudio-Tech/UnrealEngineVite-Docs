@@ -12,6 +12,17 @@ comparable scenes.
 Dynamic Diffuse Global Illumination is Vite's primary global illumination solution and the feature the fork
 is best known for. This page covers how it works, how to set it up, and how to tune it.
 
+<img src="DDGIDirectOnly.png" alt="Attic interior with direct lighting only, everything outside the sunbeams reading black" border-effect="line"/>
+
+*Direct lighting only. Everything the sun does not reach directly is black, because nothing is carrying
+light around the room.*
+
+<img src="DDGIDirectPlusGI.png" alt="The same attic interior with Dynamic DDGI enabled, indirect bounce filling the room" border-effect="line"/>
+
+*The same frame with Dynamic DDGI enabled. The ceiling, the boxes on the left and the space under the roof
+line are all lit entirely by bounce &mdash; and there is no noise to denoise, because probe irradiance is
+smooth by construction.*
+
 ## How it works
 
 DDGI places a three-dimensional grid of probes across a volume. Each frame, a budget of rays is traced from
@@ -31,6 +42,11 @@ does not exist in the representation. This is the reason [SSGI](SSGI.md) is reco
 The per-probe depth information is what prevents light leaking through thin geometry &mdash; probes know how
 far away the nearest surface is in each direction and can reject contributions that would have to pass
 through a wall. This is why DDGI leaks less than software Lumen.
+
+<img src="DDGIProbeVisualisation.png" alt="Editor viewport with DDGI probe spheres visualised throughout an interior" border-effect="line"/>
+
+*Probe visualisation in the editor. Each sphere is one probe displaying its stored irradiance, which makes
+probe spacing and any misplaced probes immediately visible.*
 
 ## Vite's integration
 
@@ -80,6 +96,32 @@ reaches into the ray tracing pipeline rather than sitting alongside it. The prac
     </step>
 </procedure>
 
+<img src="ProjectSettingsRHI.png" alt="Project Settings showing Default RHI set to DirectX 12 with DirectX 11 and 12 SM5 checked" border-effect="line"/>
+
+*Step one, and the step people skip. **Project Settings &rarr; Platforms &rarr; Windows &rarr; Targeted RHIs**
+must be DirectX 12; ray tracing in 4.27 is DX12-only.*
+
+<img src="DDGIEnablePlugin.png" alt="Plugins dialog with the NVIDIA RTX Global Illumination plugin enabled under Built-In Rendering" border-effect="line"/>
+
+*The GI plugin path under **Built-In &rarr; Rendering**. Vite ships this engine-side, so this is the
+in-engine plugin, not the launcher 4.27 plugin &mdash; do not install that one alongside it.*
+
+<img src="DDGIVolumeEditor.png" alt="A DDGI volume actor placed in a level in the editor viewport" border-effect="line"/>
+
+*A DDGI volume in the level. Volumes cover space, not surfaces &mdash; size them around where the camera and
+dynamic objects can actually go.*
+
+### Volume settings
+
+<img src="DDGISettingsVolume.png" alt="DDGI volume settings panel" border-effect="line"/>
+
+<img src="DDGISettingsProbes.png" alt="DDGI probe settings panel showing counts per axis and probe spacing controls" border-effect="line"/>
+
+<img src="DDGISettingsLighting.png" alt="DDGI lighting settings panel" border-effect="line"/>
+
+*Volume, probe and lighting settings on the DDGI volume actor. Probe counts per axis are the control that
+drives both memory and per-frame ray cost.*
+
 ## Tuning
 
 The settings that matter most, roughly in order of impact:
@@ -87,6 +129,11 @@ The settings that matter most, roughly in order of impact:
 **Probe density.** The dominant cost and quality control. Denser grids resolve smaller lighting features and
 cost proportionally more in both rays traced and memory. Interior spaces with lots of small rooms need more
 probes than open exteriors.
+
+<img src="DDGIProbeDensity.png" alt="Comparison of probe density showing how lighting detail changes with probe spacing" border-effect="line"/>
+
+*Probe density against resolved lighting detail. Detail finer than the probe spacing does not exist in the
+representation at any quality setting &mdash; that is what [SSGI](SSGI.md) is for.*
 
 **Volume placement and count.** Several tightly-fitted volumes usually beat one large loose one. A volume
 that spans a whole level at low density wastes probes on solid geometry and starves the spaces that matter.

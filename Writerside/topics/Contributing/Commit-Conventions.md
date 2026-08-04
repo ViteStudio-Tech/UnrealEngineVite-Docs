@@ -2,8 +2,8 @@
 
 <tldr>
 <p>
-Prefix every commit with one of six category tags. Backports and plugin additions must link to the original
-commit or repository.
+Prefix every commit subject with one or more category tags. Stack them from broad to specific. Backports
+and plugin additions must link to the original commit or repository.
 </p>
 </tldr>
 
@@ -13,28 +13,59 @@ merges tractable.
 
 ## Prefixes
 
-Use one of the following at the start of the commit subject:
+Use one of the following at the start of the commit subject.
 
 | Prefix | Use for |
 |---|---|
+| `[Rendering]` | Renderer work generally &mdash; the most used tag in the tree |
+| `[Rendering Feature]` | New or changed rendering functionality specifically |
+| `[RT]` | Ray tracing |
+| `[Forward]` | Forward renderer path |
 | `[Optimization]` | Performance work with no behaviour change |
-| `[Rendering Feature]` | New or changed rendering functionality |
-| `[VR]` | VR-specific work |
-| `[Mobile]` | Mobile-specific work |
+| `[Backport]` | A change cherry-picked from a later engine version |
+| `[Animation]` | Animation systems |
+| `[GameplayFramework]` | Cameras, Character Movement, AI and the rest of the gameplay framework |
+| `[Memory]` | The UObject memory subsystem |
+| `[DOP]` | Data-oriented work, including ECS |
+| `[PhysX]` | Physics |
 | `[Plugin]` | Adding, updating or removing a plugin |
+| `[Lib]` | Third-party library updates |
+| `[Toolchain]` | Compiler, SDK and build environment |
+| `[Defaults]` | Changes to shipped engine defaults |
+| `[Debloat]` | Removing or gating cost from a default build |
+| `[Mobile]` | Mobile-specific work |
+| `[VR]` | VR-specific work |
+| `[AMD]` | AMD-specific work |
+| `[NVIDIA]` | NVIDIA-specific work |
 | `[Fix]` | Bug fixes |
 
-Examples:
+### Stacking prefixes
+
+Most non-trivial changes carry more than one tag. Order them broad to specific, and put the backport marker
+last so the origin of the change reads at the end:
 
 ```
-[Optimization] Skip overlap event dispatch for actors with no bound delegates
-[Rendering Feature] Add Smooth Terminator input to Callisto BRDF
-[Plugin] Add Kawaii Physics 1.18.0, backported from UE5
+[Rendering][RT][Optimization][Adapted Backport 5.3] Exclude raygen shaders from RTPSOs
+unless the corresponding feature is enabled
+[Rendering][Forward][Backport 5.6] Fix incorrect alpha from MSAA resolve with explicit fmask
+[Rendering][Shading Models] Remove unnecessary branch for the Toon shading model
+```
+
+`Adapted Backport` rather than `Backport` signals that the upstream change did not apply cleanly and was
+rewritten against the Vite codebase. That distinction matters later, when someone is working out whether an
+upstream fix to the original commit also applies here.
+
+Single-tag commits are fine when the change genuinely is one thing:
+
+```
+[Toolchain] Compiling on VS 18.8.2 (_MSC_VER 1950) and Windows SDK 10.0.26100
+[Plugin] PhysX Blast + engine-side changes for proper support
+[Gating] RT translucency guard
 [Fix] Guard RTXDI CVar behind ShouldRenderRayTracingSampledLighting
 ```
 
-If a change genuinely spans categories, split it. A commit that is both an optimisation and a rendering
-feature is usually two commits.
+If a change spans genuinely unrelated areas, split it rather than stacking every tag in the table onto one
+commit.
 
 ## Attribution
 

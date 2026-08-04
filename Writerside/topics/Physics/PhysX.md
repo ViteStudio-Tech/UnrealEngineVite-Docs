@@ -23,6 +23,15 @@ actually run, the Chaos solver does the same job as PhysX for more CPU time. Vit
 Since Vite's entire premise is hitting high frame rates at native resolution on console-class hardware, and
 since physics runs on the game thread where Vite is already fighting for budget, the cheaper solver wins.
 
+<img src="ChaosVsPhysX3000.png" alt="3000 simulated cubes side by side, Unreal 5.7 Chaos at 33.26 FPS against Vite PhysX 3.4 at 157.88 FPS" border-effect="line"/>
+
+*3000 simulated cubes, same scene, same hardware. Unreal 5.7 with Chaos (left) 33.26 FPS at a 30.07 ms
+frame; Vite with PhysX 3.4 (right) 157.88 FPS at a 6.33 ms frame. Game thread time is 30.01 ms against
+6.03 ms &mdash; the gap is almost entirely solver cost.*
+
+At a lower body count the ratio narrows but does not close: the
+[Physics Cube Bench](Physics-Cube-Bench.md) measures 75.45 FPS against 148.44 FPS at 1400 cubes.
+
 ## What you get by staying on PhysX
 
 **Apex Destruction and Apex Cloth.** Both are PhysX-era NVIDIA systems. UE5 deprecated and then removed

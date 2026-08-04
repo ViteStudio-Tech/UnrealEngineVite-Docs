@@ -24,8 +24,6 @@ and permutation counts further.
 Unreal Engine 4.27 produces lighter-weight shaders that deliver the same visual result, which translates
 directly into faster GPU time across the board &mdash; not just in scenes that use the new features.
 
-<img src="https://github.com/user-attachments/assets/5bf7e5c8-1342-4cb6-a1af-a96fed1ddab6" alt="Shader instruction count comparison" width="2518" height="1231"/>
-
 ## Physics
 
 Chaos is significantly slower than PhysX across many workloads, largely from less efficient SIMD
@@ -35,6 +33,11 @@ Internal stress tests show Chaos performing over 5x slower than PhysX in heavily
 The gap is not limited to rigid body simulation: it also affects physics queries, collision calculation and
 transform propagation, which means projects that make little or no explicit use of physics simulation still
 pay a measurable CPU cost.
+
+<img src="ChaosVsPhysX3000.png" alt="3000 simulated cubes, Unreal 5.7 Chaos at 33.26 FPS against Vite PhysX 3.4 at 157.88 FPS" border-effect="line"/>
+
+*3000 simulated cubes. Unreal 5.7 with Chaos (left) 33.26 FPS at a 30.07 ms frame; Vite with PhysX 3.4
+(right) 157.88 FPS at a 6.33 ms frame &mdash; a 4.7x difference in delivered frame rate.*
 
 The practical consequence is scale. The same CPU budget buys substantially more complex cloth simulation and
 destruction under PhysX. See [PhysX Overview](PhysX.md).
@@ -108,16 +111,11 @@ There is a large performance regression in the systems and materials handling vo
 in many other default engine shaders. The increased shader complexity compounds on top of the base material
 cost increases described above.
 
-<img src="https://github.com/user-attachments/assets/5147cb2c-fa33-4ef7-83e8-59833c5b9dd4" alt="Volumetric and fog cost comparison" width="2559" height="1386"/>
-
-<img src="https://github.com/user-attachments/assets/2d913d08-15ad-478d-bb04-371ebdd986da" alt="Engine shader cost comparison" width="2544" height="1156"/>
-
 ## Core class base costs
 
 Beyond any individual system, the base cost of core engine classes increased in both execution time and
-memory footprint, across both game and render logic.
-
-<img src="https://github.com/user-attachments/assets/bf6497f6-ed1b-48bb-b5ca-27a856da3842" alt="Core class base cost comparison" width="686" height="732"/>
+memory footprint, across both game and render logic. Per-class figures are in the
+[measurements spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing).
 
 ## Reading these numbers honestly
 
