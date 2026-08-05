@@ -2,8 +2,7 @@
 
 <tldr>
 <p>
-Vite targets Windows 64-bit on DirectX 12. Other platforms inherit stock 4.27 support but are not what the
-fork is built, tested or tuned for.
+Vite main target is Windows 64-bit on DirectX 12. Other platforms inherit 4.27 support.
 </p>
 </tldr>
 
@@ -13,28 +12,20 @@ across mobile and console would dilute that, so the fork does not try.
 
 ## Support levels
 
-| Platform | Level | Notes |
-|---|---|---|
-| Windows 64-bit | **Primary** | What everything is built and measured against |
-| Windows 32-bit | Support files only | Required by Win64 tooling; not a shipping target |
-| Linux | Inherited | Stock 4.27 support. Ray tracing suite untested. |
-| Mac | Inherited | Stock 4.27 support. No DXR, so the ray tracing suite does not apply. |
-| Android | Inherited | Stock 4.27 support. None of Vite's rendering additions apply. |
-| iOS / tvOS | Inherited | Stock 4.27 support |
-| HTML5 | Inherited | Stock 4.27 support, long deprecated upstream |
-| Consoles | Not addressed | Requires platform SDKs Vite does not and cannot ship |
+| Platform | Level | Notes                                                                  |
+|---|---|------------------------------------------------------------------------|
+| Windows 64-bit | **Primary** | What everything is built and measured against                          |
+| Windows 32-bit | Support files only | Required by Win64 tooling; not a shipping target                       |
+| Linux | Inherited | Stock 4.27 support. Ray tracing suite untested.                        |
+| Mac | Inherited | Stock 4.27 support. No DXR, so the ray tracing suite does not apply.   |
+| Android | Inherited | Stock 4.27 support.                                                    |
+| iOS / tvOS | Inherited | Stock 4.27 support                                                     |
+| HTML5 | Inherited | Stock 4.27 support, long deprecated upstream                           |
+| Consoles | Not addressed | Requires platform SDKs Vite cannot make console related changes public |
 
 "Inherited" means the stock 4.27 code is present and has not been deliberately broken, but Vite does not
 test it and the fork's rendering features are unavailable or unvalidated there.
 
-## Why Windows-first
-
-The [installed build configuration](Installed-Builds.md) is Win64-only. The
-[ViteSetup dependency profiles](ViteSetup.md) default to Win64 and exclude everything else. The
-[debloat suite](Debloat-Guide.md) strips non-Windows platform binaries by default.
-
-This is not an oversight. Downloading, building and shipping platform support you do not use costs disk,
-build time and integration effort on every merge from upstream. Vite trades breadth for depth.
 
 ## Enabling other platforms
 
@@ -98,9 +89,6 @@ whose [performance targets](Performance-Targets.md) do not leave budget for DXR.
 
 See [System Requirements](System-Requirements.md) for development and runtime hardware.
 
-The short version: ray tracing requires a DXR-capable GPU, and the ray tracing feature set is tuned against
-NVIDIA RTX hardware because that is where NvRTX originates. AMD and Intel DXR GPUs work but have not been
-tuned against. DLSS requires NVIDIA; FSR and XeSS are the cross-vendor alternatives.
 
 ## Packaging
 

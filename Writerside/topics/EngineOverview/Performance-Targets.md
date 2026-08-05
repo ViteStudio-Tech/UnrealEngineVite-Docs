@@ -14,19 +14,18 @@ every one of them is stated at native resolution rather than an upscaled interna
 
 ## The four targets
 
-| Target | Resolution and frame rate | Feature set | Intended for |
-|---|---|---|---|
-| **Stylised** | 4K, 120 FPS | RT DDGI | Competitive multiplayer titles |
-| **Performance, high end** | 4K, 60 FPS | DDGI + RT Reflections + Tessellation | Fidelity-focused titles that still need 60 |
-| **Fidelity, high end** | 4K, 30 FPS | As above, scaled for geometric density | Large open worlds |
-| **Fidelity, full RT** | 1440p, 30 FPS | DDGI + RT Reflections + RTAO + RT Shadows | Maximum image quality |
+| Target | Resolution and frame rate | Feature set | Intended for | Demonstraded in |
+|---|---|---|---|---|
+| **Stylised** | 4K, 120 FPS | RT DDGI | Competitive multiplayer titles | Stylized Demo |
+| **Performance, high end** | 4K, 60 FPS | DDGI + RT Reflections + Tessellation | Fidelity-focused titles that still need 60 | Unreal Tournament Vite Scene |
+| **Fidelity, high end** | 4K, 30 FPS | As above, scaled for geometric density | Large open worlds | Demo In Progress |
+| **Fidelity, full RT** | 1440p, 30 FPS | DDGI + RT Reflections + RTAO + RT Shadows | Maximum image quality | NVIDIA Demos |
 
 The reference hardware for all four is PlayStation 5 class, which on desktop means roughly an RDNA2
-RX 6700. The Stylised target is demonstrated by the [Stylized Raytracing Demo](Stylized-Raytracing-Demo.md);
-the Performance target by the Unreal Tournament Vite demo.
+RX 6700/RTX 2080
 
 Real-time path tracing is also available in the codebase, using the NVIDIA path tracing technology featured
-in Black Myth: Wukong. It is not one of the shipping targets &mdash; see [Path Tracing](Path-Tracing.md).
+in Black Myth: Wukong. &mdash; see [Path Tracing](Path-Tracing.md).
 
 ## The comparison being made
 

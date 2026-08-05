@@ -2,7 +2,7 @@
 
 <tldr>
 <p>
-Unreal Engine Vite is a performance-first fork of Unreal Engine 4.27 built on the NvRTX Caustics branch.
+Unreal Engine Vite is a performance-first fork of Unreal Engine 4.27 built from the NvRTX and Plus branches.
 It keeps PhysX, adds DDGI, RTXDI, tessellation, SMAA and HBAO+, and targets native-resolution,
 high-frame-rate rendering on console-class hardware.
 </p>
@@ -16,7 +16,7 @@ Welcome to the Unreal Engine Vite manual. This site documents the engine fork it
 what it changes relative to stock Unreal Engine 4.27, which rendering and physics systems it adds, and
 how to get a project shipping on it.
 
-Vite is aimed at teams in active production. It is not a research branch or a demo. Every feature
+Vite is aimed at teams in active production. It is not a research branch or a Tech demonstration. Every feature
 documented here is expected to survive cooking, packaging and shipping on real hardware, and the
 manual is written with that assumption throughout.
 

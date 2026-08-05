@@ -2,8 +2,8 @@
 
 <tldr>
 <p>
-Vite is Unreal Engine 4.27.2 (<code>++UE4+Release-4.27</code>) forked from NvRTX 4.27 Caustics, with UE 4.27
-Plus, NvRTX 5.0 and AMD branch features merged in, plus 300+ hand-adapted backports from UE 5.0&ndash;5.8.
+Vite is Unreal Engine 4.27.2 (<code>++UE4+Release-4.27</code>) forked from NvRTX 4.27 Caustics merged fully with UE 4.27
+Plus, NvRTX 5.0 and AMD branch features merged in, plus 300+ backports from UE 5.0&ndash;5.8.
 </p>
 </tldr>
 
@@ -15,15 +15,15 @@ If you just want to get the engine running, go to [Getting Started](Getting-Star
 
 ## Base version
 
-| Property | Value |
-|---|---|
-| Engine version | 4.27.2 |
-| Branch name | `++UE4+Release-4.27` |
-| Upstream base | NvRTX 4.27 Caustics |
-| Merged branches | UE 4.27 Plus, NvRTX 5.0, AMD GPUOpen engine branches |
-| UE5 backports | 300+ in release, 1,200+ in internal staging |
-| Physics backend | PhysX 3.4 |
-| Renderer | Deferred, SM5, agnostic DXR ray tracing pipeline |
+| Property           | Value                                                |
+|--------------------|------------------------------------------------------|
+| Engine version     | 4.27.2                                               |
+| Branch name        | `++UE4+Release-4.27`                                 |
+| Upstream base      | NvRTX 4.27 Caustics                                  |
+| Merged branches    | UE 4.27 Plus, NvRTX 5.0, AMD GPUOpen engine branches |
+| UE5 backports      | 300+ in release, 1,000+ in internal staging          |
+| Physics backend    | Vite PhysX 3.4                                       |
+| Main Path Renderer | Deferred, SM6.3, agnostic DXR Ray Tracing pipeline   |
 
 ## Section contents
 
@@ -53,7 +53,7 @@ because they explain choices that otherwise look conservative.
 
 **Battle-tested technology over in-house technology.** Where Epic built a new system for UE5, Vite prefers
 the industry-standard solution that already shipped in AAA titles: PhysX rather than Chaos, DDGI rather than
-Lumen, TressFX rather than Groom, SMAA rather than TSR. These are not nostalgic choices; they are choices
+Lumen, TressFX rather than Groom. These are not nostalgic choices; they are choices
 about which code has been through the most shipped games.
 
 **Native resolution over reconstruction.** Vite's performance targets are stated at native 4K and native

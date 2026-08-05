@@ -117,17 +117,8 @@ Beyond any individual system, the base cost of core engine classes increased in 
 memory footprint, across both game and render logic. Per-class figures are in the
 [measurements spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing).
 
-## Reading these numbers honestly
-
-A few caveats worth stating, because they affect how you should use this page.
-
-These are comparisons of engine baselines and specific benchmark scenes, not of shipped games. A UE5 title
-that avoids Nanite and VSM and uses a conservative material setup will not exhibit the full gap. Conversely,
-a Vite project that enables the entire ray tracing suite on a low-end GPU will not hit the numbers in
-[Performance Targets](Performance-Targets.md) either.
-
-The argument Vite makes is about *where the baseline sits* &mdash; what you pay before you have built
-anything. A lower baseline leaves more of the frame for the game.
+Size Of Class Sheet Report Among Engine Versions
+https://docs.google.com/spreadsheets/d/1qfS04ke1cVGDGBFVLoAjeqE4IzW5QVJ-JAbvFbUw_SY/edit?usp=sharing
 
 ## See also
 

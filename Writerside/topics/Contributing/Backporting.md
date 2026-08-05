@@ -2,23 +2,20 @@
 
 <tldr>
 <p>
-Most of what makes Vite distinctive is backported: UE5 features, NvRTX branches, vendor SDKs and
-third-party plugins brought back to 4.27. This page covers how to do it in a way that survives review and
-future merges.
+Vite July Release has currently over 250 backports from UE5.0 to UE 5.8 
 </p>
 </tldr>
 
-Vite is a 4.27 fork that keeps pace with technology developed for newer engines. That means backporting is
-a routine activity rather than an exceptional one.
+Vite is a NvRTX 4.27 Plus fork that keeps pace with technology developed for newer engines. That means backporting is
+a routine activity in order to upgrade the source.
 
 ## What has been backported
 
-| Source | Examples |
-|---|---|
-| NvRTX 4.27 Caustics and NvRTX 5.0 | The [ray tracing suite](Ray-Tracing.md), caustics, RTXDI, path tracing |
-| UE5 | [Kawaii Physics](Bundled-Plugins.md), various renderer fixes |
-| Vendor SDKs | [DLSS 4.5, FSR 4, XeSS 3.0.5, Streamline](Upscalers.md), TressFX 5.0, Blast |
-| Third-party plugins | ACL, Motion Symphony, PhysX Instanced Subsystem |
+| Source | Examples                                                                                                                              |
+|---|---------------------------------------------------------------------------------------------------------------------------------------|
+| UE5 | Non Trivial Rendering Optimizations, comprehensive CPU Optimizations, Plugins, QoL improvements, Animation features, Third Party Libs |
+| Vendor SDKs | [DLSS 4.5, FSR 4, XeSS 3.0.5, Streamline](Upscalers.md), TressFX 5.0, Blast                                                           |
+| Third-party plugins | ACL, Motion Symphony, [Kawaii Physics](Bundled-Plugins.md)                                                                            |
 
 ## Before you backport
 
@@ -41,8 +38,7 @@ a routine activity rather than an exceptional one.
     </step>
     <step>
         <b>Check whether it is worth it.</b> A UE5 feature that exists to solve a UE5 problem may have no
-        value in Vite. Nanite exists because UE5's triangle throughput assumptions differ; 4.27's LOD
-        pipeline is not a problem needing that solution.
+        value in Vite. Focus on optimizations, Third Party Lib Updates, Plugin updates,SDK updates and fixes. 
     </step>
 </procedure>
 

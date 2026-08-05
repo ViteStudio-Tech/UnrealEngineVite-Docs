@@ -9,7 +9,7 @@ behaviour behind a guard in <code>CoreDefines.h</code>.
 </tldr>
 
 These rules are stricter than stock Unreal's own coding standard. They exist because Vite's value
-proposition is predictable performance on modest hardware, and because a fork that breaks binary
+proposition is predictable performance on Console Class hardware, and because a fork that breaks binary
 compatibility with its own shaders is unusable.
 
 ## Core principles
@@ -53,7 +53,8 @@ calling through them repeatedly.
 ### Kismet / Blueprint API additions
 
 No new `BlueprintCallable` or `BlueprintPure` functions without explicit approval. Every Blueprint-exposed
-function adds reflection metadata, binary size and a call path that is slower than native C++.
+function adds reflection metadata, binary size and a call path that is slower than native C++. At the same type 
+the Blueprint Nativization system needs to remain stable.
 
 ### Template-heavy patterns
 
