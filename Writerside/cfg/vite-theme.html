@@ -68,14 +68,34 @@
     }
 
     .wh-header__download {
+        display: inline-flex !important;
         min-height: 44px;
         padding-right: 22px !important;
-        padding-left: 22px !important;
+        padding-left: 18px !important;
         border-color: var(--vite-cyan) !important;
         border-radius: 2px !important;
         color: #fff !important;
         background: var(--vite-cyan) !important;
         font-weight: 700 !important;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Keep the stock download arrow even though the label is "Community". */
+    .wh-header__download::before {
+        content: "";
+        display: block;
+        width: 16px;
+        height: 16px;
+        flex: 0 0 16px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none'%3E%3Cpath stroke='%23ffffff' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round' d='M8 2v7.5M8 9.5 4.8 6.3M8 9.5l3.2-3.2M3.2 13.2h9.6'/%3E%3C/svg%3E") center / 16px 16px no-repeat;
+    }
+
+    /* Prefer the explicit arrow above if Writerside also injects its own glyph. */
+    .wh-header__download > svg,
+    .wh-header__download > .icon,
+    .wh-header__download > [class*="icon"] {
+        display: none !important;
     }
 
     .wh-header__download:hover,
