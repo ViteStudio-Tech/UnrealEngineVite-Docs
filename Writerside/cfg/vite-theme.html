@@ -1,4 +1,12 @@
 <style>
+    @font-face {
+        font-family: "Vite Vector";
+        src: url("ViteVector-Regular.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 300 400;
+        font-display: swap;
+    }
+
     :root {
         --app-header: #000;
         --wh-header-height-lg: 64px;
@@ -27,8 +35,13 @@
         font-family: Inter, "Segoe UI", Arial, sans-serif;
     }
 
-    .wh-header__product-name {
-        letter-spacing: .035em;
+    .wh-header__product-name,
+    .wh-header__product-name a {
+        font-family: "Vite Vector", "Segoe UI", Arial, sans-serif !important;
+        font-size: 20px;
+        font-weight: 300 !important;
+        letter-spacing: .055em;
+        line-height: 1;
         text-transform: uppercase;
     }
 
