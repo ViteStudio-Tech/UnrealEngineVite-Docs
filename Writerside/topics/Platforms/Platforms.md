@@ -7,8 +7,7 @@ Vite main target is Windows 64-bit on DirectX 12. Other platforms inherit 4.27 s
 </tldr>
 
 Vite is a focused fork. The features that distinguish it &mdash; the NvRTX ray tracing suite, DDGI, RTXDI,
-DLSS and its alternatives, HBAO+, hardware tessellation &mdash; are desktop GPU features. Spreading effort
-across mobile and console would dilute that, so the fork does not try.
+DLSS and its alternatives, HBAO+, hardware tessellation &mdash; are Deferred Path GPU features. Mean mainly for Desktop and 9th Gen Consoles
 
 ## Support levels
 
@@ -18,8 +17,8 @@ across mobile and console would dilute that, so the fork does not try.
 | Windows 32-bit | Support files only | Required by Win64 tooling; not a shipping target                       |
 | Linux | Inherited | Stock 4.27 support. Ray tracing suite untested.                        |
 | Mac | Inherited | Stock 4.27 support. No DXR, so the ray tracing suite does not apply.   |
-| Android | Inherited | Stock 4.27 support.                                                    |
-| iOS / tvOS | Inherited | Stock 4.27 support                                                     |
+| Android | Inherited | Inherits Vite updates to Forward Path.                                 |
+| iOS / tvOS | Inherited | Inherits Vite updates to Forward Path.                                 |
 | HTML5 | Inherited | Stock 4.27 support, long deprecated upstream                           |
 | Consoles | Not addressed | Requires platform SDKs Vite cannot make console related changes public |
 
