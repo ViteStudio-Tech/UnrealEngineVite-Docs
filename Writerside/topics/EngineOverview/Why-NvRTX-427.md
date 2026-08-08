@@ -66,23 +66,24 @@ effort, and meant the ray tracing features were already validated against shippe
 
 Vite is not frozen at its base. The following are fully merged:
 
-| Source | What it contributes |
-|---|---|
-| Epic UE 4.27 Plus | Ongoing community and studio fixes to 4.27, plus the last toolchain compliance updates |
-| NvRTX 5.0 | Further NVIDIA rendering work backported down |
-| AMD GPUOpen engine branches | FSR, AMD-specific rendering optimisations relevant to console GPUs |
-| UE 5.0&ndash;5.8 | 300+ individually adapted backports in release; 1,200+ in internal staging |
+| Source | What it contributes                                                                   |
+|---|---------------------------------------------------------------------------------------|
+| Epic UE 4.27 Plus | Ongoing EpicGames fixes & updates to 4.27, plus the last toolchain compliance updates |
+| NvRTX 5.0 | Further NVIDIA rendering work backported down                                         |
+| AMD GPUOpen engine branches | FSR, AMD-specific rendering optimisations highly relevant to console GPUs             |
+| UE 5.0&ndash;5.8 | 300+ backports in release; 1,000+ at internal staging                                 |
 
-Backports are not blind cherry-picks. Each one is manually adapted to the Vite codebase with appropriate
-code guards and managed shader permutations, by engineers with existing Unreal source experience. The
+Backports are generally not straight cherry-picks. They are adapted properly to Vite codebase, 
+by engineers with several years of experience with Unreal Engine private forks. 
 [Backporting Workflow](Backporting.md) page documents the process.
 
 ## The counter-argument, and the answer
 
 The obvious objection is that Unreal Engine 4 is a dead codebase. In practice it is not. Recent and upcoming
-AAA releases on UE4 include Final Fantasy VII Rebirth (4.26, 2024), Stellar Blade (4.26, 2024),
+AAA releases on UE4 include Stellar Blade (4.26, 2024),
 Days Gone Remastered (4.11, 2025), Delta Force (4.22, 2026), Mortal Kombat 1 (4.27, 2023),
-Mario &amp; Luigi: Brothership (4.26, 2024), Princess Peach: Showtime! (4.26, 2024), Pikmin 4 (4.26, 2023),
+Mario &amp; Luigi: Brothership (4.26, 2024), Princess Peach: Showtime! (4.26, 2024), Pikmin 4 (4.26, 2023), 
+and Square Enix's Final Fantasy VII Rebirth (4.26, 2024)
 Dragon Quest VII Reimagined (4.27, 2026) and Final Fantasy VII: Revelation (4.27, 2027).
 
 All of them ship PhysX. These teams stayed on UE4 to retain specific features and hit fidelity and

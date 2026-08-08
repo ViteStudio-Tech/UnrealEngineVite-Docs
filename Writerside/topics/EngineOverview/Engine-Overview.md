@@ -18,12 +18,12 @@ If you just want to get the engine running, go to [Getting Started](Getting-Star
 | Property           | Value                                                |
 |--------------------|------------------------------------------------------|
 | Engine version     | 4.27.2                                               |
-| Branch name        | `++UE4+Release-4.27`                                 |
+| Repo name          | `UnrealEngineVite-PhysX`                             |
 | Upstream base      | NvRTX 4.27 Caustics                                  |
 | Merged branches    | UE 4.27 Plus, NvRTX 5.0, AMD GPUOpen engine branches |
 | UE5 backports      | 300+ in release, 1,000+ in internal staging          |
-| Physics backend    | Vite PhysX 3.4                                       |
-| Main Path Renderer | Deferred, SM6.3, agnostic DXR Ray Tracing pipeline   |
+| Physics backend    | Vite PhysX                                           |
+| Main Path Renderer | Deferred, agnostic DXR Ray Tracing pipeline          |
 
 ## Section contents
 
@@ -52,9 +52,9 @@ Three commitments shape almost every decision in the codebase, and they are wort
 because they explain choices that otherwise look conservative.
 
 **Battle-tested technology over in-house technology.** Where Epic built a new system for UE5, Vite prefers
-the industry-standard solution that already shipped in AAA titles: PhysX rather than Chaos, DDGI rather than
-Lumen, TressFX rather than Groom. These are not nostalgic choices; they are choices
-about which code has been through the most shipped games.
+the industry-standard solutions that are widely shipped in AAA titles: PhysX rather than Chaos, DDGI rather than
+Lumen, HW Tessellation rather than Nanite, TressFX rather than Groom. These are not nostalgic choices; they are choices
+about which solutions has been through the most shipped games.
 
 **Native resolution over reconstruction.** Vite's performance targets are stated at native 4K and native
 1440p. Upscalers are supported and integrated, but they are treated as a way to go faster than the target,

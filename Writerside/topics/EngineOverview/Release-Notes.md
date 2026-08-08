@@ -85,6 +85,7 @@ Work-in-progress changes belong on a branch, not on release. See
 ## In progress
 
 - Flat UI redesign, closer to UE5's visual language.
+- Integration of Multi-Threaded FLECS ECS library with Unreal Actors interaction.
 - Full C++20 support.
 - Further UE5 backport integration &mdash; roughly 1,000 backports pending promotion to release.
 - Rendering features: improved mesh handling, GI, shading models, ambient occlusion and specular aliasing
@@ -104,7 +105,7 @@ Work-in-progress changes belong on a branch, not on release. See
 
 - [AMD Single Pass Downsampler](https://github.com/GPUOpenSoftware/UnrealEngine/tree/FidelityFXSPD-4.26/UnrealEngine).
 - Improved SSGI.
-- Integration of an established ECS library.
+- Bespoke Level Editor
 
 ## Tracking
 

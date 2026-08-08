@@ -31,22 +31,6 @@ Non-essential or high-level tooling, typically Blueprint extensions. Projects ad
 </def>
 </deflist>
 
-## Pending integration
-
-### FSR 4 and AntiLag 2
-
-Both are now present in `Engine\Plugins\Runtime\VitePlugins` (FSR 4.1.1, AntiLag 2.0.4) and covered in
-[Upscalers](Upscalers.md). Remaining work is validation and documentation of the AMD path against the
-NVIDIA path.
-
-[FidelityFX Super Resolution 4](https://gpuopen.com/fidelityfx-super-resolution-4/) ·
-[AntiLag 2](https://gpuopen.com/anti-lag-2/)
-
-### Blast (PhysX 3)
-
-Present as `GameWorks\Blast` (runtime) and `Experimental\BlastPlugin` (authoring). See
-[Destruction and Cloth](Destruction-And-Cloth.md).
-
 ## Staple plugins
 
 ### PhysX Instanced Subsystem &mdash; integrated, free
