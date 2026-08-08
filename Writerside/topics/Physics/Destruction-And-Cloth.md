@@ -62,6 +62,9 @@ Practical notes:
 
 Blast is NVIDIA's successor to Apex Destruction, and the more capable of the two fracture systems.
 
+[Official Blast Plugin Documentation](https://archive.docs.nvidia.com/gameworks/content/gameworkslibrary/blast/1.1/authoring_docs/BlastUe4_QuickStart.html) 
+
+
 | Detail | |
 |---|---|
 | Plugin | `Engine/Plugins/GameWorks/Blast` (version 1.0) |

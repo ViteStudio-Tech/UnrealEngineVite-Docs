@@ -2,8 +2,8 @@
 
 <tldr>
 <p>
-Vite includes NVIDIA's path tracing technology, the same rendering stack featured in Black Myth: Wukong.
-Use it for reference imagery, lighting validation, previsualisation and marketing captures &mdash; not as a
+Vite includes NVIDIA's path tracing technology, related to the rendering stack featured in Black Myth: Wukong.
+The Editor Pathtracer is used for reference imagery, lighting validation, previsualisation and marketing captures &mdash; not as a
 runtime target.
 </p>
 <p>
@@ -33,10 +33,9 @@ before checking how the real-time path approximates it.
 
 ## What it is not for
 
-Path tracing is not a shipping runtime configuration in Vite, and it is not one of the
+Path tracing is not a main shipping runtime configuration in Vite, and it is not one of the
 [performance targets](Performance-Targets.md). Convergence takes many frames; a camera cut restarts
-accumulation from scratch. Interactive path tracing with denoising exists, but it reintroduces exactly the
-noise, ghosting and temporal instability that Vite's whole rendering argument is built on avoiding.
+accumulation from scratch. *The Editor Path tracer path setup is not the same as what can be shipped for runtime title. 
 
 Black Myth: Wukong shipped a path tracing mode, and it is instructive: it is offered as a high-end PC option
 with upscaling and frame generation, not as the console rendering path.
