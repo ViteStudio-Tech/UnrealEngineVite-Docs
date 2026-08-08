@@ -77,9 +77,13 @@ larger difference. Any percentage must be attached to a named workload, platform
 ## Box Container Pile 10K benchmark
 
 The supplied reports measure a deliberately physics-bound pile containing **10,005 active rigid bodies and
-10,005 shapes**. Rendering is removed, sleeping is disabled and both runs use four solver iterations, a
+10,005 shapes**. Rendering is removed(except for Chaos), sleeping is disabled and both runs use four solver iterations, a
 60 Hz simulation step, 30 warm-up steps and 300 measured steps. The metric is median physics milliseconds
-per frame; lower is better.
+per frame; lower is better. 
+
+<note>
+This is purely a performance test; simulation precision and SDK features should be evaluated separately.
+</note>
 
 | Test property | Reported configuration |
 |---|---|
@@ -102,6 +106,10 @@ per frame; lower is better.
 | 4 | 951.36 ms | 18.94 ms | 14.17 ms | **67.14×** | **1.34×** |
 | 5 | 857.89 ms | 17.09 ms | 12.47 ms | **68.80×** | **1.37×** |
 | 6 | 791.97 ms | 15.82 ms | 11.76 ms | **67.34×** | **1.35×** |
+
+<note>
+Chaos had to be benched through Win64, not Headless as the rest of the SDKs.
+</note>
 
 Vite PhysX improves from 35.60 ms at one reported thread to 11.76 ms at six, a **3.03× throughput
 increase**. NVIDIA PhysX 3.4 improves from 49.61 ms to 15.82 ms, a **3.14× increase**, while Chaos improves
@@ -172,6 +180,7 @@ not physics-solver milliseconds in isolation.
 | Frame time | 30.07 ms | 6.33 ms | **78.9% lower** |
 | Game time | 30.01 ms | 6.11 ms | **79.6% lower** |
 
+
 The captured Chaos game time is **4.91×** the Vite PhysX game time, while its frame time is **4.75×** the
 Vite PhysX frame time. Game time accounts for almost the complete frame in both captures, so the result is
 CPU-side rather than a GPU-limited comparison.
@@ -180,11 +189,6 @@ CPU-side rather than a GPU-limited comparison.
 
 *In-engine 3,000-cube capture. Both sides report 3,016 rendered primitives.*
 
-<note>
-This is a point-in-time in-engine capture, not a multi-run statistical report. The image does not record the
-host, compiler settings, warm-up policy or sample distribution. Use the values as the <b>reported Vite PhysX
-Cube Test result</b> and reproduce the project on the target hardware before using it for a production budget.
-</note>
 
 ### 1,425 native PhysX actors
 
