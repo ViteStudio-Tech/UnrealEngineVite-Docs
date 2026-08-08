@@ -2,103 +2,161 @@
 
 <tldr>
 <p>
-Vite uses NVIDIA PhysX as its physics backend, not Chaos. This is a deliberate performance decision, and it
-is the reason Apex Destruction and Apex Cloth still work.
+Vite integrates <b>NVIDIA PhysX 3.4</b> for rigid-body simulation, collision queries, constraints,
+vehicles and skeletal physics. Vite extends the backend with modern compiler support, fixed-timestep
+simulation, NVIDIA Blast and a high-count instanced physics subsystem.
 </p>
 </tldr>
 
-PhysX is the physics engine Unreal Engine used from UE3 through UE4.27. Unreal Engine 5 replaced it with
-Chaos. Vite stays on PhysX.
+PhysX is exposed through Unreal Engine's standard physics framework. Existing engine types such as body
+instances, physical materials, physics assets, collision profiles and constraint components use the PhysX
+scene underneath.
 
-## The decision
+## Core simulation features
 
-Chaos was built to solve problems PhysX did not: large-scale fracture with the Chaos Destruction system,
-deterministic networked physics, and a physics solver Epic owns outright rather than licenses. Those are
-real engineering goals and Chaos is a serious piece of work.
+### Rigid bodies
 
-They are not, however, goals that improve frame time for a typical game. For the workloads most projects
-actually run, the Chaos solver does the same job as PhysX for more CPU time. Vite's
-[cost analysis](UE4-Versus-UE5-Cost-Analysis.md) documents the measurements.
+- static, dynamic and kinematic actors;
+- box, sphere, capsule, convex and triangle-mesh collision geometry;
+- physical materials with friction, restitution and density;
+- gravity, damping, forces, impulses and torque;
+- sleeping, waking and active-body tracking;
+- continuous collision detection for fast-moving bodies;
+- collision filtering and simulation/query shape flags;
+- contact, overlap and wake/sleep notifications.
 
-Since Vite's entire premise is hitting high frame rates at native resolution on console-class hardware, and
-since physics runs on the game thread where Vite is already fighting for budget, the cheaper solver wins.
+### Scene queries
 
-<img src="ChaosVsPhysX3000.png" alt="3000 simulated cubes side by side, Unreal 5.7 Chaos at 33.26 FPS against Vite PhysX 3.4 at 157.88 FPS" border-effect="line"/>
+PhysX provides the collision-query path used throughout the engine:
 
-*3000 simulated cubes, same scene, same hardware. Unreal 5.7 with Chaos (left) 33.26 FPS at a 30.07 ms
-frame; Vite with PhysX 3.4 (right) 157.88 FPS at a 6.33 ms frame. Game thread time is 30.01 ms against
-6.03 ms &mdash; the gap is almost entirely solver cost.*
+- raycasts;
+- shape sweeps;
+- overlaps;
+- single-hit and multi-hit queries;
+- object-channel, trace-channel and profile filtering;
+- synchronous scene queries used by movement, weapons, navigation and gameplay systems.
 
-At a lower body count the ratio narrows but does not close: the
-[Physics Cube Bench](Physics-Cube-Bench.md) measures 75.45 FPS against 148.44 FPS at 1400 cubes.
+Query cost depends on collision complexity, broad-phase population, filter callbacks and result count. Use
+simple collision for repeated gameplay queries and avoid requesting multi-hit results when only the first
+blocking hit is needed.
 
-## What you get by staying on PhysX
+### Constraints
 
-**Apex Destruction and Apex Cloth.** Both are PhysX-era NVIDIA systems. UE5 deprecated and then removed
-them; there is no migration path for existing destructible mesh or APEX clothing assets. In Vite they
-continue to work. See [Destruction and Cloth](Destruction-And-Cloth.md).
+The integration supports fixed, distance, hinge, spherical and D6-style constraints through Unreal's
+constraint framework. Available controls include:
 
-**Stable behaviour.** PhysX simulation behaviour in Vite is what 4.27 shipped. Content tuned against it
-stays tuned. Chaos changed behaviour meaningfully across UE5 point releases, and projects that shipped
-content tuned against one version found it behaving differently in the next.
+- linear and angular limits;
+- motors and drives;
+- break force and break torque;
+- constraint projection;
+- collision enablement between constrained bodies;
+- mass and inertia scaling;
+- skeletal constraint chains authored in Physics Assets.
 
-**Mature tooling.** The PhysX Visual Debugger works. Physics asset tooling, constraint setup and collision
-authoring are the workflows the entire 4.27 ecosystem was built around.
+### Character and skeletal physics
 
-**A large body of existing solutions.** Fifteen years of accumulated knowledge about PhysX behaviour in
-Unreal &mdash; how to stop ragdolls exploding, how to tune vehicle suspension, which constraint
-configurations are stable &mdash; applies directly.
+PhysX supplies collision queries for Character Movement and rigid-body simulation for Physics Assets. This
+includes ragdolls, physical animation, hit reactions, body welding and per-body collision configuration.
 
-## What you give up
+### Vehicles
 
-Being straightforward about the trade:
+Vite retains the UE4.27 PhysX vehicle stack, including wheel simulation, suspension, tire friction, engine,
+gearing, differential and drivetrain configuration. Vehicle behavior is authored through the standard
+vehicle and tire data assets used by UE4 projects.
 
-- **Chaos Destruction's geometry collections and fields.** Vite offers [Blast](Destruction-And-Cloth.md)
-  instead, which is a different system with different authoring, not a drop-in equivalent.
-- **Chaos Vehicles.** Vite has the 4.27 PhysX vehicle system.
-- **Chaos Cloth.** Vite has Apex Cloth and the 4.27 clothing tools.
-- **Networked physics determinism as a first-class feature.** Vite's answer is
-  [fixed timestep simulation](Fixed-Timestep.md), which is an optional compile-time feature rather than a
-  built-in architectural property.
+## Destruction, cloth and Blast
+
+The Vite physics stack includes the following NVIDIA systems:
+
+| Feature | Function |
+|---|---|
+| APEX Destruction | Authored destructible meshes, support chunks, damage and fracture events |
+| APEX Cloth | Vertex-painted cloth constraints and skeletal-mesh clothing simulation |
+| NVIDIA Blast | Destruction assets and fracture workflows integrated alongside the PhysX backend |
+
+See [Destruction and Cloth](Destruction-And-Cloth.md) for authoring and runtime guidance.
+
+## Vite extensions
+
+### Modern toolchain support
+
+Vite's PhysX libraries and build files have been updated for newer MSVC and Clang toolchains, including the
+Android NDK Clang path used by current Vite builds. Toolchain changes are validated with the physics test and
+stress workloads before release.
+
+### Fixed-timestep simulation
+
+The optional fixed-timestep path decouples the simulation cadence from variable render frames and adds render
+interpolation. It is intended for projects that require a stable simulation delta or reproducible captures.
+See [Fixed Timestep](Fixed-Timestep.md) for compile-time setup and integration requirements.
+
+### Instanced physics subsystem
+
+The instanced subsystem represents large homogeneous rigid-body sets through instanced meshes instead of one
+Actor and component hierarchy per body. It is intended for debris, shells, environmental objects and other
+high-count simulations. See [Instanced Physics Subsystem](Instanced-Physics.md).
+
+### Native actor path
+
+Engine-level systems that already own compact simulation state can operate closer to native PhysX actors and
+avoid unnecessary high-level Actor/component work. This is a specialized integration path: ownership,
+lifetime, transform synchronization, collision filtering and teardown remain the caller's responsibility.
 
 ## Configuration
 
-Physics settings live under **Project Settings > Engine > Physics**. The settings that matter most:
+Physics settings are under **Project Settings > Engine > Physics**.
 
-| Setting | Notes |
+| Setting | Function |
 |---|---|
-| Default Gravity Z | `-980.0` for the standard 1 uu = 1 cm scale |
-| Substepping | Off by default. Enable for stability with fast bodies or complex constraints. |
-| Max Substep Delta Time | Smallest timestep the substepper will use |
-| Max Substeps | Upper bound on substeps per frame. Prevents a slow frame becoming a death spiral. |
-| Simulate Skeletal Mesh on Dedicated Server | Usually off. Skeletal physics on the server is expensive and rarely needed. |
-| Default Degrees Of Freedom | Constrain to a plane for 2D or 2.5D games |
+| Default Gravity Z | World gravity; `-980.0` corresponds to 1 uu = 1 cm |
+| Substepping | Divides a long frame into smaller simulation steps |
+| Max Substep Delta Time | Maximum delta processed by one substep |
+| Max Substeps | Upper bound on simulation steps performed for one frame |
+| Simulate Skeletal Mesh on Dedicated Server | Enables skeletal rigid-body simulation on server targets |
+| Default Degrees Of Freedom | Constrains motion for planar or limited-axis games |
 
-Substepping deserves attention. Without it, physics steps once per frame with the frame's delta time, so
-simulation quality varies with frame rate &mdash; a body that behaves correctly at 120&nbsp;fps may tunnel
-through geometry at 30. Substepping fixes this at a CPU cost proportional to the number of substeps.
+### Substepping
 
-For projects that need this to be exact rather than merely better, see
-[Fixed Timestep](Fixed-Timestep.md).
+Without substepping, the physics scene advances with the frame delta. Large or variable deltas can reduce
+contact and constraint stability. Substepping performs multiple smaller advances when required; its CPU cost
+increases with the number of executed substeps.
 
-## Profiling physics
+Choose `Max Substep Delta Time` from the fastest interaction that must remain stable, then set `Max Substeps`
+to cap worst-case work. A cap prevents a slow frame from creating an unbounded simulation backlog.
+
+For a fixed simulation cadence rather than frame-triggered substeps, use the
+[fixed-timestep path](Fixed-Timestep.md).
+
+## PhysX Visual Debugger
+
+PhysX Visual Debugger can inspect a connected scene, including actors, shapes, contacts, constraints and
+simulation state. Use a development build with PVD support, connect before reproducing the issue, and limit
+capture duration when the scene contains many bodies.
+
+Viewport collision visualization remains useful for confirming authored geometry and filtering before a
+full PVD capture.
+
+## Profiling
 
 | Command | Shows |
 |---|---|
-| `stat physics` | Overall physics time, broken down by phase |
-| `stat game` | Physics time in the context of total game thread time |
-| `p.NumPhysScenes` | Scene count |
+| `stat physics` | Physics timing divided by engine phase |
+| `stat game` | Physics cost in the context of game-thread work |
+| `p.NumPhysScenes` | Number of active physics scenes |
 | `show Collision` | Collision geometry in the viewport |
 
-The number to watch is physics time as a fraction of game thread time. Physics runs on the game thread, and
-[the game thread is where UE4-era engines usually bottleneck first](UE4-Versus-UE5-Cost-Analysis.md). If
-physics is consuming a large share of a 16.6&nbsp;ms budget, the fix is usually reducing simulated body
-count or moving debris to the [instanced subsystem](Instanced-Physics.md), not tuning solver iterations.
+Profile with representative collision geometry, body counts, sleeping behavior and event generation. Record
+physics milliseconds, body/shape counts, active-body count, solver settings, substeps and worker configuration
+with every comparison.
+
+For high body counts, compare standard Actor-based simulation with the
+[instanced subsystem](Instanced-Physics.md) using the same shapes and solver settings.
 
 ## See also
 
+- [Physics](Physics.md)
 - [Fixed Timestep](Fixed-Timestep.md)
 - [Destruction and Cloth](Destruction-And-Cloth.md)
 - [Instanced Physics Subsystem](Instanced-Physics.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
 - [Physics Cube Bench](Physics-Cube-Bench.md)
+- [PhysX Test](PhysXTest.md)

@@ -2,77 +2,189 @@
 
 <tldr>
 <p>
-Vite keeps <b>PhysX</b> as its physics backend rather than migrating to Chaos. It also retains
-Apex Destruction and Apex Cloth, adds NVIDIA Blast, and ships an instanced physics subsystem for
-mass rigid-body simulation.
+Vite's physics stack uses <b>PhysX 3.4</b>, with Vite extensions for fixed-timestep simulation,
+modern toolchains, NVIDIA Blast and high-count instanced rigid bodies. This page describes the physics
+architecture and its measured CPU behavior; the <a href="PhysX.md">PhysX page</a> documents backend features.
 </p>
 </tldr>
 
-Physics is the clearest example of Vite's general argument: the older system is faster, more predictable and
-better supported by existing content, so Vite keeps it.
+Vite treats physics as a frame-time-critical engine system. Simulation cost includes more than the solver:
+broad phase, contact generation, island construction, constraint preparation, iterative solving, integration,
+callbacks and synchronization with engine state all contribute to the final physics time.
 
 ## What is in this section
 
 | Topic | Covers |
 |---|---|
-| [PhysX](PhysX.md) | Why PhysX rather than Chaos, and what that means for your project |
-| [Fixed Timestep](Fixed-Timestep.md) | Deterministic fixed-step simulation with render interpolation |
-| [Destruction and Cloth](Destruction-And-Cloth.md) | Apex Destruction, Apex Cloth and NVIDIA Blast |
-| [Instanced Physics Subsystem](Instanced-Physics.md) | Simulating thousands of rigid bodies through ISM components |
+| [PhysX](PhysX.md) | PhysX 3.4 features, Vite extensions, configuration and profiling |
+| [Fixed Timestep](Fixed-Timestep.md) | Fixed-step simulation with render interpolation |
+| [Destruction and Cloth](Destruction-And-Cloth.md) | APEX Destruction, APEX Cloth and NVIDIA Blast |
+| [Instanced Physics Subsystem](Instanced-Physics.md) | Simulating large rigid-body sets through instanced meshes |
 
-## The short version
+## Physics CPU architecture
 
-Unreal Engine 5 replaced PhysX with Chaos. Chaos is architecturally more ambitious &mdash; it is built for
-large-scale destruction, networked physics and deterministic replay. It is also, at the workloads most games
-actually run, slower than the PhysX implementation it replaced.
+### Threading and the critical path
 
-Vite's [cost analysis](UE4-Versus-UE5-Cost-Analysis.md) covers the measurements. The summary is that for the
-common case &mdash; a few hundred rigid bodies, character movement, some ragdolls, some vehicles &mdash;
-PhysX does the work in less time.
+PhysX and Chaos both support multithreaded simulation. Chaos can execute through the Task Graph, use a
+dedicated physics thread and parallelize selected particle, collision and island work. A dedicated thread
+moves work away from the game thread, but it does not by itself reduce the time between starting and
+finishing a simulation step.
 
-Beyond raw performance, keeping PhysX means:
+Physics contains ordered phases and data dependencies. Constraints within a connected island cannot all be
+solved independently, and later stages must wait for the state produced by earlier stages. Scaling therefore
+depends on the number and size of independent islands, task granularity, synchronization frequency and the
+amount of state transferred between the game and physics representations.
 
-- **Apex Destruction and Apex Cloth keep working.** Both were deprecated and eventually removed in UE5.
-  Existing destructible meshes and APEX clothing assets load and simulate in Vite.
-- **PhysX-era content and knowledge transfer directly.** Physics assets, constraint setups, collision
-  profiles and the accumulated body of workarounds all still apply.
-- **Behaviour is stable.** Chaos changed simulation behaviour across UE5 point releases in ways that
-  required content retuning. The PhysX behaviour in Vite is the behaviour 4.27 shipped with.
+PhysX 3.4 exposes a dependency-linked `TaskManager` and `CpuDispatcher`. Simulation stages create
+`LightCpuTask` jobs and submit them to the engine worker pool as their prerequisites complete. Vite's Unreal
+integration can batch dispatcher submissions to trade scheduling overhead against available parallelism.
+NVIDIA's [PhysX 3.4 threading documentation](https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Threading.html?highlight=cpudispatcher)
+
+
+### SIMD coverage
+
+Chaos contains optional Intel ISPC kernels. ISPC is a SIMD technology: it compiles an SPMD program for the
+vector units of the target CPU. The relevant constraint is coverage and utilization, not "ISPC versus SIMD."
+Only work implemented by an ISPC kernel receives that vector path. Divergent contacts, indirect memory
+access, gathers and scatters, heterogeneous constraint types and pointer-heavy data reduce effective lane
+occupancy. Intel's [ISPC documentation](https://ispc.github.io/index.html) describes the compiler and its SIMD
+execution model.
+
+PhysX's narrow phase and solver were developed around batched float data and platform SIMD kernels. The
+useful measurement is effective vector occupancy across the complete simulation step, including work that
+remains scalar or loses time to data movement.
+
+### Numeric precision
+
+UE5 Large World Coordinates changed core world-space types to double precision. Epic's
+[LWC documentation](https://dev.epicgames.com/documentation/unreal-engine/large-world-coordinates-in-unreal-engine-5)
+explicitly documents double precision in Chaos destruction. This does not mean that every field in every
+Chaos subsystem is FP64. Modern Chaos uses mixed precision in selected paths, while the experimental Chaos
+implementation in the UE4.27 base aliases its primary `FReal` to `float`.
+
+Double precision remains SIMD-capable. A fixed-width register, however, carries half as many doubles as
+floats: a 256-bit register holds four 64-bit values or eight 32-bit values. Double-based fields also require
+twice the storage and memory bandwidth of equivalent float fields. In affected kernels this can reduce
+theoretical element throughput, increase cache pressure and add conversion work at float/double boundaries.
+Epic's [LWC conversion guide](https://dev.epicgames.com/documentation/unreal-engine/large-world-coordinates-project-conversion-guidelines-in-unreal-engine-5)
+documents both `VectorRegister4f` and `VectorRegister4d`; the constraint is lane width and data cost, not an
+absence of vector instructions.
+
+There is no accurate universal percentage for the FP64 cost. Scalar FP32 and FP64 instructions can have
+similar latency on some CPUs, while vector-throughput- or bandwidth-bound kernels can experience a much
+larger difference. Any percentage must be attached to a named workload, platform and build.
+
+## Box Container Pile 10K benchmark
+
+The supplied reports measure a deliberately physics-bound pile containing **10,005 active rigid bodies and
+10,005 shapes**. Rendering is removed, sleeping is disabled and both runs use four solver iterations, a
+60 Hz simulation step, 30 warm-up steps and 300 measured steps. The metric is median physics milliseconds
+per frame; lower is better.
+
+| Test property | Reported configuration |
+|---|---|
+| Host | Intel Core i7-13700K (8P+8E / 24 threads), maximum 3.40 GHz |
+| Memory | 64 GB DDR5-4800 |
+| Platform | Windows 11 Pro for Workstations x64, build 10.0.26200 |
+| Workload | Headless; 10,005 bodies; 10,005 shapes; rigid-body sleeping disabled |
+| Solver | Four iterations; 60 Hz |
+| Sampling | 300 measured steps after 30 warm-up steps |
+| Chaos build | Unreal release-branch Chaos Program target; Win64 Shipping; one reported repeat |
+| NVIDIA PhysX build | NVIDIA PhysX 3.4; Visual Studio 2026 MSBuild Release; SDK and runner; ten reported repeats |
+| Vite PhysX build | Vite PhysX 3.4; clang-cl 22 Release; runtime DLLs; ten reported repeats |
+
+### Matching thread-count results
+
+| Reported threads | Unreal Chaos | NVIDIA PhysX 3.4 | Vite PhysX 3.4 | Chaos / Vite | NVIDIA / Vite |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 1,052.09 ms | 49.61 ms | 35.60 ms | **29.55×** | **1.39×** |
+| 3 | 1,051.41 ms | 21.98 ms | 15.95 ms | **65.92×** | **1.38×** |
+| 4 | 951.36 ms | 18.94 ms | 14.17 ms | **67.14×** | **1.34×** |
+| 5 | 857.89 ms | 17.09 ms | 12.47 ms | **68.80×** | **1.37×** |
+| 6 | 791.97 ms | 15.82 ms | 11.76 ms | **67.34×** | **1.35×** |
+
+Vite PhysX improves from 35.60 ms at one reported thread to 11.76 ms at six, a **3.03× throughput
+increase**. NVIDIA PhysX 3.4 improves from 49.61 ms to 15.82 ms, a **3.14× increase**, while Chaos improves
+from 1,052.09 ms to 791.97 ms over the same range, a **1.33× increase**. The Chaos report continues to 24
+threads and reaches 581.25 ms, **1.81× the throughput of its one-thread result**.
+
+At matching thread counts, Chaos takes **21.21× as long as stock NVIDIA PhysX at one thread** and **50.06×
+as long at six threads**. NVIDIA PhysX takes 1.34–1.39× as long as Vite PhysX across the shared thread counts;
+equivalently, Vite reduces the reported median physics time by **25.2–28.2%** relative to the NVIDIA PhysX
+3.4 baseline. Vite PhysX enters the 16.67 ms budget for 60 Hz at three threads, and NVIDIA PhysX enters it at
+six. The reported Chaos result remains outside that budget at 24 threads.
+
+The one-thread result shows that task scaling cannot explain the complete gap: the reported physics time is
+already 29.55× as long for Chaos as for Vite PhysX and 21.21× as long for Chaos as for NVIDIA PhysX before
+additional worker scaling. The multi-thread results show that scaling widens a difference that also includes
+solver work, data access, collision and constraint processing, build configuration and engine integration.
+The stock NVIDIA result also separates the base PhysX architecture from the additional improvements in
+Vite's PhysX build.
+
+<img src="BoxContainerPile10KChaos.jpg" alt="Unreal Chaos Box Container Pile 10K benchmark report across one to 24 threads" border-effect="line"/>
+
+*Unreal Chaos report. Median physics milliseconds per frame; lower is better.*
+
+<img src="BoxContainerPile10KVitePhysX.jpg" alt="Vite PhysX and comparison engines Box Container Pile 10K benchmark report" border-effect="line"/>
+
+*Vite PhysX and comparison-engine report. The shared table above uses only thread counts reported for Chaos,
+NVIDIA PhysX 3.4 and Vite PhysX 3.4 in the supplied reports.*
+
+<note>
+The reports use the same host and high-level workload settings, but not identical executables: Chaos is a Win64 Shipping
+Chaos Program target, NVIDIA PhysX is a Visual Studio 2026 MSBuild Release SDK runner, and Vite PhysX is a
+clang-cl 22 Release runtime build (Chaos had to be tested as Win64 due to it not being able to be compiled independently of UE5). Cite these values as the <b>reported Box Container Pile 10K result</b>, not as a
+universal PhysX-versus-Chaos multiplier.
+</note>
+
+## Reproducing the comparison
+
+For a controlled engine decision:
+
+1. Pin both engine and benchmark-project commits.
+2. Use equivalent compiler optimization, checks, logging and instrumentation.
+3. Match collision shapes, material settings, solver iterations, sleeping, timestep and event generation.
+4. Record thread affinity and P-core/E-core placement on hybrid CPUs.
+5. Publish raw frame samples, median, percentiles and variance.
+6. Capture the solver critical path and worker utilization with the appropriate CPU profiler.
+7. Repeat with a representative production scene; a fully awake 10,005-body pile is a stress workload.
 
 ## Practical starting points
 
 <procedure title="Set up physics for a new project" id="physics-setup">
     <step>
-        Leave the default PhysX configuration alone. It is the tested path.
+        Review the <a href="PhysX.md">PhysX feature and configuration reference</a>.
     </step>
     <step>
-        Review <b>Project Settings &gt; Engine &gt; Physics</b> for substepping. Enabling substepping with a
-        sensible <b>Max Substep Delta Time</b> and <b>Max Substeps</b> improves stability for fast-moving
-        or heavily constrained bodies.
+        Configure substepping under <b>Project Settings &gt; Engine &gt; Physics</b> when fast-moving or heavily
+        constrained bodies require smaller simulation steps.
     </step>
     <step>
-        If your project needs deterministic simulation &mdash; replays, networked physics, reproducible
-        test results &mdash; read <a href="Fixed-Timestep.md">Fixed Timestep</a> before building content
-        around variable-step behaviour.
+        For a fixed simulation cadence, read <a href="Fixed-Timestep.md">Fixed Timestep</a> before authoring
+        systems around variable frame delta.
     </step>
     <step>
-        If you plan to simulate large numbers of small objects (debris, shells, foliage knock-down), read
-        <a href="Instanced-Physics.md">Instanced Physics Subsystem</a> rather than spawning individual
-        actors.
+        For large sets of debris, shells or other repeated bodies, evaluate the
+        <a href="Instanced-Physics.md">Instanced Physics Subsystem</a>.
     </step>
+    <step>
+        PhysX behaves best with a consistent frame rate. At very high or uneven frame rates, stuttering can 
+        occur, so cap the FPS for steadier frame pacing. Setting MaxDepenetrationVelocity to around 100 can 
+        also help reduce stutter caused by uneven frame pacing.
+    </step>
+
+
 </procedure>
 
 ## Reference workloads
 
-Two demo projects exist specifically to measure physics behaviour:
-
-- [Physics Cube Bench](Physics-Cube-Bench.md) &mdash; rigid body throughput
-- [PhysX Instanced Subsystem demo](PhysX-Instanced-Subsystem.md) &mdash; the instanced path at scale
-- [400 Characters CMC Bench](400-Characters-CMC-Bench.md) &mdash; character movement cost, which is closely
-  tied to physics query cost
+- [Physics Cube Bench](Physics-Cube-Bench.md) — in-engine rigid-body throughput
+- [PhysX Instanced Subsystem demo](PhysX-Instanced-Subsystem.md) — instanced simulation at scale
+- [400 Characters CMC Bench](400-Characters-CMC-Bench.md) — character movement and physics-query cost
 
 ## See also
 
+- [PhysX](PhysX.md)
 - [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
 - [Performance Targets](Performance-Targets.md)
 - [Profiling](Profiling.md)
