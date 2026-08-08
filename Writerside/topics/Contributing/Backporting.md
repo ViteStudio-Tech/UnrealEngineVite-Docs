@@ -2,7 +2,7 @@
 
 <tldr>
 <p>
-Vite July Release has currently over 250 backports from UE5.0 to UE 5.8 
+Vite July Release has currently over 300 backports from UE5.0 to UE 5.8 
 </p>
 </tldr>
 
