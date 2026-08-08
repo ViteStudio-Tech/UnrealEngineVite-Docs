@@ -149,6 +149,70 @@ For a controlled engine decision:
 6. Capture the solver critical path and worker utilization with the appropriate CPU profiler.
 7. Repeat with a representative production scene; a fully awake 10,005-body pile is a stress workload.
 
+## In-engine cube workload
+
+The [Vite PhysX Cube Test](https://github.com/ViteStudio-Tech/Vite-PhysX-Cube-Test) complements the headless
+solver report with a workload that runs inside Unreal Engine. The public
+[cube-spawner implementation](https://github.com/ViteStudio-Tech/Vite-PhysX-Cube-Test/blob/5ae89c3b7b9d6993fdc535a54769e39ca7a116b4/Source/PhysXTest/CubeSpawner.cpp)
+creates one `UStaticMeshComponent` per cube, registers it with the engine and enables simulation through
+`SetSimulatePhysics(true)`. The spawner itself is a single `AActor`, so this measures an engine-managed
+component path rather than 3,000 separately spawned Unreal Actors.
+
+### 3,000 engine-managed cubes
+
+The matched capture reports 3,000 spawned cubes and 3,016 rendered primitives in both engine variants.
+Unlike the Box Container Pile 10K runner, these values include the surrounding Unreal runtime work and are
+not physics-solver milliseconds in isolation.
+
+| Reported metric | Unreal 5.7 — Chaos | Unreal Vite 26 — PhysX 3.4 | Vite relative result |
+|---|---:|---:|---:|
+| Spawned cubes | 3,000 | 3,000 | Matched |
+| Rendered primitives | 3,016 | 3,016 | Matched |
+| FPS | 33.26 | 157.88 | **4.75× as high** |
+| Frame time | 30.07 ms | 6.33 ms | **78.9% lower** |
+| Game time | 30.01 ms | 6.11 ms | **79.6% lower** |
+
+The captured Chaos game time is **4.91×** the Vite PhysX game time, while its frame time is **4.75×** the
+Vite PhysX frame time. Game time accounts for almost the complete frame in both captures, so the result is
+CPU-side rather than a GPU-limited comparison.
+
+<img src="ChaosVsPhysX3000.png" alt="In-engine comparison of 3,000 simulated cubes in Unreal 5.7 Chaos and Unreal Vite 26 PhysX 3.4" border-effect="line"/>
+
+*In-engine 3,000-cube capture. Both sides report 3,016 rendered primitives.*
+
+<note>
+This is a point-in-time in-engine capture, not a multi-run statistical report. The image does not record the
+host, compiler settings, warm-up policy or sample distribution. Use the values as the <b>reported Vite PhysX
+Cube Test result</b> and reproduce the project on the target hardware before using it for a production budget.
+</note>
+
+### 1,425 native PhysX actors
+
+The native-path capture represents simulated cubes directly as PhysX actors instead of giving every body a
+separate Unreal `AActor`. This removes the per-body Unreal Actor lifecycle from the simulation representation
+while the scene continues to run and render inside Unreal Engine. Any remaining render representation and
+transform-bridge cost depends on the native integration.
+
+| Reported metric | Native PhysX actor path |
+|---|------------------------:|
+| Engine label |     UE Vite  — PxActors |
+| Spawned cubes |                   1,425 |
+| Rendered primitives |                   1,447 |
+| FPS |                  374.28 |
+| Frame time |                 2.67 ms |
+| Game time |                 2.11 ms |
+
+<img src="NativePhysXActors1425.png" alt="In-engine Vite native PhysX actor test with 1,425 simulated cubes" border-effect="line"/>
+
+*Native PhysX actor capture running in Unreal Engine without a separate UE Actor representation for each
+simulated cube.*
+
+<warning>
+Do not calculate a direct multiplier between the native-path capture and the 3,000-cube comparison. The
+native result uses 1,425 cubes, a different engine label and a different object representation. It documents
+the lower-overhead native integration path; it is not a matched Chaos-versus-PhysX result.
+</warning>
+
 ## Practical starting points
 
 <procedure title="Set up physics for a new project" id="physics-setup">
