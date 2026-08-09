@@ -15,28 +15,28 @@ out what transfers cleanly, what needs replacing, and in what order to do it.
 ## What transfers, what does not
 
 | UE5 feature | Status on Vite | What to do |
-|---|---|---|
-| Static meshes, textures, materials, animations | Transfers | Downgrade with the UE Downgrader plugin |
-| Blueprints | Transfers | Downgrade; re-test node-for-node, some UE5-only nodes have no target |
-| C++ gameplay code | Mostly transfers | Vite backports many UE5 APIs; see below |
-| Gameplay Ability System | Transfers | Vite includes GAS updates backported from UE5 |
-| Nanite | No equivalent | Author conventional LODs; use [Tessellation](Tessellation.md) for surface detail |
-| Lumen | Replaced | Use [DDGI](DDGI-Dynamic.md), optionally with [SSGI](SSGI.md) |
-| Virtual Shadow Maps | No equivalent | Cascaded shadow maps, or [ray-traced shadows](RT-Shadows-And-Ambient-Occlusion.md) |
-| TSR | Replaced | [DLSS, FSR, XeSS](Upscalers.md), or native with [SMAA](Anti-Aliasing.md) |
-| MegaLights | Replaced | [RTXDI](RTXDI.md) |
-| Chaos physics | Replaced | [PhysX 3.4](PhysX.md) |
-| Chaos Destruction | Replaced | [Apex Destruction](Destruction-And-Cloth.md) and [Blast](Destruction-And-Cloth.md) |
-| Chaos Cloth | Replaced | [Apex Cloth](Destruction-And-Cloth.md) |
-| Substrate | No equivalent | Standard material model, plus [Callisto BRDF](Shading-Models.md) |
-| World Partition | No equivalent | World Composition and level streaming |
-| Niagara | Transfers | Available; [PopcornFX](Proposed-Plugins.md) is a faster alternative |
-| MetaSounds | No equivalent | Sound Cues, or [Wwise](Proposed-Plugins.md) |
+|---|----------------|---|
+| Static meshes, textures, materials, animations | Transfers      | Downgrade with the UE Downgrader plugin |
+| Blueprints | Transfers      | Downgrade; re-test node-for-node, some UE5-only nodes have no target |
+| C++ gameplay code | Transfers      | Vite backports many UE5 APIs; see below |
+| Gameplay Ability System | Transfers      | Vite includes GAS updates backported from UE5 |
+| Nanite | No equivalent  | Author conventional LODs; use [Tessellation](Tessellation.md) for surface detail |
+| Lumen | Replaced       | Use [DDGI](DDGI-Dynamic.md), optionally with [SSGI](SSGI.md) |
+| Virtual Shadow Maps | No equivalent  | Cascaded shadow maps, or [ray-traced shadows](RT-Shadows-And-Ambient-Occlusion.md) |
+| TSR | Replaced       | [DLSS, FSR, XeSS](Upscalers.md), or native with [SMAA](Anti-Aliasing.md) |
+| MegaLights | Replaced       | [RTXDI](RTXDI.md) |
+| Chaos physics | Replaced       | [PhysX](PhysX.md) |
+| Chaos Destruction | Replaced       | [Apex Destruction](Destruction-And-Cloth.md) and [Blast](Destruction-And-Cloth.md) |
+| Chaos Cloth | Replaced       | [Apex Cloth](Destruction-And-Cloth.md) |
+| Substrate | No equivalent  | Standard material model, plus [Callisto BRDF](Shading-Models.md) |
+| World Partition | Replaced       | World Composition and level streaming |
+| Niagara | Transfers      | Available; [PopcornFX](Proposed-Plugins.md) is a faster alternative |
+| MetaSounds | No equivalent  | Sound Cues, or [Wwise](Proposed-Plugins.md) |
 
 ## Downgrading assets
 
 The UE Downgrader plugin converts assets from UE 5.8 and below back to 4.27 and 4.26. It works by first
-upgrading assets to its source version, then applying patches to the `.uasset` files so they are readable by
+upgrading assets to its source version(usually latest UE5), then applying patches to the `.uasset` files so they are readable by
 the target version, minus the data the older format cannot represent. Nanite data, for instance, is stripped
 during a 4.27 downgrade.
 
@@ -76,7 +76,7 @@ You will still hit differences. Work through them in this order:
     </step>
     <step>
         Port the C++ modules with no content. Get them compiling against Vite before any assets move.
-        Fix physics and rendering API breakage here.
+        Check physics and rendering API breakage here.
     </step>
     <step>
         Downgrade and import a small, representative slice of content &mdash; one character, one
@@ -106,10 +106,12 @@ You do not have to move everyone at once. A common arrangement is for programmer
 artists and content creators continue in a stock Epic Games Launcher install of 4.27, with content flowing
 one way. For that to work, the launcher-side users need the standalone
 [DDGI 1.1.5 plugin](https://github.com/GapingPixel/UE4-RTXGI-1.1.5-Latest-Official) so that lighting looks
-approximately right on their end.
+approximately right on their end. This is exactly what we do at Vite Studio, and has work so far with no issues
+for modeling, animation and sound design work.
 
-> Do not install the launcher DDGI plugin into a Vite project. Vite already ships DDGI as part of the
-> engine, and the two will conflict.
+> Do not use the launcher DDGI plugin into a Vite project. Vite already ships DDGI as part of the
+> engine, and the two will conflict. *DDGI in Vite is handled better than DDGI plugin for Launcher Version.
+> (Due to both Engine side/DDGI plugin Side changes)
 >
 {style="warning"}
 
