@@ -1,9 +1,21 @@
 <style>
+    /* ------------------------------------------------------------------ *
+     * Vite Vector
+     *
+     * The header wordmark face, subset to the characters in the product
+     * name and inlined because Writerside publishes this file into <head>
+     * and gives us nowhere to host a font binary alongside it. The full
+     * family (TTF/OTF/WOFF2) and its generator live in Branding/Fonts.
+     *
+     * The weight range is deliberately wide: the family has a single
+     * weight, and declaring 100-900 stops browsers synthesising a bold.
+     * ------------------------------------------------------------------ */
+
     @font-face {
         font-family: "Vite Vector";
-        src: url("ViteVector-Regular.woff2") format("woff2");
+        src: url("data:font/woff2;base64,d09GMgABAAAAAASAAAsAAAAACRAAAAQwAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAG4EABmAAgTQKiFSHMAE2AiQDMAsaAAQgBYMCByAbjwcoLgbsxumGWiiJrsyjX8bi+N+1sAuyFflfa+j7f/dwL3wcoIMAXhhdCsDjiYSrqisLX1sb2agiqiqivx9zb+Zp/beZGqIzk0jkKBke+E79NyyWarUlqm8dz+Ndg6Qkayjf0Di7JTExr35IY/x3aFv8JDtNZnqwwf0PsC7w+v1W/Yt7KK8SsnizECnRd35ErEGCZNUrXqEkEn5amasmUbyES0XzhdDP3/VesstRFknmOXMfs8+ODQLY6nSg3mIwCWQSgGaoaQ53m0CGO0/iCSa6tB3QNOkwaNwsDI23GUw2ZpY32eVRho/y5xF+MyWVNx/yUSJWUAc0kjsSmNoX05CTyfk/DHZQAqugjm/RWIUGDAoC3UiTyKVbn3uigSQ1mOHi4RMUFpf2raCkoq6pa1gENZWk+r8jzsrEyEBHS0XpzLEjh/bt2bYVcYGDF6qvALoAvYktaf5UgTDKwAUCPTPeWGlT7okHH9CXzk28H28ZBpw5seNI47OT7XJCCSIjz1EFzGo9skkhVLluIrIzyjeMHamaCli5SKWUV4yUpiSVFiVwKuN4juonyrE9KmW2p45C1yhxtZtyg8DAN8xy25+DLz+15lRTci/DI69KBT5IKHYhgcyMf1Wxd/enbzz9xxH98mb/rpvn4tH/jzPGMXa9YlxB1v8IHhZio8Cv9aSdCXsM88Aed6bdXr3eKDpZHWvPxhPKxJW+dPv7ZxPZddvficio92kzLmciZsWsxR0pt0frNwjFJ2Nt3azdprvKCI+0pob7rUtZLPryjLTDPG1ucnuakyyI1J+XV6tNvrXVXShqhnIzNPN8KV0Y/GzK5dHK3x9lhVlSNLpNhZeHtvr7UrGC8RvDeB32PMg4B8bufUOLefgf3gutRDpbn9ic6iqmMx5eZP0uBEXHIxELMNVf/oqChW8ral3KpIv9/ebE+hmJenmsPZvNJ51qLzA+er17c30eL8fgknzZMz7v6Z3eQgNvcD6Zz2Y767GHmv/drf+7Ga5VRjU6fMw4Bmeuv04ct42Mbn8uj8+zuzvXKqXCYbPF0CVrcT+HQqm63tmdnesrQ7eiH2mLY+cvQymrayXcaDyODg36nPfu5u3LF2YA4Jj3+fbhzpvTGw6Plu244Yi4rPQ/Fn8P38u/xHHZ5X0egIZ8EiidGZV7WeNfTRKfAIDznetWAODDDUMDyMu11YoMgMAAgKC/Vo5XAIdi1BEXd+I2AG8B3AZ4D8A94BrgBYDPAMECjwaTegI4bhDSGX6UYQccyhaAfaAgxLePsFIniTBvT6TMKtH4Pv+NuiRIzGlpm+iqKCnrQwo9CoMabFHRV4Bs1DeQV9Ei1mBGXR3apnuGhQSF6UMFeeJ3cItirsAWQsebGAbwHQLbDvWi3++EZBb0enQpdvxAtqt3ZkIT4vZpShTFcV//55oEAAAA") format("woff2");
         font-style: normal;
-        font-weight: 300 400;
+        font-weight: 100 900;
         font-display: swap;
     }
 
@@ -35,14 +47,36 @@
         font-family: Inter, "Segoe UI", Arial, sans-serif;
     }
 
+    /* The title is a lockup, not a wordmark: the engine family is set small
+       and neutral, and Vite Vector is held back for the product itself. */
     .wh-header__product-name,
     .wh-header__product-name a {
-        font-family: "Vite Vector", "Segoe UI", Arial, sans-serif !important;
-        font-size: 20px;
-        font-weight: 300 !important;
-        letter-spacing: .055em;
+        display: inline-flex;
+        align-items: baseline;
+        gap: .85em;
+        color: #fff !important;
+        font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+        font-size: 14px;
+        font-weight: 600 !important;
+        letter-spacing: .07em;
         line-height: 1;
+        text-decoration: none !important;
         text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .vite-wordmark__family {
+        color: rgba(255, 255, 255, .72);
+    }
+
+    /* Trailing negative margin cancels the letter-space CSS adds after the
+       final character. */
+    .vite-wordmark__mark {
+        margin-right: -.15em;
+        font-family: "Vite Vector", "Segoe UI", Arial, sans-serif;
+        font-size: 21px;
+        font-weight: 400;
+        letter-spacing: .15em;
     }
 
     .wh-header__divider {
@@ -522,11 +556,54 @@
     (() => {
         const links = [
             ["GitHub", "https://github.com/GapingPixel/UnrealEngineVite-PhysX", true],
-            ["Projects", "projectsanddemos.html", false],
+            ["Demos", "projectsanddemos.html", false],
             ["Project Samples", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
             ["Public Vite Drive", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true],
             ["Contribute", "https://ko-fi.com/vitestudio", true]
         ];
+
+        /* --------------------------------------------------------------- *
+         * Header title lockup
+         *
+         * Writerside renders the instance name as one text node, so the
+         * product word is split out here to be set in Vite Vector while the
+         * engine family stays in the UI face. If this never runs the title
+         * still reads correctly, just uniformly.
+         * --------------------------------------------------------------- */
+
+        const productMark = "Vite";
+
+        const splitProductName = () => {
+            const host = document.querySelector(".wh-header__product-name");
+            if (!host) {
+                return;
+            }
+
+            const target = host.querySelector("a") || host;
+            if (target.querySelector(".vite-wordmark__mark")) {
+                return;
+            }
+
+            const text = target.textContent.trim();
+            if (!text.toLowerCase().endsWith(productMark.toLowerCase())) {
+                return;
+            }
+
+            const family = text.slice(0, -productMark.length).trim();
+            target.textContent = "";
+
+            if (family) {
+                const familySpan = document.createElement("span");
+                familySpan.className = "vite-wordmark__family";
+                familySpan.textContent = family;
+                target.append(familySpan);
+            }
+
+            const markSpan = document.createElement("span");
+            markSpan.className = "vite-wordmark__mark";
+            markSpan.textContent = productMark;
+            target.append(markSpan);
+        };
 
         const mountNavigation = () => {
             const divider = document.querySelector(".wh-header__divider");
@@ -638,6 +715,7 @@
         };
 
         const mountAll = () => {
+            splitProductName();
             mountNavigation();
             mountHero();
         };
