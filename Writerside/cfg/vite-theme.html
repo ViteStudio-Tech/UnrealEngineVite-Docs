@@ -19,6 +19,38 @@
         font-display: swap;
     }
 
+    @font-face {
+        font-family: "ClearSansRegular";
+        src: url("images/fonts/ClearSansRegular.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "ClearSansMedium";
+        src: url("images/fonts/ClearSansMedium.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "ClearSansBold";
+        src: url("images/fonts/ClearSansBold.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+    }
+
+    @font-face {
+        font-family: "ClearSansLight";
+        src: url("images/fonts/ClearSansLight.woff2") format("woff2");
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+    }
+
     :root {
         --app-header: #000;
         --wh-header-height-lg: 64px;
@@ -34,13 +66,14 @@
         --vite-muted: rgba(127, 139, 148, .95);
 
         /*
-         * Body prose follows Stanford / Harvard manuscript conventions:
-         * Times New Roman at 12 pt, double-spaced. Chrome (header, TOC,
-         * buttons) stays on the UI sans-serif so navigation remains dense.
+         * Body type matches the CRYENGINE V Manual: Clear Sans at 15/24
+         * (their rem root is 62.5%, so 1.5rem / 2.4rem).
          */
-        --vite-body-font: "Times New Roman", Times, "Times Roman", serif;
-        --vite-body-size: 12pt;
-        --vite-body-leading: 2;
+        --vite-body-font: ClearSansRegular, Helvetica, Arial, sans-serif;
+        --vite-heading-font: ClearSansMedium, Helvetica, Arial, sans-serif;
+        --vite-bold-font: ClearSansBold, Helvetica, Arial, sans-serif;
+        --vite-body-size: 15px;
+        --vite-body-leading: 24px;
     }
 
     /* ------------------------------------------------------------------ *
@@ -53,7 +86,7 @@
     }
 
     .wh-header {
-        font-family: Inter, "Segoe UI", Arial, sans-serif;
+        font-family: ClearSansMedium, Helvetica, Arial, sans-serif;
     }
 
     /* The title is a lockup, not a wordmark: the engine family is set small
@@ -64,9 +97,9 @@
         align-items: baseline;
         gap: .85em;
         color: #fff !important;
-        font-family: Inter, "Segoe UI", Arial, sans-serif !important;
+        font-family: ClearSansMedium, Helvetica, Arial, sans-serif !important;
         font-size: 14px;
-        font-weight: 600 !important;
+        font-weight: 400 !important;
         letter-spacing: .07em;
         line-height: 1;
         text-decoration: none !important;
@@ -105,8 +138,9 @@
 
     .vite-primary-nav__link {
         color: rgba(255, 255, 255, .82);
+        font-family: ClearSansMedium, Helvetica, Arial, sans-serif;
         font-size: 14px;
-        font-weight: 500;
+        font-weight: 400;
         line-height: 1;
         text-decoration: none;
         transition: color 120ms ease;
@@ -211,8 +245,9 @@
         padding-bottom: 7px;
         color: #d8dadd !important;
         background: transparent !important;
+        font-family: ClearSansMedium, Helvetica, Arial, sans-serif;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 400;
         line-height: 20px;
     }
 
@@ -280,12 +315,10 @@
     }
 
     /* ------------------------------------------------------------------ *
-     * Body typography — Stanford / Harvard manuscript standard
+     * Body typography — CRYENGINE V Manual standard
      *
-     * Times New Roman 12 pt, double-spaced running text. Code, tables and
-     * captions stay denser (single / 1.15) as both universities allow for
-     * those elements. Headings stay in the same face so the page reads as
-     * one manuscript rather than a mixed UI skin.
+     * Clear Sans Regular at 15/24 for running text; Medium for headings.
+     * Sized to match their 1.5rem / 2.4rem under a 62.5% root.
      * ------------------------------------------------------------------ */
 
     .article,
@@ -301,12 +334,18 @@
     .article th,
     .article dt,
     .article dd,
-    .micro-format,
-    .article__figure + .article__p {
+    .micro-format {
         font-family: var(--vite-body-font) !important;
         font-size: var(--vite-body-size);
+        font-weight: 400;
         line-height: var(--vite-body-leading);
         letter-spacing: 0;
+    }
+
+    .article strong,
+    .article b {
+        font-family: var(--vite-bold-font) !important;
+        font-weight: 400;
     }
 
     .article__h1 h1,
@@ -317,53 +356,42 @@
     .article h2,
     .article h3,
     .article h4 {
-        font-family: var(--vite-body-font) !important;
+        font-family: var(--vite-heading-font) !important;
+        font-weight: 400;
         letter-spacing: 0;
         line-height: 1.3;
     }
 
     .article__h1 h1 {
-        font-size: 18pt;
-        font-weight: 700;
+        font-size: 32px;
+        line-height: 40px;
     }
 
     .article__h2 h2,
     .article h2 {
-        font-size: 14pt;
-        font-weight: 700;
+        font-size: 22px;
+        line-height: 28px;
     }
 
     .article__h3 h3,
     .article h3 {
-        font-size: 12pt;
-        font-weight: 700;
+        font-size: 18px;
+        line-height: 24px;
     }
 
     .article__h4 h4,
     .article h4 {
-        font-size: 12pt;
-        font-weight: 700;
-        font-style: italic;
-    }
-
-    /* Captions, footnotes-equivalent asides, and table cells: single-spaced. */
-    .article__figure + .article__p,
-    .table__content thead th,
-    .table__content tbody td,
-    .article figcaption,
-    .code-block,
-    .code-block *,
-    .article code,
-    .article pre {
-        line-height: 1.35 !important;
+        font-size: 15px;
+        line-height: 24px;
     }
 
     .code-block,
     .code-block *,
     .article code,
     .article pre {
-        font-family: Consolas, "Courier New", Courier, monospace !important;
-        font-size: 10pt;
+        font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace !important;
+        font-size: 14px;
+        line-height: 1.5 !important;
     }
 
     /* ------------------------------------------------------------------ *
@@ -418,13 +446,14 @@
         padding-left: 12px;
         border-left: 2px solid var(--vite-cyan);
         color: var(--vite-muted);
-        font-size: 11pt;
-        font-style: italic;
-        line-height: 1.35;
+        font-family: var(--vite-body-font) !important;
+        font-size: 13.5px;
+        font-style: normal;
+        line-height: 1.55;
     }
 
     .article__figure + .article__p em {
-        font-style: italic;
+        font-style: normal;
     }
 
     /* ------------------------------------------------------------------ *
@@ -442,25 +471,25 @@
         width: 100%;
         border-collapse: collapse;
         font-family: var(--vite-body-font);
-        font-size: 11pt;
+        font-size: 14px;
     }
 
     .table__content thead th {
         padding: 11px 14px !important;
         border-bottom: 2px solid var(--vite-cyan) !important;
         background: var(--vite-surface-strong) !important;
-        font-family: var(--vite-body-font);
-        font-size: 11pt;
-        font-weight: 700;
-        letter-spacing: 0;
-        text-transform: none;
+        font-family: var(--vite-heading-font);
+        font-size: 12px;
+        font-weight: 400;
+        letter-spacing: .06em;
+        text-transform: uppercase;
     }
 
     .table__content tbody td {
         padding: 10px 14px !important;
         border-top: 1px solid var(--vite-hairline) !important;
         font-family: var(--vite-body-font);
-        font-size: 11pt;
+        font-size: 14px;
         vertical-align: top;
     }
 
@@ -477,9 +506,6 @@
         border-left: 3px solid var(--vite-cyan);
         border-radius: 0 4px 4px 0;
         background: var(--vite-surface) !important;
-        font-family: var(--vite-body-font);
-        font-size: var(--vite-body-size);
-        line-height: var(--vite-body-leading);
     }
 
     /* ------------------------------------------------------------------ *
@@ -501,11 +527,11 @@
         border-radius: 4px 4px 0 0;
         background: var(--vite-surface);
         color: var(--vite-cyan);
-        font-family: var(--vite-body-font);
-        font-size: 12pt;
-        font-weight: 700;
-        letter-spacing: 0;
-        text-transform: none;
+        font-family: var(--vite-heading-font) !important;
+        font-size: 13px;
+        font-weight: 400;
+        letter-spacing: .04em;
+        text-transform: uppercase;
         grid-column: auto;
     }
 
@@ -516,9 +542,9 @@
         border-top: 0;
         border-radius: 0 0 4px 4px;
         background: var(--vite-surface);
-        font-family: var(--vite-body-font);
-        font-size: 12pt;
-        line-height: var(--vite-body-leading);
+        font-family: var(--vite-body-font) !important;
+        font-size: 14px;
+        line-height: 1.6;
     }
 
     .article dl > dd > :first-child {
@@ -556,8 +582,9 @@
     .vite-hero__eyebrow {
         margin: 0 0 12px;
         color: var(--vite-cyan);
+        font-family: var(--vite-heading-font);
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 400;
         letter-spacing: .18em;
         text-transform: uppercase;
     }
@@ -565,8 +592,9 @@
     .vite-hero__title {
         margin: 0 0 14px;
         color: #fff;
+        font-family: var(--vite-heading-font);
         font-size: clamp(30px, 4.4vw, 44px);
-        font-weight: 800;
+        font-weight: 400;
         letter-spacing: -.02em;
         line-height: 1.05;
     }
@@ -575,6 +603,7 @@
         max-width: 62ch;
         margin: 0;
         color: #b9c0c6;
+        font-family: var(--vite-body-font);
         font-size: 16px;
         line-height: 1.6;
     }
@@ -591,8 +620,9 @@
     .vite-hero__stat-value {
         display: block;
         color: var(--vite-cyan);
+        font-family: var(--vite-heading-font);
         font-size: 23px;
-        font-weight: 800;
+        font-weight: 400;
         letter-spacing: -.01em;
     }
 
@@ -600,8 +630,9 @@
         display: block;
         margin-top: 4px;
         color: #9aa3aa;
+        font-family: var(--vite-heading-font);
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 400;
         letter-spacing: .05em;
         line-height: 1.35;
         text-transform: uppercase;
@@ -619,8 +650,9 @@
         border: 1px solid var(--vite-cyan);
         border-radius: 3px;
         color: var(--vite-cyan);
+        font-family: var(--vite-heading-font);
         font-size: 14px;
-        font-weight: 700;
+        font-weight: 400;
         text-decoration: none;
         transition: background-color 120ms ease, color 120ms ease;
     }
