@@ -23,7 +23,7 @@ enabled independently.
 That is the opposite of the UE 5.1+ arrangement, where ray tracing scene construction is coupled to Lumen,
 Nanite and GPU Scene. See [Why NvRTX 4.27](Why-NvRTX-427.md).
 
-> Vite enables most ray tracing effects by default in new projects. This is intentional for
+> Vite enables Ray Tracing effects by default in new projects. This is intentional for
 > discoverability but means you should consciously decide what to turn off. See
 > [Ray Tracing](Ray-Tracing.md).
 >
@@ -65,13 +65,13 @@ Nanite and GPU Scene. See [Why NvRTX 4.27](Why-NvRTX-427.md).
 The right starting point depends on your performance target. These are the configurations behind the four
 targets in [Performance Targets](Performance-Targets.md).
 
-| Target | GI | Reflections | Shadows | AO | Geometry | AA |
-|---|---|---|---|---|---|---|
-| Stylised 4K120 | Dynamic DDGI | Raster / SSR | Cascaded | SSAO fast path | LODs | SMAA |
-| Performance 4K60 | DDGI + SSGI | Ray traced | Cascaded | SSAO / HBAO+ | Tessellation | SMAA |
-| Fidelity 4K30 | DDGI + SSGI | Ray traced | Cascaded | HBAO+ | Tessellation | SMAA / TAA |
-| Full RT 1440p30 | DDGI + SSGI | Ray traced | Ray traced | RTAO | Tessellation | TAA |
-| No-RT hardware | Static DDGI | SSR | Cascaded | SSAO | LODs | SMAA / FXAA |
+| Target | GI | Reflections | Shadows | AO             | Geometry | AA          |
+|---|---|---|---|----------------|---|-------------|
+| Stylised 4K120 | Dynamic DDGI | Raster / SSR | Cascaded | SSAO fast path | LODs | SMAA / TAA  |
+| Performance 4K60 | DDGI + SSGI | Ray traced | Cascaded | SSAO / HBAO4+  | Tessellation | TAA / SMAA  |
+| Fidelity 4K30 | DDGI + SSGI | Ray traced | Cascaded | HBAO4+         | Tessellation | TAA         |
+| Full RT 1440p30 | DDGI + SSGI | Ray traced | Ray traced | RTAO           | Tessellation | TAA         |
+| No-RT hardware | Static DDGI | SSR | Cascaded | SSAO           | LODs | TAA / SMAA / FXAA |
 
 Every one of these is a starting point, not a prescription. The console variables for each are documented
 on the corresponding pages and collected in the

@@ -2,28 +2,36 @@
 
 <tldr>
 <p>
-Vite adds <b>SMAA</b> as a fifth anti-aliasing method alongside None, FXAA, TemporalAA and MSAA. SMAA is
-the recommended default: it removes aliasing without the ghosting, smearing and temporal instability that
-make TAA unacceptable at native resolution.
+Vite adds <b>SMAA</b> as a fourth antialiasing method alongside None, FXAA, TemporalAA and MSAA. SMAA is
+the recommended for hihest raw Image Quality and specially competitive titles.
+Vite improves upon <b>UE4's TAA</b> Image quality with both improved stabalization and improved Colour
+Reproduction of Materials, specially Glossy ones and textures sharpness.
 </p>
 </tldr>
 
-Anti-aliasing is where Vite's rendering philosophy is most visible. The engine renders at native resolution
-and targets high frame rates, which means the anti-aliasing solution must not introduce the temporal
-artefacts that modern engines accept as the price of reconstruction.
+Antialiasing is where Vite’s rendering philosophy is most apparent. Unlike Epic’s Unreal Engine 5, Vite renders at native resolution by default and targets high frame rates. Its antialiasing solution therefore prioritizes temporal stability while preserving the image-quality benefits of a full native 4K output, 
+whose higher pixel density already reduces aliasing compared with lower internal resolutions. Compared with UE5, Vite effectively uses supersampling when the two engines are evaluated at the same output resolution but different internal rendering resolutions.
+
+<note>
+Epic’s UE 5.8 defaults to an internal resolution with only one-quarter of the target pixel count—a 50% scale on each axis. 
+This behavior appears across several rendering paths: even when TSR is disabled, the engine may "insist" to fall back to another non-native scaling method, 
+such as TAAU or basic spatial upscaling. Vite has no such behavior, it always defaults to the Screen Full Native Resolution.
+When comparing Vite with UE5, always verify that both engines are rendering at the same native internal 
+resolution. Use stat unit to confirm the active resolution and performance characteristics.
+</note>
 
 ## Available methods
 
 The **Anti-Aliasing Method** setting under **Project Settings > Engine > Rendering > Default Settings**
 offers:
 
-| Method | Enum | `r.DefaultFeature.AntiAliasing` | Notes |
-|---|---|---|---|
-| None | `AAM_None` | 0 | Aliased. Useful for comparison and for debugging AA artefacts. |
-| FXAA | `AAM_FXAA` | 1 | Cheap post-process filter. Blurs texture detail along with edges. |
-| TemporalAA | `AAM_TemporalAA` | 2 | Stock UE4 TAA. Ghosting and smearing under motion. |
-| MSAA | `AAM_MSAA` | 3 | Forward shading only. Sample count via `r.MSAACount`. |
-| **SMAA** | `AAM_SMAA` | **4** | **Added by Vite. Recommended.** |
+| Method | Enum | `r.DefaultFeature.AntiAliasing` | Notes                                                                                                |
+|---|---|---|------------------------------------------------------------------------------------------------------|
+| None | `AAM_None` | 0 | Aliased. Useful for comparison and for debugging AA artefacts.                                       |
+| FXAA | `AAM_FXAA` | 1 | Cheap post-process filter. Blurs texture detail along with edges. Vite implements a higher IQ option |
+| TemporalAA | `AAM_TemporalAA` | 2 | Vite improves over UE4 TAA with higher IQ and stability. Better AA Handling with a cost on Image Quality |
+| MSAA | `AAM_MSAA` | 3 | Forward shading only. Sample count via `r.MSAACount`.                                                |
+| **SMAA** | `AAM_SMAA` | **4** | Vite's SMAA implementation faster and higher quality than other stock Morphological solutions        |
 
 ## SMAA
 
@@ -36,6 +44,10 @@ makes TAA output look like it is rendered behind a thin layer of vaseline. SMAA 
 has none of those failure modes. What it gives up is subpixel detail reconstruction &mdash; it cannot
 recover information that was never rendered &mdash; which matters much less when you are rendering at native
 4K in the first place.
+
+Vite's bespoke SMAA implementation is 32% faster than CMAA2 in Unreal Engine, that's why CMAA2 was deemed redundant.
+Other morphological solutions were evaluated; none of them provided any objective argument to be implemented in Vite 
+the logical choice was to simply keep improving the base SMAA shader beyond its original form. 
 
 ### Enabling SMAA
 
@@ -82,43 +94,9 @@ Edge visualisation is the fastest way to diagnose SMAA that appears to be doing 
 is not actually selected) or is over-blurring (usually excessive high-frequency content in the source image,
 often from an aggressive sharpening or noise post-process).
 
-## The other methods
-
-**FXAA** remains available and is the cheapest option. Vite exposes `r.AntiAliasing.FXAA.ExtraSharpness`
-(default `0`), which anti-aliases less but preserves more sharpness and geometry, and is roughly 1.5&times;
-faster than standard FXAA. If you need AA on a very tight budget, FXAA with extra sharpness is a reasonable
-low-end fallback.
-
-**TemporalAA** is stock UE4.27 TAA. It is not removed, and it is still the correct choice if your project
-depends on temporal accumulation for a specific effect. But it is not what Vite's rendering targets are
-built around, and enabling it re-introduces the temporal artefacts the SMAA path exists to avoid.
-
-**MSAA** requires forward shading. Vite's default configuration is deferred, so MSAA is not applicable to
-the standard path.
-
-## Choosing
-
-<procedure title="Pick an anti-aliasing method" id="pick-aa">
-    <step>
-        Start with SMAA at High quality. For native-resolution rendering this is the intended configuration.
-    </step>
-    <step>
-        If frame time is tight at the low end of your hardware range, drop <code>r.Vite.SMAA.Mode</code> to
-        <code>0</code> before considering a different method.
-    </step>
-    <step>
-        If that is still too expensive, fall back to FXAA with
-        <code>r.AntiAliasing.FXAA.ExtraSharpness 1</code>.
-    </step>
-    <step>
-        Only choose TemporalAA if you have a specific dependency on temporal accumulation, and accept the
-        ghosting that comes with it.
-    </step>
-</procedure>
-
 ## Aliasing that anti-aliasing will not fix
 
-Some aliasing is authored in rather than introduced by rasterisation, and no AA method resolves it:
+Some aliasing is authored in rather than introduced by rasterisation, and no regular AA method resolves it:
 
 - **Specular aliasing** from high-frequency normal maps on smooth materials. Fix with proper mip generation
   and normal-to-roughness conversion, not with AA.

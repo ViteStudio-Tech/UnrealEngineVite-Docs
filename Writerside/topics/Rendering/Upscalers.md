@@ -2,15 +2,16 @@
 
 <tldr>
 <p>
-Vite bundles DLSS 4.5, DLSS Frame Generation, FSR 4, XeSS 3, NIS and DeepDVC &mdash; all backported to
-4.27. They are <b>optional headroom</b>, not the rendering plan. Vite's
+Vite bundles DLSS 4.5, DLSS Frame Generation, FSR2, FSR 4, XeSS 3, NIS &mdash;. They are <b>optional headroom</b>, not the rendering plan. Vite's
 <a href="Performance-Targets.md">performance targets</a> are met at native resolution without any of them.
 </p>
 </tldr>
 
-Modern engines treat upscaling as mandatory: the renderer is designed around rendering at a fraction of
+Check out the [UpscalerTest Sample project](https://github.com/ViteStudio-Tech/ueVite-UpscalerTest)
+
+Unreal Engine 5 treats upscaling as mandatory: the renderer is designed around rendering at a fraction of
 output resolution and reconstructing the rest. Vite takes the opposite position. The targets are native, and
-upscalers are available for players who want to spend the headroom on something else.
+upscalers are available for users who want to spend the headroom on something else.
 
 That distinction changes how you should use the plugins on this page. If your project only hits its frame
 target with DLSS Performance enabled, the project is over budget &mdash; fix that first, then offer

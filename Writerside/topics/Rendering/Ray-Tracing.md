@@ -51,17 +51,6 @@ This is the rendering stack Black Myth: Wukong shipped on.
 
 [![Black Myth: Wukong ray tracing comparison](https://img.youtube.com/vi/A5boaueGopg/0.jpg)](https://www.youtube.com/watch?v=A5boaueGopg)
 
-## Defaults, and why they are what they are
-
-> New Vite projects enable ray-traced shadows, reflections and ambient occlusion by default. The intent is
-> that users encounter the features immediately rather than having to discover them. The consequence is
-> that an empty project is heavier than a stock 4.27 one, and that you should treat configuring ray tracing
-> as a step you actively perform rather than one you inherit.
->
-{style="warning"}
-
-Pick your [performance target](Performance-Targets.md) first, then enable the effects that fit inside it.
-The 4K120 stylised target, for instance, runs DDGI and nothing else from this list.
 
 ## Enabling and disabling
 
@@ -110,9 +99,50 @@ Beyond culling, the standard levers in rough order of effectiveness:
 
 ## AMD hardware
 
-Vite integrates AMD Open RT optimisations and a number of AMD-specific GPU optimisations targeted at
+Vite integrates AMD GPUOpen RT optimizations and a number of custom AMD RDNA specific GPU optimizations targeted at
 consoles. Ray tracing performance on RDNA2 hardware is a first-class concern rather than an afterthought,
-which follows directly from the PS5-class performance targets.
+which follows directly from the PS5-class performance targets. 
+
+
+### **RDNA-based Console and Handheld Hardware**
+
+| Hardware | GPU architecture | GPU configuration |
+|---|---:|---|
+| PlayStation 5 | RDNA 2–based custom GPU | 36 CUs, up to 10.28 TFLOPS |
+| PlayStation 5 Pro | RDNA-based custom GPU* | 60 CUs, 16.7 TFLOPS |
+| Xbox Series X | RDNA 2 | 52 CUs, 12 TFLOPS |
+| Xbox Series S | RDNA 2 | 20 CUs, 4 TFLOPS |
+| Steam Deck / Steam Deck OLED | RDNA 2 | 8 CUs, up to 1.6 GHz |
+| ASUS ROG Ally | RDNA 3 | Z1: 4 CUs; Z1 Extreme: 12 CUs |
+| ASUS ROG Ally X | RDNA 3 | 12 CUs (Ryzen Z1 Extreme) |
+| ROG Xbox Ally | RDNA 3 | 8 CUs (Ryzen Z2 A) |
+| ROG Xbox Ally X | RDNA 3.5 | 16 CUs (Ryzen AI Z2 Extreme) |
+| Valve Steam Machine (2026) | RDNA 3 | Semi-custom GPU, 28 CUs, up to 2.45 GHz |
+
+\*Sony officially labels the PS5 Pro GPU as “AMD Radeon RDNA-based”; it includes features beyond PC RDNA 3.5 Spec, inherting very specific tech from RDNA4.
+
+### **Major Android Flagship; Samsung Galaxy with Exynos Xclipse GPUs**
+
+| Galaxy phone | SoC | Xclipse GPU | RDNA architecture | Availability |
+|---|---|---|---|---|
+| Galaxy S22 | Exynos 2200 | Xclipse 920 | RDNA 2 | Selected regions |
+| Galaxy S22+ | Exynos 2200 | Xclipse 920 | RDNA 2 | Selected regions |
+| Galaxy S22 Ultra | Exynos 2200 | Xclipse 920 | RDNA 2 | Selected regions |
+| Galaxy S23 FE | Exynos 2200 | Xclipse 920 | RDNA 2 | Selected regions |
+| Galaxy S24 | Exynos 2400 | Xclipse 940 | RDNA 3 | Selected regions |
+| Galaxy S24+ | Exynos 2400 | Xclipse 940 | RDNA 3 | Selected regions |
+| Galaxy S24 FE | Exynos 2400e | Xclipse 940 | RDNA 3 | Global |
+| Galaxy Z Flip7 | Exynos 2500 | Xclipse 950 | RDNA 3–based | Global |
+| Galaxy S25 FE | Exynos 2400 | Xclipse 940 | RDNA 3 | Global |
+| Galaxy S26 | Exynos 2600 | Xclipse 960 | New Samsung architecture* | Selected regions |
+| Galaxy S26+ | Exynos 2600 | Xclipse 960 | New Samsung architecture* | Selected regions |
+
+*Samsung describes the Xclipse 960 as a new architecture, rather than assigning it a public AMD RDNA version.
+
+*Stock Vite **DOES NOT** support Ray Tracing on Android, but this is a reference for future Vite Major Releases, 
+current optimizations are applicable to any Future Rendering path.
+
+
 
 ## Per-pixel ray-traced GI
 
@@ -126,8 +156,8 @@ a new SVGF-based denoiser, a reservoir-resampling final gather, emissive materia
 eighth-resolution modes, metallic material support and spherical harmonics for improved normal detail.
 
 It produces excellent reference imagery. It is also considerably more expensive than DDGI and reintroduces
-the denoising and temporal stability problems DDGI exists to avoid. That trade is precisely why the debloat
-switch removes it by default: use it for reference and previsualisation, use DDGI for shipping.
+a denoising and temporal stability problems; DDGI exists to avoid. That trade is precisely why the debloat
+switch removes it by default. This Per Pixel RT GI Solution is higher Fidelity than HWRT Lumen, also somewhat more costly.
 
 Key controls, if you do use it:
 

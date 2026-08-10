@@ -19,14 +19,14 @@ section are approximations.
 ## What it is for
 
 **Lighting validation.** Path tracing tells you what the scene *should* look like. When
-[DDGI](DDGI-Dynamic.md) output looks wrong and you cannot tell whether the problem is probe density, volume
+[DDGI](DDGI-Dynamic.md) output looks wrong, and you cannot tell whether the problem is probe density, volume
 placement or the lighting rig itself, a converged path-traced frame from the same camera answers the
 question.
 
 **Reference imagery.** Marketing shots, key art and promotional captures where a converged still is
 acceptable and frame time is irrelevant.
 
-**Previsualisation.** Establishing a lighting target before building the real-time approximation of it.
+**Pre-visualization.** Establishing a lighting target before building the real-time approximation of it.
 
 **Material authoring.** Verifying that a complex material behaves correctly under full light transport
 before checking how the real-time path approximates it.
@@ -37,8 +37,8 @@ Path tracing is not a main shipping runtime configuration in Vite, and it is not
 [performance targets](Performance-Targets.md). Convergence takes many frames; a camera cut restarts
 accumulation from scratch. *The Editor Path tracer path setup is not the same as what can be shipped for runtime title. 
 
-Black Myth: Wukong shipped a path tracing mode, and it is instructive: it is offered as a high-end PC option
-with upscaling and frame generation, not as the console rendering path.
+Black Myth: Wukong shipped a Path Tracing mode based on the same PT tech that's available in Vite; for this title 
+it is offered as a high-end PC option to be used with upscaling and frame generation, not as the console rendering path.
 
 ## Using it
 
@@ -49,7 +49,7 @@ Because path tracing is a tool you use occasionally rather than something the ga
 arrangement is a separate editor target configuration with the debloat switch off, used for reference
 capture, while the game target keeps the default.
 
-Once available, path tracing is enabled through the standard Unreal Engine 4.27 controls:
+Once enabled, path tracing is enabled through the standard Unreal Engine 4.27 controls:
 
 ```
 r.PathTracing 1

@@ -13,31 +13,37 @@ options and how to choose between them; the individual techniques have their own
 
 ## The options
 
-| Solution | Cost | Requires DXR | Dynamic lighting | Best for |
-|---|---|---|---|---|
-| [Dynamic DDGI](DDGI-Dynamic.md) | Low | Yes | Fully dynamic | Almost everything |
-| [Static DDGI](DDGI-Static.md) | Near zero at runtime | No | Baked | Low-end and no-DXR hardware |
-| [SSGI](SSGI.md) | Low | No | Fully dynamic | Contact detail, alongside a world-scale solution |
-| [Per-pixel RT GI](Ray-Tracing.md) | High | Yes | Fully dynamic | Offline, previs, reference |
-| Baked lightmaps | Zero at runtime | No | Static only | Fully static scenes |
+| Solution                          | Cost                 | Requires DXR | Dynamic lighting | Best for                                                          |
+|-----------------------------------|----------------------|---|---|-------------------------------------------------------------------|
+| [Dynamic DDGI](DDGI-Dynamic.md)   | Low                  | Yes | Fully dynamic | Almost everything                                                 |
+| [Static DDGI](DDGI-Static.md)     | Near zero at runtime | No | Baked | Low-end and no-DXR hardware                                       |
+| [SSGI](SSGI.md)                   | Low                  | No | Fully dynamic | High Frequency Detail, made to run alongside DDGI                 |
+| [Per-pixel RT GI](Ray-Tracing.md) | High                 | Yes | Fully dynamic | GPUs non trivially faster than PS5, Reference                     |
+| Path-Tracing                      | Ultra                | Yes | Fully dynamic | RTX 5080 and above, Ground Truth Reference                        |
+| Baked lightmaps                   | Zero at runtime      | No | Static only | Fully static scenes, Always use CPU LightMass for maximum quality |
+
+<note>
+"Vite includes several secondary Indirect Bounce solutions, such as Distance Fields Bounce and IBL capture (Vite specific addition). 
+These are rarely considered over the solutions listed above, except for very specific target platforms or specialized setups."
+</note>
 
 ## Why DDGI rather than Lumen
 
 Dynamic Diffuse Global Illumination stores irradiance in a grid of probes and filters it using spherical
 harmonics. Because the representation is smooth by construction, the result is noise-free without a
-denoiser &mdash; which is the root cause of most of its advantages.
+denoiser &mdash; which is the root cause of most of its advantages over Lumen.
 
-Against software Lumen, DDGI provides higher quality bounce and less light leaking. Against hardware Lumen,
-it is comparable for bounce quality while typically running around twice as fast. In one representative test
-scene at 1440p native on an RTX 4080 Super, DDGI measured 811 FPS against Lumen 5.7's 324 FPS. On AMD
-hardware the technique holds up well: the same class of test scene runs at 245 FPS at 1080p native on an
+Against Software Lumen, DDGI provides higher quality bounce and less light leaking. Against Hardware Lumen,
+it is comparable for bounce quality while typically running around twice as fast (End Scene FPS not just the isolated GI cost).
+In one representative test scene at 1440p native on an RTX 4080 Super, DDGI measured 811 FPS against Lumen 5.7's 324 FPS. 
+On AMD hardware the technique holds up well: the same class of test scene runs at 245 FPS at 1080p native on an
 RX 6600.
 
 DDGI is also not experimental technology. Implementations ship in Metro Exodus, Overwatch 2, The Finals,
 Control, The Witcher 3, Warhammer 40,000: Darktide, DOOM: The Dark Ages, Indiana Jones and the Great Circle,
 007 First Light, Ghost of Yotei and Star Wars Outlaws including its Switch 2 version. AAA engines including
 Anvil and Snowdrop use DDGI probes as part of their ray-traced GI pipelines. The technique was designed to
-scale across a wide hardware range, starting from GTX 1060 class GPUs.
+scale across a wide hardware range, starting from Xbox One S GPU for Static Mode and GTX 1060 class GPUs for Dynamic RT mode.
 
 <img src="StylizedRTDemo.png" alt="Stylized scene lit by Dynamic DDGI with the frame counter reading 811 FPS" border-effect="line"/>
 
@@ -54,10 +60,11 @@ Probe volumes have a spatial resolution. Detail smaller than the probe spacing &
 chair leg meets the floor, bounce inside a narrow gap, contact shading under a desk &mdash; is not
 represented, because there is no probe there to represent it.
 
-Screen-space GI operates at pixel resolution and captures exactly that. The two techniques fail in opposite
+Screen-space GI operates at pixel resolution and captures exactly that. The two techniques have shortcomings in opposite
 directions: SSGI has no information about anything off-screen or occluded, while DDGI has complete world
 knowledge at coarse resolution. Running both gives you world-scale bounce from DDGI and high-frequency
-contact detail from SSGI.
+contact detail from SSGI. This is an officially recommended setup by NVIDIA from their Unreal Engine DDGI 
+presentations. Vite's SSGI is configured to work alongside DDGI from the get-go.
 
 This is not possible in UE5. SSGI regressed in both quality and performance when it was folded into Lumen,
 and can no longer be enabled alongside a separate GI solution. In Vite it is the UE4-era implementation and
