@@ -17,10 +17,14 @@ env:
 # URLs are unchanged and every page has a counterpart at the same path with a
 # /jp/ segment inserted. Writerside has no localisation support and requires
 # unique topic file names per module, which is why Japanese is its own module.
+#
+# fail-fast is off on purpose: a Japanese build failure must not cancel the
+# English artifact, or GitHub Pages stops updating entirely.
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - locale: en
@@ -63,6 +67,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     needs: build
+    # Matrix jobs report failure if any locale fails. Still deploy when the
+    # English artifact is present so a JP problem cannot freeze the live site.
+    if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Download artifacts
@@ -72,10 +79,25 @@ jobs:
           merge-multiple: true
           path: artifacts
 
-      - name: Unzip both locales
+      - name: Require English artifact
         run: |
+          test -f artifacts/webHelpHI2-all.zip || {
+            echo "English build artifact missing; refusing to deploy a stale site."
+            ls -la artifacts || true
+            exit 1
+          }
+
+      - name: Assemble site
+        run: |
+          mkdir -p dir
           unzip -O UTF-8 -qq artifacts/webHelpHI2-all.zip -d dir
-          unzip -O UTF-8 -qq artifacts/webHelpJP2-all.zip -d dir/jp
+          if [ -f artifacts/webHelpJP2-all.zip ]; then
+            mkdir -p dir/jp
+            unzip -O UTF-8 -qq artifacts/webHelpJP2-all.zip -d dir/jp
+            echo "Published Japanese locale under /jp"
+          else
+            echo "Japanese artifact missing; deploying English only"
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
