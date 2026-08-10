@@ -32,6 +32,15 @@
         --vite-surface-strong: rgba(127, 139, 148, .16);
         --vite-hairline: rgba(127, 139, 148, .28);
         --vite-muted: rgba(127, 139, 148, .95);
+
+        /*
+         * Body prose follows Stanford / Harvard manuscript conventions:
+         * Times New Roman at 12 pt, double-spaced. Chrome (header, TOC,
+         * buttons) stays on the UI sans-serif so navigation remains dense.
+         */
+        --vite-body-font: "Times New Roman", Times, "Times Roman", serif;
+        --vite-body-size: 12pt;
+        --vite-body-leading: 2;
     }
 
     /* ------------------------------------------------------------------ *
@@ -271,22 +280,100 @@
     }
 
     /* ------------------------------------------------------------------ *
-     * Headings
+     * Body typography — Stanford / Harvard manuscript standard
+     *
+     * Times New Roman 12 pt, double-spaced running text. Code, tables and
+     * captions stay denser (single / 1.15) as both universities allow for
+     * those elements. Headings stay in the same face so the page reads as
+     * one manuscript rather than a mixed UI skin.
      * ------------------------------------------------------------------ */
 
-    .article__h1 h1 {
-        letter-spacing: -.01em;
-        line-height: 1.12;
+    .article,
+    .article__content,
+    .article p,
+    .article__p,
+    .article li,
+    .article__list,
+    .article ul,
+    .article ol,
+    .article blockquote,
+    .article td,
+    .article th,
+    .article dt,
+    .article dd,
+    .micro-format,
+    .article__figure + .article__p {
+        font-family: var(--vite-body-font) !important;
+        font-size: var(--vite-body-size);
+        line-height: var(--vite-body-leading);
+        letter-spacing: 0;
     }
+
+    .article__h1 h1,
+    .article__h2 h2,
+    .article__h3 h3,
+    .article__h4 h4,
+    .article h1,
+    .article h2,
+    .article h3,
+    .article h4 {
+        font-family: var(--vite-body-font) !important;
+        letter-spacing: 0;
+        line-height: 1.3;
+    }
+
+    .article__h1 h1 {
+        font-size: 18pt;
+        font-weight: 700;
+    }
+
+    .article__h2 h2,
+    .article h2 {
+        font-size: 14pt;
+        font-weight: 700;
+    }
+
+    .article__h3 h3,
+    .article h3 {
+        font-size: 12pt;
+        font-weight: 700;
+    }
+
+    .article__h4 h4,
+    .article h4 {
+        font-size: 12pt;
+        font-weight: 700;
+        font-style: italic;
+    }
+
+    /* Captions, footnotes-equivalent asides, and table cells: single-spaced. */
+    .article__figure + .article__p,
+    .table__content thead th,
+    .table__content tbody td,
+    .article figcaption,
+    .code-block,
+    .code-block *,
+    .article code,
+    .article pre {
+        line-height: 1.35 !important;
+    }
+
+    .code-block,
+    .code-block *,
+    .article code,
+    .article pre {
+        font-family: Consolas, "Courier New", Courier, monospace !important;
+        font-size: 10pt;
+    }
+
+    /* ------------------------------------------------------------------ *
+     * Headings
+     * ------------------------------------------------------------------ */
 
     .article__h2 {
         margin-top: 46px !important;
         padding-top: 22px;
         border-top: 1px solid var(--vite-hairline);
-    }
-
-    .article__h2 h2 {
-        letter-spacing: -.005em;
     }
 
     /* First H2 on a page sits under the intro, so it does not need the rule. */
@@ -331,12 +418,13 @@
         padding-left: 12px;
         border-left: 2px solid var(--vite-cyan);
         color: var(--vite-muted);
-        font-size: 13.5px;
-        line-height: 1.55;
+        font-size: 11pt;
+        font-style: italic;
+        line-height: 1.35;
     }
 
     .article__figure + .article__p em {
-        font-style: normal;
+        font-style: italic;
     }
 
     /* ------------------------------------------------------------------ *
@@ -353,22 +441,26 @@
     .table__content {
         width: 100%;
         border-collapse: collapse;
-        font-size: 14px;
+        font-family: var(--vite-body-font);
+        font-size: 11pt;
     }
 
     .table__content thead th {
         padding: 11px 14px !important;
         border-bottom: 2px solid var(--vite-cyan) !important;
         background: var(--vite-surface-strong) !important;
-        font-size: 12px;
+        font-family: var(--vite-body-font);
+        font-size: 11pt;
         font-weight: 700;
-        letter-spacing: .06em;
-        text-transform: uppercase;
+        letter-spacing: 0;
+        text-transform: none;
     }
 
     .table__content tbody td {
         padding: 10px 14px !important;
         border-top: 1px solid var(--vite-hairline) !important;
+        font-family: var(--vite-body-font);
+        font-size: 11pt;
         vertical-align: top;
     }
 
@@ -385,6 +477,9 @@
         border-left: 3px solid var(--vite-cyan);
         border-radius: 0 4px 4px 0;
         background: var(--vite-surface) !important;
+        font-family: var(--vite-body-font);
+        font-size: var(--vite-body-size);
+        line-height: var(--vite-body-leading);
     }
 
     /* ------------------------------------------------------------------ *
@@ -406,10 +501,11 @@
         border-radius: 4px 4px 0 0;
         background: var(--vite-surface);
         color: var(--vite-cyan);
-        font-size: 13px;
+        font-family: var(--vite-body-font);
+        font-size: 12pt;
         font-weight: 700;
-        letter-spacing: .04em;
-        text-transform: uppercase;
+        letter-spacing: 0;
+        text-transform: none;
         grid-column: auto;
     }
 
@@ -420,8 +516,9 @@
         border-top: 0;
         border-radius: 0 0 4px 4px;
         background: var(--vite-surface);
-        font-size: 14px;
-        line-height: 1.6;
+        font-family: var(--vite-body-font);
+        font-size: 12pt;
+        line-height: var(--vite-body-leading);
     }
 
     .article dl > dd > :first-child {
