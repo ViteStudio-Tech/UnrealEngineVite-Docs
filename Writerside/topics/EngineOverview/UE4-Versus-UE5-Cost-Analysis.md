@@ -24,6 +24,12 @@ and permutation counts further.
 Unreal Engine 4.27 produces lighter-weight shaders that deliver the same visual result, which translates
 directly into faster GPU time across the board &mdash; not just in scenes that use the new features.
 
+<img src="ShaderInstructionCount.png" alt="Shader instruction count for equivalent material work compared across Unreal Engine versions" border-effect="line"/>
+
+*Shader instruction count for equivalent material work, by engine version. The count rises with each
+release on both the SM5 and SM6 paths, and every one of those instructions is GPU time spent without a
+corresponding change in the final image.*
+
 ## Physics
 
 Chaos is significantly slower than PhysX across many workloads, largely from less efficient SIMD
@@ -111,14 +117,29 @@ There is a large performance regression in the systems and materials handling vo
 in many other default engine shaders. The increased shader complexity compounds on top of the base material
 cost increases described above.
 
+<img src="VolumetricFogCost1.png" alt="Shader cost of the default volumetric, fog and sky materials compared across engine versions" border-effect="line"/>
+
+*Shader cost of the default volumetric, fog and sky materials across engine versions.*
+
+<img src="VolumetricFogCost2.png" alt="Second measurement of default engine shader cost across engine versions" border-effect="line"/>
+
+*A second measurement over the same systems. Because the regression is in the default engine shaders
+themselves, it applies whether or not a project authors any custom volumetric material.*
+
 ## Core class base costs
 
 Beyond any individual system, the base cost of core engine classes increased in both execution time and
-memory footprint, across both game and render logic. Per-class figures are in the
-[measurements spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing).
+memory footprint, across both game and render logic.
 
-Size Of Class Sheet Report Among Engine Versions
-https://docs.google.com/spreadsheets/d/1qfS04ke1cVGDGBFVLoAjeqE4IzW5QVJ-JAbvFbUw_SY/edit?usp=sharing
+<img src="CoreClassBaseCosts.png" alt="Base cost comparison for core engine classes across engine versions" border-effect="line"/>
+
+*Base cost of core engine classes by version. This is cost paid before any game code runs, which is why it
+shows up even in projects that use none of the newer features.*
+
+Per-class figures are in the
+[measurements spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing),
+and class sizes per version are broken out in the
+[size of class report](https://docs.google.com/spreadsheets/d/1qfS04ke1cVGDGBFVLoAjeqE4IzW5QVJ-JAbvFbUw_SY/edit?usp=sharing).
 
 ## See also
 

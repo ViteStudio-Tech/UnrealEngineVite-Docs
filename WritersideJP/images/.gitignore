@@ -1,0 +1,4 @@
+# Populated from ../Writerside/images at build time so the 34 MB of
+# screenshots is not duplicated in Git. Keep the directory, ignore contents.
+*
+!.gitignore

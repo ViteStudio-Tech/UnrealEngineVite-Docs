@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE buildprofiles SYSTEM "https://resources.jetbrains.com/writerside/1.0/build-profiles.dtd">
+<buildprofiles xsi:noNamespaceSchemaLocation="https://resources.jetbrains.com/writerside/1.0/build-profiles.xsd"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <variables>
+        <header-logo>Logo.png</header-logo>
+        <custom-favicons>logo-Small.png</custom-favicons>
+        <product-web-url>https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/</product-web-url>
+
+        <primary-color>#00AEEF</primary-color>
+        <color-preset>vivid</color-preset>
+        <sidebar-width>320</sidebar-width>
+        <resizable-sidebar>true</resizable-sidebar>
+
+        <!--
+            vite-theme.html is copied here from ../../Writerside/cfg at build
+            time so the two locales cannot drift apart. The theme detects the
+            locale from the URL and localises its own strings.
+        -->
+        <include-in-head>vite-theme.html</include-in-head>
+
+        <!-- Writerside's download CTA is repurposed as the Community link. -->
+        <download-title>コミュニティ</download-title>
+        <download-page>https://discord.gg/n9zQrYFhMb</download-page>
+        <showDownloadButton>true</showDownloadButton>
+    </variables>
+
+</buildprofiles>

@@ -114,6 +114,35 @@
         outline-offset: 5px;
     }
 
+    /* Language switch. Sits immediately left of the Community button. */
+    .vite-lang-switch {
+        display: inline-flex;
+        height: 30px;
+        margin-right: 16px;
+        padding: 0 13px;
+        border: 1px solid rgba(255, 255, 255, .38);
+        border-radius: 2px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1;
+        text-decoration: none;
+        white-space: nowrap;
+        align-items: center;
+        transition: border-color 120ms ease, color 120ms ease;
+    }
+
+    .vite-lang-switch:hover,
+    .vite-lang-switch:focus-visible {
+        border-color: var(--vite-cyan);
+        color: var(--vite-cyan);
+    }
+
+    .vite-lang-switch:focus-visible {
+        outline: 2px solid var(--vite-cyan);
+        outline-offset: 3px;
+    }
+
     .wh-header__download {
         display: inline-flex !important;
         min-height: 44px;
@@ -281,10 +310,14 @@
         background: var(--vite-surface);
     }
 
+    /* Fit the column but never upscale. Several of the measurement charts are
+       narrower than the article and only go soft if they are stretched. */
     .article__img {
         display: block;
-        width: 100%;
+        width: auto;
+        max-width: 100%;
         height: auto;
+        margin: 0 auto;
         border-radius: 2px;
     }
 
@@ -554,13 +587,92 @@
 
 <script>
     (() => {
-        const links = [
-            ["GitHub", "https://github.com/GapingPixel/UnrealEngineVite-PhysX", true],
-            ["Demos", "projectsanddemos.html", false],
-            ["Project Samples", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
-            ["Public Vite Drive", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true],
-            ["Contribute", "https://ko-fi.com/vitestudio", true]
-        ];
+        /* --------------------------------------------------------------- *
+         * Locale
+         *
+         * One theme serves both sites. The Japanese manual is a separate
+         * Writerside module published under /jp/ with identical page names,
+         * so the locale can be read off the URL and the counterpart page is
+         * always the same path with the /jp/ segment added or removed.
+         *
+         * This file is the single source of truth: the build copies it into
+         * WritersideJP/cfg before building the Japanese instance.
+         * --------------------------------------------------------------- */
+
+        const JP_SEGMENT = "/jp/";
+        const locale = location.pathname.includes(JP_SEGMENT) ? "ja" : "en";
+
+        const alternateHref = () => {
+            const path = location.pathname;
+            if (path.includes(JP_SEGMENT)) {
+                return path.replace(JP_SEGMENT, "/");
+            }
+            const slash = path.lastIndexOf("/");
+            return path.slice(0, slash + 1) + "jp/" + path.slice(slash + 1);
+        };
+
+        const dictionary = {
+            en: {
+                navLabel: "Vite resources",
+                links: [
+                    ["GitHub", "https://github.com/GapingPixel/UnrealEngineVite-PhysX", true],
+                    ["Demos", "projectsanddemos.html", false],
+                    ["Project Samples", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
+                    ["Public Vite Drive", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true],
+                    ["Contribute", "https://ko-fi.com/vitestudio", true]
+                ],
+                switchLabel: "日本語",
+                switchTitle: "日本語版ドキュメントを表示",
+                switchLang: "ja",
+                heroEyebrow: "Unreal Engine Vite — Engine Manual",
+                heroTitle: "A performance-first Unreal Engine",
+                heroLede: "Vite is an Unreal Engine fork built to be the most performant engine available for commercial titles: "
+                    + "Ray-Traced Global Illumination & Reflections without Lumen, PhysX instead of Chaos, Tesselation and targeting 4K native-resolution "
+                    + "with high frame rates on console-class hardware.",
+                heroStats: [
+                    ["Up to 2.5x", "Real game FPS vs UE 5.7"],
+                    ["4K native", "60 FPS on PS5-class GPUs"],
+                    ["300+", "UE5 backports integrated"],
+                    ["PhysX", "Not Chaos"]
+                ],
+                heroActions: [
+                    ["Get started", "getting-started.html", true],
+                    ["Why NvRTX 4.27", "why-nvrtx-427.html", false],
+                    ["Projects and demos", "projectsanddemos.html", false]
+                ]
+            },
+            ja: {
+                navLabel: "Vite 関連リンク",
+                links: [
+                    ["GitHub", "https://github.com/GapingPixel/UnrealEngineVite-PhysX", true],
+                    ["デモ", "projectsanddemos.html", false],
+                    ["サンプルプロジェクト", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
+                    ["公開ドライブ", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true],
+                    ["支援する", "https://ko-fi.com/vitestudio", true]
+                ],
+                switchLabel: "English",
+                switchTitle: "View the English documentation",
+                switchLang: "en",
+                heroEyebrow: "Unreal Engine Vite — エンジンマニュアル",
+                heroTitle: "パフォーマンスを最優先に据えた Unreal Engine",
+                heroLede: "Vite は、商用タイトルにとって最速のエンジンであることを目指して開発された Unreal Engine のフォークです。"
+                    + "Lumen に依存しないレイトレーシングによるグローバルイルミネーションと反射、Chaos ではなく PhysX、テッセレーションに対応し、"
+                    + "コンシューマー機クラスのハードウェアで 4K ネイティブ解像度と高フレームレートの両立を目標としています。",
+                heroStats: [
+                    ["最大 2.5 倍", "UE 5.7 比の実ゲーム FPS"],
+                    ["4K ネイティブ", "PS5 クラス GPU で 60 FPS"],
+                    ["300 件以上", "UE5 からのバックポート"],
+                    ["PhysX 採用", "Chaos は不採用"]
+                ],
+                heroActions: [
+                    ["はじめる", "getting-started.html", true],
+                    ["なぜ NvRTX 4.27 なのか", "why-nvrtx-427.html", false],
+                    ["プロジェクトとデモ", "projectsanddemos.html", false]
+                ]
+            }
+        };
+
+        const t = dictionary[locale];
 
         /* --------------------------------------------------------------- *
          * Header title lockup
@@ -605,6 +717,38 @@
             target.append(markSpan);
         };
 
+        /* --------------------------------------------------------------- *
+         * Language switch
+         *
+         * Placed next to the Community button rather than in the resource
+         * nav, because that nav is hidden on narrow viewports and the switch
+         * has to stay reachable at every width.
+         * --------------------------------------------------------------- */
+
+        const mountLanguageSwitch = () => {
+            if (document.querySelector(".vite-lang-switch")) {
+                return;
+            }
+
+            const anchor = document.createElement("a");
+            anchor.className = "vite-lang-switch";
+            anchor.href = alternateHref();
+            anchor.textContent = t.switchLabel;
+            anchor.title = t.switchTitle;
+            anchor.lang = t.switchLang;
+
+            const download = document.querySelector(".wh-header__download");
+            if (download && download.parentElement) {
+                download.parentElement.insertBefore(anchor, download);
+                return;
+            }
+
+            const navigation = document.querySelector(".vite-primary-nav");
+            if (navigation) {
+                navigation.append(anchor);
+            }
+        };
+
         const mountNavigation = () => {
             const divider = document.querySelector(".wh-header__divider");
             if (!divider || divider.querySelector(".vite-primary-nav")) {
@@ -613,9 +757,9 @@
 
             const navigation = document.createElement("nav");
             navigation.className = "vite-primary-nav";
-            navigation.setAttribute("aria-label", "VITE resources");
+            navigation.setAttribute("aria-label", t.navLabel);
 
-            for (const [label, href, external] of links) {
+            for (const [label, href, external] of t.links) {
                 const anchor = document.createElement("a");
                 anchor.className = "vite-primary-nav__link";
                 anchor.href = href;
@@ -638,21 +782,8 @@
          * renders its own H1 and intro, so the failure mode is cosmetic.
          * --------------------------------------------------------------- */
 
-        const heroStats = [
-            ["Up to 2.5x", "Real game FPS vs UE 5.7"],
-            ["4K native", "60 FPS on PS5-class GPUs"],
-            ["300+", "UE5 backports integrated"],
-            ["PhysX", "Not Chaos"]
-        ];
-
-        const heroActions = [
-            ["Get started", "getting-started.html", true],
-            ["Why NvRTX 4.27", "why-nvrtx-427.html", false],
-            ["Projects and demos", "projectsanddemos.html", false]
-        ];
-
         const isLandingPage = () => /(^|\/)default-topic\.html$/.test(location.pathname)
-            || /(^|\/)UnrealEngineVite-Docs\/?$/.test(location.pathname);
+            || /(^|\/)UnrealEngineVite-Docs\/(jp\/)?$/.test(location.pathname);
 
         const mountHero = () => {
             if (!isLandingPage()) {
@@ -669,24 +800,22 @@
 
             const eyebrow = document.createElement("p");
             eyebrow.className = "vite-hero__eyebrow";
-            eyebrow.textContent = "Unreal Engine Vite — Engine Manual";
+            eyebrow.textContent = t.heroEyebrow;
             hero.append(eyebrow);
 
             const title = document.createElement("h1");
             title.className = "vite-hero__title";
-            title.textContent = "A performance-first Unreal Engine";
+            title.textContent = t.heroTitle;
             hero.append(title);
 
             const lede = document.createElement("p");
             lede.className = "vite-hero__lede";
-            lede.textContent = "Vite is an Unreal Engine fork built to be the most performant engine available for commercial titles: "
-                + "Ray-Traced Global Illumination & Reflections without Lumen, PhysX instead of Chaos, Tesselation and targeting 4K native-resolution "
-                + "with high frame rates on console-class hardware.";
+            lede.textContent = t.heroLede;
             hero.append(lede);
 
             const stats = document.createElement("div");
             stats.className = "vite-hero__stats";
-            for (const [value, label] of heroStats) {
+            for (const [value, label] of t.heroStats) {
                 const stat = document.createElement("div");
                 const statValue = document.createElement("span");
                 statValue.className = "vite-hero__stat-value";
@@ -701,7 +830,7 @@
 
             const actions = document.createElement("div");
             actions.className = "vite-hero__actions";
-            for (const [label, href, primary] of heroActions) {
+            for (const [label, href, primary] of t.heroActions) {
                 const anchor = document.createElement("a");
                 anchor.className = "vite-hero__action" + (primary ? " vite-hero__action--primary" : "");
                 anchor.href = href;
@@ -717,6 +846,7 @@
         const mountAll = () => {
             splitProductName();
             mountNavigation();
+            mountLanguageSwitch();
             mountHero();
         };
 

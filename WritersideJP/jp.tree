@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<!--
+    Mirrors Writerside/hi.tree exactly: same topic file names in the same
+    order, so every English page has a Japanese page at the same path under
+    /jp/. Only toc-title is localised. Keep the two trees in sync.
+-->
+
+<instance-profile id="jp"
+                 name="Unreal Engine Vite"
+                 start-page="Default-topic.md">
+
+    <toc-element topic="Default-topic.md" toc-title="Unreal Engine Vite マニュアル"/>
+
+    <toc-element topic="Getting-Started.md" toc-title="はじめに">
+        <toc-element topic="Introduction-to-Vite.md" toc-title="Vite の概要"/>
+        <toc-element topic="System-Requirements.md" toc-title="動作環境"/>
+        <toc-element topic="Toolchain-Requirements.md" toc-title="ツールチェーン要件"/>
+        <toc-element topic="Install-Binary-Build.md" toc-title="バイナリビルドのインストール"/>
+        <toc-element topic="Build-From-Source.md" toc-title="ソースからのビルド"/>
+        <toc-element topic="Build-Troubleshooting.md" toc-title="ビルドのトラブルシューティング"/>
+        <toc-element topic="First-Project.md" toc-title="最初のプロジェクト"/>
+        <toc-element topic="Migrating-From-UE5.md" toc-title="UE5 からの移行"/>
+    </toc-element>
+
+    <toc-element topic="Engine-Overview.md" toc-title="エンジン概要">
+        <toc-element topic="Why-NvRTX-427.md" toc-title="なぜ NvRTX 4.27 なのか"/>
+        <toc-element topic="Performance-Targets.md" toc-title="パフォーマンス目標"/>
+        <toc-element topic="UE4-Versus-UE5-Cost-Analysis.md" toc-title="UE4 と UE5 のコスト分析"/>
+        <toc-element topic="Release-Notes.md" toc-title="リリースノート"/>
+    </toc-element>
+
+    <toc-element topic="Rendering.md" toc-title="レンダリング">
+        <toc-element topic="Global-Illumination.md" toc-title="グローバルイルミネーション">
+            <toc-element topic="DDGI-Dynamic.md" toc-title="動的 DDGI"/>
+            <toc-element topic="DDGI-Static.md" toc-title="静的 DDGI"/>
+            <toc-element topic="SSGI.md" toc-title="SSGI"/>
+        </toc-element>
+        <toc-element topic="Ray-Tracing.md" toc-title="レイトレーシング">
+            <toc-element topic="RT-Reflections.md" toc-title="レイトレーシング反射"/>
+            <toc-element topic="RT-Shadows-And-Ambient-Occlusion.md" toc-title="レイトレーシングシャドウとアンビエントオクルージョン"/>
+            <toc-element topic="RT-Translucency-And-Caustics.md" toc-title="レイトレーシング半透明とコースティクス"/>
+            <toc-element topic="RTXDI.md" toc-title="RTXDI"/>
+            <toc-element topic="Path-Tracing.md" toc-title="パストレーシング"/>
+        </toc-element>
+        <toc-element topic="Shading-Models.md" toc-title="シェーディングモデル"/>
+        <toc-element topic="Anti-Aliasing.md" toc-title="アンチエイリアシング"/>
+        <toc-element topic="Upscalers.md" toc-title="アップスケーラー"/>
+        <toc-element topic="Ambient-Occlusion.md" toc-title="アンビエントオクルージョン"/>
+        <toc-element topic="Tessellation.md" toc-title="テッセレーション"/>
+        <toc-element topic="Hair-Rendering.md" toc-title="ヘアレンダリング"/>
+        <toc-element topic="Color-Management.md" toc-title="カラーマネジメント"/>
+    </toc-element>
+
+    <toc-element topic="Physics.md" toc-title="物理">
+        <toc-element topic="PhysX.md" toc-title="PhysX"/>
+        <toc-element topic="Fixed-Timestep.md" toc-title="固定タイムステップ"/>
+        <toc-element topic="Destruction-And-Cloth.md" toc-title="破壊とクロス"/>
+        <toc-element topic="Instanced-Physics.md" toc-title="インスタンス化物理"/>
+    </toc-element>
+
+    <toc-element topic="Performance.md" toc-title="パフォーマンスと最適化">
+        <toc-element topic="Profiling.md" toc-title="プロファイリング"/>
+        <toc-element topic="Engine-Defaults.md" toc-title="エンジンデフォルトの変更"/>
+        <toc-element topic="Compile-Time-Switches.md" toc-title="コンパイル時スイッチ"/>
+        <toc-element topic="Shader-Compilation-And-PSO.md" toc-title="シェーダーコンパイルと PSO"/>
+        <toc-element topic="Debloat-Guide.md" toc-title="デブロートガイド"/>
+    </toc-element>
+
+    <toc-element topic="Platforms.md" toc-title="対応プラットフォーム"/>
+
+    <toc-element topic="Plugins.md" toc-title="プラグイン">
+        <toc-element topic="Bundled-Plugins.md" toc-title="同梱プラグイン"/>
+        <toc-element topic="Proposed-Plugins.md" toc-title="提案中のプラグイン"/>
+    </toc-element>
+
+    <toc-element topic="Tools.md" toc-title="ツールと自動化">
+        <toc-element topic="ViteSetup.md" toc-title="ViteSetup"/>
+        <toc-element topic="Installed-Builds.md" toc-title="インストール済みビルド"/>
+        <toc-element topic="Cache-Management.md" toc-title="キャッシュ管理"/>
+    </toc-element>
+
+    <toc-element topic="ProjectsAndDemos.md" toc-title="プロジェクトとデモ">
+        <toc-element topic="Tech-Demo-Project.md" toc-title="テックデモプロジェクト"/>
+        <toc-element topic="Stylized-Raytracing-Demo.md" toc-title="スタイライズドレイトレーシングデモ"/>
+        <toc-element topic="Callisto-BRDF-Demos.md" toc-title="Callisto BRDF デモ"/>
+        <toc-element topic="Abandone-Apartment.md" toc-title="廃アパートメント"/>
+        <toc-element topic="Attic-Scene.md" toc-title="屋根裏シーン"/>
+        <toc-element topic="Crash-Bandicoot.md" toc-title="Crash Bandicoot: Timetwister"/>
+        <toc-element topic="400-Characters-CMC-Bench.md" toc-title="400 キャラクター CMC ベンチマーク"/>
+        <toc-element topic="Physics-Cube-Bench.md" toc-title="物理キューブベンチマーク"/>
+        <toc-element topic="PhysXTest.md" toc-title="PhysX テスト"/>
+        <toc-element topic="PhysX-Instanced-Subsystem.md" toc-title="PhysX インスタンスサブシステム"/>
+    </toc-element>
+
+    <toc-element topic="Contributing.md" toc-title="コントリビュート">
+        <toc-element topic="Coding-Guidelines.md" toc-title="コーディングガイドライン"/>
+        <toc-element topic="Commit-Conventions.md" toc-title="コミット規約"/>
+        <toc-element topic="Backporting.md" toc-title="バックポート"/>
+        <toc-element topic="Documentation-Contributions.md" toc-title="ドキュメントへの貢献"/>
+    </toc-element>
+
+    <toc-element topic="Reference.md" toc-title="リファレンス">
+        <toc-element topic="Console-Variables.md" toc-title="コンソール変数"/>
+        <toc-element topic="Glossary.md" toc-title="用語集"/>
+        <toc-element topic="FAQ.md" toc-title="よくある質問"/>
+    </toc-element>
+
+</instance-profile>

@@ -1,0 +1,3 @@
+# Copied from ../../Writerside/cfg at build time so the two locales share one
+# theme; see .github/workflows/DocsBuild.yml.
+vite-theme.html
