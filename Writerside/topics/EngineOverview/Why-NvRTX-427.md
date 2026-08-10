@@ -35,7 +35,7 @@ In parallel, as PhysX was deprecated in favour of Chaos, the remaining PhysX-spe
 code were gradually removed &mdash; which independently rules out the UE5 branches for a fork whose physics
 argument depends on PhysX.
 
-> For a detailed comparison, read the community reference document
+> For detailed reasoning and proofs, see the Technical Reference document on moving Vite base to UE4 Latest.
 > [4.27 versus 5.0](https://docs.google.com/document/d/1gA0MGkzeWWzKkgwBDOP5xRPouSKaOIW6xlPZ2q6BXO0/edit?usp=sharing).
 >
 {style="note"}
