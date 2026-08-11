@@ -35,6 +35,8 @@ Key settings live on the Destructible Mesh asset:
 - **Debris Timeout** and **Debris Max Separation** clean up chunks after they settle. Set these. Chunks that
   never despawn accumulate until frame time collapses.
 
+Instructional video on Apex Destruction [![Instructional video by MeanLemur](https://img.youtube.com/vi/Stn7eL1TFBg/hqdefault.jpg)](https://youtu.be/Stn7eL1TFBg)
+
 ## Apex Cloth
 
 Apex Cloth is the PhysX-era clothing system, authored either through the in-editor Clothing Tool or imported
