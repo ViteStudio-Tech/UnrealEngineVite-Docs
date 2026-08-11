@@ -16,11 +16,11 @@ most common cause of build failure. Install exactly what this page lists and rem
 
 Vite is validated against the following combinations. The first row is the current recommendation.
 
-| Toolchain | MSVC | Windows SDK | Status |
-|---|---|---|---|
-| Visual Studio 2026 | 14.50 | 10.0.26100 | **Current.** Highest compiler performance and the toolchain Vite development targets. |
-| Visual Studio 2022 (latest) | 14.44 | 10.0.26100 | Supported. Matches the last toolchain update verified by Epic's UE 4.27 Plus branch. |
-| Visual Studio 2019 / 2022 | 14.29 | 10.0.19041 | Maximum stability. Oldest supported combination; use if you hit codegen problems on newer toolsets. |
+| Toolchain                    | MSVC | Windows SDK | Status                                                                                              |
+|------------------------------|---|---|-----------------------------------------------------------------------------------------------------|
+| Visual Studio 2026 (latest)  | 14.50 | 10.0.26100 | **Current.** Highest compiler performance and the toolchain Vite development targets.               |
+| Visual Studio 2022 (latest)  | 14.44 | 10.0.26100 | Supported. Matches the last toolchain update verified by Epic's UE 4.27 Plus branch.                |
+| Visual Studio 2019 / 2022    | 14.29 | 10.0.18362 | Maximum stability. Oldest supported combination; use if your project needs the original toolchains. |
 
 > The `ViteSetup.bat` assistant currently hard-pins Visual Studio 2022, MSVC 14.44 and Windows SDK
 > 10.0.26100 subversion 7705 or higher, and refuses to continue otherwise. If you are on the VS 2026 /
@@ -42,7 +42,7 @@ Install these through the Visual Studio Installer, under **Individual components
 
 To skip the manual component selection, download and import the
 [Vite VSConfig](https://drive.google.com/file/d/1NwpPUiM_7yVI_kjhW94kYxvVP42ViV3Q/view?usp=sharing) file
-through the Visual Studio Installer's **Import configuration** option.
+through the Visual Studio 26 Installer's **Import configuration** option.
 
 ### Removing conflicting toolsets
 
@@ -79,34 +79,29 @@ by hand:
 ## Pinning the SDK through BuildConfiguration.xml
 
 Unreal Build Tool reads a per-user configuration file that overrides its toolchain autodetection. This is
-the reliable way to force a specific Windows SDK when several are present.
+the reliable way to force a specific Compiler and Windows SDK when several are present.
 
-Create or edit:
+Edit (VS26):
 
 ```
 %APPDATA%\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml
 ```
 
 ```xml
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <Configuration xmlns="https://www.unrealengine.com/BuildConfiguration">
-    <WindowsPlatform>
-        <WindowsSdkVersion>10.0.26100.0</WindowsSdkVersion>
-    </WindowsPlatform>
+  <WindowsPlatform>
+    <CompilerVersion>14.50</CompilerVersion> <!--Vite has been tested with MSVC 14.50 for about 9 months to this date -->
+    <!--<CompilerVersion>14.44</CompilerVersion> VS22 Option: Latest Epic's 4.27 compliance -->
+    <!--<CompilerVersion>14.29</CompilerVersion> Original 4.27 Toolchain VS 2019 + W10 SDK 10.0.18362 / Clang 11.0.0 -->
+    <!--<WindowsSdkVersion>10.0.18362.0</WindowsSdkVersion> -->
+    <!-- <WindowsSdkVersion>10.0.22621.0</WindowsSdkVersion> -->
+    <!-- <WindowsSdkVersion>10.0.26100.0</WindowsSdkVersion> Enable if specification would be needed -->
+    <!-- <Compiler>VisualStudio2022</Compiler>  -->
+  </WindowsPlatform>
 </Configuration>
 ```
 
-You can pin the compiler version in the same block if UBT keeps choosing the wrong one:
-
-```xml
-<?xml version="1.0" encoding="utf-8" ?>
-<Configuration xmlns="https://www.unrealengine.com/BuildConfiguration">
-    <WindowsPlatform>
-        <Compiler>VisualStudio2022</Compiler>
-        <WindowsSdkVersion>10.0.26100.0</WindowsSdkVersion>
-    </WindowsPlatform>
-</Configuration>
-```
 
 > Changes to `BuildConfiguration.xml` take effect on the next build, but you should regenerate project
 > files after editing it so that the IDE and UBT agree.

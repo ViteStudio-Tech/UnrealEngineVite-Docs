@@ -74,10 +74,10 @@ Everything ray-traced needs DXR, which in Vite means DirectX 12:
 
 ### What works on DX11
 
-- [HBAO+](Ambient-Occlusion.md) &mdash; despite the console variable help text claiming DX11-only, it has a
+- [HBAO4+](Ambient-Occlusion.md) &mdash; despite the console variable help text claiming DX11-only, it has a
   D3D12 implementation too
 - [SMAA](Anti-Aliasing.md)
-- [SSGI](SSGI.md) and [static DDGI](DDGI-Static.md)
+- [SSGI](SSGI.md)
 - [Hardware tessellation](Tessellation.md)
 - The [Callisto BRDF and Toon shading models](Shading-Models.md)
 
