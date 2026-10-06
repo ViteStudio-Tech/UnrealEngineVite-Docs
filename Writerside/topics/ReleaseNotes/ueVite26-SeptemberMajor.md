@@ -26,9 +26,9 @@ enabled per module or per target, while the engine itself continues to build as 
 kept parseable from C++20 translation units, so project code can adopt C++20 without forking the engine.
 </def>
 <def title=".NET upgrade">
-The initial .NET upgrade moves the engine's C# programs &mdash; the build and automation tooling &mdash;
-onto a current .NET runtime, continuing the toolchain modernisation that began with Visual Studio 2026
-support.
+The initial .NET upgrade bundles the .NET 6 SDK (6.0.302) with the engine, the runtime UE 5.0 uses for its
+C# programs &mdash; the build and automation tooling. It is the first step in moving those programs off
+.NET Framework, continuing the toolchain modernisation that began with Visual Studio 2026 support.
 </def>
 <def title="Lightmass on Embree 4.4.1">
 Lightmass now uses Embree 4.4.1 for its CPU ray tracing, with the Windows deployment fixed so packaged
@@ -50,7 +50,8 @@ redundant pass from the recommended <a href="Global-Illumination.md">DDGI plus S
 ### Toolchain and platforms
 
 - **C++20:** initial upgrade. Opt in per target or module with `CppStandard = CppStandardVersion.Cpp20`.
-- **.NET:** initial upgrade of the engine's C# programs.
+- **.NET:** initial upgrade of the engine's C# programs; the .NET 6 SDK (6.0.302) is bundled under
+  `Engine/Binaries/ThirdParty/DotNet`.
 - **Lightmass:** updated to Embree 4.4.1, with a fix for deploying the Embree runtime on Windows.
 - **Linux:** fixed a `TScopeLock` issue in the Unix platform file layer (RAII locking).
 
