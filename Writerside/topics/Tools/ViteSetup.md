@@ -87,10 +87,13 @@ The Custom path offers setup profiles instead:
 | Win64 + templates / feature packs | Keeps project templates and starter content |
 | Win64 + Android | Adds Android dependencies |
 | Win64 + Linux | Adds Linux and cross-compile dependencies |
-| Full setup | Passes no `-exclude` argument to `Setup.bat` |
+| Full setup | Passes no `-exclude` argument to GitDependencies |
 
 Dependencies are fetched with 20 threads through a temporary `UE4_Source_Cache` folder, which the assistant
-deletes once setup succeeds so it does not sit on disk afterwards.
+deletes once setup succeeds so it does not sit on disk afterwards. The rest of the step matches `Setup.bat`:
+it writes the Git `post-checkout` and `post-merge` hooks, installs the prerequisites quietly and registers
+the engine with UnrealVersionSelector. The hooks carry the same exclusions, so later pulls keep syncing only
+the platforms and content you chose.
 
 ## Step 5 &mdash; build
 

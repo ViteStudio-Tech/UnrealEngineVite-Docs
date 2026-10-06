@@ -66,9 +66,9 @@ Custom の経路では、代わりにセットアッププロファイルを選�
 | Win64 + templates / feature packs | プロジェクトのテンプレートとスターターコンテンツを残す |
 | Win64 + Android | Android の依存関係を追加 |
 | Win64 + Linux | Linux とクロスコンパイルの依存関係を追加 |
-| Full setup | `Setup.bat` に `-exclude` 引数を渡さない |
+| Full setup | GitDependencies に `-exclude` 引数を渡さない |
 
-依存関係は一時的な `UE4_Source_Cache` フォルダーを通じて 20 スレッドで取得されます。セットアップが成功するとアシスタントがこのフォルダーを削除するため、その後ディスクに残ることはありません。
+依存関係は一時的な `UE4_Source_Cache` フォルダーを通じて 20 スレッドで取得されます。セットアップが成功するとアシスタントがこのフォルダーを削除するため、その後ディスクに残ることはありません。このステップの残りは `Setup.bat` と同じで、Git の `post-checkout` と `post-merge` のフックを書き込み、前提ソフトウェアを静かにインストールし、UnrealVersionSelector でエンジンを登録します。フックには同じ除外設定が入るため、以降のプルでも選んだプラットフォームとコンテンツだけが同期されます。
 
 ## ステップ 5 &mdash; ビルド
 
