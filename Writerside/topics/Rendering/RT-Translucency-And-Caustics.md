@@ -8,6 +8,11 @@ enabled with <code>r.RayTracing.MeshCaustics.Enable</code> and <code>r.RayTracin
 </p>
 </tldr>
 
+<img src="RTOfficeScene.jpg" alt="Office scene combining volumetric light, translucent spheres, ray-traced reflections and refractions" border-effect="line"/>
+
+*The Office scene, from NVIDIA's sample content, is the one that exercises the whole stack at once: particles, translucent reflection and
+refraction, mesh caustics and ray-traced GI in a single frame.*
+
 These features come from NVIDIA's NvRTX 4.27 Caustics branch, which is Vite's base. They are the most
 parameter-heavy part of the renderer, so this page is structured as a reference rather than a narrative.
 
@@ -257,14 +262,10 @@ NVIDIA provides project files and packaged demos for these features:
 - [All packaged demos](https://drive.google.com/drive/folders/1yHFOtmZWVDof8GbfZJMeazfb927ahTDn?usp=sharing)
 
 Specific scenes: the POV-Ray Glasses scene for heavy refraction, a prism dispersion demonstration, the
-Swimming Pool scene for water caustics, and the Office scene mixing particles, reflections, refractions,
-mesh caustics and RTGI. See also [Abandoned Apartment](Abandone-Apartment.md) and
+Swimming Pool scene for water caustics, and the Office scene shown at the top of this page, mixing
+particles, reflections, refractions, mesh caustics and RTGI. See also [Abandoned Apartment](Abandone-Apartment.md) and
 [Attic Scene](Attic-Scene.md) in this manual.
 
-<img src="RTOfficeScene.jpg" alt="Office scene combining volumetric light, translucent spheres, ray-traced reflections and refractions" border-effect="line"/>
-
-*The Office scene is the one that exercises the whole stack at once: particles, translucent reflection and
-refraction, mesh caustics and ray-traced GI in a single frame.*
 
 ## See also
 

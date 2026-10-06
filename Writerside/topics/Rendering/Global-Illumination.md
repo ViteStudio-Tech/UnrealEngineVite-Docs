@@ -8,6 +8,10 @@ Enable with <code>r.GlobalIllumination.ExperimentalPlugin 1</code> and <code>r.S
 </p>
 </tldr>
 
+<img src="StylizedRTDemo.png" alt="Stylized scene lit by Dynamic DDGI with the frame counter reading 811 FPS" border-effect="line"/>
+
+*811 FPS, RTX 4080 Super, 1440p native, Dynamic DDGI. The same scene on Lumen in 5.7 measures 324 FPS.*
+
 Global illumination is the single biggest reason Vite exists as a separate fork. This page explains the
 options and how to choose between them; the individual techniques have their own pages.
 
@@ -44,10 +48,6 @@ Control, The Witcher 3, Warhammer 40,000: Darktide, DOOM: The Dark Ages, Indiana
 007 First Light, Ghost of Yotei and Star Wars Outlaws including its Switch 2 version. AAA engines including
 Anvil and Snowdrop use DDGI probes as part of their ray-traced GI pipelines. The technique was designed to
 scale across a wide hardware range, starting from Xbox One S GPU for Static Mode and GTX 1060 class GPUs for Dynamic RT mode.
-
-<img src="StylizedRTDemo.png" alt="Stylized scene lit by Dynamic DDGI with the frame counter reading 811 FPS" border-effect="line"/>
-
-*811 FPS, RTX 4080 Super, 1440p native, Dynamic DDGI. The same scene on Lumen in 5.7 measures 324 FPS.*
 
 <img src="DDGIEmissiveSurfaces.png" alt="Interior lit by emissive surfaces contributing to DDGI" border-effect="line"/>
 

@@ -24,11 +24,15 @@ and permutation counts further.
 Unreal Engine 4.27 produces lighter-weight shaders that deliver the same visual result, which translates
 directly into faster GPU time across the board &mdash; not just in scenes that use the new features.
 
-<img src="ShaderInstructionCount.png" alt="Shader instruction count for equivalent material work compared across Unreal Engine versions" border-effect="line"/>
+<!--
+    Figure pending: ShaderInstructionCount.png was never committed (only a 0-byte
+    placeholder existed), so it rendered as a broken image. Add the PNG to
+    Writerside/images and restore:
 
-*Shader instruction count for equivalent material work, by engine version. The count rises with each
-release on both the SM5 and SM6 paths, and every one of those instructions is GPU time spent without a
-corresponding change in the final image.*
+    <img src="ShaderInstructionCount.png" alt="Shader instruction count for equivalent material work compared across Unreal Engine versions" border-effect="line"/>
+
+    *Shader instruction count for equivalent material work, by engine version.*
+-->
 
 ## Physics
 
@@ -117,24 +121,40 @@ There is a large performance regression in the systems and materials handling vo
 in many other default engine shaders. The increased shader complexity compounds on top of the base material
 cost increases described above.
 
-<img src="VolumetricFogCost1.png" alt="Shader cost of the default volumetric, fog and sky materials compared across engine versions" border-effect="line"/>
+Because the regression is in the default engine shaders themselves, it applies whether or not a project
+authors any custom volumetric material.
 
-*Shader cost of the default volumetric, fog and sky materials across engine versions.*
-
-<img src="VolumetricFogCost2.png" alt="Second measurement of default engine shader cost across engine versions" border-effect="line"/>
-
-*A second measurement over the same systems. Because the regression is in the default engine shaders
-themselves, it applies whether or not a project authors any custom volumetric material.*
+<!--
+    Figures pending: VolumetricFogCost1.png and VolumetricFogCost2.png were never
+    committed (only 0-byte placeholders existed). Add them to Writerside/images and
+    restore the two <img> tags with their captions here.
+-->
 
 ## Core class base costs
 
-Beyond any individual system, the base cost of core engine classes increased in both execution time and
-memory footprint, across both game and render logic.
+Beyond any individual system, the base cost of core engine classes increased across both game and render
+logic. The clearest measurable part is per-instance memory: the size of the same core classes, as reported by
+`sizeof`, grew substantially between 4.27 and UE5.
 
-<img src="CoreClassBaseCosts.png" alt="Base cost comparison for core engine classes across engine versions" border-effect="line"/>
+| Class | 4.27 (bytes) | 5.6 (bytes) | 5.7 (bytes) | Latest vs 4.27 |
+|---|---:|---:|---:|---:|
+| `UObject` | 48 | 48 | 48 | +0% |
+| `UActorComponent` | 184 | 232 | 232 | **+26%** |
+| `AActor` | 752 | 1,096 | 1,128 | **+50%** |
+| `AStaticMeshActor` | 768 | 1,112 | 1,144 | **+49%** |
+| `ASkeletalMeshActor` | 888 | 1,224 | 1,256 | **+41%** |
+| `UStaticMesh` | 992 | 1,984 | 2,008 | **+102%** |
+| `USkeletalMesh` | 1,660 | 2,296 | 2,328 | **+40%** |
+| `UAnimInstance` | 768 | 1,120 | 1,136 | **+48%** |
+| `UAnimBlueprint` | 1,448 | 1,712 | 1,712 | **+18%** |
+| `UAnimMontage` | 728 | 880 | 880 | **+21%** |
+| `FRenderResource` | 16 | 40 | &mdash; | **+150%** (5.6) |
+| `FStaticMeshVertexBuffer` | 136 | 208 | &mdash; | **+53%** (5.6) |
 
-*Base cost of core engine classes by version. This is cost paid before any game code runs, which is why it
-shows up even in projects that use none of the newer features.*
+This is cost paid before any game code runs, which is why it shows up even in projects that use none of the
+newer features: every Actor in a level, every component and every loaded mesh carries the larger footprint,
+and larger objects mean fewer of them per cache line during iteration. `UObject` itself is unchanged, so the
+growth is in the engine classes built on top of it.
 
 Per-class figures are in the
 [measurements spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing),

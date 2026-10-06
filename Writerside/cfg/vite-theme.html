@@ -545,9 +545,13 @@
         background: var(--vite-cyan-bright);
     }
 
-    /* The hero carries the page title, so the stock H1 is redundant. */
-    .vite-has-hero .article__h1,
-    .vite-has-hero .sub-title--related-h1 {
+    /* The hero carries the page title, so the stock H1 is redundant.
+
+       The flag lives on <html> rather than on .article: Writerside
+       re-renders the article through React, which rewrites its class
+       attribute and silently dropped a class set there. */
+    .vite-landing .article__h1,
+    .vite-landing .sub-title--related-h1 {
         display: none;
     }
 
@@ -840,10 +844,12 @@
             hero.append(actions);
 
             article.prepend(hero);
-            article.classList.add("vite-has-hero");
         };
 
         const mountAll = () => {
+            /* Toggled on every pass because Writerside navigates between
+               topics client-side without reloading the document. */
+            document.documentElement.classList.toggle("vite-landing", isLandingPage());
             splitProductName();
             mountNavigation();
             mountLanguageSwitch();

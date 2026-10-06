@@ -9,6 +9,10 @@ that appears to do nothing.
 </p>
 </tldr>
 
+<img src="AtticRTGIV2.jpg" alt="Attic interior with ray-traced global illumination, sun shafts through the window and soft bounce light across the wooden floor" border-effect="line"/>
+
+*The Attic scene with ray-traced global illumination. See [Attic Scene](Attic-Scene.md) for the project.*
+
 Ray tracing in Vite is an engine-agnostic pipeline: acceleration structures are maintained independently of
 any single lighting solution, so each effect can be enabled or disabled on its own. This is the arrangement
 UE 4.27 had and UE 5.1+ moved away from &mdash; see [Why NvRTX 4.27](Why-NvRTX-427.md).

@@ -8,9 +8,36 @@ simulation, NVIDIA Blast and a high-count instanced physics subsystem.
 </p>
 </tldr>
 
+<img src="PhysicsCubeBench.png" alt="Side-by-side capture of 1,400 simulated cubes: Chaos at 75.45 FPS against PhysX 3.4 at 148.44 FPS" border-effect="line"/>
+
+*1,400 simulated cubes in the same scene. Chaos (left) runs at 75.45 FPS with a 13.25 ms frame; Vite's
+PhysX 3.4 (right) runs at 148.44 FPS with a 6.74 ms frame. Full methodology in
+[Physics Cube Bench](Physics-Cube-Bench.md).*
+
 PhysX is exposed through Unreal Engine's standard physics framework. Existing engine types such as body
 instances, physical materials, physics assets, collision profiles and constraint components use the PhysX
-scene underneath.
+scene underneath, so UE4 gameplay code, Blueprints and content work without a physics-specific port.
+
+## At a glance
+
+<deflist>
+<def title="Faster than Chaos in engine">
+3,000 engine-managed cubes run at 4.75× the frame rate of Unreal Engine 5.7 with Chaos on the same scene.
+See <a href="Physics.md">Physics</a> for the matched capture.
+</def>
+<def title="Faster than stock PhysX">
+Vite's PhysX 3.4 build needs 25.2–28.2% less solver time than stock NVIDIA PhysX 3.4 on the 10,005-body
+Box Container Pile benchmark, at every shared thread count.
+</def>
+<def title="Feature-complete for UE4 content">
+Rigid bodies, scene queries, constraints, ragdolls, vehicles, APEX Destruction, APEX Cloth and NVIDIA
+Blast &mdash; the systems UE5 removed or replaced remain available.
+</def>
+<def title="Built for production">
+Fixed-timestep simulation, a high-count instanced subsystem and toolchain work tuned for current MSVC,
+Clang and the PS5 CPU.
+</def>
+</deflist>
 
 ## Core simulation features
 
@@ -95,11 +122,20 @@ See [Fixed Timestep](Fixed-Timestep.md) for compile-time setup and integration r
 
 ### Instanced physics subsystem
 
+<img src="PhysXInstancedSubsystem.png" alt="Large number of instanced rigid bodies simulated by the PhysX instanced subsystem" border-effect="line"/>
+
+*Instanced rendering backed by real per-instance PhysX bodies. See the
+[PhysX Instanced Subsystem demo](PhysX-Instanced-Subsystem.md).*
+
 The instanced subsystem represents large homogeneous rigid-body sets through instanced meshes instead of one
 Actor and component hierarchy per body. It is intended for debris, shells, environmental objects and other
 high-count simulations. See [Instanced Physics Subsystem](Instanced-Physics.md).
 
 ### Native actor path
+
+<img src="NativePhysXActors1425.png" alt="In-engine Vite native PhysX actor test with 1,425 simulated cubes at 374 FPS" border-effect="line"/>
+
+*1,425 cubes simulated as native PhysX actors inside Unreal Engine: 374 FPS, 2.67 ms frame time.*
 
 Engine-level systems that already own compact simulation state can operate closer to native PhysX actors and
 avoid unnecessary high-level Actor/component work. This is a specialized integration path: ownership,

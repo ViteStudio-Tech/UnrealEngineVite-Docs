@@ -12,6 +12,10 @@ Vite's performance targets are not aspirational marketing numbers; they are the 
 tuned against and the ones the demo projects are built to hit. Every one of them includes ray tracing, and
 every one of them is stated at native resolution rather than an upscaled internal one.
 
+[![Vite RT GI and RT Reflections](https://img.youtube.com/vi/2vfG3W-Gy5E/maxresdefault.jpg)](https://youtu.be/2vfG3W-Gy5E)
+
+*Ray-traced global illumination and ray-traced reflections running in Vite. Click to watch on YouTube.*
+
 ## The four targets
 
 | Target | Resolution and frame rate | Feature set | Intended for | Demonstraded in |
@@ -39,8 +43,6 @@ The clearest single demonstration: a scene running in Vite with ray-traced globa
 reflections and tessellation outperforms the *same scene* in UE 5.7 with no ray tracing, no Lumen, no Nanite
 and no tessellation. This holds at 4K native on an RTX 4080 Super, at 4K native on an RDNA2 RX 6700, and at
 native resolution on Steam Deck hardware.
-
-[![Vite RT GI and RT Reflections](https://img.youtube.com/vi/2vfG3W-Gy5E/maxresdefault.jpg)](https://youtu.be/2vfG3W-Gy5E)
 
 ## Measured reference points
 
