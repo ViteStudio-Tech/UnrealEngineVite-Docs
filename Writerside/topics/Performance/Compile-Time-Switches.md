@@ -108,7 +108,7 @@ With `VITE_RT_PSO_DEBLOAT=1`, these effects are **unavailable regardless of thei
 |---|---|
 | Per-pixel ray-traced global illumination | `r.RayTracing.GlobalIllumination` |
 | RTXDI sampled direct lighting | `r.RayTracing.SampledDirectLighting` |
-| Path tracing | `r.PathTracing`, path tracing view mode |
+| Path tracing | Path Tracing view mode (`ShowFlag.PathTracing`) |
 | Ray-traced translucency | `r.RayTracing.Translucency` |
 | Mesh caustics | NvRTX caustics CVars |
 | Water caustics | NvRTX water caustics CVars |

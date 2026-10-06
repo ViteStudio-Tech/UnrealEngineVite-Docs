@@ -39,7 +39,7 @@ renders nothing.**
 | Sampled direct lighting (RTXDI) | `r.RayTracing.SampledDirectLighting` | Compiled out | [RTXDI](RTXDI.md) |
 | Per-pixel global illumination | `r.RayTracing.GlobalIllumination` | Compiled out | This page |
 | Reflection captures and probes | `r.RayTracing.Reflections.RayTraceEnvironmentCaptures` | Compiled out | [RT Reflections](RT-Reflections.md) |
-| Path tracing | `r.PathTracing` | Compiled out | [Path Tracing](Path-Tracing.md) |
+| Path tracing | `ShowFlag.PathTracing` (view mode) | Compiled out | [Path Tracing](Path-Tracing.md) |
 
 To use anything in the compiled-out set, rebuild with `VITE_RT_PSO_DEBLOAT=0`. See
 [Compile-Time Switches](Compile-Time-Switches.md).

@@ -52,14 +52,17 @@ Because path tracing is a tool you use occasionally rather than something the ga
 arrangement is a separate editor target configuration with the debloat switch off, used for reference
 capture, while the game target keeps the default.
 
-Once enabled, path tracing is enabled through the standard Unreal Engine 4.27 controls:
+Once compiled in, path tracing is a view mode, as in stock Unreal Engine 4.27: choose **Path Tracing** from
+the viewport's view mode menu, or set the show flag from the console:
 
 ```
-r.PathTracing 1
+ShowFlag.PathTracing 1
 ```
 
-The view mode can also be selected from the viewport's view mode dropdown. Accumulation restarts whenever
-the camera or scene changes, so let it converge before evaluating an image.
+There is no `r.PathTracing` switch in 4.27; that console variable arrived with UE5. The
+`r.PathTracing.*` variables (`SamplesPerPixel`, `MaxBounces` and the rest) tune the path tracer once the view
+mode is active. Accumulation restarts whenever the camera or scene changes, so let it converge before
+evaluating an image.
 
 Key considerations:
 

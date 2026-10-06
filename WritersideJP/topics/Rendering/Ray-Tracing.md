@@ -31,7 +31,7 @@ Vite のレイトレーシングは、特定の手法に依存しないパイプ
 | サンプリングによる直接光（RTXDI） | `r.RayTracing.SampledDirectLighting` | コンパイル対象外 | [RTXDI](RTXDI.md) |
 | ピクセル単位のグローバルイルミネーション | `r.RayTracing.GlobalIllumination` | コンパイル対象外 | このページ |
 | リフレクションキャプチャとプローブ | `r.RayTracing.Reflections.RayTraceEnvironmentCaptures` | コンパイル対象外 | [レイトレーシング反射](RT-Reflections.md) |
-| パストレーシング | `r.PathTracing` | コンパイル対象外 | [パストレーシング](Path-Tracing.md) |
+| パストレーシング | `ShowFlag.PathTracing`（ビューモード） | コンパイル対象外 | [パストレーシング](Path-Tracing.md) |
 
 コンパイル対象外のものを使うには、`VITE_RT_PSO_DEBLOAT=0` で再ビルドしてください。[コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
 

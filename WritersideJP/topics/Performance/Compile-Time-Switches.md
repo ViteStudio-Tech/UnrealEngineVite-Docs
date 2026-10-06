@@ -90,7 +90,7 @@ public MyGameTarget(TargetInfo Target) : base(Target)
 |---|---|
 | ピクセルごとのレイトレーシングのグローバルイルミネーション | `r.RayTracing.GlobalIllumination` |
 | RTXDI のサンプリングによる直接光 | `r.RayTracing.SampledDirectLighting` |
-| パストレーシング | `r.PathTracing`、パストレーシングのビューモード |
+| パストレーシング | Path Tracing のビューモード（`ShowFlag.PathTracing`） |
 | レイトレーシングの半透明 | `r.RayTracing.Translucency` |
 | メッシュのコースティクス | NvRTX のコースティクスの CVar |
 | 水のコースティクス | NvRTX の水のコースティクスの CVar |
