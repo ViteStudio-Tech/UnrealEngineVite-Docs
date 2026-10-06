@@ -72,6 +72,8 @@ pruning, module-reference validation after stripping, and plugin defaults that m
 - `SetGenerateOverlapEvents` defaults to `false` when called through the function path.
 - New animations default to ACL compression.
 - The DDGI (RTXGI) plugin is enabled by default.
+- The NRD (ReLAX) denoiser plugin, on by default in June, is now off by default; enable it with the
+  ray-traced effects that use it.
 - At release, all other plugin defaults mirror stock 4.27. Run `ueVite-ApplyVitePluginDefaults.bat` to apply
   Vite's debloated plugin set.
 
