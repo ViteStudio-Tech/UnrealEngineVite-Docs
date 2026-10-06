@@ -114,6 +114,20 @@
         outline-offset: 5px;
     }
 
+    /* Japanese pages: strict kinsoku line breaking for body text, and
+       headings broken at phrase boundaries rather than mid-word where the
+       browser supports it (Chromium 119+). */
+    html:lang(ja) body {
+        line-break: strict;
+    }
+
+    html:lang(ja) h1,
+    html:lang(ja) h2,
+    html:lang(ja) h3,
+    html:lang(ja) .vite-hero__title {
+        word-break: auto-phrase;
+    }
+
     /* Language switch. Sits immediately left of the Community button. */
     .vite-lang-switch {
         display: inline-flex;
@@ -696,7 +710,7 @@
                     ["Up to 2.5x", "Real game FPS vs UE 5.7"],
                     ["4K native", "60 FPS on PS5-class GPUs"],
                     ["4.75x", "In-engine physics frame rate vs Chaos"],
-                    ["300+", "UE5 backports integrated"]
+                    ["100+", "UE5 backport commits since the LTS"]
                 ],
                 heroActions: [
                     ["Get started", "getting-started.html", true],
@@ -728,7 +742,7 @@
                     ["最大 2.5 倍", "UE 5.7 比の実ゲーム FPS"],
                     ["4K ネイティブ", "PS5 クラス GPU で 60 FPS"],
                     ["4.75 倍", "Chaos 比のエンジン内物理フレームレート"],
-                    ["300 件以上", "UE5 からのバックポート"]
+                    ["100 件以上", "LTS 以降の UE5 バックポートのコミット"]
                 ],
                 heroActions: [
                     ["はじめる", "getting-started.html", true],
@@ -923,6 +937,12 @@
         };
 
         const mountAll = () => {
+            /* Writerside emits lang="en-US" for every instance. Correct it on
+               the Japanese site so browsers pick Japanese fonts and line
+               breaking, and screen readers use a Japanese voice. */
+            if (document.documentElement.lang !== locale) {
+                document.documentElement.lang = locale;
+            }
             /* Toggled on every pass because Writerside navigates between
                topics client-side without reloading the document. */
             document.documentElement.classList.toggle("vite-landing", isLandingPage());
