@@ -76,7 +76,7 @@ Blast is NVIDIA's successor to Apex Destruction, and the more capable of the two
 |---|---|
 | Plugin | `Engine/Plugins/GameWorks/Blast` (version 1.0) |
 | Platforms | Win64, Linux |
-| Enabled by default | No |
+| Enabled by default | No. The Vite plugin profile (`ueVite-ApplyVitePluginDefaults.bat`) turns on the Blast authoring plugin; see [Engine Default Changes](Engine-Defaults.md#disabled-plugins). |
 | Modules | `BlastLoader`, `BlastRuntime`, `BlastEditor`, `BlastMeshEditor`, `BlastLoaderEditor` |
 
 Blast separates the destruction graph from the physics simulation. A Blast asset describes chunks and the

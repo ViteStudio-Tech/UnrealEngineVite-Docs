@@ -63,7 +63,7 @@ Blast は Apex Destruction の後継となる NVIDIA の技術で、2 つの破�
 |---|---|
 | プラグイン | `Engine/Plugins/GameWorks/Blast`（バージョン 1.0） |
 | プラットフォーム | Win64、Linux |
-| 既定で有効 | いいえ |
+| 既定で有効 | いいえ。Vite のプラグインプロファイル（`ueVite-ApplyVitePluginDefaults.bat`）は Blast の作成用プラグインを有効にします。[エンジンの既定値の変更](Engine-Defaults.md#disabled-plugins) を参照 |
 | モジュール | `BlastLoader`、`BlastRuntime`、`BlastEditor`、`BlastMeshEditor`、`BlastLoaderEditor` |
 
 Blast は破壊のグラフを物理シミュレーションから切り離します。Blast のアセットはチャンクとその間の結合を記述し、ダメージは結合のグラフを通じて伝播し、チャンクは実際に分離したときに初めて物理ボディになります。Blast が大きな構造物を
