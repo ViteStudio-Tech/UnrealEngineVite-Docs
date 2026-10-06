@@ -45,11 +45,17 @@ independent transparency, self-shadowing and the anisotropic specular that hair 
 |---|---|---|
 | `r.TressFX.StrandsMode` | `0` | Debug visualisation. `0` off, `1` simulation strands, `2` render strands coloured by simulation influence, `3` hair UV, `4` hair root UV, `5` hair seed, `6` dimensions |
 | `r.TressFX.Interoplation.FrustumCulling` | `1` | Frustum culling during strand interpolation. Experimental. |
-| `r.TressFX.MorphTargetMeshVisualization` | `0` | Accurate transmittance pass, improves rendering of small-scale TressFX |
+| `r.TressFX.MorphTargetMeshVisualization` | `0` | Debug view of the morph-target mesh that drives the strands |
 
 <note>
+<p>
 <code>r.TressFX.Interoplation.FrustumCulling</code> is spelled as shown in the source, including the
 transposed letters in "Interpolation". Use the literal string.
+</p>
+<p>
+The engine's help text for these two variables does not match what they do (it mentions buffer swapping and
+a transmittance pass). The descriptions above follow the code in <code>TressFXManager.cpp</code>.
+</p>
 </note>
 
 The debug modes are the fastest way to diagnose hair problems. Mode `2` in particular &mdash; render strands

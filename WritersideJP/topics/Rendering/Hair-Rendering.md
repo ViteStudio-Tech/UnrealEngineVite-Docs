@@ -39,10 +39,15 @@ TressFX は AMD のオープンなヘアとファーのシステムです。Vite
 |---|---|---|
 | `r.TressFX.StrandsMode` | `0` | デバッグ表示。`0` はオフ、`1` はシミュレーション用ストランド、`2` はシミュレーションの影響度で色分けした描画用ストランド、`3` は髪の UV、`4` は髪の根元の UV、`5` は髪のシード、`6` は寸法 |
 | `r.TressFX.Interoplation.FrustumCulling` | `1` | ストランドの補間中の視錐台カリング。実験的。 |
-| `r.TressFX.MorphTargetMeshVisualization` | `0` | 正確な透過のパス。小さなスケールの TressFX の描画を改善 |
+| `r.TressFX.MorphTargetMeshVisualization` | `0` | ストランドを動かすモーフターゲットのメッシュのデバッグ表示 |
 
 <note>
+<p>
 <code>r.TressFX.Interoplation.FrustumCulling</code> は、「Interpolation」の文字の入れ替わりも含めて、ソースに記述されたとおりの綴りです。文字列はそのまま使ってください。
+</p>
+<p>
+エンジン内のこの 2 つの変数のヘルプは、実際の動作と一致していません（バッファの入れ替えや透過のパスに言及しています）。上の説明は <code>TressFXManager.cpp</code> のコードに基づいています。
+</p>
 </note>
 
 デバッグモードは、髪の問題を診断する最も早い方法です。特にモード `2`（シミュレーションの影響度で色分けした描画用ストランド）は、ガイドストランドの分布が妥当か、少なすぎるガイドで描画用ストランドの広い領域を動かしていないかをすぐに示してくれます。
