@@ -32,11 +32,15 @@ event. In a stock project the majority of primitives generate overlap events tha
 explicitly. Trigger volumes, pickup detection and anything driven by `OnComponentBeginOverlap` need the
 flag set. This is the most likely source of "my trigger stopped working" after migrating a project.
 
+The exception is `ACharacter`: since the [March Major](ueVite26-MarchMajor.md) its capsule component keeps
+overlap events on, because most projects rely on them for characters. The line is marked in
+`Character.cpp` if you want to turn it off.
+
 <img src="OverlapEventsDisabled.png" alt="Commit diff replacing SetGenerateOverlapEvents(true) with bGenerateOverlapEvents = false in PrimitiveComponent.cpp" border-effect="line"/>
 
 *One line in `UPrimitiveComponent`, applied to every primitive in every project.*
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/02d7c0ad0a7542b382a70dc3e37877d6ec052d76)
+[Commit](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/02d7c0ad0a7542b382a70dc3e37877d6ec052d76)
 
 ### Optimised actor runtime
 
@@ -53,7 +57,7 @@ Actor runtime defaults are changed to reduce per-actor overhead in `AActor::Init
 *Large meshes, blocking volumes and foliage that must define world bounds need `bRelevantForLevelBounds`
 set back to `true`.*
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/970cbb989c3712f13be1fa370b778e769e5d864c)
+[Commit](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/970cbb989c3712f13be1fa370b778e769e5d864c)
 
 ### Skeletal mesh optimised configuration
 
@@ -88,7 +92,7 @@ and bone corrections, no longer run unless re-enabled per component.
 *The surrounding constructor block in `SkeletalMeshComponent.cpp`, for context on where these defaults are
 set.*
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/33fe7c638829b8120e8a02ecc639acda761df835)
+[Commit](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/33fe7c638829b8120e8a02ecc639acda761df835)
 
 ### Generate Lightmap UVs disabled {id="generate-lightmap-uvs-disabled"}
 
@@ -98,7 +102,7 @@ Most Vite projects use [DDGI](DDGI-Dynamic.md) rather than baked lighting, so ge
 every imported mesh is wasted import time and wasted UV channels. If your project bakes lighting, enable
 the setting in the static mesh import options.
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
+[Commit](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
 
 ## Scalability
 
@@ -166,7 +170,7 @@ plugin explicitly in its `.uproject` keeps it either way.
 plays video through Media Framework on Windows.
 
 [Commit 1](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e9aebc2ef9f8acb7326a7e989f288ef68969342f) &middot;
-[Commit 2](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
+[Commit 2](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
 
 ## Ticking you can turn off
 
@@ -213,7 +217,9 @@ These do not affect runtime performance but change editor behaviour. They are se
 | `bCopyStarterContentPreference` | `False` | New projects start without Starter Content |
 | `bGenerateLightmapUVs` | `False` | See [Generate Lightmap UVs disabled](#generate-lightmap-uvs-disabled) |
 
-The editor news feed is also removed.
+The editor news feed is also removed, and animation assets always open in a new editor tab, a UE5
+behaviour backported to Vite
+([commit](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/8bdae919e6eae61a27ef8d09d38027592a473d8c)).
 
 ## Optional debloat you can do yourself
 

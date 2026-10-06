@@ -24,11 +24,13 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 **影響:** オーバーラップイベントが必要なコンポーネントは、**Generate Overlap Events** を明示的に設定する必要があります。トリガーボリューム、ピックアップの検出、`OnComponentBeginOverlap` で動くものはすべて、このフラグを設定してください。プロジェクトを移行した後に「トリガーが動かなくなった」という問題の最も可能性の高い原因です。
 
+例外は `ACharacter` です。[March Major](ueVite26-MarchMajor.md) 以降、キャラクターではオーバーラップイベントに頼るプロジェクトが多いため、そのカプセルコンポーネントはオーバーラップイベントを有効のまま保ちます。無効にしたい場合は、`Character.cpp` の該当行に印が付いています。
+
 <img src="OverlapEventsDisabled.png" alt="PrimitiveComponent.cpp で SetGenerateOverlapEvents(true) を bGenerateOverlapEvents = false に置き換えるコミットの差分" border-effect="line"/>
 
 *`UPrimitiveComponent` の 1 行が、あらゆるプロジェクトのあらゆるプリミティブに適用されます。*
 
-[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/02d7c0ad0a7542b382a70dc3e37877d6ec052d76)
+[コミット](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/02d7c0ad0a7542b382a70dc3e37877d6ec052d76)
 
 ### 最適化されたアクターのランタイム
 
@@ -45,7 +47,7 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 *ワールドの境界を定義する必要がある大きなメッシュ、ブロッキングボリューム、フォリッジは、`bRelevantForLevelBounds` を
 `true` に戻す必要があります。*
 
-[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/970cbb989c3712f13be1fa370b778e769e5d864c)
+[コミット](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/970cbb989c3712f13be1fa370b778e769e5d864c)
 
 ### スケルタルメッシュの最適化された構成
 
@@ -72,7 +74,7 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 *これらの既定値が設定されている場所の文脈として、`SkeletalMeshComponent.cpp` のコンストラクターの該当ブロック。*
 
-[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/33fe7c638829b8120e8a02ecc639acda761df835)
+[コミット](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/33fe7c638829b8120e8a02ecc639acda761df835)
 
 ### ライトマップ UV の生成は無効 {id="generate-lightmap-uvs-disabled"}
 
@@ -80,7 +82,7 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 ほとんどの Vite のプロジェクトはベイクしたライティングではなく [DDGI](DDGI-Dynamic.md) を使うため、インポートするすべてのメッシュにライトマップ UV を生成するのは、インポート時間と UV チャンネルの無駄です。プロジェクトでライティングをベイクする場合は、スタティックメッシュのインポートオプションでこの設定を有効にしてください。
 
-[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
+[コミット](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
 
 ## スケーラビリティ
 
@@ -134,7 +136,7 @@ devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: 標準の 4.27 の値に
 **特に VR のプラグインは、必要な場合は再び有効にする必要があります。** Windows で Media Framework を通じて動画を再生するプロジェクトでは、WMF Media も同様です。
 
 [コミット 1](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e9aebc2ef9f8acb7326a7e989f288ef68969342f) &middot;
-[コミット 2](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
+[コミット 2](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
 
 ## 無効にできるティック
 
@@ -173,7 +175,7 @@ UE5 の <code>r.RayTracing.Culling.UseMinDrawDistance</code> は、4.27 にも V
 | `bCopyStarterContentPreference` | `False` | 新しいプロジェクトは Starter Content なしで始まる |
 | `bGenerateLightmapUVs` | `False` | [ライトマップ UV の生成は無効](#generate-lightmap-uvs-disabled) を参照 |
 
-エディタのニュースフィードも取り除かれています。
+エディタのニュースフィードも取り除かれています。また、UE5 の挙動をバックポートし、アニメーションのアセットは常に新しいエディタのタブで開きます（[コミット](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/8bdae919e6eae61a27ef8d09d38027592a473d8c)）。
 
 ## 自分で行える任意のデブロート
 
