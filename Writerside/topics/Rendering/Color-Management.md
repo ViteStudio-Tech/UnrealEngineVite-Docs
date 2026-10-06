@@ -2,9 +2,10 @@
 
 <tldr>
 <p>
-Vite uses the stock Unreal Engine 4.27 tonemapping and colour pipeline: ACES film tonemapper, post process
-volume grading, LUTs and HDR output. This page covers the controls and the settings that most often cause
-problems.
+Vite builds on the Unreal Engine 4.27 tonemapping and colour pipeline &mdash; ACES film tonemapper, post
+process volume grading, LUTs and HDR output &mdash; with three additions: ACES 1.3.1 gamut compression,
+colour reproduction matched to the UE 5.7 reference, and UE 5.0 local exposure. This page covers the
+controls and the settings that most often cause problems.
 </p>
 </tldr>
 
@@ -22,6 +23,19 @@ The renderer works in linear HDR throughout. At the end of the frame:
 3. **Tonemapping** maps the HDR range into the display range using the ACES filmic curve.
 4. **Output encoding** applies the transfer function for the target display, sRGB for SDR or PQ/ST-2084 for
    HDR.
+
+## What Vite changes
+
+| Release | Change |
+|---|---|
+| [LTS](ueVite25-LTS.md) | ACES 1.3.1 gamut compression, which pulls out-of-gamut colours (saturated emissives, lasers, neon) back into range smoothly instead of clipping them |
+| [March Major](ueVite26-MarchMajor.md) | Colour reproduction updated to match the UE 5.7 reference, so content graded in UE5 looks the same in Vite |
+| [August Major](ueVite26-AugustMajor.md) | UE 5.0 local exposure passes, post-process settings and histogram path behind `VITE_UE5_POSTPROCESSING` (on by default) |
+
+Local exposure compresses the dynamic range of a frame locally, keeping detail in bright windows and dark
+interiors at the same time without flattening global contrast. Its settings appear in the post process
+volume alongside the existing exposure controls. See [Compile-Time Switches](Compile-Time-Switches.md) to
+compile it out.
 
 ## Tonemapper controls
 

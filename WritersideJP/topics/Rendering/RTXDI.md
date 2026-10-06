@@ -2,103 +2,108 @@
 
 <tldr>
 <p>
-Ray-traced direct lighting for scenes with very many lights. This is the <b>standalone</b> RTXDI, not the
-Lumen-integrated version in UE 5.1+. A less noisy alternative to MegaLights.
+非常に多くのライトがあるシーンのための、レイトレーシングによる直接光です。UE 5.1 以降の Lumen に統合された版ではなく、
+<b>スタンドアロン</b> の RTXDI です。MegaLights よりノイズの少ない代替手段です。
 </p>
 <p>
-<b>Compiled out in a default build.</b> Requires rebuilding with
-<code>VITE_RT_PSO_DEBLOAT=0</code> before <code>r.RayTracing.SampledDirectLighting</code> does anything.
+<b>既定のビルドではコンパイル対象から外れています。</b> <code>r.RayTracing.SampledDirectLighting</code> が機能するには、
+<code>VITE_RT_PSO_DEBLOAT=0</code> で再ビルドする必要があります。
 </p>
 </tldr>
 
-RTX Direct Illumination solves the many-lights problem: shading a pixel correctly when hundreds or thousands
-of lights could contribute to it, without evaluating all of them.
+RTX Direct Illumination は多数のライトの問題を解決します。数百から数千のライトが寄与しうるピクセルを、それらすべてを
+評価することなく正しくシェーディングします。
 
-## What it does
+## 何をするのか
 
-Conventional direct lighting evaluates every relevant light per pixel, so cost scales with light count. Once
-a scene has hundreds of lights, that becomes untenable, which is why engines historically cull aggressively,
-limit shadow-casting lights, or bake.
+従来の直接光はピクセルごとに関係するすべてのライトを評価するため、コストがライトの数に比例します。シーンのライトが
+数百になると手に負えなくなるため、エンジンは従来、積極的なカリング、影を落とすライトの制限、ベイクで対処してきました。
 
-RTXDI uses reservoir-based spatiotemporal importance resampling. Each pixel maintains a small reservoir of
-candidate light samples, refined across neighbouring pixels and across frames. The result approximates
-sampling all lights while evaluating only a few, and the cost becomes roughly independent of light count.
+RTXDI は、リザーバーベースの時空間重点リサンプリングを使います。各ピクセルは候補となるライトのサンプルを入れた小さな
+リザーバーを持ち、隣接するピクセルとフレームをまたいでそれを洗練していきます。結果として、評価するのは数個のライトだけ
+でありながらすべてのライトをサンプリングしたのに近い結果が得られ、コストはライトの数にほぼ依存しなくなります。
 
-The practical effect is that light count stops being a budget you manage. You can light a scene with the
-number of emitters it physically has rather than the number the renderer can afford.
+実際の効果として、ライトの数は管理すべき予算ではなくなります。レンダラーが負担できる数ではなく、シーンが物理的に持つ
+数の光源でライティングできます。
 
-## The standalone distinction
+## スタンドアロンであることの意味
 
-This matters and is easy to miss.
+これは重要で、見落としやすい点です。
 
-UE 5.1 and later NvRTX branches integrate RTXDI *into Lumen*. Vite ships the standalone implementation,
-which operates on the scene's direct lighting independently of any global illumination solution.
+UE 5.1 以降の NvRTX ブランチは、RTXDI を *Lumen に* 統合しています。Vite に含まれるのはスタンドアロンの実装で、
+グローバルイルミネーションのソリューションとは独立してシーンの直接光を扱います。
 
-The consequence is composability. RTXDI handles direct lighting; [DDGI](DDGI-Dynamic.md) handles indirect
-bounce; they do not need to know about each other. Enabling both still results in better performance than
-standalone hardware Lumen, while producing a less noisy image than MegaLights.
+その結果、組み合わせが可能になります。RTXDI は直接光を、[DDGI](DDGI-Dynamic.md) は間接光のバウンスを扱い、互いを
+知る必要はありません。両方を有効にしてもスタンドアロンのハードウェア Lumen より高い性能が得られ、MegaLights より
+ノイズの少ない画像になります。
 
-## Enabling
+## 有効にする
 
 <warning>
-RTXDI's shader permutations are compiled out when <code>VITE_RT_PSO_DEBLOAT</code> is <code>1</code>, which
-is the default. In such a build <code>ShouldRenderRayTracingSampledLighting()</code> returns
-<code>false</code> unconditionally: the console variable will set successfully and nothing will render.
+<code>VITE_RT_PSO_DEBLOAT</code> が既定値の <code>1</code> のとき、RTXDI のシェーダーパーミュテーションはコンパイル
+対象から外れます。そのようなビルドでは <code>ShouldRenderRayTracingSampledLighting()</code> が無条件に
+<code>false</code> を返すため、コンソール変数の設定は成功しても何も描画されません。
 </warning>
 
-<procedure title="Enable RTXDI" id="enable-rtxdi">
+<procedure title="RTXDI を有効にする" id="enable-rtxdi">
     <step>
-        Add <code>GlobalDefinitions.Add("VITE_RT_PSO_DEBLOAT=0");</code> to your target file and rebuild
-        the engine. See <a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+        ターゲットファイルに <code>GlobalDefinitions.Add("VITE_RT_PSO_DEBLOAT=0");</code> を追加してエンジンを
+        再ビルドします。<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
     </step>
     <step>
-        Set the console variable:
+        コンソール変数を設定します。
         <code-block lang="ini">
 ; Config/DefaultEngine.ini
 [/Script/Engine.RendererSettings]
 r.RayTracing.SampledDirectLighting=1
         </code-block>
     </step>
-    <step>Confirm the target hardware supports DXR.</step>
+    <step>対象のハードウェアが DXR に対応していることを確認します。</step>
 </procedure>
 
-Because turning the debloat switch off restores the full ray tracing permutation set &mdash; not just
-RTXDI's &mdash; weigh the shader compile time and package size cost against what RTXDI actually buys your
-scene. The next section is the test.
+デブロートのスイッチを無効にすると、RTXDI だけでなくレイトレーシングのパーミュテーション一式が元に戻るため、
+シェーダーのコンパイル時間とパッケージサイズのコストを、RTXDI がシーンにもたらすものと比較して判断してください。
+次の節がその判断基準です。
 
-## When it earns its cost
+## コストに見合う場面
 
-RTXDI is a specialised tool. It is worth enabling when your scene has enough lights that conventional direct
-lighting becomes the bottleneck, and not otherwise.
+RTXDI は特殊な用途のツールです。従来の直接光がボトルネックになるほどライトの多いシーンでは有効にする価値があり、
+そうでなければ不要です。
 
-| Scene | Verdict |
+| シーン | 判断 |
 |---|---|
-| Neon-lit city street, hundreds of emissive signs and practicals | Strong fit |
-| Interior with many small practical lights | Strong fit |
-| Destructible or dynamic environments where light count varies unpredictably | Strong fit |
-| Outdoor daylight scene with a sun and a few fill lights | Not worth it |
-| Stylised scene with a deliberately small light rig | Not worth it |
+| 数百のエミッシブな看板や実用照明があるネオンの街路 | 非常に適している |
+| 小さな実用照明の多い屋内 | 非常に適している |
+| ライトの数が予測できないほど変わる、破壊可能または動的な環境 | 非常に適している |
+| 太陽と数個のフィルライトだけの昼間の屋外シーン | 見合わない |
+| 意図的に少ないライトで構成したスタイライズドなシーン | 見合わない |
 
-For a scene with a handful of lights, conventional direct lighting is cheaper and produces an identical
-result. RTXDI has a fixed setup cost that only pays off once light count is high.
+ライトが数個しかないシーンでは、従来の直接光のほうが安価で、結果も同じです。RTXDI には固定のセットアップコストが
+あり、ライトの数が多くなって初めて元が取れます。
 
-## Interaction with other systems
+## 他のシステムとの関係
 
-**DDGI.** Complementary and designed to run together. RTXDI resolves what direct light reaches a surface;
-DDGI resolves what bounced light reaches it.
+**DDGI。** 互いに補い合い、一緒に動かす前提で設計されています。RTXDI はサーフェスに届く直接光を、DDGI はバウンスした
+光を解決します。
 
-**RT shadows.** RTXDI performs its own visibility testing as part of sampling, so the relationship with
-`r.RayTracing.Shadows` needs measuring in your specific scene rather than assuming. Enabling both is not
-automatically the right answer.
+**RT シャドウ。** RTXDI はサンプリングの一部として独自に可視性を判定するため、`r.RayTracing.Shadows` との関係は
+想定に頼らず、実際のシーンで計測する必要があります。両方を有効にするのが自動的に正解というわけではありません。
 
-**Denoising.** RTXDI output is denoised. It is described as less noisy than MegaLights rather than noise-free
-&mdash; unlike [DDGI](DDGI-Dynamic.md), which is noise-free by construction. Under fast motion in a scene
-with many small bright lights, expect to spend some time on denoiser settings.
+**デノイズ。** RTXDI の出力はデノイズされます。原理的にノイズの出ない [DDGI](DDGI-Dynamic.md) とは異なり、ノイズが
+ないのではなく、MegaLights よりノイズが少ないと説明されています。小さく明るいライトが多いシーンを速く動く場合は、
+デノイザーの設定にある程度の時間をかけることを想定してください。
 
-## See also
+## Vite での RTXDI の取り組み
 
-- [Ray Tracing](Ray-Tracing.md)
-- [RT Shadows and Ambient Occlusion](RT-Shadows-And-Ambient-Occlusion.md)
-- [Dynamic DDGI](DDGI-Dynamic.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Performance Targets](Performance-Targets.md)
+| リリース | 変更内容 |
+|---|---|
+| [LTS](ueVite25-LTS.md) | サンプリングによるライティングでライトマテリアル関数に対応（AMD のパッチ）。ReGIR のセルあたりのサンプル数の既定値を 64 に |
+| [August Major](ueVite26-AugustMajor.md) | NvRTX 5.0 の更新: ReGIR の計算方法の改訂、影を無効にしたライトを尊重するサンプリングライティング、ReLAX デノイザーの履歴の既定値 |
+
+## 関連項目
+
+- [レイトレーシング](Ray-Tracing.md)
+- [RT シャドウとアンビエントオクルージョン](RT-Shadows-And-Ambient-Occlusion.md)
+- [動的 DDGI](DDGI-Dynamic.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [パフォーマンス目標](Performance-Targets.md)

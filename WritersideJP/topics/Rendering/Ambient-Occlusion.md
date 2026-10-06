@@ -1,118 +1,117 @@
-# Ambient Occlusion
+# アンビエントオクルージョン
 
 <tldr>
 <p>
-Three options: Vite's <b>optimised SSAO</b> (on by default, free), <b>HBAO+</b> (higher quality,
-post-process volume controlled) and <b>RTAO</b> (ray traced, most accurate, most expensive).
-They compose &mdash; HBAO+ multiplies over the SSAO buffer.
+選択肢は 3 つです。Vite の <b>最適化された SSAO</b>（既定で有効、最も低コスト）、<b>HBAO+</b>（より高品質、
+ポストプロセスボリュームで制御）、そして <b>RTAO</b>（レイトレーシング、最も正確で最も高価）です。これらは組み合わせられ、
+HBAO+ は SSAO のバッファの上に乗算されます。
 </p>
 </tldr>
 
-Ambient occlusion darkens creases, contact points and enclosed areas that ambient light should not fully
-reach. It is one of the cheapest ways to make a scene read as grounded, and one of the most common places to
-overspend.
+アンビエントオクルージョンは、環境光が完全には届かないはずのくぼみ、接触点、囲まれた領域を暗くします。シーンに接地感を
+与える最も安価な方法の 1 つであると同時に、コストをかけすぎることが最もよくある場所の 1 つでもあります。
 
-## Vite optimised SSAO
+## Vite の最適化された SSAO
 
-Vite rewrites the memory access pattern of the stock UE4.27 screen-space AO pass. It produces the same
-result as the stock path at lower cost, and is enabled by default.
+Vite は、標準の UE4.27 のスクリーンスペース AO のパスのメモリアクセスパターンを書き直しています。標準のパスと同じ結果を
+より低いコストで生成し、既定で有効です。
 
-| Control | Default | Notes |
+| 制御 | 既定値 | 備考 |
 |---|---|---|
-| `VITE_O_SSAO` (compile-time) | `1` | Shipping builds are locked to this value |
-| `r.Vite.SSAO` (runtime) | `VITE_O_SSAO` | Development builds only. `0` = stock UE path, `1` = optimised path |
+| `VITE_O_SSAO`（コンパイル時） | `1` | Shipping ビルドはこの値に固定 |
+| `r.Vite.SSAO`（実行時） | `VITE_O_SSAO` | 開発ビルドのみ。`0` は標準の UE のパス、`1` は最適化されたパス |
 
-The runtime CVar exists so you can A/B the optimised path against stock during development, which is how the
-optimisation was validated. In Shipping the CVar does not exist at all &mdash; the path is compiled in.
-See [Compile-Time Switches](Compile-Time-Switches.md).
+実行時の CVar は、開発中に最適化されたパスと標準のパスを A/B 比較するためにあり、最適化の検証もこの方法で行いました。
+Shipping ではこの CVar は存在せず、パスはコンパイル時に組み込まれます。
+[コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
 
-Standard UE4.27 SSAO settings all still apply and are found under **Rendering Features > Ambient Occlusion**
-in a post process volume: Intensity, Radius, Quality, Power, Bias, Fade Out Distance and the rest.
+標準の UE4.27 の SSAO の設定はすべて引き続き適用され、ポストプロセスボリュームの **Rendering Features > Ambient
+Occlusion** にあります。Intensity、Radius、Quality、Power、Bias、Fade Out Distance などです。
+
+[SSGI](SSGI.md) が有効で確実に実行される場合は、SSGI がアンビエントオクルージョンの項を提供し、SSAO は完全にスキップ
+されます（[September Major](ueVite26-SeptemberMajor.md) 以降）。
 
 ## HBAO+
 
-Horizon-Based Ambient Occlusion is NVIDIA's higher-quality AO technique, inherited through the NvRTX
-branch. It samples the depth buffer along horizon directions rather than in a screen-space sphere, which
-produces more accurate occlusion in creases and less of SSAO's characteristic haloing around object
-silhouettes.
+Horizon-Based Ambient Occlusion は NVIDIA のより高品質な AO の手法で、NvRTX のブランチから受け継いでいます。
+スクリーンスペースの球内ではなく水平線の方向に沿って深度バッファをサンプリングするため、くぼみでより正確な遮蔽が得られ、
+SSAO に特有のオブジェクトのシルエット周りのハローも少なくなります。
 
-HBAO+ **multiplies over** the screen-space AO buffer rather than replacing it, so both run when it is
-enabled.
+HBAO+ はスクリーンスペースの AO バッファを置き換えるのではなく、その上に **乗算** されるため、有効にすると両方が
+実行されます。
 
-### Enabling
+### 有効にする
 
-| CVar | Default | Effect |
+| CVar | 既定値 | 効果 |
 |---|---|---|
-| `r.HBAO.Enable` | `0` | Master enable |
-| `r.HBAO.HighPrecisionDepth` | `0` | `0` = FP16 internal depth, `1` = FP32. Use FP32 to avoid self-occlusion banding on distant objects. |
-| `r.HBAO.GBufferNormals` | `1` | `0` = reconstruct normals from depth, `1` = fetch GBuffer normals |
+| `r.HBAO.Enable` | `0` | 全体の有効化 |
+| `r.HBAO.HighPrecisionDepth` | `0` | `0` は内部深度が FP16、`1` は FP32。遠くのオブジェクトでの自己遮蔽のバンディングを避けるには FP32 を使用 |
+| `r.HBAO.GBufferNormals` | `1` | `0` は深度から法線を再構成、`1` は GBuffer の法線を取得 |
 
 <note>
-The CVar help text describes HBAO+ as DX11-only. Vite implements it on both D3D11 and D3D12; the help
-string is inherited from the original NVIDIA integration and has not been updated.
+CVar のヘルプテキストは HBAO+ を DX11 専用と説明しています。Vite は D3D11 と D3D12 の両方で実装しており（D3D12 の
+バックエンドは <a href="ueVite26-JuneMajor.md">June Major</a> で追加）、ヘルプの文字列は元の NVIDIA の統合から引き継いだ
+まま更新されていません。
 </note>
 
-### Post process volume settings
+### ポストプロセスボリュームの設定
 
-Once enabled, HBAO+ is tuned per post process volume under the **HBAO+** category. These are Blueprint
-read/write, so they can be driven at runtime.
+有効にした後は、ポストプロセスボリュームの **HBAO+** カテゴリで HBAO+ を調整します。これらはブループリントから読み書き
+できるため、実行時に制御できます。
 
-| Setting | Default | Range | Purpose |
+| 設定 | 既定値 | 範囲 | 用途 |
 |---|---|---|---|
-| Power Exponent | `2.0` | 0&ndash;4 | Darkening curve applied to the AO result. Higher is more contrasty. |
-| Radius | `2.0` | 0.1&ndash;2 | World-space sampling radius in metres |
-| Bias | `0.1` | 0&ndash;0.2 | Rejects samples below this angle. Raise to remove self-occlusion on flat surfaces. |
-| SmallScale AO | `1.0` | 0&ndash;1 | Weight of fine-detail occlusion |
-| Blur Radius | 2 pixels | Disabled / 2px / 4px | Noise reduction blur |
-| Blur Sharpness | `16.0` | 0&ndash;32 | Edge preservation during blur. Higher preserves more edges. |
-| Max Depth | `9500.0` | 0&ndash;400+ | View depth beyond which HBAO+ stops being computed |
-| Depth Sharpness | `50.0` | 0&ndash;100 | Depth discontinuity sensitivity |
-| Clamp Foreground AO | off | &mdash; | Limits AO on near geometry |
-| Foreground AO Distance | `100.0` | 0&ndash;1000 | Distance used by the foreground clamp |
-| Clamp Background AO | off | &mdash; | Limits AO on distant geometry |
-| Background AO Distance | `1000.0` | 0&ndash;10000 | Distance used by the background clamp |
+| Power Exponent | `2.0` | 0〜4 | AO の結果に適用する暗さのカーブ。大きいほどコントラストが強くなります。 |
+| Radius | `2.0` | 0.1〜2 | ワールド空間でのサンプリング半径（メートル） |
+| Bias | `0.1` | 0〜0.2 | この角度より下のサンプルを除外します。平らな面の自己遮蔽を取り除くには値を上げます。 |
+| SmallScale AO | `1.0` | 0〜1 | 細かなディテールの遮蔽の重み |
+| Blur Radius | 2 ピクセル | 無効 / 2px / 4px | ノイズを減らすブラー |
+| Blur Sharpness | `16.0` | 0〜32 | ブラー中のエッジの保持。大きいほどエッジを保ちます。 |
+| Max Depth | `9500.0` | 0〜400 以上 | これより遠いビュー深度では HBAO+ を計算しません |
+| Depth Sharpness | `50.0` | 0〜100 | 深度の不連続への感度 |
+| Clamp Foreground AO | オフ | &mdash; | 近いジオメトリの AO を制限 |
+| Foreground AO Distance | `100.0` | 0〜1000 | 手前のクランプに使う距離 |
+| Clamp Background AO | オフ | &mdash; | 遠いジオメトリの AO を制限 |
+| Background AO Distance | `1000.0` | 0〜10000 | 奥のクランプに使う距離 |
 
-**Radius** is the setting that matters most and is most often wrong. It is in metres, and the correct value
-depends entirely on scene scale. An interior with human-scale props wants a small radius; a large exterior
-wants a larger one. Too large produces soft grey wash across everything; too small produces occlusion only
-in the tightest creases.
+**Radius** は最も重要で、最も間違えやすい設定です。単位はメートルで、正しい値はシーンのスケールに完全に依存します。
+人間サイズのプロップがある屋内では小さな半径が、大きな屋外ではより大きな半径が適しています。大きすぎるとすべてに
+柔らかな灰色の膜がかかり、小さすぎると最も狭いくぼみにしか遮蔽が出ません。
 
-**Max Depth** is a straightforward performance lever. Distant geometry contributes very little visible AO,
-so lowering this value reduces cost with minimal visual change. Check the result against a fly-through
-before committing to an aggressive value.
+**Max Depth** は分かりやすい性能の調整項目です。遠くのジオメトリは目に見える AO にほとんど寄与しないため、この値を
+下げると見た目の変化を最小限に抑えつつコストを減らせます。思い切った値に決める前に、シーンを通して確認してください。
 
-## Ray-traced ambient occlusion
+## レイトレーシングアンビエントオクルージョン
 
-RTAO is covered in detail in [RT Shadows and Ambient Occlusion](RT-Shadows-And-Ambient-Occlusion.md). In
-brief: it traces actual occlusion rays, so it handles off-screen occluders correctly and does not suffer
-from screen-space AO's fundamental limitation of only knowing about what is visible.
+RTAO の詳細は [RT シャドウとアンビエントオクルージョン](RT-Shadows-And-Ambient-Occlusion.md) で説明しています。簡単に
+言えば、実際に遮蔽のレイをトレースするため、画面外の遮蔽物も正しく扱え、見えているものしか知らないというスクリーン
+スペースの AO の根本的な制約がありません。
 
-It is also the most expensive of the three, and requires DXR.
+3 つの中で最も高価で、DXR が必要です。
 
-## Choosing
+## 選び方
 
-| Target | Recommended configuration |
+| 目標 | 推奨構成 |
 |---|---|
-| Stylised 4K120 | Vite SSAO only |
-| Performance High End 4K60 | Vite SSAO, HBAO+ if there is headroom |
-| Fidelity High End 4K30 | Vite SSAO + HBAO+ |
-| Fidelity Full RT 1440p30 | RTAO |
+| スタイライズド 4K120 | Vite の SSAO のみ |
+| パフォーマンス（ハイエンド）4K60 | Vite の SSAO。余裕があれば HBAO+ |
+| フィデリティ（ハイエンド）4K30 | Vite の SSAO + HBAO+ |
+| フィデリティ（フル RT）1440p30 | RTAO |
 
-The general rule is that AO should be the cheapest thing in your frame that produces its result. If
-[DDGI](DDGI-Dynamic.md) is already resolving the indirect lighting in a space correctly, heavy AO on top of
-it is double-darkening &mdash; you are subtracting light that the GI solution never added.
+一般的なルールとして、AO はその結果を出せるもののうちフレームで最も安価なものにすべきです。[DDGI](DDGI-Dynamic.md) が
+すでにその空間の間接光を正しく解決しているなら、その上に重い AO をかけるのは二重に暗くすることになり、GI のソリューションが
+加えてもいない光を差し引くことになります。
 
 <warning>
-Watch for AO stacking. Enabling material AO, SSAO, HBAO+ and RTAO simultaneously produces a scene that is
-much darker in contact areas than it should be. Each layer multiplies. Compare against a
-<a href="Path-Tracing.md">path-traced</a> reference if you are unsure whether your contact shadows are
-physically plausible or just dark.
+AO の重ねがけに注意してください。マテリアルの AO、SSAO、HBAO+、RTAO を同時に有効にすると、接触部が本来よりはるかに暗い
+シーンになります。各層が乗算されるためです。接触シャドウが物理的に妥当なのか単に暗いだけなのか分からない場合は、
+<a href="Path-Tracing.md">パストレーシング</a> のリファレンスと比較してください。
 </warning>
 
-## See also
+## 関連項目
 
-- [RT Shadows and Ambient Occlusion](RT-Shadows-And-Ambient-Occlusion.md)
-- [Global Illumination](Global-Illumination.md)
+- [RT シャドウとアンビエントオクルージョン](RT-Shadows-And-Ambient-Occlusion.md)
+- [グローバルイルミネーション](Global-Illumination.md)
 - [SSGI](SSGI.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Performance Targets](Performance-Targets.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [パフォーマンス目標](Performance-Targets.md)

@@ -1,120 +1,121 @@
-# Shading Models
+# シェーディングモデル
 
 <tldr>
 <p>
-Vite adds three shading models to the stock 4.27 set: <b>Callisto BRDF</b> for high-fidelity skin and
-character surfaces, <b>Toon</b> for stylised non-photorealistic rendering, and <b>Lit Reactive</b>.
-Each repurposes existing material pins, so read the pin mapping tables before authoring.
+Vite は標準の 4.27 のシェーディングモデルに 3 つを追加しています。高品質な肌やキャラクターのサーフェス向けの
+<b>Callisto BRDF</b>、スタイライズドな非写実的レンダリング向けの <b>Toon</b>、そして <b>Lit Reactive</b> です。
+いずれも既存のマテリアルのピンを流用するため、作成前にピンの対応表を確認してください。
+</p>
+<p>
+July Major 以降、<b>Callisto BRDF と Toon は既定でコンパイル対象から外れています</b>。使うには
+<code>VITE_SHADINGMODEL_CALLISTO=1</code> または <code>VITE_SHADINGMODEL_TOON=1</code> でビルドしてください。
+<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
 </p>
 </tldr>
 
-Shading models are selected from the **Shading Model** dropdown in the material's details panel, or driven
-per-pixel through the **Shading Model** material expression. All stock Unreal Engine 4.27 shading models
-remain available.
+シェーディングモデルは、マテリアルの詳細パネルの **Shading Model** ドロップダウンで選ぶか、**Shading Model** の
+マテリアル式でピクセルごとに指定します。標準の Unreal Engine 4.27 のシェーディングモデルはすべて引き続き利用できます。
 
-## Added shading models
+## 追加されたシェーディングモデル
 
-| Shading model | Display name | Purpose |
+| シェーディングモデル | 表示名 | 用途 |
 |---|---|---|
-| `MSM_CallistoBRDF` | Callisto BRDF | High-fidelity character and skin surfaces with single- and dual-lobe GGX specular |
-| `MSM_Toon` | Toon | Stylised cel shading, inspired by Guilty Gear |
-| `MSM_LitReactive` | Lit Reactive | Lit surface variant with anisotropy and tangent support |
+| `MSM_CallistoBRDF` | Callisto BRDF | 単一または 2 ローブの GGX スペキュラーによる、高品質なキャラクターと肌のサーフェス |
+| `MSM_Toon` | Toon | Guilty Gear に着想を得た、スタイライズドなセルシェーディング |
+| `MSM_LitReactive` | Lit Reactive | 異方性とタンジェントに対応した Lit サーフェスの派生 |
 
 ## Callisto BRDF
 
-Callisto BRDF provides single- and dual-lobe GGX specular with specular Fresnel falloff, aimed at
-characters and skin where the default lit model's single specular lobe is too crude. The
-[Callisto BRDF demo projects](Callisto-BRDF-Demos.md) show it applied to male and female character
-surfaces.
+Callisto BRDF は、スペキュラーのフレネルの減衰を備えた単一または 2 ローブの GGX スペキュラーを提供します。既定の
+Lit モデルの単一のスペキュラーローブでは粗すぎる、キャラクターや肌を対象としています。
+[Callisto BRDF のデモプロジェクト](Callisto-BRDF-Demos.md) で、男性と女性のキャラクターのサーフェスに適用した例を
+確認できます。
 
-### Pin mapping
+### ピンの対応
 
-The model repurposes several standard material pins. The material editor relabels them automatically once
-the shading model is selected, but knowing the mapping helps when reading material graphs or writing
-material functions.
+このモデルは標準のマテリアルのピンをいくつか流用します。シェーディングモデルを選ぶとマテリアルエディタが自動的に
+ラベルを付け替えますが、マテリアルグラフを読んだりマテリアル関数を書いたりする際は、対応を知っておくと役立ちます。
 
-| Standard pin | Callisto BRDF label | Purpose |
+| 標準のピン | Callisto BRDF でのラベル | 用途 |
 |---|---|---|
-| Opacity | **Retroreflection** | Retroreflective response strength |
-| Ambient Occlusion | **Retroreflection Falloff** | Falloff curve for the retroreflection term |
-| Anisotropy | **Diffuse Fresnel** | Diffuse Fresnel term |
-| Custom Data 0 | **Smooth Terminator** | Softens the light terminator across the shadow boundary |
-| Custom Data 1 | **Diffuse Fresnel Falloff** | Falloff curve for the diffuse Fresnel term |
+| Opacity | **Retroreflection** | 再帰反射の応答の強さ |
+| Ambient Occlusion | **Retroreflection Falloff** | 再帰反射の項の減衰カーブ |
+| Anisotropy | **Diffuse Fresnel** | ディフューズのフレネル項 |
+| Custom Data 0 | **Smooth Terminator** | 影の境界をまたぐ光のターミネーターを和らげる |
+| Custom Data 1 | **Diffuse Fresnel Falloff** | ディフューズのフレネル項の減衰カーブ |
 
 ### Callisto Advanced Params
 
-An additional custom output node, **Callisto Advanced Params**, exposes parameters that do not fit the
-standard pin set:
+標準のピンに収まらないパラメーターは、追加のカスタム出力ノード **Callisto Advanced Params** で公開しています。
 
-| Input | Purpose |
+| 入力 | 用途 |
 |---|---|
-| Specular Fresnel Falloff | Falloff curve for the specular Fresnel response |
+| Specular Fresnel Falloff | スペキュラーのフレネルの応答の減衰カーブ |
 
-Add the node to the material graph the same way as any other custom output. It compiles to the
-`CallistoAdvancedParams` material function.
+他のカスタム出力と同じようにマテリアルグラフにノードを追加します。これは `CallistoAdvancedParams` マテリアル関数に
+コンパイルされます。
 
-### Authoring notes
+### 作成時の注意点
 
-The smooth terminator control is the one most worth understanding. The hard light terminator produced by
-standard GGX shading is a well-known artefact on curved organic surfaces, particularly faces lit from a
-grazing angle, where the shading boundary appears unnaturally sharp. The smooth terminator input softens
-that transition without flattening the overall shading.
+最も理解しておく価値があるのは、スムーズターミネーターの制御です。標準の GGX シェーディングが生む硬い光の
+ターミネーターは、有機的な曲面、特にかすめる角度から照らされた顔で、シェーディングの境界が不自然に鋭く見えるという
+よく知られたアーティファクトです。スムーズターミネーターの入力は、全体のシェーディングを平坦にすることなく、この
+遷移を和らげます。
 
-The retroreflection and diffuse Fresnel controls together let you dial in surfaces that brighten toward
-grazing angles &mdash; skin, fabric with fine fibres, dusty surfaces &mdash; without resorting to a
-subsurface model.
+再帰反射とディフューズのフレネルの制御を組み合わせると、肌、細かな繊維の布、ほこりをかぶった表面など、かすめる角度に
+向かって明るくなるサーフェスを、サブサーフェスのモデルに頼らずに表現できます。
 
 ## Toon
 
-The Toon shading model provides cel shading with explicit artistic control over the shading ramp, specular
-shape and shaded colour, inspired by Arc System Works' approach in Guilty Gear.
+Toon シェーディングモデルは、Arc System Works による Guilty Gear の手法に着想を得たセルシェーディングで、シェーディングの
+ランプ、スペキュラーの形状、影色をアーティストが明示的に制御できます。
 
-### Pin mapping
+### ピンの対応
 
-Toon repurposes more pins than any other model, because most of the standard PBR parameters have no
-meaning under cel shading.
+PBR の標準的なパラメーターの多くはセルシェーディングでは意味を持たないため、Toon は他のどのモデルよりも多くのピンを
+流用します。
 
-| Standard pin | Toon label | Purpose |
+| 標準のピン | Toon でのラベル | 用途 |
 |---|---|---|
-| Metallic | **Specular Brightness** | Intensity of the specular highlight |
-| Specular | **Specular Size** | Size of the specular highlight |
-| Roughness | **Shadow Bias** | Shifts the shading threshold between lit and shaded |
-| Anisotropy | **Softness** | Softness of the lit/shaded transition |
-| Subsurface Color | **Shaded Color** | Explicit colour used in the shaded region |
+| Metallic | **Specular Brightness** | スペキュラーのハイライトの強さ |
+| Specular | **Specular Size** | スペキュラーのハイライトの大きさ |
+| Roughness | **Shadow Bias** | 明部と暗部の境界のしきい値をずらす |
+| Anisotropy | **Softness** | 明部と暗部の遷移の柔らかさ |
+| Subsurface Color | **Shaded Color** | 暗部で使う明示的な色 |
 
-**Shaded Color** is the key control. Rather than deriving shadow colour by darkening the base colour, you
-specify it directly, which is what gives cel-shaded art its characteristic non-physical colour shifts in
-shadow &mdash; skin that goes purple rather than dark brown, for instance.
+**Shaded Color** が鍵となる制御です。ベースカラーを暗くして影色を導くのではなく直接指定するため、セルシェーディングの
+アートに特有の、物理的ではない影の色の変化（たとえば濃い茶色ではなく紫になる肌）を表現できます。
 
-**Shadow Bias** and **Softness** together define the ramp. A bias near the middle with near-zero softness
-gives a hard two-tone look; increasing softness moves toward a gradient.
+**Shadow Bias** と **Softness** が合わさってランプを決めます。バイアスを中央付近にしてソフトネスをほぼ 0 にすると
+くっきりした 2 トーンになり、ソフトネスを上げるとグラデーションに近づきます。
 
 ## Lit Reactive
 
-A lit surface variant supporting anisotropy, tangent input and Custom Data 0. It is treated as a basic
-opaque surface for the purposes of the opacity and opacity-mask optimisation path, alongside Default Lit,
-which means it avoids the masked and translucent-only attribute compilation that other lit models trigger.
+異方性、タンジェントの入力、Custom Data 0 に対応した Lit サーフェスの派生です。不透明度とオパシティマスクの最適化
+パスでは、Default Lit と同じく基本的な不透明サーフェスとして扱われるため、他の Lit モデルが引き起こすマスクや半透明専用の
+属性のコンパイルを避けられます。[June Major](ueVite26-JuneMajor.md) で、FSR のリアクティブマスク向けに静的な WPO の
+ベロシティを出力する目的で追加されました。
 
-## Shader permutations
+## シェーダーパーミュテーション
 
-Every shading model in use adds shader permutations, which cost compile time, PSO count and disk space.
-This is a real budget rather than a theoretical concern &mdash; permutation growth was one of the specific
-regressions Vite exists to avoid, as described in
-[UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md).
+使用中のシェーディングモデルごとにシェーダーパーミュテーションが増え、コンパイル時間、PSO の数、ディスク容量を消費します。
+これは理論上の懸念ではなく実際の予算です。パーミュテーションの増加は、[UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+で説明しているように、Vite が避けるために存在する劣化の 1 つです。追加のシェーディングモデルを既定で外すことで、
+基準シーンのフレームレートは 12.3% 向上しました。
 
-> Use the smallest set of shading models your art direction needs. A project that ships Default Lit,
-> Callisto BRDF for characters and nothing else will compile faster, have fewer PSOs and load faster than
-> one that uses six models across its material library.
+> アートディレクションに必要な最小限のシェーディングモデルを使ってください。Default Lit とキャラクター用の
+> Callisto BRDF だけを使うプロジェクトは、マテリアルライブラリ全体で 6 つのモデルを使うプロジェクトより、コンパイルが
+> 速く、PSO が少なく、読み込みも速くなります。
 >
 {style="note"}
 
-See [Shader Compilation and PSO](Shader-Compilation-And-PSO.md) for how Vite manages permutations, and note
-that runtime PSOs are debloated in Shipping configuration.
+Vite がパーミュテーションをどう管理しているかは [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md) を参照して
+ください。また、Shipping 構成では実行時の PSO がデブロートされます。
 
-## See also
+## 関連項目
 
-- [Rendering](Rendering.md)
-- [Callisto BRDF Demos](Callisto-BRDF-Demos.md)
-- [Hair Rendering](Hair-Rendering.md)
-- [Shader Compilation and PSO](Shader-Compilation-And-PSO.md)
-- [Colour Management](Color-Management.md)
+- [レンダリング](Rendering.md)
+- [Callisto BRDF デモ](Callisto-BRDF-Demos.md)
+- [ヘアレンダリング](Hair-Rendering.md)
+- [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md)
+- [カラーマネジメント](Color-Management.md)

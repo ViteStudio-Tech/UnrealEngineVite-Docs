@@ -1,133 +1,149 @@
-# Upscalers and Frame Generation
+# アップスケーラー
 
 <tldr>
 <p>
-Vite bundles DLSS 4.5, DLSS Frame Generation, FSR2, FSR 4, XeSS 3, NIS &mdash;. They are <b>optional headroom</b>, not the rendering plan. Vite's
-<a href="Performance-Targets.md">performance targets</a> are met at native resolution without any of them.
+Vite には、Ray Reconstruction とマルチフレーム生成に対応した NVIDIA DLSS 4.5、FSR 3.1 へのフォールバックとベンダーを
+問わないフレーム生成を備えた AMD FSR 4、XeFG に対応した Intel XeSS 3.1、NVIDIA NIS、そして Reflex と Anti-Lag 2 の
+レイテンシー SDK が同梱されています。これらは <b>任意の余力</b> であり、レンダリングの前提ではありません。Vite の
+<a href="Performance-Targets.md">パフォーマンス目標</a> は、どれも使わずにネイティブ解像度で達成しています。
 </p>
 </tldr>
 
-Check out the [UpscalerTest Sample project](https://github.com/ViteStudio-Tech/ueVite-UpscalerTest)
+[UpscalerTest サンプルプロジェクト](https://github.com/ViteStudio-Tech/ueVite-UpscalerTest) もご覧ください。
 
-Unreal Engine 5 treats upscaling as mandatory: the renderer is designed around rendering at a fraction of
-output resolution and reconstructing the rest. Vite takes the opposite position. The targets are native, and
-upscalers are available for users who want to spend the headroom on something else.
+Unreal Engine 5 はアップスケーリングを必須として扱います。レンダラーは出力解像度の一部で描画し、残りを再構成する前提で
+設計されています。Vite は逆の立場を取ります。目標はネイティブであり、アップスケーラーは余力を別のことに使いたい
+ユーザーのために用意しています。
 
-That distinction changes how you should use the plugins on this page. If your project only hits its frame
-target with DLSS Performance enabled, the project is over budget &mdash; fix that first, then offer
-upscaling as an option on top.
+この違いによって、このページのプラグインの使い方が変わります。DLSS のパフォーマンスモードを有効にしないとフレームの
+目標に届かないプロジェクトは、予算を超えています。まずそれを直し、そのうえで追加のオプションとしてアップスケーリングを
+提供してください。
 
-## Bundled plugins
+## 同梱プラグイン
 
-All of these ship in the engine repository under `Engine/Plugins/Runtime`. None are enabled by default;
-enable the ones your project offers from **Edit > Plugins**.
+以下はすべてエンジンのリポジトリの `Engine/Plugins/Runtime` に含まれています。既定で有効なものはありません。
+プロジェクトで提供するものを **編集 > プラグイン** から有効にしてください。バージョンは
+[September Major](ueVite26-SeptemberMajor.md) のものです。
 
-| Plugin | Version | What it provides | Location |
+| プラグイン | バージョン | 提供するもの | 場所 |
 |---|---|---|---|
-| NVIDIA DLSS | 8.7.0-NGX310.7.0 (DLSS 4.5) | Super Resolution, Ray Reconstruction, DLAA | `Nvidia/DLSS` |
-| NVIDIA DLSS Frame Generation | 1.3.0-SL2.4.0 (Streamline) | Frame Generation and Reflex | `Nvidia/Streamline` |
-| NVIDIA DeepDVC | Streamline | Deep-learning dynamic vibrance | `Nvidia/StreamlineDeepDVC` |
-| NVIDIA NIS | &mdash; | Image Scaling, spatial upscaling and sharpening | `Nvidia/NIS` |
-| DLSS Movie Pipeline Support | &mdash; | DLSS integration for Movie Render Queue | `Nvidia/DLSSMoviePipelineSupport` |
-| AMD FSR 4 | 4.1.1 | FidelityFX Super Resolution 4 and Frame Generation, DX12 | `VitePlugins/FSR4-427` |
-| Intel XeSS | 3.0.5 | Xe Super Sampling | `VitePlugins/XeSS_UE4.27_Plugin_v3.0.5` |
+| NVIDIA DLSS | 8.7.0-NGX310.7.0（DLSS 4.5 のプリセット） | Super Resolution、Ray Reconstruction、DLAA | `Nvidia/DLSS` |
+| NVIDIA DLSS Frame Generation | Streamline SDK 2.12.0 上の 1.3.0 プラグイン | マルチフレーム生成を含むフレーム生成 | `Nvidia/Streamline` |
+| NVIDIA Reflex | 1.6 | レイテンシーの削減 | `Nvidia/Reflex` |
+| NVIDIA RTX Dynamic Vibrance | 1.3.0（Streamline） | ディープラーニングによる動的な鮮やかさの調整 | `Nvidia/StreamlineDeepDVC` |
+| NVIDIA NIS | 1.2.1 | Image Scaling: 空間アップスケーリングとシャープニング | `Nvidia/NIS` |
+| Movie Render Queue DLSS/DLAA Support | 2.3.3 | Movie Render Queue への DLSS の統合 | `Nvidia/DLSSMoviePipelineSupport` |
+| AMD FSR 4 | 4.1.1 | FSR 3.1 へのフォールバック付きの FSR 4 の ML アップスケーリング、ネイティブ AA、どのアップスケーラーとも組み合わせられるフレーム生成。DirectX 12 | `VitePlugins/FSR4-427/FSR4` |
+| AMD Anti-Lag 2 | 2.0.4 | AMD の GPU でのレイテンシーの削減 | `VitePlugins/AntiLag2.0.4` |
+| Intel XeSS | 3.1.0 | Xe Super Sampling と XeFG のフレーム生成 | `VitePlugins/XeSS_UE4.27_Plugin_v3.1.0` |
 
-FSR 4 and XeSS 3 are notable: both are backports that do not exist in stock 4.27. FSR 4 uses the native
-`ffx-api` and requires DirectX 12.
+FSR 4 と XeSS 3 は特筆に値します。どちらも標準の 4.27 には存在しないバックポートです。FSR 4 はネイティブの `ffx-api` を
+使い、DirectX 12 が必要です。このセットの大部分は [June Major](ueVite26-JuneMajor.md) で導入され、
+[August Major](ueVite26-AugustMajor.md) で XeSS が 3.1.0 に、DLSS のランタイムが NGX 310.7.129 に更新されました。
 
-## Choosing what to ship
+### 任意のレンダー解像度
 
-You do not need all of them. Each enabled upscaler adds shaders, binaries, package size and a settings menu
-entry that has to be tested.
+`r.Upscaler.ScreenPercentageOverride` を使うと、FSR、DLSS、XeSS が固定の品質モードだけでなく任意の内部レンダー解像度を
+受け取れます。ベンチマークや解像度スライダーの提供に使い、通常の品質モードの挙動にしたい場合は設定しないでください。
 
-| Situation | Recommendation |
+## 何を出荷するか
+
+すべてを使う必要はありません。有効にしたアップスケーラーごとに、シェーダー、バイナリ、パッケージサイズ、そしてテストが
+必要な設定メニューの項目が増えます。
+
+| 状況 | 推奨 |
 |---|---|
-| PC release, broad hardware support | DLSS + FSR 4. Covers NVIDIA and AMD; XeSS if Intel Arc matters to you. |
-| NVIDIA-focused, ray tracing heavy | DLSS with Ray Reconstruction |
-| Anti-aliasing quality at native resolution | DLAA (part of the DLSS plugin), or Vite's [SMAA](Anti-Aliasing.md) |
-| No upscaling, native only | Ship nothing from this page. This is a valid and supported configuration. |
+| PC 版で幅広いハードウェアに対応 | DLSS と FSR 4。NVIDIA と AMD をカバーし、Intel Arc が重要なら XeSS も。 |
+| NVIDIA 中心でレイトレーシングを多用 | Ray Reconstruction 付きの DLSS |
+| ネイティブ解像度でのアンチエイリアシングの品質 | DLAA（DLSS プラグインの一部）、FSR 4 のネイティブ AA、または Vite の [SMAA](Anti-Aliasing.md) |
+| アップスケーリングなし、ネイティブのみ | このページのものは何も出荷しません。これは正当でサポートされた構成です。 |
 
-DLAA is worth calling out separately. It is DLSS's neural network applied at native resolution rather than
-as an upscaler, so it competes with SMAA rather than complementing it. It generally resolves finer detail
-than SMAA but reintroduces temporal accumulation, and therefore some of the artefacts SMAA avoids. Offer
-both and let the player choose.
+DLAA は特に取り上げる価値があります。DLSS のニューラルネットワークをアップスケーラーとしてではなくネイティブ解像度で
+適用するもので、SMAA を補うのではなく SMAA と競合します。一般に SMAA より細かいディテールを解像しますが、時間的な蓄積を
+再び持ち込むため、SMAA が避けているアーティファクトの一部も戻ってきます。両方を提供し、プレイヤーに選ばせてください。
 
 ## Ray Reconstruction
 
-Ray Reconstruction replaces the hand-tuned denoisers for ray-traced effects with a neural denoiser. In a
-Vite project this interacts directly with the [ray tracing](Ray-Tracing.md) configuration:
+Ray Reconstruction は、レイトレーシングのエフェクト向けの手作業で調整したデノイザーを、ニューラルデノイザーに置き換えます。
+Vite のプロジェクトでは、これは [レイトレーシング](Ray-Tracing.md) の構成と直接関係します。
 
-- It can substantially improve [RT reflection](RT-Reflections.md) and [RTXDI](RTXDI.md) quality under
-  motion, where hand-tuned denoisers struggle.
-- It has no benefit for [DDGI](DDGI-Dynamic.md), which is noise-free by construction and has nothing to
-  denoise.
+- 手作業で調整したデノイザーが苦手とする動きの中で、[RT 反射](RT-Reflections.md) と [RTXDI](RTXDI.md) の品質を大きく
+  改善できます。
+- 原理的にノイズがなくデノイズするものがない [DDGI](DDGI-Dynamic.md) には効果がありません。
 
-If your ray tracing configuration is DDGI-led, Ray Reconstruction buys you less than it would in a
-Lumen-based project. Measure before shipping it.
+Ray Reconstruction には、Super Resolution のプリセットとは別に専用のプリセットのコンソール変数があります。プリセット F が
+DLSS 4.5 のモデルです。
 
-## Frame generation
+レイトレーシングの構成が DDGI 中心であれば、Ray Reconstruction の効果は Lumen ベースのプロジェクトより小さくなります。
+出荷する前に計測してください。
 
-DLSS Frame Generation (via Streamline) and FSR 4 Frame Generation both synthesise intermediate frames.
+## フレーム生成
 
-Frame generation increases displayed frame rate without reducing input latency &mdash; it can make latency
-slightly worse, which is why Reflex ships alongside it in the Streamline plugin. Enable Reflex whenever you
-enable frame generation.
+エンジンには 3 種類のフレーム生成が同梱されています。
 
-> Frame generation works best when the base frame rate is already high. Generating from 30&nbsp;fps to
-> 60&nbsp;fps produces visible artefacts around fast-moving UI and thin geometry; generating from
-> 60&nbsp;fps to 120&nbsp;fps is far more convincing. Since Vite targets high native frame rates to begin
-> with, frame generation is well positioned here &mdash; as a way to push a 4K60 target toward a
-> high-refresh display, not as a way to rescue a 30&nbsp;fps one.
+- Streamline による **DLSS Frame Generation**。DLSS-G のマルチフレーム生成の倍率指定も含みます。
+- 表示時にスワップチェーンから駆動する **FSR のフレーム生成**。アップスケーラーに依存せず、FSR だけでなく DLSS、XeSS、
+  ネイティブ描画とも組み合わせられます。いずれかのフレーム生成を選ぶと完全なベロシティ出力が強制されるため、生成された
+  フレームにゴーストが生じません。
+- XeSS 3 によって UE 4.27 で有効にした、Intel のフレーム生成である **XeFG**。
+
+フレーム生成は表示上のフレームレートを上げますが、入力遅延は減らしません。むしろわずかに悪化させることがあります。
+フレーム生成を有効にするときは、NVIDIA のハードウェアでは **Reflex**、AMD のハードウェアでは **Anti-Lag 2** を
+必ず併用してください。
+
+> フレーム生成は、元のフレームレートがすでに高いときに最もよく機能します。30&nbsp;fps から 60&nbsp;fps を生成すると、
+> 速く動く UI や細いジオメトリの周りに目に見えるアーティファクトが生じますが、60&nbsp;fps から 120&nbsp;fps を生成する
+> 場合ははるかに自然です。Vite はもともと高いネイティブフレームレートを目標としているため、フレーム生成とは相性が
+> 良く、30&nbsp;fps を救う手段ではなく、4K60 の目標を高リフレッシュレートのディスプレイに向けて押し上げる手段として
+> 位置付けられます。
 >
 {style="note"}
 
-## The DLSS translucency patch
+## DLSS の半透明パッチ
 
-Vite includes an optional compile-time patch that addresses a specific quality problem with upscaling:
-separate translucency and volumetric fog rendering at the internal render resolution and then being
-upscaled, which softens particles, glass and fog against an otherwise sharp reconstructed image.
+Vite には、アップスケーリングに特有の品質の問題に対処する、任意のコンパイル時パッチが含まれています。セパレート
+トランスルーセンシーとボリュメトリックフォグが内部のレンダー解像度で描画されてからアップスケールされるため、
+それ以外は鮮明に再構成された画像の中で、パーティクル、ガラス、フォグがぼやけてしまう問題です。
 
-| Switch | Default | Effect |
+| スイッチ | 既定値 | 効果 |
 |---|---|---|
-| `VITE_DLSS_PATCH` | `0` | Adds upscaled-resolution translucency passes and native-resolution volumetric fog |
+| `VITE_DLSS_PATCH` | `0` | アップスケール後の解像度での半透明のパスと、ネイティブ解像度のボリュメトリックフォグを追加 |
 
-When enabled, the renderer gains two additional translucency passes,
-`TranslucencyAfterDOFUpscaledRT` and `TranslucencyAfterDOFModulateUpscaledRT`, which render selected
-translucent primitives at output resolution after upscaling. Primitives opt in through the
-`bRenderInTranslucencyUpscaledRTPass` relevance flag, and the passes are only used when a temporal upscaler
-is actually active.
+有効にすると、レンダラーに `TranslucencyAfterDOFUpscaledRT` と `TranslucencyAfterDOFModulateUpscaledRT` の 2 つの
+半透明のパスが追加され、選択した半透明のプリミティブをアップスケール後に出力解像度で描画します。プリミティブは
+`bRenderInTranslucencyUpscaledRTPass` のレリバンスフラグでオプトインし、これらのパスは時間的アップスケーラーが実際に
+動作しているときにだけ使われます。
 
-It also adds:
+さらに次のものも追加されます。
 
-| CVar | Default | Effect |
+| CVar | 既定値 | 効果 |
 |---|---|---|
-| `r.VolumetricFog.UseUpScaledSizeVolumetricFog` | `0` | Computes the volumetric fog grid from the output resolution rather than the internal render resolution |
+| `r.VolumetricFog.UseUpScaledSizeVolumetricFog` | `0` | ボリュメトリックフォグのグリッドを、内部のレンダー解像度ではなく出力解像度から計算 |
 
-The switch is defined in `Engine/Source/Runtime/Core/Public/Misc/CoreDefines.h` and defaults to off, since
-it costs frame time and only matters for projects that ship with upscaling enabled. See
-[Compile-Time Switches](Compile-Time-Switches.md) for how to change it.
+このスイッチは `Engine/Source/Runtime/Core/Public/Misc/CoreDefines.h` で定義され、フレームタイムを消費し、アップスケーリングを
+有効にして出荷するプロジェクトにしか関係しないため、既定では無効です。変更方法は
+[コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
 
-## Enabling an upscaler
+## アップスケーラーを有効にする
 
-<procedure title="Add DLSS to a project" id="enable-dlss">
-    <step>Open <b>Edit &gt; Plugins</b>, find <b>NVIDIA DLSS Super Resolution/Ray Reconstruction/DLAA</b>, enable it and restart the editor.</step>
-    <step>For frame generation, also enable <b>NVIDIA DLSS Frame Generation</b>.</step>
+<procedure title="プロジェクトに DLSS を追加する" id="enable-dlss">
+    <step><b>編集 &gt; プラグイン</b> を開き、<b>NVIDIA DLSS Super Resolution/Ray Reconstruction/DLAA</b> を探して有効にし、エディタを再起動します。</step>
+    <step>フレーム生成には <b>NVIDIA DLSS Frame Generation</b> も、レイテンシー対策には <b>Reflex</b> も有効にします。</step>
     <step>
-        Query support at runtime through the DLSS Blueprint library before exposing the option in your
-        settings menu. Hardware and driver support vary, and an option that silently does nothing is worse
-        than no option.
+        設定メニューにオプションを表示する前に、DLSS のブループリントライブラリで実行時に対応状況を確認します。
+        ハードウェアとドライバーの対応はさまざまで、黙って何もしないオプションはオプションがないより悪い結果になります。
     </step>
-    <step>Expose quality mode as a player setting rather than forcing one. Include an off state.</step>
+    <step>品質モードは固定せず、プレイヤーの設定として公開します。オフの状態も含めてください。</step>
     <step>
-        Test the interaction with your <a href="Anti-Aliasing.md">anti-aliasing</a> setting. DLSS replaces
-        the anti-aliasing pass; leaving SMAA enabled alongside it wastes frame time.
+        <a href="Anti-Aliasing.md">アンチエイリアシング</a> の設定との組み合わせをテストします。DLSS はアンチエイリアシングの
+        パスを置き換えるため、SMAA を一緒に有効にしたままだとフレームタイムを無駄にします。
     </step>
 </procedure>
 
-## See also
+## 関連項目
 
-- [Anti-Aliasing](Anti-Aliasing.md)
-- [Performance Targets](Performance-Targets.md)
-- [Ray Tracing](Ray-Tracing.md)
-- [Bundled Plugins](Bundled-Plugins.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
+- [アンチエイリアシング](Anti-Aliasing.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [同梱プラグイン](Bundled-Plugins.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)

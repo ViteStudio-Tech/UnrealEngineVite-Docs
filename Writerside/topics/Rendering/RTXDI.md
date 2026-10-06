@@ -95,6 +95,13 @@ automatically the right answer.
 &mdash; unlike [DDGI](DDGI-Dynamic.md), which is noise-free by construction. Under fast motion in a scene
 with many small bright lights, expect to spend some time on denoiser settings.
 
+## Vite's RTXDI work
+
+| Release | Change |
+|---|---|
+| [LTS](ueVite25-LTS.md) | Light material functions supported in sampled lighting (AMD patch); ReGIR samples per cell default to 64 |
+| [August Major](ueVite26-AugustMajor.md) | NvRTX 5.0 updates: a revised ReGIR computation, sampled lighting that respects lights with shadows disabled, and ReLAX denoiser history defaults |
+
 ## See also
 
 - [Ray Tracing](Ray-Tracing.md)

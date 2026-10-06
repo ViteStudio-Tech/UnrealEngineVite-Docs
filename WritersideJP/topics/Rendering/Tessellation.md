@@ -1,114 +1,109 @@
-# Tessellation and Displacement
+# テッセレーションとディスプレイスメント
 
 <tldr>
 <p>
-Hardware tessellation with true world displacement, removed in Unreal Engine 5, is fully present in Vite.
-Set the material's <b>Tessellation Mode</b> and drive the <b>World Displacement</b> and
-<b>Tessellation Multiplier</b> pins.
+Unreal Engine 5 で削除された、本物のワールドディスプレイスメントを伴うハードウェアテッセレーションは、Vite に完全に
+残っています。マテリアルの <b>Tessellation Mode</b> を設定し、<b>World Displacement</b> と
+<b>Tessellation Multiplier</b> のピンに入力します。
 </p>
 </tldr>
 
-Tessellation subdivides geometry on the GPU and displaces the resulting vertices along a displacement map,
-producing real geometric detail: silhouettes change, surfaces self-occlude and self-shadow correctly, and
-ray-traced effects intersect the displaced surface rather than the flat one.
+テッセレーションは GPU 上でジオメトリを細分化し、生成された頂点をディスプレイスメントマップに沿って移動させることで、
+本物のジオメトリのディテールを生み出します。シルエットが変わり、サーフェスが正しく自己遮蔽・自己シャドウし、
+レイトレーシングのエフェクトは平らな面ではなく変位した面と交差します。
 
-## Why this page exists
+## このページがある理由
 
-Unreal Engine 5 removed hardware tessellation. Nanite is offered as the replacement, but Nanite solves a
-different problem: it renders extremely dense authored meshes efficiently. It does not let you take a
-moderate-density mesh and add procedural or texture-driven detail at runtime.
+Unreal Engine 5 はハードウェアテッセレーションを削除しました。代わりとして Nanite が提示されていますが、Nanite が解決するのは
+別の問題です。非常に密に作成されたメッシュを効率よく描画するものであり、中程度の密度のメッシュに実行時に手続き的、
+またはテクスチャ駆動のディテールを加えることはできません。
 
-The workflows that break without tessellation:
+テッセレーションがないと成り立たないワークフロー:
 
-- **Terrain and landscape displacement** driven by a heightmap, where the detail is procedural and
-  view-dependent rather than baked into a mesh.
-- **Runtime displacement** &mdash; snow accumulation, footprints, deformation, water surfaces &mdash; where
-  the displacement changes during play.
-- **Texture-driven detail on tiling surfaces**, where a single material adds real depth to brick, cobble or
-  bark across many meshes without authoring unique high-poly geometry for each.
-- **Memory-constrained detail**, where a heightmap is dramatically cheaper than the equivalent dense mesh.
+- ハイトマップで駆動する **地形とランドスケープのディスプレイスメント**。ディテールはメッシュにベイクされたものではなく、
+  手続き的で視点に依存します。
+- 雪の堆積、足跡、変形、水面など、プレイ中に変位が変わる **実行時のディスプレイスメント**。
+- タイリングするサーフェスでの **テクスチャ駆動のディテール**。1 つのマテリアルで、メッシュごとに高ポリゴンのジオメトリを
+  作らずに、多数のメッシュのレンガ、石畳、樹皮に本物の奥行きを加えられます。
+- ハイトマップのほうが同等の密なメッシュよりはるかに安価な、**メモリに制約のあるディテール**。
 
-Vite keeps the entire 4.27 tessellation pipeline intact, which means these workflows still work.
+Vite は 4.27 のテッセレーションのパイプラインをそのまま維持しているため、これらのワークフローは引き続き機能します。
 
-## Enabling tessellation on a material
+## マテリアルでテッセレーションを有効にする
 
-<procedure title="Set up a displaced material" id="setup-tessellation">
+<procedure title="ディスプレイスメント付きのマテリアルを設定する" id="setup-tessellation">
     <step>
-        Open the material and set <b>Tessellation Mode</b> in the details panel:
-        <b>Flat Tessellation</b> subdivides without smoothing the base surface; <b>PN Triangles</b>
-        smooths the base surface as it subdivides. PN Triangles is usually what you want on organic
-        shapes; Flat is correct when the base silhouette should be preserved exactly.
+        マテリアルを開き、詳細パネルで <b>Tessellation Mode</b> を設定します。<b>Flat Tessellation</b> は元の面を
+        滑らかにせずに細分化し、<b>PN Triangles</b> は細分化しながら元の面を滑らかにします。有機的な形状には通常
+        PN Triangles を、元のシルエットを正確に保つべき場合は Flat を使います。
     </step>
     <step>
-        Connect a scalar to <b>Tessellation Multiplier</b>. This controls how much subdivision the surface
-        receives. Drive it from distance so that far geometry is not subdivided.
+        <b>Tessellation Multiplier</b> にスカラーを接続します。これはサーフェスの細分化の量を制御します。遠くの
+        ジオメトリが細分化されないよう、距離で制御してください。
     </step>
     <step>
-        Connect a vector to <b>World Displacement</b>. The usual form is your surface normal multiplied by
-        a heightmap sample multiplied by a displacement scale.
+        <b>World Displacement</b> にベクトルを接続します。一般的な形は、サーフェスの法線にハイトマップのサンプルと
+        ディスプレイスメントのスケールを掛けたものです。
     </step>
     <step>
-        Enable <b>Adaptive Tessellation</b> on the material if you want the engine to scale subdivision by
-        screen-space triangle size.
+        画面上の三角形のサイズに応じてエンジンに細分化を調整させたい場合は、マテリアルで <b>Adaptive Tessellation</b>
+        を有効にします。
     </step>
 </procedure>
 
-## Global controls
+## 全体の制御
 
-| CVar | Default | Effect |
+| CVar | 既定値 | 効果 |
 |---|---|---|
-| `r.TessellationAdaptivePixelsPerTriangle` | `48.0` | Global tessellation factor multiplier. Target screen-space triangle size in pixels when adaptive tessellation is enabled. |
+| `r.TessellationAdaptivePixelsPerTriangle` | `48.0` | テッセレーション係数の全体の倍率。適応的テッセレーションが有効なときの、目標とする画面上の三角形のサイズ（ピクセル）。 |
 
-Lowering the value produces smaller triangles and more subdivision; raising it produces fewer. It is a
-useful global scalability lever: expose it through your scalability groups so that lower quality presets
-back off tessellation across the whole project without touching individual materials.
+値を下げると三角形が小さくなって細分化が増え、上げると細分化が減ります。全体のスケーラビリティの調整項目として便利です。
+スケーラビリティのグループから公開すれば、個々のマテリアルに触れずに、低い品質のプリセットでプロジェクト全体の
+テッセレーションを控えめにできます。
 
-## Cost and control
+## コストと制御
 
-Tessellation is not free, and the failure mode is severe: an unbounded tessellation multiplier on a large
-surface can generate millions of triangles and collapse frame rate.
+テッセレーションは無料ではなく、失敗したときの影響が大きいものです。大きなサーフェスで倍率に上限がないと、数百万の
+三角形が生成されてフレームレートが崩壊することがあります。
 
-**Always bound the multiplier by distance.** The standard pattern multiplies the tessellation factor by a
-distance falloff so that only nearby surfaces are subdivided:
+**倍率は必ず距離で制限してください。** 標準的なパターンでは、テッセレーションの係数に距離による減衰を掛け、近くの
+サーフェスだけを細分化します。
 
-- Sample `Camera Position` and the object or pixel world position.
-- Compute distance, remap it through a `Divide` and `Saturate` into a 0&ndash;1 falloff.
-- Multiply the falloff into the tessellation multiplier.
+- `Camera Position` と、オブジェクトまたはピクセルのワールド位置をサンプリングします。
+- 距離を計算し、`Divide` と `Saturate` で 0〜1 の減衰に変換します。
+- その減衰をテッセレーションの倍率に掛けます。
 
-**Watch triangle density directly.** The wireframe view mode and the `Shader Complexity` view mode both
-reveal runaway subdivision immediately. Add `stat rhi` to check triangle counts.
+**三角形の密度を直接確認してください。** ワイヤーフレームのビューモードと `Shader Complexity` のビューモードはどちらも、
+暴走した細分化をすぐに明らかにします。三角形の数を確認するには `stat rhi` を追加します。
 
-**Displacement cracks** appear at UV seams and mesh boundaries where adjacent vertices displace by
-different amounts. Fix them by making the heightmap continuous across the seam, or by masking displacement
-to zero at boundaries.
+**ディスプレイスメントの亀裂** は、UV の継ぎ目やメッシュの境界で、隣接する頂点が異なる量だけ変位する場所に現れます。
+継ぎ目をまたいでハイトマップを連続させるか、境界でディスプレイスメントを 0 にマスクして直します。
 
-## Interaction with ray tracing
+## レイトレーシングとの関係
 
-Displaced geometry participates in ray tracing correctly, which is a meaningful advantage over the
-parallax-mapping alternatives. A parallax-occlusion-mapped brick wall looks displaced from the primary view
-but is flat to every ray-traced [reflection](RT-Reflections.md), [shadow](RT-Shadows-And-Ambient-Occlusion.md)
-and [DDGI](DDGI-Dynamic.md) probe ray. A tessellated and displaced one is genuinely displaced to all of
-them.
+変位したジオメトリはレイトレーシングに正しく参加します。これは視差マッピングによる代替手段に対する大きな利点です。
+視差オクルージョンマッピングのレンガの壁は、プライマリビューからは変位して見えますが、レイトレーシングの
+[反射](RT-Reflections.md)、[シャドウ](RT-Shadows-And-Ambient-Occlusion.md)、[DDGI](DDGI-Dynamic.md) のプローブのレイから
+見ると平らです。テッセレーションで変位させた壁は、そのすべてに対して本当に変位しています。
 
-The cost is that ray tracing acceleration structures must be built for the displaced geometry, which
-increases BLAS build cost for dynamically tessellated surfaces. For large static displaced surfaces this is
-paid once; for surfaces whose displacement animates every frame it is paid continuously. Budget
-accordingly.
+その代償として、変位したジオメトリのためにレイトレーシングのアクセラレーション構造を構築する必要があり、動的に
+テッセレーションするサーフェスでは BLAS の構築コストが増えます。大きな静的に変位したサーフェスでは一度支払えば済みますが、
+変位が毎フレーム変化するサーフェスでは継続的に支払います。それに応じて予算を立ててください。
 
-## Alternatives
+## 代替手段
 
-Tessellation is the right tool when you need real geometry. When you do not:
+本物のジオメトリが必要なときは、テッセレーションが適切なツールです。そうでない場合は次のとおりです。
 
-| Technique | When it is enough |
+| 手法 | それで十分な場合 |
 |---|---|
-| Normal mapping | Lighting detail only; silhouette and self-occlusion do not matter |
-| Parallax occlusion mapping | Convincing depth from the primary view, flat to rays, no geometry cost |
-| Authored high-poly meshes | Static detail, known in advance, memory budget allows it |
-| **Tessellation** | Silhouette matters, displacement is dynamic, or ray-traced effects must see the detail |
+| 法線マッピング | ライティングのディテールだけでよく、シルエットと自己遮蔽は重要でない |
+| 視差オクルージョンマッピング | プライマリビューから説得力のある奥行きがあればよい。レイからは平らで、ジオメトリのコストはない |
+| 作成済みの高ポリゴンメッシュ | 事前に分かっている静的なディテールで、メモリの予算が許す |
+| **テッセレーション** | シルエットが重要、ディスプレイスメントが動的、またはレイトレーシングのエフェクトがディテールを見る必要がある |
 
-## See also
+## 関連項目
 
-- [Rendering](Rendering.md)
-- [Ray Tracing](Ray-Tracing.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
-- [Shading Models](Shading-Models.md)
+- [レンダリング](Rendering.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+- [シェーディングモデル](Shading-Models.md)

@@ -2,7 +2,7 @@
 
 <tldr>
 <p>
-Three options: Vite's <b>optimised SSAO</b> (on by default, free), <b>HBAO+</b> (higher quality,
+Three options: Vite's <b>optimised SSAO</b> (on by default, lowest cost), <b>HBAO+</b> (higher quality,
 post-process volume controlled) and <b>RTAO</b> (ray traced, most accurate, most expensive).
 They compose &mdash; HBAO+ multiplies over the SSAO buffer.
 </p>
@@ -29,6 +29,9 @@ See [Compile-Time Switches](Compile-Time-Switches.md).
 Standard UE4.27 SSAO settings all still apply and are found under **Rendering Features > Ambient Occlusion**
 in a post process volume: Intensity, Radius, Quality, Power, Bias, Fade Out Distance and the rest.
 
+When [SSGI](SSGI.md) is enabled and guaranteed to run, it supplies the ambient-occlusion term and SSAO is
+skipped entirely (since the [September Major](ueVite26-SeptemberMajor.md)).
+
 ## HBAO+
 
 Horizon-Based Ambient Occlusion is NVIDIA's higher-quality AO technique, inherited through the NvRTX
@@ -48,8 +51,9 @@ enabled.
 | `r.HBAO.GBufferNormals` | `1` | `0` = reconstruct normals from depth, `1` = fetch GBuffer normals |
 
 <note>
-The CVar help text describes HBAO+ as DX11-only. Vite implements it on both D3D11 and D3D12; the help
-string is inherited from the original NVIDIA integration and has not been updated.
+The CVar help text describes HBAO+ as DX11-only. Vite implements it on both D3D11 and D3D12 (the D3D12
+back end arrived in the [June Major](ueVite26-JuneMajor.md)); the help string is inherited from the original
+NVIDIA integration and has not been updated.
 </note>
 
 ### Post process volume settings

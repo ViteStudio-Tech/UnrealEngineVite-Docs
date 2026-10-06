@@ -74,7 +74,7 @@ hardest to recover, so the frame-time budget should be spent holding native reso
 techniques that are noise-free by construction. DDGI's use of spherical harmonics to store and filter
 irradiance in probe volumes is precisely why it produces stable results without a denoiser.
 
-Upscalers are fully supported &mdash; DLSS 4.5, FSR 2, 3.1 and 4, XeSS 3 and NIS all ship with the engine. They are
+Upscalers are fully supported &mdash; DLSS 4.5, FSR 4 (with an FSR 3.1 fallback), XeSS 3 and NIS all ship with the engine. They are
 positioned as a way to exceed a target on weaker hardware, not as a way to reach it on the reference
 hardware. See [Upscalers and Frame Generation](Upscalers.md).
 

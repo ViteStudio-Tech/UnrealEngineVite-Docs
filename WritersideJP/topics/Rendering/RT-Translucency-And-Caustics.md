@@ -1,74 +1,78 @@
-# Ray-Traced Translucency and Caustics
+# レイトレーシング半透明とコースティクス
 
 <tldr>
 <p>
-Hybrid translucency lets rasterised and ray-traced translucency coexist. <code>r.RayTracing.Translucency 3</code>
-plus absorption is the recommended high-quality setup. Mesh and water caustics are separate systems
-enabled with <code>r.RayTracing.MeshCaustics.Enable</code> and <code>r.RayTracing.WaterCaustics.Type</code>.
+ハイブリッド半透明により、ラスタライズとレイトレーシングの半透明を共存させられます。推奨する高品質な構成は
+<code>r.RayTracing.Translucency 3</code> と吸収の組み合わせです。メッシュコースティクスとウォーターコースティクスは
+別のシステムで、それぞれ <code>r.RayTracing.MeshCaustics.Enable</code> と <code>r.RayTracing.WaterCaustics.Type</code>
+で有効にします。
 </p>
 </tldr>
 
-These features come from NVIDIA's NvRTX 4.27 Caustics branch, which is Vite's base. They are the most
-parameter-heavy part of the renderer, so this page is structured as a reference rather than a narrative.
+<img src="RTOfficeScene.jpg" alt="ボリュメトリックライト、半透明の球体、レイトレーシングの反射と屈折を組み合わせたオフィスシーン" border-effect="line"/>
+
+*NVIDIA のサンプルコンテンツのオフィスシーンは、パーティクル、半透明の反射と屈折、メッシュコースティクス、
+レイトレーシング GI を 1 つのフレームで同時に使い、スタック全体を試すことができます。*
+
+これらの機能は、Vite のベースである NVIDIA の NvRTX 4.27 Caustics ブランチから来ています。レンダラーの中で最も
+パラメーターの多い部分なので、このページは読み物ではなくリファレンスとして構成しています。
 
 <warning>
-<b>Everything on this page is compiled out in a default build.</b> Ray-traced translucency, mesh caustics
-and water caustics all have their shader permutations removed when <code>VITE_RT_PSO_DEBLOAT</code> is
-<code>1</code>, which is the default. Their console variables will set successfully and render nothing.
+<b>このページの内容はすべて、既定のビルドではコンパイル対象から外れています。</b> <code>VITE_RT_PSO_DEBLOAT</code> が
+既定値の <code>1</code> のとき、レイトレーシング半透明、メッシュコースティクス、ウォーターコースティクスのシェーダー
+パーミュテーションはすべて取り除かれます。コンソール変数の設定は成功しますが、何も描画されません。
 <p>
-Rebuild with <code>VITE_RT_PSO_DEBLOAT=0</code> to use them. See
-<a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+使うには <code>VITE_RT_PSO_DEBLOAT=0</code> で再ビルドしてください。
+<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
 </p>
 </warning>
 
-These are the most expensive effects in the ray tracing suite, and none of them fit inside Vite's
-[performance targets](Performance-Targets.md) at 4K. They are documented here because the NvRTX lineage
-provides them and some projects will want them for cinematics, marketing captures or specific set pieces.
+これらはレイトレーシングのエフェクトの中で最も重く、どれも 4K での Vite の [パフォーマンス目標](Performance-Targets.md)
+には収まりません。NvRTX の系譜にこれらが含まれていて、シネマティクス、宣伝用のキャプチャ、特定の見せ場のために使いたい
+プロジェクトもあるため、ここで説明しています。
 
-> All code and art assets of the RTX features inherited from the NvRTX Caustics branch are covered by the
-> [GameWorks license](https://developer.nvidia.com/gameworks-source-sdk-eula).
+> NvRTX Caustics ブランチから受け継いだ RTX 機能のコードとアートアセットは、すべて
+> [GameWorks のライセンス](https://developer.nvidia.com/gameworks-source-sdk-eula) の対象です。
 >
 {style="note"}
 
-## Translucency modes
+## 半透明のモード
 
-Stock UE4 ray-traced translucency forces *all* translucency through the ray tracing pipeline, which makes
-unsupported primitive types such as Cascade particles disappear, and produces refraction behaviour that
-interacts unintuitively with content authored for rasterisation. Hybrid translucency solves this.
+標準の UE4 のレイトレーシング半透明は、*すべての* 半透明をレイトレーシングのパイプラインに通します。そのため、Cascade の
+パーティクルなど対応していないプリミティブの種類が消え、ラスタライズ向けに作成したコンテンツと直感に反する形で相互作用
+する屈折の挙動になります。ハイブリッド半透明はこれを解決します。
 
-| `r.RayTracing.Translucency` | Mode |
+| `r.RayTracing.Translucency` | モード |
 |---|---|
-| `0` | Stock UE4 ray-traced translucency off |
-| `1` | Stock UE4 ray-traced translucency on |
-| `2` | Hybrid Translucency 1 &mdash; ray-traced translucent reflection only |
-| `3` | Hybrid Translucency 2 &mdash; ray-traced translucent reflection and refraction |
+| `0` | 標準の UE4 のレイトレーシング半透明を無効 |
+| `1` | 標準の UE4 のレイトレーシング半透明を有効 |
+| `2` | ハイブリッド半透明 1 &mdash; レイトレーシングによる半透明の反射のみ |
+| `3` | ハイブリッド半透明 2 &mdash; レイトレーシングによる半透明の反射と屈折 |
 
-Hybrid modes require the **Hybrid Translucency** checkbox in project settings, because they permute the base
-translucency shaders. The corresponding shader support switch is
-`r.RayTracing.HybridTranslucencySupport`.
+ハイブリッドのモードはベースの半透明シェーダーのパーミュテーションを増やすため、プロジェクト設定の
+**Hybrid Translucency** のチェックボックスが必要です。対応するシェーダーのサポートのスイッチは
+`r.RayTracing.HybridTranslucencySupport` です。
 
-### Mode 2 &mdash; reflection only
+### モード 2 &mdash; 反射のみ
 
-Traces several layers of translucency to an off-screen surface, then composites them as part of normal
-raster translucency. It loses order-independent transparency and refraction relative to full ray-traced
-translucency, but it is no worse than raster in those areas while delivering ray-traced reflections and
-shading.
+複数の半透明の層をオフスクリーンのサーフェスにトレースし、通常のラスタライズの半透明の一部として合成します。完全な
+レイトレーシング半透明と比べると順序に依存しない透明度と屈折は失われますが、それらの点ではラスタライズより悪くはならず、
+レイトレーシングによる反射とシェーディングが得られます。
 
-| Console variable | Purpose |
+| コンソール変数 | 用途 |
 |---|---|
-| `r.RayTracing.Translucency.HybridLayers` | How many overlapping ray-traced translucency levels are tracked |
-| `r.RayTracing.Translucency.HybridDepthThreshold` | World-space separation at which geometry counts as a different translucency layer. Too small and hybrid translucency will not appear, or z-fighting artefacts occur; too large and stacked layers incorrectly merge. |
-| `r.RayTracing.Translucency.HalfRes` | 0 full, 1 half vertically (interleaved), 2 half checkerboard (4-tap), 3 half checkerboard (2-tap vertical) |
+| `r.RayTracing.Translucency.HybridLayers` | 追跡する、重なり合うレイトレーシング半透明の層の数 |
+| `r.RayTracing.Translucency.HybridDepthThreshold` | ジオメトリを別の半透明の層とみなすワールド空間での距離。小さすぎるとハイブリッド半透明が現れないか Z ファイティングのアーティファクトが生じ、大きすぎると重なった層が誤って統合されます。 |
+| `r.RayTracing.Translucency.HalfRes` | 0 はフル解像度、1 は垂直方向に半分（インターリーブ）、2 は半分のチェッカーボード（4 タップ）、3 は半分のチェッカーボード（2 タップ垂直） |
 
-### Mode 3 &mdash; reflection and refraction
+### モード 3 &mdash; 反射と屈折
 
-Mixes raster and *fully* ray-traced translucency, including reflection, refraction and OIT support. Cascade
-particles can coexist with ray-traced translucency without losing its advantages. Order-independent
-transparency is automatic in this mode.
+ラスタライズと *完全な* レイトレーシング半透明を組み合わせ、反射、屈折、OIT に対応します。Cascade のパーティクルも、
+レイトレーシング半透明の利点を損なわずに共存できます。このモードでは順序に依存しない透明度が自動的に適用されます。
 
-This is the recommended mode for translucent meshes, used together with absorption.
+半透明のメッシュには、吸収と組み合わせたこのモードを推奨します。
 
-Recommended settings for best visual quality:
+最高の画質のための推奨設定:
 
 ```
 r.RayTracing.Translucency.Refraction 1
@@ -76,199 +80,191 @@ r.RayTracing.Translucency.HybridLayers 5
 r.RayTracing.Translucency.MaxRefractionRays 5
 ```
 
-In 4.27, when RT refraction is enabled under mode 3, per-material IOR is bound to the PBR-based refraction
-index input; the material's Refraction Mode input must be set to **Index Of Refraction**.
+4.27 では、モード 3 で RT 屈折を有効にすると、マテリアルごとの IOR は PBR ベースの屈折率の入力に結び付けられます。
+マテリアルの Refraction Mode の入力は **Index Of Refraction** に設定する必要があります。
 
-Mode 3 also lets you choose per-mesh whether a translucent static mesh participates in ray tracing at all.
-Meshes excluded from ray tracing render through rasterisation, which lets you mix ray-traced and rasterised
-translucency in the same scene and can improve performance by reducing ray tracing pipeline workload.
+モード 3 では、半透明のスタティックメッシュをレイトレーシングに参加させるかどうかをメッシュごとに選ぶこともできます。
+レイトレーシングから除外したメッシュはラスタライズで描画されるため、同じシーンでレイトレーシングとラスタライズの半透明を
+混在させられ、レイトレーシングのパイプラインの負荷を減らして性能を改善できます。
 
-Additional notes for mode 3:
+モード 3 についての追加の注意点:
 
-- `r.RayTracing.Translucency.HybridDepthThreshold` does not apply. Use
-  `r.RayTracing.Translucency.PrimaryRayBias` instead to bias depth when determining layer ordering.
-- Cascade and Niagara emitters spawning opaque meshes may disappear when fully occluded by ray-traced
-  translucent meshes, because some particle types cannot generate the BVH data hardware ray tracing
-  requires. This is a known stock UE4 behaviour that hybrid mode 2 does not change.
-- Half-resolution refraction is available via `r.RayTracing.Translucency.HalfRes`: 0 full, 1 half
-  checkerboard with weighted colour reconstruction, 2 half checkerboard interframe, 3 half checkerboard with
-  average colour reconstruction. These reconstruction techniques are intended for use under TAA and need
-  careful tuning under DLSS, which can amplify pixel-level reconstruction artefacts.
+- `r.RayTracing.Translucency.HybridDepthThreshold` は適用されません。層の順序を決める際の深度のバイアスには、代わりに
+  `r.RayTracing.Translucency.PrimaryRayBias` を使ってください。
+- 不透明なメッシュを生成する Cascade と Niagara のエミッターは、レイトレーシング半透明のメッシュに完全に遮蔽されると
+  消えることがあります。一部のパーティクルの種類が、ハードウェアレイトレーシングに必要な BVH のデータを生成できない
+  ためです。これは標準の UE4 の既知の挙動で、ハイブリッドモード 2 でも変わりません。
+- 半分の解像度の屈折は `r.RayTracing.Translucency.HalfRes` で利用できます。0 はフル解像度、1 は重み付きの色の再構成による
+  半分のチェッカーボード、2 はフレーム間での半分のチェッカーボード、3 は平均色の再構成による半分のチェッカーボードです。
+  これらの再構成の手法は TAA での使用を想定しており、ピクセル単位の再構成のアーティファクトを増幅しうる DLSS では
+  慎重な調整が必要です。
 
-## Translucent absorption
+## 半透明の吸収
 
-With absorption enabled, thicker objects made of the same material appear less transparent, which is the
-physically correct behaviour and a large fidelity win on glass and liquids. Absorption is a per-material
-option, so objects with and without it render together.
+吸収を有効にすると、同じマテリアルでできた厚いオブジェクトほど透明度が下がって見えます。これは物理的に正しい挙動で、
+ガラスや液体で大きな品質の向上になります。吸収はマテリアルごとのオプションなので、吸収を使うオブジェクトと使わない
+オブジェクトを一緒に描画できます。
 
-<procedure title="Enable translucent absorption" id="enable-absorption">
-    <step>Ensure ray-traced translucency is enabled.</step>
-    <step>Set <code>r.RayTracing.Translucency.EnableAbsorption 1</code>, or check <b>Enable Absorption</b> in the post process volume.</step>
-    <step>In the material editor, check <b>Ray Traced Translucency Absorption</b> on each material that should use it.</step>
+<procedure title="半透明の吸収を有効にする" id="enable-absorption">
+    <step>レイトレーシング半透明が有効であることを確認します。</step>
+    <step><code>r.RayTracing.Translucency.EnableAbsorption 1</code> を設定するか、ポストプロセスボリュームで <b>Enable Absorption</b> にチェックを入れます。</step>
+    <step>マテリアルエディタで、吸収を使うマテリアルごとに <b>Ray Traced Translucency Absorption</b> にチェックを入れます。</step>
 </procedure>
 
-Throughput culling reduces cost by discarding low-contribution ray paths:
+スループットによるカリングで、寄与の小さいレイのパスを捨ててコストを減らせます。
 
-| Console variable | Purpose |
+| コンソール変数 | 用途 |
 |---|---|
-| `r.RayTracing.Translucency.MinRefractionThroughput` | Higher values cull more refraction rays. May introduce artefacts. |
-| `r.RayTracing.Translucency.MinReflectionThroughput` | Higher values cull more reflection rays. May introduce artefacts. |
-| `r.RayTracing.PrimaryRays.AbsorptionForceShadingOnOpaqueObjects` | Set to 1 to eliminate double-shading artefacts on transparent reflections where actors occlude background. |
+| `r.RayTracing.Translucency.MinRefractionThroughput` | 値を大きくするほど多くの屈折レイをカリングします。アーティファクトが出ることがあります。 |
+| `r.RayTracing.Translucency.MinReflectionThroughput` | 値を大きくするほど多くの反射レイをカリングします。アーティファクトが出ることがあります。 |
+| `r.RayTracing.PrimaryRays.AbsorptionForceShadingOnOpaqueObjects` | 1 に設定すると、アクターが背景を遮る透明な反射での二重シェーディングのアーティファクトを解消します。 |
 
-## Depth of field from primary rays
+## プライマリレイによる被写界深度
 
-Rasterised depth of field handles translucency poorly, particularly where Cascade particles intersect
-translucent glass. Ray tracing makes accurate cinematic DOF achievable.
+ラスタライズの被写界深度は、特に Cascade のパーティクルが半透明のガラスと交差する部分で、半透明の扱いが苦手です。
+レイトレーシングを使うと、正確なシネマティックの DOF を実現できます。
 
-<procedure title="Enable ray-traced depth of field" id="enable-rt-dof">
-    <step>Use a cine camera and apply depth of field as normal.</step>
+<procedure title="レイトレーシングによる被写界深度を有効にする" id="enable-rt-dof">
+    <step>シネカメラを使い、通常どおり被写界深度を適用します。</step>
     <step>
-        Collect every translucent material in the camera frustum, including translucent particles. For each
-        root material, check <b>Output Translucency Depth</b> and ensure <b>Translucency Depth Opacity
-        Threshold</b> is lower than the material instance's opacity parameter.
+        半透明のパーティクルを含め、カメラの視錐台に入るすべての半透明マテリアルを集めます。それぞれのルートマテリアルで
+        <b>Output Translucency Depth</b> にチェックを入れ、<b>Translucency Depth Opacity Threshold</b> が
+        マテリアルインスタンスの不透明度のパラメーターより小さいことを確認します。
     </step>
-    <step>Set <code>r.RayTracing.PrimaryRays.IncludeDOF 1</code>.</step>
+    <step><code>r.RayTracing.PrimaryRays.IncludeDOF 1</code> を設定します。</step>
 </procedure>
 
-Enhanced translucency mode 3, RT translucent reflection and refraction, and translucent absorption are all
-strongly recommended alongside RT DOF. DLSS is supported automatically.
+RT DOF と併せて、強化された半透明のモード 3、RT による半透明の反射と屈折、半透明の吸収の使用を強く推奨します。DLSS には
+自動的に対応しています。
 
-## Mesh caustics
+## メッシュコースティクス
 
-Renders interactive caustics for translucent and metallic objects. Supports all four UE4 light types,
-multiple light sources, reflective and refractive caustics, dispersion and soft caustics.
+半透明やメタリックのオブジェクトに対して、インタラクティブなコースティクスを描画します。UE4 の 4 種類のライトすべて、
+複数の光源、反射と屈折のコースティクス、分散、ソフトコースティクスに対応しています。
 
-<img src="MeshCaustics.jpg" alt="POV-Ray Glasses scene with ray-traced refractive caustics cast onto a tiled surface" border-effect="line"/>
+<img src="MeshCaustics.jpg" alt="タイルの表面に投影されたレイトレーシングの屈折コースティクスを示す POV-Ray の Glasses シーン" border-effect="line"/>
 
-*The POV-Ray Glasses scene. Every bright pattern on the tile is a refractive caustic, traced rather than
-authored.*
+*POV-Ray の Glasses シーン。タイル上の明るい模様はすべて、作成したものではなくトレースした屈折のコースティクスです。*
 
-<img src="CausticsDispersion.jpg" alt="Prisms splitting a white beam into a spectrum through ray-traced dispersion" border-effect="line"/>
+<img src="CausticsDispersion.jpg" alt="レイトレーシングの分散によって白い光線をスペクトルに分けるプリズム" border-effect="line"/>
 
-*Dispersion. Requires **Ray Traced Caustics Dispersion Amount** above 0 in the material root node together
-with `r.RayTracing.MeshCaustics.EnableDispersion 1`.*
+*分散。マテリアルのルートノードで **Ray Traced Caustics Dispersion Amount** を 0 より大きくし、
+`r.RayTracing.MeshCaustics.EnableDispersion 1` を設定する必要があります。*
 
-<procedure title="Enable mesh caustics" id="enable-mesh-caustics">
-    <step>Enable ray tracing.</step>
-    <step>Check <b>Enabled</b> under <b>Ray Tracing Mesh Caustics</b> in the post process volume, or set <code>r.RayTracing.MeshCaustics.Enable 1</code>.</step>
-    <step>In light properties, check <b>Cast Mesh Caustics</b>.</step>
+<procedure title="メッシュコースティクスを有効にする" id="enable-mesh-caustics">
+    <step>レイトレーシングを有効にします。</step>
+    <step>ポストプロセスボリュームの <b>Ray Tracing Mesh Caustics</b> にある <b>Enabled</b> にチェックを入れるか、<code>r.RayTracing.MeshCaustics.Enable 1</code> を設定します。</step>
+    <step>ライトのプロパティで <b>Cast Mesh Caustics</b> にチェックを入れます。</step>
     <step>
-        For metallic materials, check <b>Cast Ray Traced Reflection Caustics</b>. For translucent objects,
-        check <b>Cast Ray Traced Reflection Caustics</b> for reflective caustics and <b>Cast Ray Traced
-        Refraction Caustics</b> for refractive caustics.
-    </step>
-</procedure>
-
-### Feature settings
-
-Where a console variable is set to `-1`, the post process volume controls the actual value.
-
-| Console variable | Purpose |
-|---|---|
-| `r.RayTracing.MeshCaustics.EnableTranslucentReflection` | Reflective caustics for transparent objects |
-| `r.RayTracing.MeshCaustics.TranslucentReflectionMode` | 0 refractive only, 1 refractive plus reflective first bounce, 2 reflective for arbitrary bounces |
-| `r.RayTracing.MeshCaustics.EnableDispersion` | Enables dispersion. Requires **Ray Traced Caustics Dispersion Amount** greater than 0 in the material root node. |
-| `r.RayTracing.MeshCaustics.DispersionSamples` | Colour samples used for dispersion |
-| `r.RayTracing.MeshCaustics.SoftCausticsSample` | Sample count for soft caustics. Requires **Mesh Caustics Softness** greater than 0 in light settings. |
-| `r.RayTracing.MeshCaustics.EnableAdvancedSoftCaustics` | Higher quality soft caustics algorithm |
-
-To expose dispersion amount per material instance, check **Ray Traced Caustics Use CustomData 0 As
-Dispersion Amount** and connect a scalar to the Custom Data 0 channel, which makes the parameter tweakable
-at runtime.
-
-### Performance tuning
-
-The key to performance is limiting photon count. Set the view mode to
-**Ray Tracing Debug &rarr; Mesh Caustics Debug Data**, then set **Debug Light Data Type** to **Photon
-Count**. Around 100k photons produces decent results in typical cases. If the count is too high, increase
-**Adaptive Photon Size** and decrease **Adaptive Variance Gain** in the post process volume, and raise
-**Final Cull Threshold** and **Mid Cull Threshold** until caustics begin to disappear.
-
-| Console variable | Purpose |
-|---|---|
-| `r.RayTracing.MeshCaustics.FinalCullColorThreshold` | Culls low-contribution rays |
-| `r.RayTracing.MeshCaustics.MidCullColorThreshold` | Culls low-contribution rays |
-| `r.RayTracing.MeshCaustics.BufferScale` | -1 post process volume, 0 full, 1 half, 2 quarter resolution |
-| `r.RayTracing.MeshCaustics.AdaptivePhotonSize` | Target screen-space photon size. Smaller is more detailed and more expensive. |
-| `r.RayTracing.MeshCaustics.AdaptiveVarianceGain` | Higher values suppress flickering |
-| `r.RayTracing.MeshCaustics.EnableTemporalFilter` | Temporal filtering to reduce flicker |
-| `r.RayTracing.MeshCaustics.TemporalStrength` | Higher is more stable but can introduce lag or ghosting |
-| `r.RayTracing.MeshCaustics.MaxTraceDepth` | Limits bounce count; raises performance for translucent objects |
-
-## Water caustics
-
-Renders interactive caustics for water areas from ponds to open sea. Supports all four light types, multiple
-lights, reflective and refractive caustics, dispersion, soft caustics and cascaded caustics maps.
-
-<img src="WaterCaustics.jpg" alt="Swimming pool floor lit by ray-traced water caustics with a character disturbing the surface" border-effect="line"/>
-
-*The Swimming Pool scene under a single directional light. The caustics respond to surface disturbance
-because they are traced against the water mesh each frame.*
-
-<procedure title="Enable water caustics" id="enable-water-caustics">
-    <step>Enable ray tracing.</step>
-    <step>Select a water caustics type in the post process volume, or set <code>r.RayTracing.WaterCaustics.Type</code> to 1 or 2.</step>
-    <step>In light properties, check <b>Cast Water Caustics</b>.</step>
-    <step>
-        On the water surface static mesh actor, check <b>Evaluate Ray Tracing Water Caustics</b> under the
-        Ray Tracing tab. The water surface material must use a Translucent blend mode.
+        メタリックのマテリアルでは <b>Cast Ray Traced Reflection Caustics</b> にチェックを入れます。半透明の
+        オブジェクトでは、反射のコースティクスには <b>Cast Ray Traced Reflection Caustics</b>、屈折のコースティクスには
+        <b>Cast Ray Traced Refraction Caustics</b> にチェックを入れます。
     </step>
 </procedure>
 
-### Choosing an algorithm
+### 機能の設定
 
-**Photon Difference Scattering (type 1)** is flexible and works with all light types UE4 supports. It needs
-relatively high-resolution caustics maps to produce sharp patterns, so for large surfaces such as seas and
-large lakes, enable cascaded caustics maps alongside it. Cascades keep caustics sharp near the camera while
-rendering more cheaply at distance.
+コンソール変数を `-1` に設定した場合は、ポストプロセスボリュームが実際の値を決めます。
 
-**Procedural Caustic Mesh (type 2)** produces very sharp caustics even from relatively low-resolution maps.
-It does not work with cascaded caustics maps, because it does not need them. It is usually faster than PDS,
-but it does not support area lights and can leave artefacts on the edges of caustics receivers.
-
-### Settings
-
-| Console variable | Purpose |
+| コンソール変数 | 用途 |
 |---|---|
-| `r.RayTracing.WaterCaustics.MaxReflectionRayDistance` | Set to 0 to disable reflective caustics |
-| `r.RayTracing.WaterCaustics.MaxRefractionRayDistance` | Set to 0 to disable refractive caustics |
-| `r.RayTracing.WaterCaustics.MapCascades` | Cascade count, up to 4 levels. Type 1 only. |
-| `r.RayTracing.WaterCaustics.MapSizeX` / `MapSizeY` | Caustics map size, default 2048. 1024 is often enough for a small pond and saves substantial performance. |
-| `r.RayTracing.WaterCaustics.NumDenoisePasses` | Default 2. Reduce to 0 for a sharper result. |
-| `r.RayTracing.WaterCaustics.UseSceneLightDir` | Set to 0 to capture the caustics map from above the camera rather than along the light direction. Directional lights only. |
-| `r.RayTracing.WaterCaustics.BufferScale` | 1 full, 2 half, 4 quarter resolution |
-| `r.RayTracing.WaterCaustics.PhotonScale` | Initial photon size in PDS. Default 3. |
-| `r.RayTracing.WaterCaustics.ShowPhoton` | Debug: draws photons as points |
-| `r.RayTracing.WaterCaustics.RefractBackFaceCullingThreshold` | Set around -0.5 to ignore surface normals where cracks or seams appear |
-| `r.RayTracing.WaterCaustics.ReflectBackFaceCullingThreshold` | As above, for reflective caustics |
+| `r.RayTracing.MeshCaustics.EnableTranslucentReflection` | 透明なオブジェクトの反射のコースティクス |
+| `r.RayTracing.MeshCaustics.TranslucentReflectionMode` | 0 は屈折のみ、1 は屈折と最初のバウンスでの反射、2 は任意のバウンス数での反射 |
+| `r.RayTracing.MeshCaustics.EnableDispersion` | 分散を有効にします。マテリアルのルートノードで **Ray Traced Caustics Dispersion Amount** を 0 より大きくする必要があります。 |
+| `r.RayTracing.MeshCaustics.DispersionSamples` | 分散に使う色のサンプル数 |
+| `r.RayTracing.MeshCaustics.SoftCausticsSample` | ソフトコースティクスのサンプル数。ライトの設定で **Mesh Caustics Softness** を 0 より大きくする必要があります。 |
+| `r.RayTracing.MeshCaustics.EnableAdvancedSoftCaustics` | より高品質なソフトコースティクスのアルゴリズム |
 
-Restricting water caustics to a single dynamic light saves a great deal of performance; light distance
-culling and intensity fade are fully supported.
+マテリアルインスタンスごとに分散の量を公開するには、**Ray Traced Caustics Use CustomData 0 As Dispersion Amount** に
+チェックを入れ、Custom Data 0 のチャンネルにスカラーを接続します。これで実行時にパラメーターを調整できます。
 
-Caustics focus depends on mesh and normal strength: large waves or strong normal map values produce more
-dramatic caustics. To enable dispersion, increase **Dispersion Intensity** in the post process volume and
-tune **Dispersion Offset**.
+### 性能の調整
 
-## Sample content
+性能の鍵はフォトン数の制限です。ビューモードを **Ray Tracing Debug &rarr; Mesh Caustics Debug Data** に設定し、
+**Debug Light Data Type** を **Photon Count** にします。一般的なケースでは、約 10 万個のフォトンで十分な結果が得られます。
+多すぎる場合は、ポストプロセスボリュームで **Adaptive Photon Size** を大きくして **Adaptive Variance Gain** を小さくし、
+コースティクスが消え始めるまで **Final Cull Threshold** と **Mid Cull Threshold** を上げます。
 
-NVIDIA provides project files and packaged demos for these features:
+| コンソール変数 | 用途 |
+|---|---|
+| `r.RayTracing.MeshCaustics.FinalCullColorThreshold` | 寄与の小さいレイをカリング |
+| `r.RayTracing.MeshCaustics.MidCullColorThreshold` | 寄与の小さいレイをカリング |
+| `r.RayTracing.MeshCaustics.BufferScale` | -1 はポストプロセスボリューム、0 はフル、1 は半分、2 は 4 分の 1 の解像度 |
+| `r.RayTracing.MeshCaustics.AdaptivePhotonSize` | 目標とするスクリーン空間でのフォトンのサイズ。小さいほど詳細で高価になります。 |
+| `r.RayTracing.MeshCaustics.AdaptiveVarianceGain` | 値を大きくするとちらつきを抑えます |
+| `r.RayTracing.MeshCaustics.EnableTemporalFilter` | ちらつきを減らす時間方向のフィルタリング |
+| `r.RayTracing.MeshCaustics.TemporalStrength` | 大きいほど安定しますが、遅れやゴーストが生じることがあります |
+| `r.RayTracing.MeshCaustics.MaxTraceDepth` | バウンス数を制限し、半透明のオブジェクトでの性能を上げます |
 
-- [All project files](https://drive.google.com/drive/folders/1MfJ1rLqwx8acdscFfQtaYOR2Cdm1WPz9?usp=sharing)
-- [All packaged demos](https://drive.google.com/drive/folders/1yHFOtmZWVDof8GbfZJMeazfb927ahTDn?usp=sharing)
+## ウォーターコースティクス
 
-Specific scenes: the POV-Ray Glasses scene for heavy refraction, a prism dispersion demonstration, the
-Swimming Pool scene for water caustics, and the Office scene mixing particles, reflections, refractions,
-mesh caustics and RTGI. See also [Abandoned Apartment](Abandone-Apartment.md) and
-[Attic Scene](Attic-Scene.md) in this manual.
+池から外洋まで、水域のインタラクティブなコースティクスを描画します。4 種類すべてのライト、複数のライト、反射と屈折の
+コースティクス、分散、ソフトコースティクス、カスケードのコースティクスマップに対応しています。
 
-<img src="RTOfficeScene.jpg" alt="Office scene combining volumetric light, translucent spheres, ray-traced reflections and refractions" border-effect="line"/>
+<img src="WaterCaustics.jpg" alt="キャラクターが水面を乱し、レイトレーシングのウォーターコースティクスで照らされたプールの底" border-effect="line"/>
 
-*The Office scene is the one that exercises the whole stack at once: particles, translucent reflection and
-refraction, mesh caustics and ray-traced GI in a single frame.*
+*1 つのディレクショナルライトでの Swimming Pool シーン。コースティクスは毎フレーム水面のメッシュに対してトレースされる
+ため、水面の乱れに反応します。*
 
-## See also
+<procedure title="ウォーターコースティクスを有効にする" id="enable-water-caustics">
+    <step>レイトレーシングを有効にします。</step>
+    <step>ポストプロセスボリュームでウォーターコースティクスの種類を選ぶか、<code>r.RayTracing.WaterCaustics.Type</code> を 1 または 2 に設定します。</step>
+    <step>ライトのプロパティで <b>Cast Water Caustics</b> にチェックを入れます。</step>
+    <step>
+        水面のスタティックメッシュアクターで、Ray Tracing タブの <b>Evaluate Ray Tracing Water Caustics</b> に
+        チェックを入れます。水面のマテリアルは Translucent のブレンドモードでなければなりません。
+    </step>
+</procedure>
 
-- [Ray Tracing](Ray-Tracing.md)
-- [RT Reflections](RT-Reflections.md)
-- [Upscalers and Frame Generation](Upscalers.md)
-- [Console Variable Reference](Console-Variables.md)
+### アルゴリズムの選び方
+
+**Photon Difference Scattering（タイプ 1）** は柔軟で、UE4 が対応するすべてのライトの種類で動作します。くっきりした模様を
+得るには比較的高解像度のコースティクスマップが必要なため、海や大きな湖のような広いサーフェスでは、カスケードの
+コースティクスマップを併用してください。カスケードによって、カメラの近くではコースティクスをくっきり保ちつつ、遠くでは
+より安価に描画できます。
+
+**Procedural Caustic Mesh（タイプ 2）** は、比較的低解像度のマップでも非常にくっきりしたコースティクスを生成します。
+カスケードのコースティクスマップを必要としないため、それとは組み合わせられません。通常は PDS より高速ですが、
+エリアライトには対応しておらず、コースティクスを受けるオブジェクトの縁にアーティファクトが残ることがあります。
+
+### 設定
+
+| コンソール変数 | 用途 |
+|---|---|
+| `r.RayTracing.WaterCaustics.MaxReflectionRayDistance` | 0 にすると反射のコースティクスを無効化 |
+| `r.RayTracing.WaterCaustics.MaxRefractionRayDistance` | 0 にすると屈折のコースティクスを無効化 |
+| `r.RayTracing.WaterCaustics.MapCascades` | カスケード数（最大 4 段階）。タイプ 1 のみ。 |
+| `r.RayTracing.WaterCaustics.MapSizeX` / `MapSizeY` | コースティクスマップのサイズ。既定値 2048。小さな池なら 1024 で十分なことが多く、大幅に性能を節約できます。 |
+| `r.RayTracing.WaterCaustics.NumDenoisePasses` | 既定値 2。0 にするとよりくっきりした結果になります。 |
+| `r.RayTracing.WaterCaustics.UseSceneLightDir` | 0 にすると、ライトの方向ではなくカメラの上方からコースティクスマップをキャプチャします。ディレクショナルライトのみ。 |
+| `r.RayTracing.WaterCaustics.BufferScale` | 1 はフル、2 は半分、4 は 4 分の 1 の解像度 |
+| `r.RayTracing.WaterCaustics.PhotonScale` | PDS での初期のフォトンサイズ。既定値 3。 |
+| `r.RayTracing.WaterCaustics.ShowPhoton` | デバッグ用: フォトンを点として描画 |
+| `r.RayTracing.WaterCaustics.RefractBackFaceCullingThreshold` | -0.5 程度に設定すると、ひびや継ぎ目が現れる部分の面法線を無視します |
+| `r.RayTracing.WaterCaustics.ReflectBackFaceCullingThreshold` | 上と同様、反射のコースティクス用 |
+
+ウォーターコースティクスを 1 つの動的なライトに限定すると、大きく性能を節約できます。ライトの距離によるカリングと強度の
+フェードにも完全に対応しています。
+
+コースティクスの焦点はメッシュと法線の強さに依存します。大きな波や強い法線マップの値は、より劇的なコースティクスを
+生みます。分散を有効にするには、ポストプロセスボリュームで **Dispersion Intensity** を上げ、**Dispersion Offset** を
+調整します。
+
+## サンプルコンテンツ
+
+NVIDIA は、これらの機能のプロジェクトファイルとパッケージ化したデモを提供しています。
+
+- [すべてのプロジェクトファイル](https://drive.google.com/drive/folders/1MfJ1rLqwx8acdscFfQtaYOR2Cdm1WPz9?usp=sharing)
+- [すべてのパッケージ化したデモ](https://drive.google.com/drive/folders/1yHFOtmZWVDof8GbfZJMeazfb927ahTDn?usp=sharing)
+
+個別のシーン: 屈折の多い POV-Ray の Glasses シーン、プリズムによる分散のデモ、ウォーターコースティクスの
+Swimming Pool シーン、そしてこのページの冒頭に示した、パーティクル、反射、屈折、メッシュコースティクス、RTGI を組み合わせた
+オフィスシーンです。このマニュアルの [廃アパートメント](Abandone-Apartment.md) と [屋根裏シーン](Attic-Scene.md) も
+参照してください。
+
+## 関連項目
+
+- [レイトレーシング](Ray-Tracing.md)
+- [レイトレーシング反射](RT-Reflections.md)
+- [アップスケーラー](Upscalers.md)
+- [コンソール変数](Console-Variables.md)

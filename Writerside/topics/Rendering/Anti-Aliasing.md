@@ -2,20 +2,21 @@
 
 <tldr>
 <p>
-Vite adds <b>SMAA</b> as a fourth antialiasing method alongside None, FXAA, TemporalAA and MSAA. SMAA is
-the recommended for hihest raw Image Quality and specially competitive titles.
-Vite improves upon <b>UE4's TAA</b> Image quality with both improved stabalization and improved Colour
-Reproduction of Materials, specially Glossy ones and textures sharpness.
+Vite adds <b>SMAA</b> as a fourth anti-aliasing method alongside None, FXAA, TemporalAA and MSAA. SMAA is
+recommended for the highest raw image quality, especially in competitive titles. Vite also improves
+<b>UE4's TAA</b>, with better stability, better colour reproduction on materials (glossy ones in
+particular) and sharper textures.
 </p>
 </tldr>
 
-Antialiasing is where Vite’s rendering philosophy is most apparent. Unlike Epic’s Unreal Engine 5, Vite renders at native resolution by default and targets high frame rates. Its antialiasing solution therefore prioritizes temporal stability while preserving the image-quality benefits of a full native 4K output, 
+Anti-aliasing is where Vite’s rendering philosophy is most apparent. Unlike Epic’s Unreal Engine 5, Vite renders at native resolution by default and targets high frame rates. Its antialiasing solution therefore prioritizes temporal stability while preserving the image-quality benefits of a full native 4K output, 
 whose higher pixel density already reduces aliasing compared with lower internal resolutions. Compared with UE5, Vite effectively uses supersampling when the two engines are evaluated at the same output resolution but different internal rendering resolutions.
 
 <note>
-Epic’s UE 5.8 defaults to an internal resolution with only one-quarter of the target pixel count—a 50% scale on each axis. 
-This behavior appears across several rendering paths: even when TSR is disabled, the engine may "insist" to fall back to another non-native scaling method, 
-such as TAAU or basic spatial upscaling. Vite has no such behavior, it always defaults to the Screen Full Native Resolution.
+Epic’s UE 5.8 defaults to an internal resolution with only one quarter of the target pixel count &mdash; a
+50% scale on each axis. This behaviour appears across several rendering paths: even when TSR is disabled,
+the engine may fall back to another non-native scaling method, such as TAAU or basic spatial upscaling. Vite
+has no such behaviour; it always defaults to the full native screen resolution.
 When comparing Vite with UE5, always verify that both engines are rendering at the same native internal 
 resolution. Use stat unit to confirm the active resolution and performance characteristics.
 </note>
@@ -28,10 +29,10 @@ offers:
 | Method | Enum | `r.DefaultFeature.AntiAliasing` | Notes                                                                                                |
 |---|---|---|------------------------------------------------------------------------------------------------------|
 | None | `AAM_None` | 0 | Aliased. Useful for comparison and for debugging AA artefacts.                                       |
-| FXAA | `AAM_FXAA` | 1 | Cheap post-process filter. Blurs texture detail along with edges. Vite implements a higher IQ option |
-| TemporalAA | `AAM_TemporalAA` | 2 | Vite improves over UE4 TAA with higher IQ and stability. Better AA Handling with a cost on Image Quality |
-| MSAA | `AAM_MSAA` | 3 | Forward shading only. Sample count via `r.MSAACount`.                                                |
-| **SMAA** | `AAM_SMAA` | **4** | Vite's SMAA implementation faster and higher quality than other stock Morphological solutions        |
+| FXAA | `AAM_FXAA` | 1 | Cheap post-process filter. Blurs texture detail along with edges. Vite's FXAA is higher quality and faster than stock (March Major). |
+| TemporalAA | `AAM_TemporalAA` | 2 | Improved over UE4 TAA in quality and stability. Resolves aliasing well, at a cost in sharpness. |
+| MSAA | `AAM_MSAA` | 3 | Forward shading only. Sample count via `r.MSAACount`. |
+| **SMAA** | `AAM_SMAA` | **4** | Vite's compute SMAA: faster and higher quality than the other morphological solutions evaluated. |
 
 ## SMAA
 
@@ -45,9 +46,10 @@ has none of those failure modes. What it gives up is subpixel detail reconstruct
 recover information that was never rendered &mdash; which matters much less when you are rendering at native
 4K in the first place.
 
-Vite's bespoke SMAA implementation is 32% faster than CMAA2 in Unreal Engine, that's why CMAA2 was deemed redundant.
-Other morphological solutions were evaluated; none of them provided any objective argument to be implemented in Vite 
-the logical choice was to simply keep improving the base SMAA shader beyond its original form. 
+Vite's bespoke SMAA implementation is 32% faster than CMAA2 in Unreal Engine, which is why CMAA2 was deemed
+redundant. Other morphological solutions were evaluated, and none offered an objective reason to be
+implemented in Vite, so the work went into improving the base SMAA shader beyond its original form. Since
+the [March Major](ueVite26-MarchMajor.md) it runs as a compute pass with selectable quality levels. 
 
 ### Enabling SMAA
 

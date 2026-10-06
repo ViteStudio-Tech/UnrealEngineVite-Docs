@@ -1,95 +1,94 @@
-# Path Tracing
+# パストレーシング
 
 <tldr>
 <p>
-Vite includes NVIDIA's path tracing technology, related to the rendering stack featured in Black Myth: Wukong.
-The Editor Pathtracer is used for reference imagery, lighting validation, previsualisation and marketing captures &mdash; not as a
-runtime target.
+Vite には、Black Myth: Wukong に搭載されたレンダリングスタックにつながる NVIDIA のパストレーシング技術が含まれています。
+エディタのパストレーサーは、リファレンス画像、ライティングの検証、プリビジュアライゼーション、宣伝用のキャプチャに
+使うもので、実行時の目標ではありません。
 </p>
 <p>
-<b>Compiled out in a default build.</b> Requires rebuilding with
-<code>VITE_RT_PSO_DEBLOAT=0</code>.
+<b>既定のビルドではコンパイル対象から外れています。</b> <code>VITE_RT_PSO_DEBLOAT=0</code> で再ビルドする必要が
+あります。
 </p>
 </tldr>
 
-Path tracing produces a ground-truth image by tracing full light transport paths, accumulating samples over
-many frames until the result converges. It is the reference against which the real-time techniques in this
-section are approximations.
+パストレーシングは、光の輸送経路全体をトレースし、結果が収束するまで多数のフレームにわたってサンプルを蓄積することで、
+真値の画像を生成します。このセクションのリアルタイムの手法は、これを近似したものです。
 
-## What it is for
+## 用途
 
-**Lighting validation.** Path tracing tells you what the scene *should* look like. When
-[DDGI](DDGI-Dynamic.md) output looks wrong, and you cannot tell whether the problem is probe density, volume
-placement or the lighting rig itself, a converged path-traced frame from the same camera answers the
-question.
+**ライティングの検証。** パストレーシングは、シーンが *本来どう見えるべきか* を教えてくれます。[DDGI](DDGI-Dynamic.md)
+の出力がおかしく見え、原因がプローブの密度なのか、ボリュームの配置なのか、ライティングの構成そのものなのか分からない
+とき、同じカメラから収束させたパストレーシングのフレームが答えになります。
 
-**Reference imagery.** Marketing shots, key art and promotional captures where a converged still is
-acceptable and frame time is irrelevant.
+**リファレンス画像。** 収束した静止画で十分で、フレームタイムが関係ない宣伝用のショット、キーアート、プロモーション用の
+キャプチャ。
 
-**Pre-visualization.** Establishing a lighting target before building the real-time approximation of it.
+**プリビジュアライゼーション。** リアルタイムの近似を作る前に、ライティングの目標を定めます。
 
-**Material authoring.** Verifying that a complex material behaves correctly under full light transport
-before checking how the real-time path approximates it.
+**マテリアルの作成。** 複雑なマテリアルが完全な光の輸送の下で正しく振る舞うことを、リアルタイムのパスがそれをどう
+近似するかを確認する前に検証します。
 
-## What it is not for
+## 用途ではないもの
 
-Path tracing is not a main shipping runtime configuration in Vite, and it is not one of the
-[performance targets](Performance-Targets.md). Convergence takes many frames; a camera cut restarts
-accumulation from scratch. *The Editor Path tracer path setup is not the same as what can be shipped for runtime title. 
+パストレーシングは Vite の主要な出荷用の実行時構成ではなく、[パフォーマンス目標](Performance-Targets.md) にも
+含まれていません。収束には多数のフレームが必要で、カメラカットのたびに蓄積が最初からやり直しになります。エディタの
+パストレーサーの構成は、出荷するタイトルが実行時に使うものではありません。
 
-Black Myth: Wukong shipped a Path Tracing mode based on the same PT tech that's available in Vite; for this title 
-it is offered as a high-end PC option to be used with upscaling and frame generation, not as the console rendering path.
+Black Myth: Wukong は、Vite で利用できるのと同じ技術に基づくパストレーシングモードを搭載して出荷されました。このタイトル
+では、アップスケーリングとフレーム生成と組み合わせて使うハイエンド PC 向けのオプションであり、コンソールの描画パスでは
+ありません。出荷するタイトル向けのリアルタイムパストレーサーは、開発中の
+[Vite ReSTIR](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/restir.html) に含まれます。
 
-## Using it
+## 使い方
 
-Path tracing shaders are compiled out when `VITE_RT_PSO_DEBLOAT` is `1`, which is the default. Rebuild the
-engine with `VITE_RT_PSO_DEBLOAT=0` first &mdash; see [Compile-Time Switches](Compile-Time-Switches.md).
+`VITE_RT_PSO_DEBLOAT` が既定値の `1` のとき、パストレーシングのシェーダーはコンパイル対象から外れます。まずエンジンを
+`VITE_RT_PSO_DEBLOAT=0` で再ビルドしてください。[コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
 
-Because path tracing is a tool you use occasionally rather than something the game ships with, the cleanest
-arrangement is a separate editor target configuration with the debloat switch off, used for reference
-capture, while the game target keeps the default.
+パストレーシングはゲームに含めて出荷するものではなく、ときどき使うツールなので、最もすっきりした構成は、デブロートの
+スイッチを無効にした別のエディタターゲットをリファレンスのキャプチャ用に用意し、ゲームのターゲットは既定のままにして
+おくことです。
 
-Once enabled, path tracing is enabled through the standard Unreal Engine 4.27 controls:
+有効にした後は、標準の Unreal Engine 4.27 の操作でパストレーシングを使います。
 
 ```
 r.PathTracing 1
 ```
 
-The view mode can also be selected from the viewport's view mode dropdown. Accumulation restarts whenever
-the camera or scene changes, so let it converge before evaluating an image.
+ビューポートのビューモードのドロップダウンから選ぶこともできます。カメラやシーンが変わるたびに蓄積が最初からやり直しに
+なるため、画像を評価する前に収束させてください。
 
-Key considerations:
+主な考慮点:
 
-- **Sample count** determines convergence. More samples, less noise, longer wait.
-- **Maximum bounces** determines how much indirect light is captured. Interiors need more than exteriors.
-- **Movie Render Queue** is the right tool for producing converged sequences, since it can hold each frame
-  until it has accumulated the requested number of samples.
+- **サンプル数** が収束を決めます。多いほどノイズが減り、待ち時間が長くなります。
+- **最大バウンス数** が、捉える間接光の量を決めます。屋内には屋外より多くのバウンスが必要です。
+- **Movie Render Queue** は、各フレームが要求したサンプル数を蓄積するまで待てるため、収束したシーケンスを作るのに適した
+  ツールです。
 
-## Comparing against the real-time path
+## リアルタイムのパスとの比較
 
-The most useful workflow is A/B comparison from a fixed camera.
+最も有用なワークフローは、固定したカメラからの A/B 比較です。
 
-<procedure title="Validate real-time lighting against path tracing" id="validate-lighting">
-    <step>Place a camera at a representative viewpoint and lock it.</step>
-    <step>Capture the real-time image with your shipping rendering configuration.</step>
-    <step>Switch to path tracing and let the frame converge fully.</step>
+<procedure title="パストレーシングでリアルタイムのライティングを検証する" id="validate-lighting">
+    <step>代表的な視点にカメラを置き、固定します。</step>
+    <step>出荷用のレンダリング構成で、リアルタイムの画像をキャプチャします。</step>
+    <step>パストレーシングに切り替え、フレームを完全に収束させます。</step>
     <step>
-        Compare. Differences in overall brightness and bounce colour usually indicate DDGI probe density or
-        volume placement problems. Differences confined to contact areas indicate you need
-        <a href="SSGI.md">SSGI</a> or stronger <a href="Ambient-Occlusion.md">ambient occlusion</a>.
-        Differences in reflections point at <a href="RT-Reflections.md">reflection</a> settings.
+        比較します。全体の明るさやバウンスの色の違いは、通常 DDGI のプローブの密度やボリュームの配置の問題を
+        示しています。接触部に限った違いは、<a href="SSGI.md">SSGI</a> やより強い
+        <a href="Ambient-Occlusion.md">アンビエントオクルージョン</a> が必要なことを示しています。反射の違いは
+        <a href="RT-Reflections.md">反射</a> の設定を示しています。
     </step>
-    <step>Adjust the real-time configuration and repeat, rather than adjusting the lighting rig to compensate.</step>
+    <step>ライティングの構成を歪めて補うのではなく、リアルタイムの構成を調整して繰り返します。</step>
 </procedure>
 
-That last step is the important one. If the real-time approximation is wrong, fix the approximation.
-Compensating by distorting the lighting rig produces a scene that only looks correct from one camera and
-under one configuration.
+最後の手順が重要です。リアルタイムの近似が間違っているなら、近似を直してください。ライティングの構成を歪めて
+補うと、1 つのカメラ、1 つの構成からしか正しく見えないシーンになってしまいます。
 
-## See also
+## 関連項目
 
-- [Ray Tracing](Ray-Tracing.md)
-- [Global Illumination](Global-Illumination.md)
-- [Dynamic DDGI](DDGI-Dynamic.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Colour Management](Color-Management.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [グローバルイルミネーション](Global-Illumination.md)
+- [動的 DDGI](DDGI-Dynamic.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [カラーマネジメント](Color-Management.md)

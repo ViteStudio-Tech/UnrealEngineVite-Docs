@@ -1,68 +1,79 @@
-# Colour Management
+# カラーマネジメント
 
 <tldr>
 <p>
-Vite uses the stock Unreal Engine 4.27 tonemapping and colour pipeline: ACES film tonemapper, post process
-volume grading, LUTs and HDR output. This page covers the controls and the settings that most often cause
-problems.
+Vite は Unreal Engine 4.27 のトーンマッピングと色のパイプライン（ACES のフィルムトーンマッパー、ポストプロセスボリュームでの
+グレーディング、LUT、HDR 出力）をベースに、3 つの追加を加えています。ACES 1.3.1 のガマット圧縮、UE 5.7 のリファレンスに
+合わせた色再現、そして UE 5.0 のローカル露出です。このページでは、その制御と、最も問題を起こしやすい設定を説明します。
 </p>
 </tldr>
 
-Colour management is the last stage of the frame and the one that determines whether all the work done by
-the [lighting](Global-Illumination.md) and [ray tracing](Ray-Tracing.md) systems actually reaches the
-display looking correct.
+カラーマネジメントはフレームの最後の段階であり、[ライティング](Global-Illumination.md) と [レイトレーシング](Ray-Tracing.md)
+のシステムが行ったすべての作業が、正しい見た目でディスプレイに届くかどうかを決めます。
 
-## The pipeline
+## パイプライン
 
-The renderer works in linear HDR throughout. At the end of the frame:
+レンダラーは全体を通してリニアな HDR で動作します。フレームの最後に次の処理を行います。
 
-1. **[SMAA](Anti-Aliasing.md)** resolves edges, in linear space, before tonemapping.
-2. **Colour grading** applies the post process volume's exposure, white balance, saturation, contrast,
-   gain, gamma and offset controls, plus any colour grading LUT.
-3. **Tonemapping** maps the HDR range into the display range using the ACES filmic curve.
-4. **Output encoding** applies the transfer function for the target display, sRGB for SDR or PQ/ST-2084 for
-   HDR.
+1. **[SMAA](Anti-Aliasing.md)** が、トーンマッピングの前にリニア空間でエッジを解消します。
+2. **カラーグレーディング** が、ポストプロセスボリュームの露出、ホワイトバランス、彩度、コントラスト、ゲイン、ガンマ、
+   オフセットの制御と、カラーグレーディングの LUT を適用します。
+3. **トーンマッピング** が、ACES のフィルミックカーブで HDR の範囲をディスプレイの範囲に変換します。
+4. **出力のエンコード** が、対象ディスプレイの伝達関数（SDR では sRGB、HDR では PQ/ST-2084）を適用します。
 
-## Tonemapper controls
+## Vite での変更点
 
-| CVar | Default | Purpose |
-|---|---|---|
-| `r.TonemapperFilm` | `1` | Use the ACES film tone mapper. `0` reverts to the legacy curve. |
-| `r.Tonemapper.Quality` | `5` | `0` basic only, `1` + film contrast, `2` + vignette, `3` + film shadow tint, `4` + grain, `5` + grain jitter (full quality) |
-| `r.Tonemapper.Sharpen` | `0` | Sharpening in the tonemapper, clamped at 10. `0.5` half strength, `1` full strength. |
-| `r.Tonemapper.GrainQuantization` | `1` | `1` adds a high-frequency pixel pattern to fight 8-bit colour quantisation. `0` is slightly faster. |
-| `r.TonemapperGamma` | `0.0` | `0` uses the default sRGB or Rec709 transform; any other value forces a fixed gamma. |
-| `r.Gamma` | `1.0` | Gamma applied on output |
-
-`r.Tonemapper.Quality` is a genuine scalability lever. Each step down removes a feature from the tonemapper
-shader, producing a cheaper permutation. If your project does not use vignette, film shadow tint or grain,
-dropping the quality level costs nothing visually and saves both frame time and shader permutations.
-
-`r.Tonemapper.Sharpen` deserves care. A small amount of tonemapper sharpening can compensate for perceived
-softness, but it operates after [anti-aliasing](Anti-Aliasing.md) and will re-introduce aliasing on edges
-SMAA just resolved. If the image looks soft, first confirm that you are actually rendering at native
-resolution and that no upscaler is active.
-
-## Colour grading
-
-All grading is done through post process volumes under **Color Grading**. The controls are organised into
-Temperature, Global, Shadows, Midtones and Highlights, each offering saturation, contrast, gamma, gain and
-offset.
-
-Grading in Unreal is applied before tonemapping, in linear space. This is why grading values that look
-correct in a 2D image editor do not transfer directly &mdash; you are grading scene-referred linear data,
-not display-referred pixels.
-
-**LUTs.** A colour grading LUT can be assigned in the post process volume with a blend weight. Author LUTs
-against a neutral capture of your scene rather than against an already-graded one, or the grades compound.
-
-## HDR output
-
-| CVar | Purpose |
+| リリース | 変更内容 |
 |---|---|
-| `r.AllowHDR` | Enables HDR output support for the project. Usually set per-project or per-platform in `DefaultEngine.ini`. |
-| `r.HDR.Display.OutputDevice` | Selects the output transfer function |
-| `r.HDR.Display.ColorGamut` | Selects the output colour gamut |
+| [LTS](ueVite25-LTS.md) | ACES 1.3.1 のガマット圧縮。色域外の色（彩度の高いエミッシブ、レーザー、ネオン）をクリップせずに滑らかに範囲内へ戻します |
+| [March Major](ueVite26-MarchMajor.md) | 色再現を UE 5.7 のリファレンスに合わせて更新し、UE5 でグレーディングしたコンテンツが Vite でも同じに見えるように |
+| [August Major](ueVite26-AugustMajor.md) | `VITE_UE5_POSTPROCESSING`（既定で有効）による、UE 5.0 のローカル露出のパス、ポストプロセス設定、ヒストグラムのパス |
+
+ローカル露出は、全体のコントラストを平坦にすることなく、フレームのダイナミックレンジを局所的に圧縮し、明るい窓と暗い
+屋内のディテールを同時に保ちます。その設定は、既存の露出の制御と並んでポストプロセスボリュームに表示されます。
+コンパイル対象から外す方法は [コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
+
+## トーンマッパーの制御
+
+| CVar | 既定値 | 用途 |
+|---|---|---|
+| `r.TonemapperFilm` | `1` | ACES のフィルムトーンマッパーを使用。`0` で従来のカーブに戻ります。 |
+| `r.Tonemapper.Quality` | `5` | `0` は基本のみ、`1` はフィルムコントラストを追加、`2` はビネットを追加、`3` はフィルムのシャドウの色味を追加、`4` はグレインを追加、`5` はグレインのジッターを追加（最高品質） |
+| `r.Tonemapper.Sharpen` | `0` | トーンマッパーでのシャープニング。上限は 10。`0.5` は半分、`1` は最大の強さ。 |
+| `r.Tonemapper.GrainQuantization` | `1` | `1` は 8 ビットの色の量子化に対抗するため高周波のピクセルパターンを加えます。`0` はわずかに高速です。 |
+| `r.TonemapperGamma` | `0.0` | `0` は既定の sRGB または Rec709 の変換を使用し、それ以外の値は固定のガンマを強制します。 |
+| `r.Gamma` | `1.0` | 出力時に適用するガンマ |
+
+`r.Tonemapper.Quality` は本物のスケーラビリティの調整項目です。1 段階下げるごとにトーンマッパーのシェーダーから機能が
+1 つ取り除かれ、より安価なパーミュテーションになります。ビネット、フィルムのシャドウの色味、グレインを使わない
+プロジェクトでは、品質レベルを下げても見た目に影響はなく、フレームタイムとシェーダーパーミュテーションの両方を
+節約できます。
+
+`r.Tonemapper.Sharpen` には注意が必要です。トーンマッパーで少しシャープにすると知覚されるソフトさを補えますが、
+[アンチエイリアシング](Anti-Aliasing.md) の後に働くため、SMAA が解消したばかりのエッジにエイリアシングを再び持ち込みます。
+画像がソフトに見える場合は、まず実際にネイティブ解像度で描画していて、アップスケーラーが動作していないことを確認して
+ください。
+
+## カラーグレーディング
+
+グレーディングはすべて、ポストプロセスボリュームの **Color Grading** で行います。制御は Temperature、Global、Shadows、
+Midtones、Highlights に分かれ、それぞれに彩度、コントラスト、ガンマ、ゲイン、オフセットがあります。
+
+Unreal のグレーディングは、トーンマッピングの前にリニア空間で適用されます。2D の画像編集ソフトで正しく見えるグレーディングの
+値がそのまま使えないのはこのためで、ディスプレイ基準のピクセルではなく、シーン基準のリニアなデータをグレーディング
+しているのです。
+
+**LUT。** カラーグレーディングの LUT は、ブレンドの重みとともにポストプロセスボリュームに割り当てられます。すでに
+グレーディングしたキャプチャではなく、シーンのニュートラルなキャプチャを基準に LUT を作成してください。そうしないと
+グレーディングが重なってしまいます。
+
+## HDR 出力
+
+| CVar | 用途 |
+|---|---|
+| `r.AllowHDR` | プロジェクトで HDR 出力のサポートを有効化。通常はプロジェクトごと、またはプラットフォームごとに `DefaultEngine.ini` で設定します。 |
+| `r.HDR.Display.OutputDevice` | 出力の伝達関数を選択 |
+| `r.HDR.Display.ColorGamut` | 出力の色域を選択 |
 
 ```ini
 ; Config/DefaultEngine.ini
@@ -70,40 +81,40 @@ against a neutral capture of your scene rather than against an already-graded on
 r.AllowHDR=1
 ```
 
-HDR output interacts with SMAA correctly because [SMAA runs before tonemapping](Anti-Aliasing.md) in Vite.
-Anti-aliasing implementations that run after the tonemapper generally have to be reworked for HDR output;
-this one does not.
+Vite では [SMAA がトーンマッピングの前に実行される](Anti-Aliasing.md) ため、HDR 出力と SMAA は正しく組み合わさります。
+トーンマッパーの後に実行されるアンチエイリアシングの実装は、一般に HDR 出力のために作り直す必要がありますが、
+この実装はその必要がありません。
 
-Slate and UI are composited with knowledge of the output device via `r.TonemapperGamma`, but UI authored
-against an SDR reference will look wrong in HDR. Budget time to check your UI in HDR specifically rather
-than assuming it transfers.
+Slate と UI は `r.TonemapperGamma` を通じて出力デバイスを考慮して合成されますが、SDR を基準に作成した UI は HDR では
+不自然に見えます。そのまま使えると想定せず、HDR で UI を確認する時間を確保してください。
 
-## Common problems
+## よくある問題
 
 <deflist>
-<def title="The scene looks washed out or milky">
-Usually excessive ambient or fog rather than a grading problem. Check whether
-<a href="Ambient-Occlusion.md">AO</a> is being applied and whether your
-<a href="Global-Illumination.md">GI</a> intensity is too high. Compare against a
-<a href="Path-Tracing.md">path-traced</a> reference before reaching for contrast in the grade.
+<def title="シーンが白っぽく、ミルクがかったように見える">
+通常はグレーディングの問題ではなく、環境光やフォグが強すぎることが原因です。<a href="Ambient-Occlusion.md">AO</a> が
+適用されているか、<a href="Global-Illumination.md">GI</a> の強度が高すぎないかを確認してください。グレーディングで
+コントラストを上げる前に、<a href="Path-Tracing.md">パストレーシング</a> のリファレンスと比較してください。
 </def>
-<def title="Colours shift between the editor viewport and packaged builds">
-Almost always a different output device or a post process volume that is not unbound. Confirm
-<code>r.HDR.Display.OutputDevice</code> matches in both, and check for editor-only post process volumes.
+<def title="エディタのビューポートとパッケージ化したビルドで色が変わる">
+ほとんどの場合、出力デバイスが異なるか、範囲が限定されていないポストプロセスボリュームが原因です。両方で
+<code>r.HDR.Display.OutputDevice</code> が一致していることを確認し、エディタ専用のポストプロセスボリュームがないか
+調べてください。
 </def>
-<def title="Banding in gradients and skies">
-Check <code>r.Tonemapper.GrainQuantization</code> is <code>1</code>. If banding persists on an HDR display,
-the source gradient itself may be quantised &mdash; check the sky texture or gradient material precision.
+<def title="グラデーションや空にバンディングが出る">
+<code>r.Tonemapper.GrainQuantization</code> が <code>1</code> であることを確認してください。HDR ディスプレイでバンディングが
+残る場合は、元のグラデーション自体が量子化されている可能性があります。空のテクスチャやグラデーションのマテリアルの精度を
+確認してください。
 </def>
-<def title="The image is sharp in the editor and soft in game">
-Confirm no upscaler is active. See <a href="Upscalers.md">Upscalers and Frame Generation</a>. Vite renders
-at native resolution by default; an upscaler enabled in a game settings menu is the usual cause.
+<def title="エディタでは鮮明なのにゲームではソフトになる">
+アップスケーラーが動作していないことを確認してください。<a href="Upscalers.md">アップスケーラー</a> を参照してください。
+Vite は既定でネイティブ解像度で描画するため、通常の原因はゲームの設定メニューで有効にしたアップスケーラーです。
 </def>
 </deflist>
 
-## See also
+## 関連項目
 
-- [Anti-Aliasing](Anti-Aliasing.md)
-- [Path Tracing](Path-Tracing.md)
-- [Upscalers and Frame Generation](Upscalers.md)
-- [Rendering](Rendering.md)
+- [アンチエイリアシング](Anti-Aliasing.md)
+- [パストレーシング](Path-Tracing.md)
+- [アップスケーラー](Upscalers.md)
+- [レンダリング](Rendering.md)

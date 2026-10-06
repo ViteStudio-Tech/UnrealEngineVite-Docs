@@ -3,8 +3,8 @@
 <tldr>
 <p>
 Vite includes NVIDIA's path tracing technology, related to the rendering stack featured in Black Myth: Wukong.
-The Editor Pathtracer is used for reference imagery, lighting validation, previsualisation and marketing captures &mdash; not as a
-runtime target.
+The editor path tracer is used for reference imagery, lighting validation, previsualisation and marketing
+captures &mdash; not as a runtime target.
 </p>
 <p>
 <b>Compiled out in a default build.</b> Requires rebuilding with
@@ -26,7 +26,7 @@ question.
 **Reference imagery.** Marketing shots, key art and promotional captures where a converged still is
 acceptable and frame time is irrelevant.
 
-**Pre-visualization.** Establishing a lighting target before building the real-time approximation of it.
+**Previsualisation.** Establishing a lighting target before building the real-time approximation of it.
 
 **Material authoring.** Verifying that a complex material behaves correctly under full light transport
 before checking how the real-time path approximates it.
@@ -35,10 +35,13 @@ before checking how the real-time path approximates it.
 
 Path tracing is not a main shipping runtime configuration in Vite, and it is not one of the
 [performance targets](Performance-Targets.md). Convergence takes many frames; a camera cut restarts
-accumulation from scratch. *The Editor Path tracer path setup is not the same as what can be shipped for runtime title. 
+accumulation from scratch. The editor path tracer's setup is not what a shipping title would use at runtime. 
 
-Black Myth: Wukong shipped a Path Tracing mode based on the same PT tech that's available in Vite; for this title 
-it is offered as a high-end PC option to be used with upscaling and frame generation, not as the console rendering path.
+Black Myth: Wukong shipped a path tracing mode based on the same technology that is available in Vite. In
+that title it is a high-end PC option used with upscaling and frame generation, not the console rendering
+path. A real-time path tracer intended for shipping titles is part of
+[Vite ReSTIR](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/restir.html), which is in
+development.
 
 ## Using it
 

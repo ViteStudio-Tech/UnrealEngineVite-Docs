@@ -2,12 +2,14 @@
 
 <tldr>
 <p>
-Vite bundles DLSS 4.5, DLSS Frame Generation, FSR2, FSR 4, XeSS 3, NIS &mdash;. They are <b>optional headroom</b>, not the rendering plan. Vite's
+Vite bundles NVIDIA DLSS 4.5 with Ray Reconstruction and multi-frame generation, AMD FSR 4 with an FSR 3.1
+fallback and vendor-agnostic frame generation, Intel XeSS 3.1 with XeFG, NVIDIA NIS, and the Reflex and
+Anti-Lag 2 latency SDKs. They are <b>optional headroom</b>, not the rendering plan: Vite's
 <a href="Performance-Targets.md">performance targets</a> are met at native resolution without any of them.
 </p>
 </tldr>
 
-Check out the [UpscalerTest Sample project](https://github.com/ViteStudio-Tech/ueVite-UpscalerTest)
+Check out the [UpscalerTest sample project](https://github.com/ViteStudio-Tech/ueVite-UpscalerTest).
 
 Unreal Engine 5 treats upscaling as mandatory: the renderer is designed around rendering at a fraction of
 output resolution and reconstructing the rest. Vite takes the opposite position. The targets are native, and
@@ -20,20 +22,30 @@ upscaling as an option on top.
 ## Bundled plugins
 
 All of these ship in the engine repository under `Engine/Plugins/Runtime`. None are enabled by default;
-enable the ones your project offers from **Edit > Plugins**.
+enable the ones your project offers from **Edit > Plugins**. Versions are those in the
+[September Major](ueVite26-SeptemberMajor.md).
 
 | Plugin | Version | What it provides | Location |
 |---|---|---|---|
-| NVIDIA DLSS | 8.7.0-NGX310.7.0 (DLSS 4.5) | Super Resolution, Ray Reconstruction, DLAA | `Nvidia/DLSS` |
-| NVIDIA DLSS Frame Generation | 1.3.0-SL2.4.0 (Streamline) | Frame Generation and Reflex | `Nvidia/Streamline` |
-| NVIDIA DeepDVC | Streamline | Deep-learning dynamic vibrance | `Nvidia/StreamlineDeepDVC` |
-| NVIDIA NIS | &mdash; | Image Scaling, spatial upscaling and sharpening | `Nvidia/NIS` |
-| DLSS Movie Pipeline Support | &mdash; | DLSS integration for Movie Render Queue | `Nvidia/DLSSMoviePipelineSupport` |
-| AMD FSR 4 | 4.1.1 | FidelityFX Super Resolution 4 and Frame Generation, DX12 | `VitePlugins/FSR4-427` |
-| Intel XeSS | 3.0.5 | Xe Super Sampling | `VitePlugins/XeSS_UE4.27_Plugin_v3.0.5` |
+| NVIDIA DLSS | 8.7.0-NGX310.7.0 (DLSS 4.5 presets) | Super Resolution, Ray Reconstruction, DLAA | `Nvidia/DLSS` |
+| NVIDIA DLSS Frame Generation | 1.3.0 plugin on Streamline SDK 2.12.0 | Frame generation, including multi-frame generation | `Nvidia/Streamline` |
+| NVIDIA Reflex | 1.6 | Latency reduction | `Nvidia/Reflex` |
+| NVIDIA RTX Dynamic Vibrance | 1.3.0 (Streamline) | Deep-learning dynamic vibrance | `Nvidia/StreamlineDeepDVC` |
+| NVIDIA NIS | 1.2.1 | Image Scaling: spatial upscaling and sharpening | `Nvidia/NIS` |
+| Movie Render Queue DLSS/DLAA Support | 2.3.3 | DLSS integration for Movie Render Queue | `Nvidia/DLSSMoviePipelineSupport` |
+| AMD FSR 4 | 4.1.1 | FSR 4 ML upscaling with an FSR 3.1 fallback, native AA, and frame generation that works with any upscaler; DirectX 12 | `VitePlugins/FSR4-427/FSR4` |
+| AMD Anti-Lag 2 | 2.0.4 | Latency reduction on AMD GPUs | `VitePlugins/AntiLag2.0.4` |
+| Intel XeSS | 3.1.0 | Xe Super Sampling and XeFG frame generation | `VitePlugins/XeSS_UE4.27_Plugin_v3.1.0` |
 
 FSR 4 and XeSS 3 are notable: both are backports that do not exist in stock 4.27. FSR 4 uses the native
-`ffx-api` and requires DirectX 12.
+`ffx-api` and requires DirectX 12. The [June Major](ueVite26-JuneMajor.md) introduced most of this set; the
+[August Major](ueVite26-AugustMajor.md) moved XeSS to 3.1.0 and the DLSS runtime to NGX 310.7.129.
+
+### Arbitrary render resolution
+
+`r.Upscaler.ScreenPercentageOverride` lets FSR, DLSS and XeSS take any internal render resolution rather than
+only their fixed quality modes. Use it for benchmarking and for exposing a resolution slider; leave it unset
+for normal quality-mode behaviour.
 
 ## Choosing what to ship
 
@@ -44,7 +56,7 @@ entry that has to be tested.
 |---|---|
 | PC release, broad hardware support | DLSS + FSR 4. Covers NVIDIA and AMD; XeSS if Intel Arc matters to you. |
 | NVIDIA-focused, ray tracing heavy | DLSS with Ray Reconstruction |
-| Anti-aliasing quality at native resolution | DLAA (part of the DLSS plugin), or Vite's [SMAA](Anti-Aliasing.md) |
+| Anti-aliasing quality at native resolution | DLAA (part of the DLSS plugin), FSR 4 native AA, or Vite's [SMAA](Anti-Aliasing.md) |
 | No upscaling, native only | Ship nothing from this page. This is a valid and supported configuration. |
 
 DLAA is worth calling out separately. It is DLSS's neural network applied at native resolution rather than
@@ -62,16 +74,25 @@ Vite project this interacts directly with the [ray tracing](Ray-Tracing.md) conf
 - It has no benefit for [DDGI](DDGI-Dynamic.md), which is noise-free by construction and has nothing to
   denoise.
 
+Ray Reconstruction has its own preset console variable, separate from the Super Resolution presets. Preset F
+is the DLSS 4.5 model.
+
 If your ray tracing configuration is DDGI-led, Ray Reconstruction buys you less than it would in a
 Lumen-based project. Measure before shipping it.
 
 ## Frame generation
 
-DLSS Frame Generation (via Streamline) and FSR 4 Frame Generation both synthesise intermediate frames.
+Three frame generators ship with the engine:
+
+- **DLSS Frame Generation** through Streamline, including DLSS-G multi-frame generation multipliers.
+- **FSR frame generation**, driven from the swapchain at present time. It is upscaler-agnostic: it works
+  with DLSS, XeSS or native rendering as well as with FSR, and full velocity output is forced whenever any
+  frame generator is selected so generated frames do not ghost.
+- **XeFG**, Intel's frame generation, enabled on UE 4.27 through XeSS 3.
 
 Frame generation increases displayed frame rate without reducing input latency &mdash; it can make latency
-slightly worse, which is why Reflex ships alongside it in the Streamline plugin. Enable Reflex whenever you
-enable frame generation.
+slightly worse. Pair it with **Reflex** on NVIDIA hardware or **Anti-Lag 2** on AMD hardware whenever you
+enable it.
 
 > Frame generation works best when the base frame rate is already high. Generating from 30&nbsp;fps to
 > 60&nbsp;fps produces visible artefacts around fast-moving UI and thin geometry; generating from
@@ -111,7 +132,7 @@ it costs frame time and only matters for projects that ship with upscaling enabl
 
 <procedure title="Add DLSS to a project" id="enable-dlss">
     <step>Open <b>Edit &gt; Plugins</b>, find <b>NVIDIA DLSS Super Resolution/Ray Reconstruction/DLAA</b>, enable it and restart the editor.</step>
-    <step>For frame generation, also enable <b>NVIDIA DLSS Frame Generation</b>.</step>
+    <step>For frame generation, also enable <b>NVIDIA DLSS Frame Generation</b>, and <b>Reflex</b> for latency.</step>
     <step>
         Query support at runtime through the DLSS Blueprint library before exposing the option in your
         settings menu. Hardware and driver support vary, and an option that silently does nothing is worse

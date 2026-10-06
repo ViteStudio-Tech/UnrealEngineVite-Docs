@@ -1,55 +1,56 @@
-# Anti-Aliasing
+# アンチエイリアシング
 
 <tldr>
 <p>
-Vite adds <b>SMAA</b> as a fourth antialiasing method alongside None, FXAA, TemporalAA and MSAA. SMAA is
-the recommended for hihest raw Image Quality and specially competitive titles.
-Vite improves upon <b>UE4's TAA</b> Image quality with both improved stabalization and improved Colour
-Reproduction of Materials, specially Glossy ones and textures sharpness.
+Vite は、None、FXAA、TemporalAA、MSAA に加えて、4 つ目のアンチエイリアシング手法として <b>SMAA</b> を追加しています。
+SMAA は、特に対戦タイトルで最高の生の画質を得るために推奨します。また Vite は <b>UE4 の TAA</b> も改良しており、
+安定性、マテリアル（特に光沢のあるもの）の色再現、テクスチャの鮮明さが向上しています。
 </p>
 </tldr>
 
-Antialiasing is where Vite’s rendering philosophy is most apparent. Unlike Epic’s Unreal Engine 5, Vite renders at native resolution by default and targets high frame rates. Its antialiasing solution therefore prioritizes temporal stability while preserving the image-quality benefits of a full native 4K output, 
-whose higher pixel density already reduces aliasing compared with lower internal resolutions. Compared with UE5, Vite effectively uses supersampling when the two engines are evaluated at the same output resolution but different internal rendering resolutions.
+アンチエイリアシングは、Vite のレンダリングの考え方が最もよく表れる部分です。Epic の Unreal Engine 5 と異なり、Vite は
+既定でネイティブ解像度で描画し、高いフレームレートを目標とします。そのためアンチエイリアシングのソリューションは、
+完全なネイティブ 4K 出力の画質上の利点を保ちながら、時間的な安定性を優先しています。ネイティブ 4K はピクセル密度が高い
+ため、低い内部解像度と比べてそもそもエイリアシングが少なくなります。同じ出力解像度で比較すると、内部解像度の違いから、
+Vite は UE5 に対して実質的にスーパーサンプリングを行っていることになります。
 
 <note>
-Epic’s UE 5.8 defaults to an internal resolution with only one-quarter of the target pixel count—a 50% scale on each axis. 
-This behavior appears across several rendering paths: even when TSR is disabled, the engine may "insist" to fall back to another non-native scaling method, 
-such as TAAU or basic spatial upscaling. Vite has no such behavior, it always defaults to the Screen Full Native Resolution.
-When comparing Vite with UE5, always verify that both engines are rendering at the same native internal 
-resolution. Use stat unit to confirm the active resolution and performance characteristics.
+Epic の UE 5.8 は、既定で目標のピクセル数の 4 分の 1（各軸 50%）の内部解像度を使います。この挙動は複数のレンダリング
+パスに見られ、TSR を無効にしても、エンジンは TAAU や基本的な空間アップスケーリングなど、ネイティブではない別の
+スケーリング手法にフォールバックすることがあります。Vite にはそのような挙動はなく、常に画面の完全なネイティブ解像度が
+既定です。Vite と UE5 を比較する際は、両方のエンジンが同じネイティブの内部解像度で描画していることを必ず確認して
+ください。`stat unit` で現在の解像度と性能特性を確認できます。
 </note>
 
-## Available methods
+## 利用できる手法
 
-The **Anti-Aliasing Method** setting under **Project Settings > Engine > Rendering > Default Settings**
-offers:
+**プロジェクト設定 > エンジン > レンダリング > Default Settings** の **Anti-Aliasing Method** で、次の手法を選べます。
 
-| Method | Enum | `r.DefaultFeature.AntiAliasing` | Notes                                                                                                |
-|---|---|---|------------------------------------------------------------------------------------------------------|
-| None | `AAM_None` | 0 | Aliased. Useful for comparison and for debugging AA artefacts.                                       |
-| FXAA | `AAM_FXAA` | 1 | Cheap post-process filter. Blurs texture detail along with edges. Vite implements a higher IQ option |
-| TemporalAA | `AAM_TemporalAA` | 2 | Vite improves over UE4 TAA with higher IQ and stability. Better AA Handling with a cost on Image Quality |
-| MSAA | `AAM_MSAA` | 3 | Forward shading only. Sample count via `r.MSAACount`.                                                |
-| **SMAA** | `AAM_SMAA` | **4** | Vite's SMAA implementation faster and higher quality than other stock Morphological solutions        |
+| 手法 | 列挙値 | `r.DefaultFeature.AntiAliasing` | 備考 |
+|---|---|---|---|
+| None | `AAM_None` | 0 | エイリアシングあり。比較や AA のアーティファクトのデバッグに便利です。 |
+| FXAA | `AAM_FXAA` | 1 | 安価なポストプロセスフィルター。エッジとともにテクスチャのディテールもぼかします。Vite の FXAA は標準より高品質で高速です（March Major）。 |
+| TemporalAA | `AAM_TemporalAA` | 2 | UE4 の TAA より品質と安定性が向上。エイリアシングをよく解消しますが、鮮明さを犠牲にします。 |
+| MSAA | `AAM_MSAA` | 3 | フォワードシェーディングのみ。サンプル数は `r.MSAACount` で指定します。 |
+| **SMAA** | `AAM_SMAA` | **4** | Vite のコンピュート SMAA。検討した他のモルフォロジカルな手法より高速で高品質です。 |
 
 ## SMAA
 
-Subpixel Morphological Anti-Aliasing analyses the image for edge patterns and blends across them
-geometrically. It is a spatial technique: it looks at one frame and resolves the aliasing in that frame.
+Subpixel Morphological Anti-Aliasing は、画像を解析してエッジのパターンを見つけ、幾何学的にその両側をブレンドします。
+空間的な手法であり、1 つのフレームを見て、そのフレーム内でエイリアシングを解消します。
 
-That single property is why it fits Vite. Temporal techniques accumulate samples across frames, which is
-what produces ghosting behind moving objects, smearing on fast camera motion, and the general softness that
-makes TAA output look like it is rendered behind a thin layer of vaseline. SMAA has no history buffer, so it
-has none of those failure modes. What it gives up is subpixel detail reconstruction &mdash; it cannot
-recover information that was never rendered &mdash; which matters much less when you are rendering at native
-4K in the first place.
+この性質こそが、SMAA が Vite に合う理由です。時間的な手法はフレームをまたいでサンプルを蓄積するため、動くオブジェクトの
+背後のゴースト、カメラを速く動かしたときのにじみ、そして TAA の出力が薄いワセリン越しに描かれたように見える全体的な
+ソフトさが生じます。SMAA には履歴バッファがないため、そうした失敗は一切ありません。その代わりにサブピクセルのディテールの
+再構成はできず、描画されなかった情報を復元することはできませんが、そもそもネイティブ 4K で描画している場合には、
+それはそれほど重要ではありません。
 
-Vite's bespoke SMAA implementation is 32% faster than CMAA2 in Unreal Engine, that's why CMAA2 was deemed redundant.
-Other morphological solutions were evaluated; none of them provided any objective argument to be implemented in Vite 
-the logical choice was to simply keep improving the base SMAA shader beyond its original form. 
+Vite 独自の SMAA の実装は、Unreal Engine の CMAA2 より 32% 高速で、そのため CMAA2 は不要と判断されました。他の
+モルフォロジカルな手法も検討しましたが、Vite に実装する客観的な理由のあるものはなく、基本の SMAA シェーダーを元の形を
+超えて改良する方向に注力しました。[March Major](ueVite26-MarchMajor.md) 以降は、品質レベルを選べるコンピュートパスとして
+動作します。
 
-### Enabling SMAA
+### SMAA を有効にする
 
 ```ini
 ; Config/DefaultEngine.ini
@@ -57,58 +58,60 @@ the logical choice was to simply keep improving the base SMAA shader beyond its 
 r.DefaultFeature.AntiAliasing=4
 ```
 
-Or per-camera through the post process volume's **Anti-Aliasing Method** override, or at runtime:
+ポストプロセスボリュームの **Anti-Aliasing Method** の上書きでカメラごとに指定するか、実行時に次のように設定します。
 
 ```
 r.DefaultFeature.AntiAliasing 4
 ```
 
-### Quality
+### 品質
 
-| CVar | Default | Values |
+| CVar | 既定値 | 値 |
 |---|---|---|
-| `r.Vite.SMAA.Mode` | `1` | `0` = Low, `1` = High |
+| `r.Vite.SMAA.Mode` | `1` | `0` = Low、`1` = High |
 
-Marked `ECVF_Scalability`, so it can be driven from scalability groups. High quality is the default and is
-what the [performance targets](Performance-Targets.md) assume; Low exists for the lowest scalability bucket
-where the difference in edge quality is a reasonable trade for the frame time.
+`ECVF_Scalability` が付いているため、スケーラビリティのグループから制御できます。既定は High で、
+[パフォーマンス目標](Performance-Targets.md) もこれを前提としています。Low は、エッジの品質の差をフレームタイムと
+引き換えにしてよい最も低いスケーラビリティの段階のためのものです。
 
-### Where SMAA runs in the pipeline
+### パイプライン上での SMAA の位置
 
-Vite applies SMAA **before tonemapping**, unlike FXAA which runs after. This is deliberate: resolving edges
-in linear HDR space avoids the tonemapper amplifying partially-resolved edge pixels into visible fringing on
-high-contrast boundaries, which is a common complaint about post-tonemap SMAA implementations.
+Vite は SMAA を **トーンマッピングの前** に適用します。トーンマッピングの後に実行される FXAA とは異なります。これは
+意図的なもので、リニアな HDR 空間でエッジを解消することで、部分的に解消されたエッジのピクセルをトーンマッパーが増幅して、
+コントラストの高い境界で目に見える縁取りを生むことを避けられます。これはトーンマッピング後に SMAA を実装した場合に
+よく寄せられる不満です。
 
-The practical consequence is that post-process materials in the **After Tonemapping** blend location see an
-already-anti-aliased image, and that SMAA composes correctly with HDR output.
+実際の影響として、ブレンド位置が **After Tonemapping** のポストプロセスマテリアルは、すでにアンチエイリアシングされた
+画像を受け取り、SMAA は HDR 出力とも正しく組み合わさります。
 
-### Debugging
+### デバッグ
 
-In non-Shipping builds:
+Shipping 以外のビルドでは次の CVar を使えます。
 
-| CVar | Values |
+| CVar | 値 |
 |---|---|
-| `r.AntiAliasing.SMAA.Debug` | `0` = off, `1` = show detected edges, `2` = show blend weights |
+| `r.AntiAliasing.SMAA.Debug` | `0` = オフ、`1` = 検出したエッジを表示、`2` = ブレンドの重みを表示 |
 
-Edge visualisation is the fastest way to diagnose SMAA that appears to be doing nothing (usually the method
-is not actually selected) or is over-blurring (usually excessive high-frequency content in the source image,
-often from an aggressive sharpening or noise post-process).
+エッジの可視化は、SMAA が何もしていないように見える（通常は手法が実際には選ばれていない）場合や、ぼかしすぎている
+（通常は元の画像に高周波の成分が多すぎ、強いシャープニングやノイズのポストプロセスが原因であることが多い）場合を診断する
+最も早い方法です。
 
-## Aliasing that anti-aliasing will not fix
+## アンチエイリアシングでは直らないエイリアシング
 
-Some aliasing is authored in rather than introduced by rasterisation, and no regular AA method resolves it:
+一部のエイリアシングはラスタライズによって生じたものではなく、コンテンツに作り込まれたもので、通常の AA 手法では
+解消できません。
 
-- **Specular aliasing** from high-frequency normal maps on smooth materials. Fix with proper mip generation
-  and normal-to-roughness conversion, not with AA.
-- **Texture aliasing** from missing or badly generated mips. Fix in the texture import settings.
-- **Alpha-test shimmer** on foliage. Consider dithered opacity, or reduce the alpha-tested surface area.
+- 滑らかなマテリアルに高周波の法線マップを使った場合の **スペキュラーエイリアシング**。AA ではなく、適切なミップの生成と
+  法線からラフネスへの変換で直します。
+- ミップの欠落や不適切な生成による **テクスチャのエイリアシング**。テクスチャのインポート設定で直します。
+- フォリッジでの **アルファテストのちらつき**。ディザリングによる不透明度を検討するか、アルファテストを使う面積を減らします。
 
-Diagnose these by switching to `AAM_None` and looking at where the aliasing appears. Aliasing that moves
-with the surface rather than sitting on silhouette edges is a content problem.
+これらは `AAM_None` に切り替えて、エイリアシングがどこに現れるかを見ることで診断できます。シルエットのエッジではなく
+サーフェスと一緒に動くエイリアシングは、コンテンツの問題です。
 
-## See also
+## 関連項目
 
-- [Rendering](Rendering.md)
-- [Upscalers and Frame Generation](Upscalers.md)
-- [Performance Targets](Performance-Targets.md)
-- [Colour Management](Color-Management.md)
+- [レンダリング](Rendering.md)
+- [アップスケーラー](Upscalers.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [カラーマネジメント](Color-Management.md)
