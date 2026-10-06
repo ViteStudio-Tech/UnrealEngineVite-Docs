@@ -2,90 +2,90 @@
 
 <tldr>
 <p>
-The latest major release. September moves the codebase onto modern language and tooling foundations
-&mdash; an initial <b>C++20</b> upgrade, an initial <b>.NET</b> upgrade for the engine's C# programs and
-<b>Embree 4.4.1</b> in Lightmass &mdash; and carries SSGI and TressFX improvements on top of the August
-Major.
+最新のメジャーリリースです。September では、コードベースを最新の言語とツールの基盤に移行しました。<b>C++20</b> への
+初期アップグレード、エンジンの C# プログラム向けの <b>.NET</b> の初期アップグレード、そして Lightmass の
+<b>Embree 4.4.1</b> 化です。あわせて、August Major をベースに SSGI と TressFX を改善しています。
 </p>
 <p>
-Branch <code>ueVite26-SeptemberMajor-release</code> &middot; builds on
-<a href="ueVite26-AugustMajor.md">ueVite26 August Major</a>.
+ブランチ <code>ueVite26-SeptemberMajor-release</code> &middot; ベース:
+<a href="ueVite26-AugustMajor.md">ueVite26 August Major</a>
 </p>
 </tldr>
 
-| Status | Development window | Builds on | Commits |
+| 状態 | 開発期間 | ベース | コミット数 |
 |---|---|---|---:|
-| **Latest** | 26 August &ndash; 30 September 2026 | [ueVite26 August Major](ueVite26-AugustMajor.md) | 11 |
+| **最新** | 2026 年 8 月 26 日〜9 月 30 日 | [ueVite26 August Major](ueVite26-AugustMajor.md) | 11 |
 
-## Highlights
+## ハイライト
 
 <deflist>
-<def title="C++20 foundation">
-The initial C++20 upgrade brings the codebase in line with the language model UE 5.0 introduced: C++20 is
-enabled per module or per target, while the engine itself continues to build as C++17. Engine headers are
-kept parseable from C++20 translation units, so project code can adopt C++20 without forking the engine.
+<def title="C++20 の基盤">
+C++20 への初期アップグレードにより、コードベースを UE 5.0 が導入した言語モデルに合わせました。C++20 はモジュール
+単位またはターゲット単位で有効にでき、エンジン本体は引き続き C++17 でビルドされます。エンジンのヘッダーは C++20 の
+翻訳単位からも正しく解析できるよう保たれているため、エンジンをフォークすることなくプロジェクトのコードで C++20 を
+採用できます。
 </def>
-<def title=".NET upgrade">
-The initial .NET upgrade moves the engine's C# programs &mdash; the build and automation tooling &mdash;
-onto a current .NET runtime, continuing the toolchain modernisation that began with Visual Studio 2026
-support.
+<def title=".NET のアップグレード">
+.NET の初期アップグレードにより、エンジンの C# プログラム（ビルドと自動化のツール）を最新の .NET ランタイムに
+移行しました。Visual Studio 2026 対応から始まったツールチェーンの近代化の続きです。
 </def>
-<def title="Lightmass on Embree 4.4.1">
-Lightmass now uses Embree 4.4.1 for its CPU ray tracing, with the Windows deployment fixed so packaged
-Lightmass builds pick up the new runtime. Contributed by the community.
+<def title="Lightmass の Embree 4.4.1 化">
+Lightmass の CPU レイトレーシングが Embree 4.4.1 を使うようになりました。Windows での配置も修正されており、
+パッケージ化した Lightmass が新しいランタイムを正しく読み込みます。コミュニティからの貢献です。
 </def>
-<def title="Faster SSGI">
-SSAO is now skipped when SSGI is guaranteed to run and replace its ambient-occlusion mask, removing a
-redundant pass from the recommended <a href="Global-Illumination.md">DDGI plus SSGI</a> setup.
+<def title="SSGI の高速化">
+SSGI が確実に実行され、アンビエントオクルージョンのマスクを置き換える場合は SSAO をスキップするようになりました。
+推奨構成である <a href="Global-Illumination.md">DDGI と SSGI の併用</a> から冗長なパスが 1 つ減ります。
 </def>
 </deflist>
 
-## What's new
+## 新機能と変更点
 
-### Rendering
+### レンダリング
 
-- **SSGI performance:** skips SSAO when SSGI is guaranteed to execute and provides the occlusion term.
-- **TressFX:** integration update carried forward from the August line. See [Hair Rendering](Hair-Rendering.md).
+- **SSGI の性能:** SSGI が確実に実行され、オクルージョン項を提供する場合は SSAO をスキップします。
+- **TressFX:** August 系列から引き継いだ統合の更新。[ヘアレンダリング](Hair-Rendering.md) を参照してください。
 
-### Toolchain and platforms
+### ツールチェーンとプラットフォーム
 
-- **C++20:** initial upgrade. Opt in per target or module with `CppStandard = CppStandardVersion.Cpp20`.
-- **.NET:** initial upgrade of the engine's C# programs.
-- **Lightmass:** updated to Embree 4.4.1, with a fix for deploying the Embree runtime on Windows.
-- **Linux:** fixed a `TScopeLock` issue in the Unix platform file layer (RAII locking).
+- **C++20:** 初期アップグレード。ターゲットまたはモジュールで `CppStandard = CppStandardVersion.Cpp20` を指定して
+  有効にします。
+- **.NET:** エンジンの C# プログラムの初期アップグレード。
+- **Lightmass:** Embree 4.4.1 に更新し、Windows での Embree ランタイムの配置を修正。
+- **Linux:** Unix のプラットフォームファイル層で発生していた `TScopeLock` の問題を修正（RAII によるロック）。
 
-## Upgrade notes
+## アップグレード時の注意点
 
-- Run `Setup.bat` and regenerate project files after switching to this branch; the C++20 and .NET changes
-  touch the build tooling. See [ViteSetup](ViteSetup.md).
-- C++20 is opt-in. Projects that do not set `CppStandard` keep building as C++17, so no source changes are
-  required to upgrade.
-- If you build Lightmass yourself, rebuild it after updating so it links against Embree 4.4.1.
+- このブランチに切り替えたら、`Setup.bat` を実行してプロジェクトファイルを再生成してください。C++20 と .NET の変更は
+  ビルドツールに関わります。[ViteSetup](ViteSetup.md) を参照してください。
+- C++20 はオプトインです。`CppStandard` を設定しないプロジェクトは引き続き C++17 でビルドされるため、アップグレードに
+  ソースの変更は不要です。
+- Lightmass を自分でビルドしている場合は、Embree 4.4.1 とリンクされるよう、更新後に再ビルドしてください。
 
-## Community contributions
+## コミュニティからの貢献
 
-Lightmass's Embree 4.4.1 update and the Linux `TScopeLock` fix arrived as community pull requests
-(#166 and #167). Contributions are welcome &mdash; see [Contributing](Contributing.md).
+Lightmass の Embree 4.4.1 への更新と、Linux の `TScopeLock` の修正は、コミュニティからのプルリクエスト
+（#166 と #167）によるものです。貢献を歓迎します。[コントリビュート](Contributing.md) を参照してください。
 
 <!-- BEGIN GENERATED COMMIT RECORD -->
 
-## Full commit history {id="commit-history"}
+## 全コミット履歴 {id="commit-history"}
 
-Branch: [`ueVite26-SeptemberMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-SeptemberMajor-release)
+ブランチ: [`ueVite26-SeptemberMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-SeptemberMajor-release)
 
-### Commits by area
+### 領域別のコミット数
 
-| Area | Commits |
+| 領域 | コミット数 |
 |---|---:|
-| Toolchain and platforms | 9 |
-| Rendering | 1 |
-| Hair | 1 |
+| ツールチェーンとプラットフォーム | 9 |
+| レンダリング | 1 |
+| ヘア | 1 |
 
-### Public release branch — 11 commits {collapsible="true" default-state="collapsed"}
+### 公開リリースブランチ — 11 件 {collapsible="true" default-state="collapsed"}
 
-11 commits (5 merge commits omitted from the table).
+11 件のコミット（マージコミット 5 件は表から除外）。
 
-| Date | Commit | Author | Change |
+| 日付 | コミット | 作成者 | 変更内容 |
 |---|---|---|---|
 | 2026-09-28 | [`3827a62413`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/3827a62413cbdb30c514467669a2028044f5f8fd) | Michael Taulli | Fix Windows Embree 4.4.1 Lightmass deployment |
 | 2026-09-28 | [`714417496d`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/714417496df642be8493ce0c7c03bca5b1ffb01a) | Michael Taulli | Fix Windows Embree 4.4.1 Lightmass deploymentclear |
@@ -101,9 +101,9 @@ Branch: [`ueVite26-SeptemberMajor-release`](https://github.com/GapingPixel/Unrea
 
 <!-- END GENERATED COMMIT RECORD -->
 
-## See also
+## 関連項目
 
-- [All release notes](Release-Notes.md)
+- [すべてのリリースノート](Release-Notes.md)
 - [ueVite26 August Major](ueVite26-AugustMajor.md)
-- [Toolchain Requirements](Toolchain-Requirements.md)
-- [Build from Source](Build-From-Source.md)
+- [ツールチェーン要件](Toolchain-Requirements.md)
+- [ソースからのビルド](Build-From-Source.md)

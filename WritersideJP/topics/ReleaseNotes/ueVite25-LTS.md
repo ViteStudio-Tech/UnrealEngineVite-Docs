@@ -2,168 +2,167 @@
 
 <tldr>
 <p>
-The long-term-support foundation of today's Vite. The LTS rebases the engine onto <b>NVIDIA's NvRTX
-Caustics 4.27</b> and Epic's <b>4.27-plus</b>, merges DLSS 3 / Streamline and TressFX, and then reshapes the
-defaults for performance: lighter Actors, opt-in overlap events, a debloated plugin set, faster shader and
-cook pipelines, and modern Visual Studio 2026 support.
+現在の Vite の土台となる長期サポート版です。LTS ではエンジンのベースを <b>NVIDIA の NvRTX Caustics 4.27</b> と
+Epic の <b>4.27-plus</b> に移し、DLSS 3 / Streamline と TressFX をマージしたうえで、パフォーマンスを重視して既定値を
+作り直しました。軽量なアクター、オプトインのオーバーラップイベント、デブロートしたプラグイン構成、高速化した
+シェーダーとクックのパイプライン、そして最新の Visual Studio 2026 への対応です。
 </p>
 <p>
-Branch <code>ueVite25-LTS</code> &middot; every later major release builds on it.
+ブランチ <code>ueVite25-LTS</code> &middot; 以降のすべてのメジャーリリースのベースです。
 </p>
 </tldr>
 
-| Status | Development window | Base | Commits |
+| 状態 | 開発期間 | ベース | コミット数 |
 |---|---|---|---:|
-| **LTS** | 15 November &ndash; 15 December 2025, maintained to 12 February 2026 | NvRTX Caustics 4.27 + Epic 4.27-plus | 174 |
+| **LTS** | 2025 年 11 月 15 日〜12 月 15 日（2026 年 2 月 12 日までメンテナンス） | NvRTX Caustics 4.27 + Epic 4.27-plus | 174 |
 
-## Why the LTS exists
+## LTS が存在する理由
 
-Vite was originally built on NvRTX 5.0. Matched tests showed the 4.27-based NvRTX branch running ray-traced
-GI faster, and PhysX integrating far more cleanly, so the active line moved to 4.27 in November 2025. The
-reasoning is in [Why NvRTX 4.27](Why-NvRTX-427.md) and the
-[base transition record](https://docs.google.com/document/d/1gA0MGkzeWWzKkgwBDOP5xRPouSKaOIW6xlPZ2q6BXO0/edit).
-The earlier line is archived as [Original Vite](Original-Vite.md).
+Vite はもともと NvRTX 5.0 をベースに作られていました。同条件のテストで、4.27 ベースの NvRTX ブランチのほうが
+レイトレーシング GI が高速で、PhysX の統合もはるかに素直であることが分かったため、2025 年 11 月に主系列を 4.27 に
+移しました。理由は [なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md) と
+[ベース移行の記録](https://docs.google.com/document/d/1gA0MGkzeWWzKkgwBDOP5xRPouSKaOIW6xlPZ2q6BXO0/edit) に
+まとめています。以前の系列は [初代 Vite](Original-Vite.md) としてアーカイブしています。
 
-## Highlights
+## ハイライト
 
 <deflist>
-<def title="A new base">
-NvRTX Caustics 4.27 and Epic's 4.27-plus merged into one line together with the DLSS 3 / Streamline plugin
-and TressFX, giving Vite ray-traced GI, caustics, RTXDI and modern upscaling on a UE4 core.
+<def title="新しいベース">
+NvRTX Caustics 4.27 と Epic の 4.27-plus を 1 つの系列にマージし、DLSS 3 / Streamline プラグインと TressFX も
+統合しました。これにより、UE4 のコア上でレイトレーシング GI、コースティクス、RTXDI、最新のアップスケーリングを
+利用できます。
 </def>
-<def title="Lighter runtime by default">
-Actors no longer default to being damageable, replay-relevant or level-bounds-relevant; primitive components
-no longer generate overlap events unless asked; new Blueprints are created without placeholder event nodes,
-and empty Blueprint ticks are skipped. See <a href="Engine-Defaults.md">Engine Default Changes</a>.
+<def title="既定で軽量なランタイム">
+アクターは既定でダメージ対象、リプレイ対象、レベル境界の計算対象ではなくなりました。プリミティブコンポーネントは
+要求しない限りオーバーラップイベントを生成しません。新しいブループリントはプレースホルダーのイベントノードなしで
+作成され、空のブループリントの Tick はスキップされます。<a href="Engine-Defaults.md">エンジン既定値の変更</a> を
+参照してください。
 </def>
-<def title="Faster pipelines">
-On-demand shader-map processing drops from ~27.5 ms to ~6.1 ms, cooking uses about 25% less memory, PSO
-caches are picked up correctly, and shader-compile batching is tuned for many-core machines.
+<def title="高速化したパイプライン">
+オンデマンドのシェーダーマップ処理が約 27.5 ms から約 6.1 ms に短縮され、クックのメモリ使用量が約 25% 減り、PSO
+キャッシュが正しく読み込まれるようになり、シェーダーコンパイルのバッチ処理がメニーコアのマシン向けに調整されました。
 </def>
-<def title="Rendering additions">
-Callisto BRDF (experimental), ACES 1.3.1 gamut compression, per-light maximum shadow draw distance, RTXDI
-light-material functions, and AMD ray-tracing patches.
+<def title="レンダリングの追加機能">
+Callisto BRDF（実験的）、ACES 1.3.1 のガマット圧縮、ライトごとの最大シャドウ描画距離、RTXDI のライトマテリアル関数、
+そして AMD によるレイトレーシングのパッチです。
 </def>
 </deflist>
 
-## What's new
+## 新機能と変更点
 
-### Base and integration
+### ベースと統合
 
-- Merged NvRTX `NvRTX_Caustics-4.27`, Epic `4.27-plus` and the NVIDIA DLSS 3 / Streamline 4.27 plugin.
-- TressFX integration update; working FSR 2.
+- NvRTX の `NvRTX_Caustics-4.27`、Epic の `4.27-plus`、NVIDIA の DLSS 3 / Streamline 4.27 プラグインをマージ。
+- TressFX の統合を更新。FSR 2 が動作。
 
-### Rendering
+### レンダリング
 
-- **Callisto BRDF** shading model (experimental). See [Shading Models](Shading-Models.md).
-- **ACES 1.3.1** gamut compression. See [Color Management](Color-Management.md).
-- **Max Shadow Draw Distance** and fade range on lights.
-- Shadow quality presets revised: *Low* now keeps cascaded shadows instead of disabling shadows, and *Mid*
-  uses quality level 4.
-- Histogram exposure reduction moved to compute; fullscreen passes draw a single triangle; slow render
-  target clears removed; AO shader memory access improved.
-- FX-system distance-field checks skipped for views that do not use distance fields; a command forces the
-  lowest LOD for shadow depth maps; parallel rendering skipped for incompatible non-whole-scene shadows.
-- Mobile uses basic eye adaptation by default (about 0.7 ms saved on a Galaxy S10).
+- **Callisto BRDF** シェーディングモデル（実験的）。[シェーディングモデル](Shading-Models.md) を参照してください。
+- **ACES 1.3.1** のガマット圧縮。[カラーマネジメント](Color-Management.md) を参照してください。
+- ライトに **最大シャドウ描画距離** とフェード範囲を追加。
+- シャドウ品質のプリセットを見直し: *低* はシャドウを無効にする代わりにカスケードシャドウを維持し、*中* は品質
+  レベル 4 を使用。
+- ヒストグラムによる露出の縮約をコンピュートに移行。フルスクリーンパスを 1 つの三角形で描画。遅いレンダーターゲットの
+  クリアを削除。AO シェーダーのメモリアクセスを改善。
+- 距離フィールドを使わないビューでは FX システムの距離フィールドのチェックをスキップ。シャドウデプスマップで最低 LOD
+  を強制するコマンドを追加。シーン全体ではない非互換のシャドウでは並列レンダリングをスキップ。
+- モバイルで基本の目の順応を既定に（Galaxy S10 で約 0.7 ms 短縮）。
 
-### Ray tracing
+### レイトレーシング
 
-- **RTXDI:** light material functions supported in sampled lighting; ReGIR samples per cell default to 64.
-- **AMD patches:** configurable face-cull direction for ray-traced shadows.
-- Lower overhead gathering ray tracing instances; reduced memory pressure on the translucent-lighting
-  volume.
-- Several ray-traced effects, including RT shadows, are disabled by default.
+- **RTXDI:** サンプリングライティングでライトマテリアル関数に対応。ReGIR のセルあたりのサンプル数の既定値を 64 に変更。
+- **AMD のパッチ:** レイトレーシングシャドウのフェイスカリング方向を変更可能に。
+- レイトレーシングのインスタンス収集のオーバーヘッドを削減。半透明ライティングのボリュームのメモリ負荷を軽減。
+- RT シャドウを含む一部のレイトレーシングエフェクトを既定で無効化。
 
-### Runtime and gameplay
+### ランタイムとゲームプレイ
 
-- Optimised Actor defaults: `CanBeDamaged`, `bRelevantForNetworkReplays` and `bRelevantForLevelBounds`
-  off by default.
-- Overlap events disabled by default on primitive components.
-- Optimised skeletal mesh configuration as the default.
-- Faster ISM handling for AI navigation; navmesh fixes for hierarchical instanced static meshes and
-  landscape meshes (Epic PRs 9027 and 9028); faster geometry-collection navmesh generation.
+- アクターの既定値を最適化: `CanBeDamaged`、`bRelevantForNetworkReplays`、`bRelevantForLevelBounds` を既定で無効化。
+- プリミティブコンポーネントのオーバーラップイベントを既定で無効化。
+- 最適化したスケルタルメッシュの設定を既定に。
+- AI ナビゲーションでの ISM の処理を高速化。階層型インスタンススタティックメッシュとランドスケープメッシュの
+  ナビメッシュを修正（Epic の PR 9027 と 9028）。ジオメトリコレクションのナビメッシュ生成を高速化。
 
-### Core and pipeline performance
+### コアとパイプラインの性能
 
-- On-demand shader compilation map processing from ~27.5 ms to ~6.1 ms on average.
-- About 25% less total cook memory by releasing the read buffer cache; 1 MB saved by deferring the pak
-  reader's streaming buffer.
-- Sparse-array, hashing and Map/Set/Tuple compile-time optimisations; unity builds split by available
-  processors; faster editor loading; parallel asset data gathering.
-- PSO cache fix; larger shader job batches; UE 5.6 virtual-core count check backported.
-- Slate text kerning no longer hashes strings on the critical path.
+- オンデマンドのシェーダーコンパイルのマップ処理を平均約 27.5 ms から約 6.1 ms に短縮。
+- 読み込みバッファのキャッシュを解放してクック全体のメモリ使用量を約 25% 削減。pak リーダーのストリーミングバッファの
+  確保を遅らせて 1 MB を削減。
+- スパース配列、ハッシュ、Map/Set/Tuple のコンパイル時間の最適化。プロセッサ数に応じたユニティビルドの分割。
+  エディタの読み込みの高速化。アセットデータの収集の並列化。
+- PSO キャッシュの修正。シェーダージョブのバッチサイズの拡大。UE 5.6 の仮想コア数のチェックをバックポート。
+- Slate のテキストのカーニングが、クリティカルパスで文字列をハッシュしなくなりました。
 
-### Plugins
+### プラグイン
 
-- **Added:** ACL animation compression (enabled by default), Motion Symphony motion matching, Houdini 20,
-  Intel Graphics Performance Analyzers, Kawaii Physics.
-- **Disabled or removed by default:** SteamVR, other VR plugins, Magic Leap (Lumin) and a broad set of
-  rarely used plugins.
+- **追加:** ACL アニメーション圧縮（既定で有効）、Motion Symphony によるモーションマッチング、Houdini 20、
+  Intel Graphics Performance Analyzers、Kawaii Physics。
+- **既定で無効化または削除:** SteamVR、その他の VR プラグイン、Magic Leap（Lumin）、そして利用頻度の低い多数の
+  プラグイン。
 
-### Editor quality of life
+### エディタの使い勝手
 
-- Launch tips, new-plugin pop-ups and tutorial alerts can be turned off; usage-data and unattended bug
-  reports off by default; the Marketplace and tutorial buttons are removed and the editor no longer forces
-  the Epic Games Launcher open.
-- UE5 viewport grid colour scheme, log category colourisation and "always open animation assets in a new
-  tab" backported; frame rate and memory shown by default.
+- 起動時のヒント、新しいプラグインのポップアップ、チュートリアルの通知を無効にできるようにし、使用状況データと
+  無人のバグレポートの送信を既定で無効化。Marketplace とチュートリアルのボタンを削除し、エディタが Epic Games
+  Launcher を強制的に開かないように変更。
+- UE5 のビューポートのグリッド配色、ログカテゴリの色分け、アニメーションアセットを常に新しいタブで開くオプションを
+  バックポート。フレームレートとメモリを既定で表示。
 
-### Platforms and toolchain
+### プラットフォームとツールチェーン
 
-- Visual Studio 2026 support added; Visual Studio 2015 and 2017 removed; MSVC 14.50 compiler version bump.
-- Clang 13.0.1 upgrade work and MSVC compile fixes; GitDependencies and MemoryProfiler moved from .NET 4.5
-  to 4.8.
-- Android packaging fixes, Meta Quest device profiles, Vulkan enabled through the Android device selector,
-  and Android fixes for TressFX and the C++ standard alias.
-- Magic Leap removed from the engine and UnrealBuildTool.
+- Visual Studio 2026 に対応し、Visual Studio 2015 と 2017 のサポートを削除。MSVC 14.50 のコンパイラバージョンに更新。
+- Clang 13.0.1 へのアップグレード作業と MSVC でのコンパイルの修正。GitDependencies と MemoryProfiler を .NET 4.5 から
+  4.8 に移行。
+- Android のパッケージングの修正、Meta Quest のデバイスプロファイル、Android のデバイスセレクター経由での Vulkan の
+  有効化、TressFX と C++ 規格のエイリアスに関する Android の修正。
+- Magic Leap をエンジンと UnrealBuildTool から削除。
 
-## Maintenance after release
+## リリース後のメンテナンス
 
-| Date | Change |
+| 日付 | 変更内容 |
 |---|---|
-| 12 February 2026 | Windows Movie Player re-enabled; forward-shading colour-write clear limited to separate translucency; feature packs enumerated with `IterateDirectory` |
+| 2026 年 2 月 12 日 | Windows Movie Player を再び有効化。フォワードシェーディングのカラー書き込みのクリアをセパレートトランスルーセンシーに限定。フィーチャーパックの列挙に `IterateDirectory` を使用 |
 
-## Upgrade notes
+## アップグレード時の注意点
 
-These defaults change behaviour for projects coming from stock 4.27 or UE5:
+以下の既定値は、標準の 4.27 や UE5 から移行するプロジェクトの挙動を変えます。
 
-- **Overlap events** are off for primitive components. Enable *Generate Overlap Events* on anything that
-  relies on overlaps. (The character capsule was re-enabled in March.)
-- **Actors** are not damageable, replay-relevant or level-bounds-relevant by default. Re-enable these on
-  Actors that need them, such as damage targets, kill-cam subjects or Actors that define world bounds.
-- **Blueprints** are created without *Event Tick*, *Begin Play* and overlap nodes, and empty ticks are
-  skipped.
-- **Ray tracing:** RT shadows and several other RT effects start disabled.
-- **Toolchain:** Visual Studio 2015 and 2017 are no longer supported.
+- **オーバーラップイベント** はプリミティブコンポーネントで無効です。オーバーラップに依存するものでは
+  *Generate Overlap Events* を有効にしてください（キャラクターのカプセルは March で再び有効になりました）。
+- **アクター** は既定でダメージ対象、リプレイ対象、レベル境界の計算対象ではありません。ダメージを受けるもの、キルカムの
+  被写体、ワールドの境界を定めるアクターなど、必要なアクターでは再び有効にしてください。
+- **ブループリント** は *Event Tick*、*Begin Play*、オーバーラップのノードなしで作成され、空の Tick はスキップされます。
+- **レイトレーシング:** RT シャドウとその他いくつかの RT エフェクトは無効の状態で始まります。
+- **ツールチェーン:** Visual Studio 2015 と 2017 はサポートされなくなりました。
 
 <!-- BEGIN GENERATED COMMIT RECORD -->
 
-## Full commit history {id="commit-history"}
+## 全コミット履歴 {id="commit-history"}
 
-Branch: [`ueVite25-LTS`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite25-LTS)
+ブランチ: [`ueVite25-LTS`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite25-LTS)
 
-### Commits by area
+### 領域別のコミット数
 
-| Area | Commits |
+| 領域 | コミット数 |
 |---|---:|
-| Toolchain and platforms | 48 |
-| Editor and workflow | 36 |
-| Rendering | 27 |
-| Core and performance | 15 |
-| Plugins and media | 11 |
-| Ray tracing and GI | 10 |
-| Other | 10 |
-| Animation | 6 |
-| Gameplay framework | 5 |
-| Hair | 3 |
-| Physics | 2 |
-| Upscaling and anti-aliasing | 1 |
+| ツールチェーンとプラットフォーム | 48 |
+| エディタとワークフロー | 36 |
+| レンダリング | 27 |
+| コアとパフォーマンス | 15 |
+| プラグインとメディア | 11 |
+| レイトレーシングと GI | 10 |
+| その他 | 10 |
+| アニメーション | 6 |
+| ゲームプレイフレームワーク | 5 |
+| ヘア | 3 |
+| 物理 | 2 |
+| アップスケーリングとアンチエイリアシング | 1 |
 
-### Public release branch — 174 commits {collapsible="true" default-state="collapsed"}
+### 公開リリースブランチ — 174 件 {collapsible="true" default-state="collapsed"}
 
-174 commits (45 merge commits omitted from the table).
+174 件のコミット（マージコミット 45 件は表から除外）。
 
-| Date | Commit | Author | Change |
+| 日付 | コミット | 作成者 | 変更内容 |
 |---|---|---|---|
 | 2026-02-12 | [`d0c5d8dbb8`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/d0c5d8dbb88b2bba6c6dd395fa3b9fa99ced8232) | RedPixel | Re-enabled WindowsMoviePlayer Plugin for Movies to work without needing activate the plugin in projects |
 | 2026-02-12 | [`9e078e144a`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/9e078e144ab5f9c770cb088b91e5f7d6c2e456a9) | RedPixel | \[Rendering\]\[Forward\]\[translucency\] Patch over NvRTX, Color write Clear now only runs with SeparateTranslucency on Forward |
@@ -342,9 +341,9 @@ Branch: [`ueVite25-LTS`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/t
 
 <!-- END GENERATED COMMIT RECORD -->
 
-## See also
+## 関連項目
 
-- [All release notes](Release-Notes.md)
+- [すべてのリリースノート](Release-Notes.md)
 - [ueVite26 March Major](ueVite26-MarchMajor.md)
-- [Original Vite](Original-Vite.md)
-- [Engine Default Changes](Engine-Defaults.md)
+- [初代 Vite](Original-Vite.md)
+- [エンジン既定値の変更](Engine-Defaults.md)

@@ -2,125 +2,124 @@
 
 <tldr>
 <p>
-July is a performance-gating and production-readiness release. Optional shading models are now compiled
-out by default for a <b>12.3% frame-rate gain</b>, TressFX becomes opt-in, the <b>NVIDIA Blast</b> SDK is
-upgraded, nine engine plugins are backported from UE5, and the <b>ViteSetup</b> assistant is rebuilt around
-guided install paths.
+July はパフォーマンスのゲーティングと製品化への備えに重点を置いたリリースです。オプションのシェーダーモデルを既定で
+コンパイル対象から外して <b>12.3% のフレームレート向上</b> を得たほか、TressFX をオプトインにし、<b>NVIDIA Blast</b>
+の SDK を更新し、9 つのエンジンプラグインを UE5 からバックポートし、<b>ViteSetup</b> アシスタントをガイド付きの
+インストール手順を中心に作り直しました。
 </p>
 <p>
-Branch <code>ueVite26-JulyMajor-release</code> &middot; builds on
-<a href="ueVite26-JuneMajor.md">ueVite26 June Major</a>.
+ブランチ <code>ueVite26-JulyMajor-release</code> &middot; ベース:
+<a href="ueVite26-JuneMajor.md">ueVite26 June Major</a>
 </p>
 </tldr>
 
-| Status | Development window | Builds on | Commits |
+| 状態 | 開発期間 | ベース | コミット数 |
 |---|---|---|---:|
-| Major | 29 July &ndash; 23 August 2026 | [ueVite26 June Major](ueVite26-JuneMajor.md) | 78 |
+| メジャー | 2026 年 7 月 29 日〜8 月 23 日 | [ueVite26 June Major](ueVite26-JuneMajor.md) | 78 |
 
-## Highlights
+## ハイライト
 
 <deflist>
-<def title="12.3% faster by default">
-The Toon, Callisto and FSR 2 reactive shading paths are gated off unless a project enables them. On the
-Unreal Tournament Vite scene at 1440p on an RTX 4080 Super this raises the frame rate from 235.56 to
-264.44 FPS. See <a href="Shading-Models.md">Shading Models</a>.
+<def title="既定で 12.3% 高速化">
+Toon、Callisto、FSR 2 のリアクティブのシェーディングパスは、プロジェクトが有効にしない限りゲーティングで無効に
+なりました。RTX 4080 Super、1440p の Unreal Tournament Vite シーンでは、フレームレートが 235.56 FPS から
+264.44 FPS に向上します。<a href="Shading-Models.md">シェーディングモデル</a> を参照してください。
 </def>
-<def title="NVIDIA Blast upgrade">
-The Blast SDK is upgraded, skin-cache rebuilds are supported, and the fracture editor invalidates DDC data
-correctly and guards bone indices. See <a href="Destruction-And-Cloth.md">Destruction and Cloth</a>.
+<def title="NVIDIA Blast の更新">
+Blast の SDK を更新し、スキンキャッシュの再構築に対応し、破砕エディタが DDC のデータを正しく無効化してボーンの
+インデックスを検証するようになりました。<a href="Destruction-And-Cloth.md">破壊とクロス</a> を参照してください。
 </def>
-<def title="UE5 plugin backports">
-Cable Component (including a UE 5.8 path that avoids rendering overhead), RenderDoc, Visual Studio Code,
-Platform Crypto, Animation Budget Allocator, Chunk Downloader, Significance Manager and Sun Position, adapted
-to 4.27.
+<def title="UE5 プラグインのバックポート">
+Cable Component（レンダリングのオーバーヘッドを避ける UE 5.8 のパスを含む）、RenderDoc、Visual Studio Code、
+Platform Crypto、Animation Budget Allocator、Chunk Downloader、Significance Manager、Sun Position を 4.27 向けに
+適応させました。
 </def>
-<def title="ViteSetup rebuilt">
-A guided flow with two core paths, Visual Studio 2022 and 2026 profiles, all-platform debloat, sample
-pruning, module-reference validation after stripping, and plugin defaults that mirror stock 4.27. See
-<a href="ViteSetup.md">ViteSetup</a>.
+<def title="ViteSetup の刷新">
+2 つの主要な手順からなるガイド付きフロー、Visual Studio 2022 と 2026 のプロファイル、全プラットフォームの
+デブロート、サンプルの整理、ストリップ後のモジュール参照の検証、そして標準の 4.27 に合わせたプラグインの既定値です。
+<a href="ViteSetup.md">ViteSetup</a> を参照してください。
 </def>
 </deflist>
 
-## What's new
+## 新機能と変更点
 
-### Rendering and gating
+### レンダリングとゲーティング
 
-- Extra shading models (Toon, Callisto, FSR 2 reactive) disabled by default: +12.3% FPS on the reference scene.
-- **TressFX** is opt-in behind `VITE_TRESSFX` and excluded from mobile and ES 3.1 shader platforms; its
-  debug and forward-lighting passes are null-guarded.
-- Compile-time gating for DLSS and ray-traced translucency.
-- Ray tracing feature toggles added to **Project Settings &gt; Rendering**, shown only when ray tracing is
-  actually available.
-- Path-tracing sky light shaders compile whenever ray tracing shaders do; separate translucency load action
-  fixed; localized IBL adapted for instanced stereo (VR).
-- Fixed local-light shadow culling regressions introduced by *Max Shadow Draw Distance*, and missing local
-  light shadows in forward shading.
+- 追加のシェーディングモデル（Toon、Callisto、FSR 2 リアクティブ）を既定で無効化: 基準シーンで FPS が 12.3% 向上。
+- **TressFX** を `VITE_TRESSFX` によるオプトインに変更し、モバイルと ES 3.1 のシェーダープラットフォームから除外。
+  デバッグとフォワードライティングのパスに null チェックを追加。
+- DLSS とレイトレーシングの半透明をコンパイル時にゲーティング。
+- **プロジェクト設定 &gt; レンダリング** にレイトレーシング機能の切り替えを追加（レイトレーシングが実際に利用可能な
+  場合のみ表示）。
+- レイトレーシングのシェーダーをコンパイルする際は、常にパストレーシングのスカイライトシェーダーもコンパイル。
+  セパレートトランスルーセンシーのロードアクションを修正。ローカライズド IBL をインスタンスステレオ（VR）に対応。
+- *Max Shadow Draw Distance* によって生じたローカルライトのシャドウのカリングの不具合と、フォワードシェーディングで
+  ローカルライトの影が欠ける問題を修正。
 
-### Physics
+### 物理
 
-- NVIDIA Blast SDK upgrade, with skin-cache rebuild support and fracture-editor fixes.
+- NVIDIA Blast の SDK を更新し、スキンキャッシュの再構築に対応、破砕エディタを修正。
 
-### Plugins
+### プラグイン
 
-- Adapted UE 5.2/5.3/5.8 backports: Cable Component, RenderDoc, Visual Studio Code, Platform Crypto,
-  Animation Budget Allocator, Chunk Downloader, Significance Manager, Sun Position.
-- ImGui benchmarking utility now reports threading in Shipping builds.
+- UE 5.2/5.3/5.8 からの適応済みバックポート: Cable Component、RenderDoc、Visual Studio Code、Platform Crypto、
+  Animation Budget Allocator、Chunk Downloader、Significance Manager、Sun Position。
+- ImGui のベンチマークユーティリティが Shipping ビルドでもスレッドのレポートを出力。
 
-### Defaults
+### 既定値
 
-- Frame-rate limit for standalone and packaged builds set to 120 for consistent frame pacing.
-- `SetGenerateOverlapEvents` defaults to `false` when called through the function path.
-- New animations default to ACL compression.
-- The DDGI (RTXGI) plugin is enabled by default.
-- At release, all other plugin defaults mirror stock 4.27. Run `ueVite-ApplyVitePluginDefaults.bat` to apply
-  Vite's debloated plugin set.
+- フレームペーシングを安定させるため、スタンドアロンとパッケージ化したビルドのフレームレート上限を 120 に設定。
+- 関数経由で呼び出した場合の `SetGenerateOverlapEvents` の既定値を `false` に変更。
+- 新しいアニメーションの既定の圧縮を ACL に変更。
+- DDGI（RTXGI）プラグインを既定で有効化。
+- リリース時点では、その他のプラグインの既定値は標準の 4.27 と同じです。Vite のデブロート済みプラグイン構成を
+  適用するには `ueVite-ApplyVitePluginDefaults.bat` を実行してください。
 
-### Setup and toolchain
+### セットアップとツールチェーン
 
-- ViteSetup: two guided paths, VS 2022/VS 2026 profiles, all-platform debloat, sample pruning (Third
-  Person and Vehicle kept), optional removal of less important Vite plugins, MSBuild gating, interactive
-  dependency sync, Unreal Insights built with source targets, and validation of module references after a
-  debloat strip.
-- `ueVite-ApplyVitePluginDefaults.bat` applies Vite's debloated plugin defaults.
-- Validated on Visual Studio 2026 18.8.2 (MSVC 14.50, `_MSC_VER` 1950) with Windows SDK 10.0.26100.
+- ViteSetup: 2 つのガイド付き手順、VS 2022 / VS 2026 のプロファイル、全プラットフォームのデブロート、サンプルの整理
+  （Third Person と Vehicle は残す）、重要度の低い Vite プラグインの任意削除、MSBuild のチェック、対話式の依存関係の
+  同期、ソースターゲットと一緒に Unreal Insights をビルド、デブロートのストリップ後のモジュール参照の検証。
+- `ueVite-ApplyVitePluginDefaults.bat` が Vite のデブロート済みプラグインの既定値を適用。
+- Visual Studio 2026 18.8.2（MSVC 14.50、`_MSC_VER` 1950）と Windows SDK 10.0.26100 で検証。
 
-## Upgrade notes
+## アップグレード時の注意点
 
-- **TressFX** now requires `VITE_TRESSFX=1` at build time. Projects using strand hair must enable it. See
-  [Compile-Time Switches](Compile-Time-Switches.md) and [Hair Rendering](Hair-Rendering.md).
-- **Shading models:** Toon, Callisto BRDF and the FSR 2 reactive mask are now compile-time switches, off by
-  default. Projects using them must build with `VITE_SHADINGMODEL_TOON=1`, `VITE_SHADINGMODEL_CALLISTO=1`
-  or `VITE_FSR2_REACTIVE_MASK=1`.
-- **Frame-rate cap:** packaged and standalone builds cap at 120 FPS by default. Raise or remove the limit
-  for benchmarking.
+- **TressFX** はビルド時に `VITE_TRESSFX=1` が必要になりました。ストランドヘアを使うプロジェクトは有効にしてください。
+  [コンパイル時スイッチ](Compile-Time-Switches.md) と [ヘアレンダリング](Hair-Rendering.md) を参照してください。
+- **シェーディングモデル:** Toon、Callisto BRDF、FSR 2 のリアクティブマスクは、既定で無効のコンパイル時スイッチに
+  なりました。これらを使うプロジェクトは、`VITE_SHADINGMODEL_TOON=1`、`VITE_SHADINGMODEL_CALLISTO=1`、
+  `VITE_FSR2_REACTIVE_MASK=1` を指定してビルドする必要があります。
+- **フレームレートの上限:** パッケージ化したビルドとスタンドアロンのビルドは、既定で 120 FPS が上限です。
+  ベンチマークを取る際は上限を引き上げるか解除してください。
 
 <!-- BEGIN GENERATED COMMIT RECORD -->
 
-## Full commit history {id="commit-history"}
+## 全コミット履歴 {id="commit-history"}
 
-Branch: [`ueVite26-JulyMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-JulyMajor-release)
+ブランチ: [`ueVite26-JulyMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-JulyMajor-release)
 
-### Commits by area
+### 領域別のコミット数
 
-| Area | Commits |
+| 領域 | コミット数 |
 |---|---:|
-| Editor and workflow | 23 |
-| Toolchain and platforms | 22 |
-| Rendering | 9 |
-| Plugins and media | 7 |
-| Physics | 5 |
-| Hair | 3 |
-| Ray tracing and GI | 3 |
-| Animation | 2 |
-| Other | 2 |
-| Gameplay framework | 1 |
-| Upscaling and anti-aliasing | 1 |
+| エディタとワークフロー | 23 |
+| ツールチェーンとプラットフォーム | 22 |
+| レンダリング | 9 |
+| プラグインとメディア | 7 |
+| 物理 | 5 |
+| ヘア | 3 |
+| レイトレーシングと GI | 3 |
+| アニメーション | 2 |
+| その他 | 2 |
+| ゲームプレイフレームワーク | 1 |
+| アップスケーリングとアンチエイリアシング | 1 |
 
-### Public release branch — 78 commits {collapsible="true" default-state="collapsed"}
+### 公開リリースブランチ — 78 件 {collapsible="true" default-state="collapsed"}
 
-78 commits (8 merge commits omitted from the table).
+78 件のコミット（マージコミット 8 件は表から除外）。
 
-| Date | Commit | Author | Change |
+| 日付 | コミット | 作成者 | 変更内容 |
 |---|---|---|---|
 | 2026-08-23 | [`739e04e84a`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/739e04e84a68ae317ad92b49add9cd494e446718) | Carlo V. | Update README.md |
 | 2026-08-22 | [`fcc2aa0d77`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/fcc2aa0d77c6b6e69276c4bad6c45167d3512085) | RedPixel | \[Blast\] Added support for SkinCache Rebuild |
@@ -203,9 +202,9 @@ Branch: [`ueVite26-JulyMajor-release`](https://github.com/GapingPixel/UnrealEngi
 
 <!-- END GENERATED COMMIT RECORD -->
 
-## See also
+## 関連項目
 
-- [All release notes](Release-Notes.md)
+- [すべてのリリースノート](Release-Notes.md)
 - [ueVite26 August Major](ueVite26-AugustMajor.md)
 - [ueVite26 June Major](ueVite26-JuneMajor.md)
 - [ViteSetup](ViteSetup.md)

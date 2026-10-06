@@ -1,40 +1,41 @@
-# Original Vite
+# 初代 Vite
 
 <tldr>
 <p>
-The first Vite line, built on <b>NVIDIA's NvRTX 5.0</b> (Unreal Engine 5). It proved out the PhysX and
-ray-tracing direction, then was retired in November 2025 when matched tests showed the 4.27-based NvRTX
-branch to be faster. It is archived and no longer supported; its public repository history was not
-preserved.
+<b>NVIDIA の NvRTX 5.0</b>（Unreal Engine 5）をベースとした最初の Vite の系列です。PhysX とレイトレーシングという
+方向性を実証しましたが、同条件のテストで 4.27 ベースの NvRTX ブランチのほうが高速だと分かったため、2025 年 11 月に
+役目を終えました。現在はアーカイブされておりサポート対象外で、公開リポジトリの履歴は残っていません。
 </p>
 </tldr>
 
-| Status | Base | Superseded by |
+| 状態 | ベース | 後継 |
 |---|---|---|
-| Archived | NvRTX 5.0 (Unreal Engine 5) | [ueVite25 LTS](ueVite25-LTS.md), November 2025 |
+| アーカイブ | NvRTX 5.0（Unreal Engine 5） | [ueVite25 LTS](ueVite25-LTS.md)（2025 年 11 月） |
 
-## What it established
+## この系列が確立したもの
 
-- **PhysX on a modern engine.** The original line ported PhysX back into a UE5-era codebase, which is where
-  Vite's position on Chaos started.
-- **Ray tracing without Lumen.** NvRTX's RTXGI/DDGI path, rather than Lumen, as the primary GI solution.
-- **Measured decisions.** The comparisons run on this line &mdash; ray-traced GI frame rate and the cost
-  of integrating PhysX into UE5 &mdash; are what drove the move to a 4.27 base.
+- **最新エンジンでの PhysX。** 初代の系列は PhysX を UE5 世代のコードベースに移植しました。Chaos に対する Vite の
+  立場はここから始まっています。
+- **Lumen に頼らないレイトレーシング。** 主要な GI ソリューションとして、Lumen ではなく NvRTX の RTXGI/DDGI の
+  パスを採用しました。
+- **測定に基づく判断。** この系列で行った比較（レイトレーシング GI のフレームレートと、UE5 に PhysX を統合するコスト）
+  が、4.27 ベースへの移行を決める根拠になりました。
 
-## Why it was replaced
+## 置き換えられた理由
 
-Matched ray-tracing tests ran slower on the NvRTX 5.0 base than on NvRTX Caustics 4.27, and keeping PhysX
-working against UE5's physics architecture was a continuing cost. The full reasoning is in
-[Why NvRTX 4.27](Why-NvRTX-427.md) and the
-[base transition record](https://docs.google.com/document/d/1gA0MGkzeWWzKkgwBDOP5xRPouSKaOIW6xlPZ2q6BXO0/edit).
+同条件のレイトレーシングのテストでは NvRTX 5.0 ベースのほうが NvRTX Caustics 4.27 より遅く、UE5 の物理アーキテクチャ
+に対して PhysX を動かし続けるコストもかかり続けていました。詳しい理由は
+[なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md) と
+[ベース移行の記録](https://docs.google.com/document/d/1gA0MGkzeWWzKkgwBDOP5xRPouSKaOIW6xlPZ2q6BXO0/edit) を
+参照してください。
 
-## Commit record
+## コミット記録
 
-No verifiable public commit history survives for this line, so this page has no commit table. The
-transition record above is the authoritative account.
+この系列については検証可能な公開コミット履歴が残っていないため、このページにはコミットの表はありません。上記の
+移行の記録が正式な経緯の説明です。
 
-## See also
+## 関連項目
 
-- [All release notes](Release-Notes.md)
+- [すべてのリリースノート](Release-Notes.md)
 - [ueVite25 LTS](ueVite25-LTS.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)

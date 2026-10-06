@@ -2,150 +2,152 @@
 
 <tldr>
 <p>
-June is the upscaling and animation release: <b>FSR 4</b> with vendor-agnostic frame generation,
-<b>DLSS 4</b> with Ray Reconstruction and multi-frame generation, <b>XeSS 3</b> with XeFG, and
-<b>HBAO+</b> on D3D12 &mdash; alongside a full set of BlendSpace and blend-profile animation backports,
-opt-in <b>fixed-timestep PhysX</b>, the <b>NVIDIA Blast</b> plugin, and DDGI enabled by default.
+June はアップスケーリングとアニメーションのリリースです。ベンダーを問わないフレーム生成を備えた <b>FSR 4</b>、
+Ray Reconstruction とマルチフレーム生成に対応した <b>DLSS 4</b>、XeFG を備えた <b>XeSS 3</b>、そして D3D12 対応の
+<b>HBAO+</b> に加えて、BlendSpace とブレンドプロファイルのアニメーション関連のバックポート一式、オプトインの
+<b>固定タイムステップの PhysX</b>、<b>NVIDIA Blast</b> プラグイン、そして既定で有効な DDGI を含みます。
 </p>
 <p>
-Branch <code>ueVite26-JuneMajor-release</code> &middot; builds on
-<a href="ueVite26-MarchMajor.md">ueVite26 March Major</a>.
+ブランチ <code>ueVite26-JuneMajor-release</code> &middot; ベース:
+<a href="ueVite26-MarchMajor.md">ueVite26 March Major</a>
 </p>
 </tldr>
 
-| Status | Development window | Builds on | Commits |
+| 状態 | 開発期間 | ベース | コミット数 |
 |---|---|---|---:|
-| Major | 13 March &ndash; 28 July 2026 | [ueVite26 March Major](ueVite26-MarchMajor.md) | 170 |
+| メジャー | 2026 年 3 月 13 日〜7 月 28 日 | [ueVite26 March Major](ueVite26-MarchMajor.md) | 170 |
 
-## Highlights
+## ハイライト
 
 <deflist>
-<def title="Every current upscaler">
-AMD FSR 4 (FidelityFX SDK 4.1.1) with ML upscaling and an FSR 3.1 fallback, including the native-AA mode;
-NVIDIA DLSS 4 (NGX 310.7) with selectable transformer presets and Ray Reconstruction; Streamline 2.12 with
-DLSS multi-frame generation; Intel XeSS 3.0.5 with XeFG; and AMD FSR 3.1.4. See
-<a href="Upscalers.md">Upscalers</a>.
+<def title="現行のアップスケーラーをすべて搭載">
+ML アップスケーリングと FSR 3.1 へのフォールバック、ネイティブ AA モードを備えた AMD FSR 4（FidelityFX SDK 4.1.1）、
+トランスフォーマープリセットを選択でき Ray Reconstruction に対応した NVIDIA DLSS 4（NGX 310.7）、DLSS の
+マルチフレーム生成に対応した Streamline 2.12、XeFG を備えた Intel XeSS 3.0.5、そして AMD FSR 3.1.4 です。
+<a href="Upscalers.md">アップスケーラー</a> を参照してください。
 </def>
-<def title="Vendor-agnostic frame generation">
-FSR frame generation is driven from the swapchain and works with any upscaler, not only FSR. Motion
-vectors are converted to FSR conventions, and full velocity output is forced whenever any frame generator
-is selected, removing ghosting.
+<def title="ベンダーを問わないフレーム生成">
+FSR のフレーム生成はスワップチェーンから駆動され、FSR に限らずどのアップスケーラーとも組み合わせられます。
+モーションベクトルは FSR の規約に変換され、いずれかのフレーム生成を選ぶと完全なベロシティ出力が強制されるため、
+ゴーストが解消されます。
 </def>
-<def title="Animation backports">
-BlendSpace smoothing modes (spring-damper, ease in/out, exponential), per-bone smoothing fixes, time-based
-blend profiles in montages and blend nodes, pose snapshots, and per-call montage blend-in/out overrides.
+<def title="アニメーションのバックポート">
+BlendSpace のスムージングモード（スプリングダンパー、イーズイン/アウト、指数）、ボーン単位のスムージングの修正、
+モンタージュとブレンドノードでの時間ベースのブレンドプロファイル、ポーズのスナップショット、呼び出しごとの
+モンタージュのブレンドイン/アウトの上書きです。
 </def>
-<def title="Physics">
-Opt-in fixed-timestep PhysX with render interpolation (<code>VITE_PHYSX_FIXED_TIMESTEP</code>) and the
-NVIDIA Blast plugin with the engine-side changes it needs to render correctly. See
-<a href="Fixed-Timestep.md">Fixed Timestep</a>.
+<def title="物理">
+レンダー補間付きのオプトインの固定タイムステップ PhysX（<code>VITE_PHYSX_FIXED_TIMESTEP</code>）と、正しく描画する
+ためのエンジン側の変更を含む NVIDIA Blast プラグインです。<a href="Fixed-Timestep.md">固定タイムステップ</a> を
+参照してください。
 </def>
 </deflist>
 
-## What's new
+## 新機能と変更点
 
-### Upscaling, frame generation and latency
+### アップスケーリング、フレーム生成、レイテンシー
 
-- **FSR 4:** new plugin on the FidelityFX API; ML upscaling with FSR 3.1 fallback and provider logging;
-  native AA (1.0×) mode restored; runtime switching of upscaler and frame-generation vendor.
-- **FSR frame generation:** present-time, swapchain-driven, upscaler-agnostic, with project settings and a
-  guard for odd back-buffer sizes.
-- **DLSS 4:** NGX 310.7 (DLSS 4.5 presets named), selectable transformer presets, Ray Reconstruction with
-  its own preset CVar and runtime staging, and DLSS-G multi-frame generation multipliers via Streamline
-  2.12.0.
-- **XeSS 3.0.5** with **XeFG** frame generation on UE 4.27; **AMD FSR 3.1.4**; **AMD Anti-Lag 2.0.4**.
-- `r.Upscaler.ScreenPercentageOverride` lets FSR, DLSS and XeSS take an arbitrary render resolution.
-- **Lit Reactive** shading model with static-WPO velocity for the FSR reactive mask.
+- **FSR 4:** FidelityFX API を使う新しいプラグイン。FSR 3.1 へのフォールバックとプロバイダーのログ出力を備えた ML
+  アップスケーリング。ネイティブ AA（1.0 倍）モードを復元。アップスケーラーとフレーム生成のベンダーを実行時に
+  切り替え可能。
+- **FSR のフレーム生成:** 表示時にスワップチェーンから駆動し、アップスケーラーに依存しません。プロジェクト設定と、
+  奇数サイズのバックバッファに対するガードを備えています。
+- **DLSS 4:** NGX 310.7（DLSS 4.5 のプリセット名を追加）、トランスフォーマープリセットの選択、専用のプリセット用
+  CVar と実行時の配置に対応した Ray Reconstruction、そして Streamline 2.12.0 による DLSS-G のマルチフレーム生成の
+  倍率指定。
+- UE 4.27 で **XeFG** のフレーム生成に対応した **XeSS 3.0.5**、**AMD FSR 3.1.4**、**AMD Anti-Lag 2.0.4**。
+- `r.Upscaler.ScreenPercentageOverride` により、FSR、DLSS、XeSS で任意のレンダー解像度を指定可能。
+- FSR のリアクティブマスク向けに、静的な WPO のベロシティを出力する **Lit Reactive** シェーディングモデル。
 
-### Rendering
+### レンダリング
 
-- **HBAO+** backported to 4.27, with a new D3D12 back end and packaged DLL staging. See
-  [Ambient Occlusion](Ambient-Occlusion.md).
-- **DDGI enabled by default** through the GI plugin console variable; **NRD ReLAX** denoiser on by default.
-- Ray tracing: RT shadow encoding fix, capsule indirect shadows without static lighting, ray-tracing
-  instance gathering no longer stalls, raygen shaders excluded from RTPSOs unless their feature is enabled,
-  NaNs removed from HWRT reflections, back-face culling for material-gather rays.
-- Scene proxies skip redundant transform updates (about 4 ms GPU, 2.2 ms game thread and 4.8 ms render
-  thread saved in the upstream "golem" test scene, with shadow-depth time roughly halved).
-- TAA: explicit loop unroll (about 0.5 ms on some DXC platforms) and a history-drift fix with
-  `r.TemporalAA.R11G11B10History=1`.
-- Forward renderer: MSAA fixes for decals, explicit-fmask resolve alpha, and velocity output.
-- Updated SSAO optimisation path; GTAO input-order fix; rect-light micro-occlusion; ISR translucency
-  compositing; virtual-texture feedback from deferred decals.
-- Shadow and SSGI defaults revised.
+- **HBAO+** を 4.27 にバックポートし、新しい D3D12 バックエンドとパッケージ時の DLL 配置に対応。
+  [アンビエントオクルージョン](Ambient-Occlusion.md) を参照してください。
+- GI プラグインのコンソール変数により **DDGI を既定で有効化**。**NRD ReLAX** デノイザーも既定で有効。
+- レイトレーシング: RT シャドウのエンコードの修正、静的ライティング非対応のプロジェクトでのカプセル間接シャドウ、
+  レイトレーシングのインスタンス収集でのストールの解消、機能が無効なレイ生成シェーダーを RTPSO から除外、HWRT 反射
+  からの NaN の除去、マテリアル収集レイでのバックフェースカリング。
+- シーンプロキシが冗長なトランスフォーム更新をスキップ（上流の「golem」テストシーンで GPU 約 4 ms、ゲームスレッド
+  約 2.2 ms、レンダースレッド約 4.8 ms を削減し、シャドウデプスの時間はおよそ半分に）。
+- TAA: ループの明示的な展開（一部の DXC プラットフォームで約 0.5 ms 短縮）と、
+  `r.TemporalAA.R11G11B10History=1` 使用時の履歴のずれの修正。
+- フォワードレンダラー: デカール、明示的な fmask による解決時のアルファ、ベロシティ出力に関する MSAA の修正。
+- SSAO の最適化パスの更新、GTAO の入力順の修正、矩形ライトのマイクロオクルージョン、ISR での半透明の合成、
+  ディファードデカールからの仮想テクスチャのフィードバック。
+- シャドウと SSGI の既定値を見直し。
 
-### Animation
+### アニメーション
 
-- BlendSpace: smoothing modes, current and target preview positions, filters only allocated when used
-  (~2.6 MB peak saved), crash fix for duplicated or retargeted BlendSpaces.
-- Blend profiles: time-based profiles, mode selection, use inside montages and blend nodes.
-- `UAnimInstance::AddPoseSnapshot` / `GetPoseSnapshot`; montage blend-in/out overrides on play and stop;
-  improved Blueprint spring interpolation; lazily initialised rigid-body anim nodes.
+- BlendSpace: スムージングモード、現在位置と目標位置のプレビュー、フィルターを使用時のみ確保（ピーク時に約 2.6 MB
+  削減）、複製・リターゲットした BlendSpace でのクラッシュの修正。
+- ブレンドプロファイル: 時間ベースのプロファイル、モードの選択、モンタージュとブレンドノード内での使用。
+- `UAnimInstance::AddPoseSnapshot` / `GetPoseSnapshot`、再生・停止時のモンタージュのブレンドイン/アウトの上書き、
+  ブループリントのスプリング補間の改善、剛体アニメーションノードの遅延初期化。
 
-### Physics
+### 物理
 
-- Opt-in fixed-timestep PhysX with an accumulator, sub-stepping caps and render interpolation, guarded so
-  the regular path pays nothing when disabled.
-- NVIDIA Blast plugin with engine-side rendering support and a
-  [sample project](https://github.com/ViteStudio-Tech/ueVite-PhysX_Blast-ProjectSample).
-- Fixed camera stutter when following a physics object during long frame hitches.
+- アキュムレーター、サブステップの上限、レンダー補間を備えたオプトインの固定タイムステップ PhysX。無効時は通常の
+  パスに一切コストがかからないようガードしています。
+- エンジン側の描画対応を含む NVIDIA Blast プラグインと
+  [サンプルプロジェクト](https://github.com/ViteStudio-Tech/ueVite-PhysX_Blast-ProjectSample)。
+- 長いフレームのヒッチ中に物理オブジェクトを追うカメラがスタッターする問題を修正。
 
-### Core, loading and memory
+### コア、読み込み、メモリ
 
-- Oodle texture-format backports (background priority, 16-bit BC4/BC5 input, no redundant image copies,
-  shorter game-thread waits).
-- Streaming avoids a 10 ms wait where possible; cook time reduced by skipping unnecessary object
-  iteration; a lambda signature change removes ~17 million allocations.
-- MallocBinned alignment-corruption fix, leaner container allocation policies, TaskGraph dispatch fix,
-  material uniform expressions cached in editor.
-- NEON math upgrades for mobile and Switch 2.
+- Oodle のテクスチャフォーマットのバックポート（バックグラウンド優先度、BC4/BC5 の 16 ビット入力、冗長な画像コピー
+  の削除、ゲームスレッドの待機時間の短縮）。
+- 可能な場合はストリーミングでの 10 ms の待機を回避。不要なオブジェクトの走査を省いてクック時間を短縮。ラムダの
+  シグネチャ変更により約 1,700 万回のメモリ割り当てを削減。
+- MallocBinned のアライメントによるメモリ破壊の修正、コンテナの割り当てポリシーの軽量化、TaskGraph のディスパッチの
+  修正、エディタでのマテリアルのユニフォーム式のキャッシュ。
+- モバイルと Switch 2 向けの NEON 数学関数の改良。
 
-### Tools
+### ツール
 
-- **ImGui** plugin with a benchmark tool that runs in Shipping builds.
-- `stat unit` backported from UE 5.8: VRAM and render-resolution rows, always-on memory, measured render
-  resolution under DPI scaling and upscalers.
-- `LocalBuilds` and `RunUAT.bat` for binary (installed) builds; debloat and targeting packs for the setup
-  scripts.
-- Console command sorting, tooltips and history improvements.
+- Shipping ビルドでも動作するベンチマークツールを備えた **ImGui** プラグイン。
+- UE 5.8 からバックポートした `stat unit`: VRAM とレンダー解像度の行、常時表示のメモリ、DPI スケーリングや
+  アップスケーラー使用時の実測レンダー解像度。
+- バイナリ（インストール済み）ビルド向けの `LocalBuilds` と `RunUAT.bat`。セットアップスクリプト向けのデブロートと
+  ターゲット設定のパック。
+- コンソールコマンドの並べ替え、ツールチップ、履歴の改善。
 
-## Upgrade notes
+## アップグレード時の注意点
 
-- **DDGI is on by default.** Projects that do not use ray-traced GI should disable
-  `r.GlobalIllumination.ExperimentalPlugin` explicitly. See [Dynamic DDGI](DDGI-Dynamic.md).
-- **Fixed timestep** requires `VITE_PHYSX_FIXED_TIMESTEP=1` at build time and is still runtime-disabled by
-  default; enable it with `p.VitePhysXFixedTimestep.Enabled`.
-- **XGE shader compilation** is disabled by default.
-- The Houdini plugin is temporarily removed.
+- **DDGI は既定で有効です。** レイトレーシング GI を使わないプロジェクトは、`r.GlobalIllumination.ExperimentalPlugin`
+  を明示的に無効にしてください。[動的 DDGI](DDGI-Dynamic.md) を参照してください。
+- **固定タイムステップ** はビルド時に `VITE_PHYSX_FIXED_TIMESTEP=1` が必要で、実行時も既定では無効です。
+  `p.VitePhysXFixedTimestep.Enabled` で有効にします。
+- **XGE によるシェーダーコンパイル** は既定で無効です。
+- Houdini プラグインは一時的に削除されています。
 
 <!-- BEGIN GENERATED COMMIT RECORD -->
 
-## Full commit history {id="commit-history"}
+## 全コミット履歴 {id="commit-history"}
 
-Branch: [`ueVite26-JuneMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-JuneMajor-release)
+ブランチ: [`ueVite26-JuneMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-JuneMajor-release)
 
-### Commits by area
+### 領域別のコミット数
 
-| Area | Commits |
+| 領域 | コミット数 |
 |---|---:|
-| Upscaling and anti-aliasing | 52 |
-| Rendering | 43 |
-| Animation | 18 |
-| Toolchain and platforms | 15 |
-| Editor and workflow | 11 |
-| Ray tracing and GI | 8 |
-| Other | 6 |
-| Core and performance | 6 |
-| Physics | 4 |
-| Plugins and media | 3 |
-| Hair | 2 |
-| Gameplay framework | 2 |
+| アップスケーリングとアンチエイリアシング | 52 |
+| レンダリング | 43 |
+| アニメーション | 18 |
+| ツールチェーンとプラットフォーム | 15 |
+| エディタとワークフロー | 11 |
+| レイトレーシングと GI | 8 |
+| その他 | 6 |
+| コアとパフォーマンス | 6 |
+| 物理 | 4 |
+| プラグインとメディア | 3 |
+| ヘア | 2 |
+| ゲームプレイフレームワーク | 2 |
 
-### Public release branch — 170 commits {collapsible="true" default-state="collapsed"}
+### 公開リリースブランチ — 170 件 {collapsible="true" default-state="collapsed"}
 
-170 commits (15 merge commits omitted from the table).
+170 件のコミット（マージコミット 15 件は表から除外）。
 
-| Date | Commit | Author | Change |
+| 日付 | コミット | 作成者 | 変更内容 |
 |---|---|---|---|
 | 2026-07-28 | [`42dbf9a28d`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/42dbf9a28dc8a98e7c9de44cd3a5fb98f4a34a8a) | Tuhoiisa | fix(renderer): cache localized IBL CVar |
 | 2026-07-28 | [`303d941785`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/303d9417852c196854cff449431230d4e26c79ed) | Tuhoiisa | \[Backport 5.3\] Unconditionally disable velocity output in base pass for Forward Desktop (UE-169988). #rb Robert.Srinivasiah, Jules.Blok \[REVIEW\] \[at\]Jules.Blok, \[at\]Robert.Srinivasiah #jira UE-169988… |
@@ -320,9 +322,9 @@ Branch: [`ueVite26-JuneMajor-release`](https://github.com/GapingPixel/UnrealEngi
 
 <!-- END GENERATED COMMIT RECORD -->
 
-## See also
+## 関連項目
 
-- [All release notes](Release-Notes.md)
+- [すべてのリリースノート](Release-Notes.md)
 - [ueVite26 July Major](ueVite26-JulyMajor.md)
 - [ueVite26 March Major](ueVite26-MarchMajor.md)
-- [Upscalers](Upscalers.md)
+- [アップスケーラー](Upscalers.md)

@@ -2,198 +2,197 @@
 
 <tldr>
 <p>
-The largest Vite release to date: <b>438 changes</b> spanning a broad UE5 backport programme for
-editor responsiveness, memory and D3D12 stability, new ray-traced reflection and specular-occlusion
-features, a Gameplay Ability System update, Intel XeSS 3.1, and Visual Studio 2026 (MSVC 14.51) support.
-After release the branch gained a macOS/Xcode 26 port and updated DLSS and XeSS runtimes.
+Vite 史上最大のリリースで、<b>438 件の変更</b> を含みます。エディタの応答性、メモリ、D3D12 の安定性に関する大規模な
+UE5 バックポート、レイトレーシング反射とスペキュラーオクルージョンの新機能、Gameplay Ability System の更新、
+Intel XeSS 3.1、そして Visual Studio 2026（MSVC 14.51）への対応です。リリース後には macOS / Xcode 26 への移植と、
+DLSS と XeSS のランタイムの更新が加わりました。
 </p>
 <p>
-Branch <code>ueVite26-AugustMajor-release</code> &middot; released 24 August 2026 &middot; builds on
-<a href="ueVite26-JulyMajor.md">ueVite26 July Major</a>.
+ブランチ <code>ueVite26-AugustMajor-release</code> &middot; リリース日: 2026 年 8 月 24 日 &middot; ベース:
+<a href="ueVite26-JulyMajor.md">ueVite26 July Major</a>
 </p>
 </tldr>
 
-| Status | Development window | Builds on | Commits |
+| 状態 | 開発期間 | ベース | コミット数 |
 |---|---|---|---:|
-| Major | 25 July &ndash; 24 August 2026, maintained to 2 October 2026 | [ueVite26 July Major](ueVite26-JulyMajor.md) | 438 (420 staged + 18 on the release branch) |
+| メジャー | 2026 年 7 月 25 日〜8 月 24 日（10 月 2 日までメンテナンス） | [ueVite26 July Major](ueVite26-JulyMajor.md) | 438（ステージング 420 件 + リリースブランチ 18 件） |
 
-## Highlights
+## ハイライト
 
 <deflist>
-<def title="Editor and memory backports">
-A large programme of UE5 backports, adapted to the 4.27 APIs, targets everyday iteration cost: tooltips and
-property widgets are created on demand (up to ~400 ms saved when switching selections), the Window menu
-hitch drops from 1&ndash;5 s to ~15 ms, asset thumbnails stop loading full assets, and Windows now uses
-<b>mimalloc</b> as its default allocator for lower memory use and faster allocation.
+<def title="エディタとメモリのバックポート">
+4.27 の API に合わせて適応させた大規模な UE5 バックポートにより、日々のイテレーションのコストを削減しました。
+ツールチップとプロパティのウィジェットは必要時に生成されるようになり（選択の切り替え時に最大約 400 ms 短縮）、
+ウィンドウメニューのヒッチは 1〜5 秒から約 15 ms に減り、アセットのサムネイルがアセット全体を読み込まなくなり、
+Windows の既定のアロケーターは、メモリ使用量が少なく割り当ても速い <b>mimalloc</b> になりました。
 </def>
-<def title="Ray-traced reflections and occlusion">
-Deferred RT reflections sample the sky cubemap on a miss and add extra diffuse for foliage, subsurface and
-skin hits, with optimised defaults. A new <b>bent-normal specular occlusion</b> path (Jimenez 2016) is
-available behind <code>VITE_SPECULAR_OCCLUSION</code>, and RT shadows gain source-length support.
+<def title="レイトレーシング反射とオクルージョン">
+ディファードの RT 反射は、ミス時にスカイのキューブマップをサンプリングし、フォリッジ、サブサーフェス、スキンへの
+ヒットに追加のディフューズを加え、既定値も最適化されました。<code>VITE_SPECULAR_OCCLUSION</code> の下で新しい
+<b>ベントノーマルによるスペキュラーオクルージョン</b>（Jimenez 2016）が使えるようになり、RT シャドウは光源の長さ
+（Source Length）に対応しました。
 </def>
-<def title="D3D12 and Vulkan stability">
-Fence and residency fixes, deadlock fixes on low-core-count PCs, restored UAV barriers, correct SRV
-state-cache invalidation on buffer uploads, and a Vulkan pipeline-cache security fix. Shader binding table
-updates avoid false sharing between worker threads.
+<def title="D3D12 と Vulkan の安定性">
+フェンスとレジデンシーの修正、コア数の少ない PC でのデッドロックの修正、UAV バリアの復元、バッファのアップロード時の
+SRV ステートキャッシュの正しい無効化、そして Vulkan のパイプラインキャッシュに関するセキュリティ修正です。シェーダー
+バインディングテーブルの更新は、ワーカースレッド間の偽共有を避けるようになりました。
 </def>
-<def title="Gameplay Ability System update">
-Around forty GAS fixes and features from UE 5.1, including <code>WaitGameplayTagQuery</code>,
-<code>AddLooseGameplayTags</code>/<code>RemoveLooseGameplayTags</code> for Blueprint,
-<code>PostAttributeChange</code> callbacks, set-by-caller magnitudes on active effects, replication fixes
-and <code>ShowDebug AbilitySystem</code>.
+<def title="Gameplay Ability System の更新">
+UE 5.1 からの約 40 件の GAS の修正と機能です。<code>WaitGameplayTagQuery</code>、ブループリント向けの
+<code>AddLooseGameplayTags</code> / <code>RemoveLooseGameplayTags</code>、<code>PostAttributeChange</code> コールバック、
+アクティブなエフェクトの SetByCaller マグニチュード、レプリケーションの修正、<code>ShowDebug AbilitySystem</code> を
+含みます。
 </def>
-<def title="Upscaling and frame generation">
-Intel XeSS updated to 3.1.0 with XeFG frame generation re-enabled on UE 4.27. After release, the DLSS
-runtime moved to NGX 310.7.129. See <a href="Upscalers.md">Upscalers</a>.
+<def title="アップスケーリングとフレーム生成">
+Intel XeSS を 3.1.0 に更新し、UE 4.27 で XeFG のフレーム生成を再び有効にしました。リリース後、DLSS のランタイムは
+NGX 310.7.129 に更新されました。<a href="Upscalers.md">アップスケーラー</a> を参照してください。
 </def>
-<def title="Toolchain">
-Compiles on Visual Studio 2026 18.9.1 (MSVC 14.51, <code>_MSC_VER</code> 1951) with Windows SDK 10.0.26100,
-adds Clang 11 toolchain support, and cuts several of the slowest translation units (for example
-<code>ShowFlags.cpp</code> from 17 s to 5 s).
+<def title="ツールチェーン">
+Visual Studio 2026 18.9.1（MSVC 14.51、<code>_MSC_VER</code> 1951）と Windows SDK 10.0.26100 でコンパイルでき、
+Clang 11 のツールチェーンに対応し、特に遅い翻訳単位のコンパイル時間を短縮しました（例:
+<code>ShowFlags.cpp</code> は 17 秒から 5 秒）。
 </def>
 </deflist>
 
-## What's new
+## 新機能と変更点
 
-### Rendering
+### レンダリング
 
-- **Specular occlusion:** Jimenez 2016 cone-cone specular occlusion using DFAO/SSAO bent normals, enabled
-  at compile time with `VITE_SPECULAR_OCCLUSION=1`. The Karis term remains the default.
-- **Local exposure:** UE 5.0 local exposure passes and post-process settings backported behind
-  `VITE_UE5_POSTPROCESSING` (on by default).
-- **Anti-aliasing:** SMAA update.
-- **Volumetrics:** volumetric clouds gain a tracing max-distance mode; the ray-traced volumetric fog light
-  path is restored when shadow quality is `0`.
-- **Shadows:** fixes for translucent shadows, missing shadow casting from material instances using *Cast
-  Shadow as Masked*, Gather4 offsets in shadow filtering, and objects with *Cast Shadow* disabled no longer
-  contribute to distance-field shadows.
-- **Lighting:** stationary lights behave correctly with `r.AllowStaticLighting` disabled; light functions
-  are allowed in reflection captures; the stationary sky light show flag is fixed.
-- **Post-processing:** scene captures can show the tonemapper and post-process materials; post-process
-  material passes are skipped when every pixel would fail the stencil test; GTAO handles camera cuts.
-- **Mesh rendering:** cheaper HISM dynamic draw setup, MinLOD clamped to streamed LODs, and render state is
-  no longer rebuilt when draw or cull distances change.
+- **スペキュラーオクルージョン:** DFAO/SSAO のベントノーマルを使う Jimenez 2016 のコーンベースのスペキュラー
+  オクルージョン。`VITE_SPECULAR_OCCLUSION=1` でコンパイル時に有効にします。既定は引き続き Karis の項です。
+- **ローカル露出:** UE 5.0 のローカル露出のパスとポストプロセス設定を `VITE_UE5_POSTPROCESSING`（既定で有効）の下に
+  バックポート。
+- **アンチエイリアシング:** SMAA の更新。
+- **ボリュメトリクス:** ボリュメトリッククラウドにトレースの最大距離モードを追加。シャドウ品質が `0` のときの
+  レイトレーシングによるボリュメトリックフォグのライトパスを復元。
+- **シャドウ:** 半透明のシャドウ、*Cast Shadow as Masked* を使うマテリアルインスタンスからの影の欠落、シャドウ
+  フィルタリングの Gather4 のオフセットを修正。*Cast Shadow* が無効なオブジェクトは距離フィールドシャドウに寄与しなく
+  なりました。
+- **ライティング:** `r.AllowStaticLighting` が無効でもステーショナリーライトが正しく動作。リフレクション
+  キャプチャでライト関数を使用可能に。ステーショナリーのスカイライトの表示フラグを修正。
+- **ポストプロセス:** シーンキャプチャでトーンマッパーとポストプロセスマテリアルを表示可能に。すべてのピクセルが
+  ステンシルテストに失敗する場合はポストプロセスマテリアルのパスをスキップ。GTAO がカメラカットに対応。
+- **メッシュの描画:** HISM の動的描画のセットアップを軽量化。MinLOD をストリーミング済みの LOD に制限。描画距離や
+  カリング距離が変わってもレンダーステートを再構築しなくなりました。
 
-### Ray tracing
+### レイトレーシング
 
-- **RT deferred reflections:** sky cubemap on miss; extra diffuse on foliage, subsurface and skin hits;
-  optimised defaults. See [RT Reflections](RT-Reflections.md).
-- **RT shadows and RTAO:** adjusted defaults; source-length support for RT shadows; invalid shadow rays no
-  longer traced.
-- **Scene management:** landscape grass excluded from the RT scene by default; new
-  `r.RayTracing.Geometry.InstancedStaticMeshes.MinLOD`; `r.RayTracing.ParallelMeshBatchSize` raised from 128
-  to 1024; complete RTPSO gating for reflections.
-- **Denoising:** NvRTX 5.0 updates to the ReGIR computation and ReLAX history defaults, plus a fix for
-  scenes with corrupted denoising; screen-space denoising
-  fixed on AMD GPUs while keeping the NVIDIA path behind a compile-time switch.
-- **D3D12 SBT:** micro-optimisations and false-sharing prevention when filling shader binding tables.
+- **RT ディファード反射:** ミス時のスカイキューブマップ、フォリッジ・サブサーフェス・スキンへのヒットでの追加
+  ディフューズ、最適化された既定値。[レイトレーシング反射](RT-Reflections.md) を参照してください。
+- **RT シャドウと RTAO:** 既定値を調整。RT シャドウが光源の長さに対応。無効なシャドウレイをトレースしなくなりました。
+- **シーン管理:** ランドスケープのグラスを既定で RT シーンから除外。新しい
+  `r.RayTracing.Geometry.InstancedStaticMeshes.MinLOD`。`r.RayTracing.ParallelMeshBatchSize` を 128 から 1024 に
+  引き上げ。反射の RTPSO のゲーティングを完了。
+- **デノイズ:** ReGIR の計算方法と ReLAX の履歴の既定値に関する NvRTX 5.0 の更新、そしてデノイズが破綻するシーンの
+  修正。NVIDIA 向けのパスをコンパイル時スイッチで残したまま、AMD の GPU でスクリーンスペースのデノイズを修正。
+- **D3D12 の SBT:** シェーダーバインディングテーブルを埋める処理の細かな最適化と偽共有の防止。
 
-### Upscaling and frame generation
+### アップスケーリングとフレーム生成
 
-- Intel XeSS 3.1.0, with XeFG frame generation re-applied for UE 4.27.
-- After release: DLSS NGX runtime 310.7.129, DLSS Ray Reconstruction preset F documented as the DLSS 4.5
-  model, and XeSS 3.1.0 install and stand-down guards fixed for UE 4.27.
+- Intel XeSS 3.1.0。UE 4.27 で XeFG のフレーム生成を再適用。
+- リリース後: DLSS の NGX ランタイム 310.7.129、DLSS Ray Reconstruction のプリセット F を DLSS 4.5 のモデルとして
+  明記、UE 4.27 での XeSS 3.1.0 のインストールと待機のガードを修正。
 
-### Gameplay framework
+### ゲームプレイフレームワーク
 
-- Gameplay Ability System backports from UE 5.1, including `WaitGameplayTagQuery`, loose-tag Blueprint
-  functions, `PostAttributeChange`/`PostAttributeBaseChange`, dynamic set-by-caller magnitudes, end-ability
-  locally, and numerous replication and stability fixes.
-- Blueprint double support for UFunctions, variables, conversions and Kismet math; a *Key* parameter on
-  *Print String*; development-only nodes can be bypassed in function graphs.
-- Navigation and AI: EQS memory checks, Recast tile-generator memory fix, faster `RunNavProjection`.
+- UE 5.1 からの Gameplay Ability System のバックポート。`WaitGameplayTagQuery`、ルースタグのブループリント関数、
+  `PostAttributeChange` / `PostAttributeBaseChange`、SetByCaller マグニチュードの動的変更、ローカルでのアビリティ終了、
+  そして多数のレプリケーションと安定性の修正を含みます。
+- ブループリントで UFunction、変数、変換、Kismet の数学関数の double に対応。*Print String* に *Key* パラメーターを
+  追加。関数グラフで開発専用ノードをバイパス可能に。
+- ナビゲーションと AI: EQS のメモリチェック、Recast のタイル生成でのメモリ破壊の修正、`RunNavProjection` の高速化。
 
-### Animation
+### アニメーション
 
-- PUMA plugin set up with anim-warping nodes (first pass).
-- Faster `ComputeRequiredBones`, improved attribute interpolation in skeletal mesh reduction, and fewer
-  game-thread stutters during async animation compression.
+- PUMA プラグインにアニムワーピングのノードを導入（第 1 段階）。
+- `ComputeRequiredBones` の高速化、スケルタルメッシュのリダクションでの属性補間の改善、非同期アニメーション圧縮中の
+  ゲームスレッドのスタッターの削減。
 
-### Editor and workflow
+### エディタとワークフロー
 
-- On-demand tooltip and property widgets, faster content-source refresh, faster context menus, Window menu
-  hitch removed, asset thumbnails no longer load full assets, culture data no longer preloaded at startup.
-- Manual auto-complete commands for the Output Log console; colour theme viewer, outliner and UMG fixes.
-- UE5 editor-world scene purge during PIE.
+- ツールチップとプロパティのウィジェットを必要時に生成、コンテンツソースの更新の高速化、コンテキストメニューの
+  高速化、ウィンドウメニューのヒッチの解消、アセットのサムネイルがアセット全体を読み込まないように、起動時に
+  カルチャーデータを事前読み込みしないように変更。
+- 出力ログのコンソール向けの手動オートコンプリートコマンド。カラーテーマビューアー、アウトライナー、UMG の修正。
+- PIE 中のエディタワールドのシーンのパージを UE5 から導入。
 
-### Core, memory and loading
+### コア、メモリ、読み込み
 
-- mimalloc is the default allocator on Windows.
-- Asset registry, linker and package-loading optimisations; `TSet`/`TMap` release memory when shrunk;
-  mesh-draw-command slack reclaimed; `FUObjectHashTables` outer hashing compressed.
-- Real `FXxHash64` implementation; texture streaming no longer stutters the game thread when fetching mips
-  from the DDC; async texture compilation enabled by default.
+- Windows の既定のアロケーターを mimalloc に変更。
+- アセットレジストリ、リンカー、パッケージ読み込みの最適化。`TSet` / `TMap` が縮小時にメモリを解放。メッシュ描画
+  コマンドの余剰領域を回収。`FUObjectHashTables` のアウター用ハッシュを圧縮。
+- 本物の `FXxHash64` の実装。DDC からミップを取得する際にテクスチャストリーミングがゲームスレッドを止めなくなり、
+  非同期テクスチャコンパイルを既定で有効化。
 
-### Physics
+### 物理
 
-- Faster clothing actor creation (8.5 ms to 5.6 ms average), complex sweeps respect back-face culling,
-  sorted insertion for AABB-tree broad phase, fewer allocations when creating collision meshes.
+- クロスアクターの生成を高速化（平均 8.5 ms から 5.6 ms）、複雑なスイープがバックフェースカリングを考慮、AABB ツリーの
+  ブロードフェーズでソート済み挿入、コリジョンメッシュ生成時の割り当てを削減。
 
-### Toolchain and platforms
+### ツールチェーンとプラットフォーム
 
-- Visual Studio 2026 18.9.1 (MSVC 14.51) and Windows SDK 10.0.26100; Clang 11 toolchain support; Clang
-  static analyser on Windows.
-- Compile-time reductions for the slowest units and removal of a 2 GB never-optimised shared PCH.
-- HTML5 removed from the TressFX plugin and from `UnrealTargetPlatform`; `TraceDataFilters` disabled by
-  default.
-- After release: macOS / Xcode 26 port with Windows untouched, Xcode 26 diagnostic downgrades, TressFX
-  geometry-shader capability guards, Linux dedicated-server plugin updates, and setup scripts for VS 2026 /
-  MSVC 14.51 with strip options for source builds.
+- Visual Studio 2026 18.9.1（MSVC 14.51）と Windows SDK 10.0.26100、Clang 11 のツールチェーン対応、Windows での
+  Clang 静的解析。
+- 特に遅いコンパイル単位の時間短縮と、最適化なしで 2 GB に達していた共有 PCH の削除。
+- TressFX プラグインと `UnrealTargetPlatform` から HTML5 を削除。`TraceDataFilters` を既定で無効化。
+- リリース後: Windows に影響を与えない macOS / Xcode 26 への移植、Xcode 26 の診断の引き下げ、TressFX のジオメトリ
+  シェーダー対応チェックのガード、Linux 専用サーバー向けプラグインの更新、そして VS 2026 / MSVC 14.51 向けの
+  セットアップスクリプトとソースビルドのストリップオプション。
 
-## Maintenance after release
+## リリース後のメンテナンス
 
-The public branch continued to receive fixes after 24 August:
+公開ブランチには 8 月 24 日以降も修正が加えられました。
 
-| Date | Change |
+| 日付 | 変更内容 |
 |---|---|
-| 25 August | Optional slight-out-of-focus history rejection in DOF; `r.DOF.TAA.CoCBilateralFilterStrength` |
-| 25 August | Opt-in UE4 UI icon badges |
-| 26 August | TressFX and SSGI improvements; VS 2026 / MSVC 14.51 setup scripts; Linux dedicated-server plugins |
-| 27&ndash;28 August | Setup strip options for source builds; landscape check update |
-| 29 August | DLSS NGX 310.7.129; XeSS 3.1.0 guard fixes; macOS / Xcode 26 port |
-| 9 September | GAS debugger and engine material updates |
-| 2 October | Merged upstream Epic `4.27-plus`: Xcode 27 support, Clang 21 warning fixes, macOS editor fixes |
+| 8 月 25 日 | DOF のわずかなピンボケ（SOF）の履歴棄却を任意に。`r.DOF.TAA.CoCBilateralFilterStrength` を追加 |
+| 8 月 25 日 | UE4 スタイルの UI アイコンバッジをオプトインで復元 |
+| 8 月 26 日 | TressFX と SSGI の改善、VS 2026 / MSVC 14.51 向けセットアップスクリプト、Linux 専用サーバー向けプラグイン |
+| 8 月 27〜28 日 | ソースビルドのストリップオプション、ランドスケープのチェックの更新 |
+| 8 月 29 日 | DLSS NGX 310.7.129、XeSS 3.1.0 のガードの修正、macOS / Xcode 26 への移植 |
+| 9 月 9 日 | GAS デバッガーとエンジンのマテリアルの更新 |
+| 10 月 2 日 | 上流の Epic `4.27-plus` をマージ: Xcode 27 対応、Clang 21 の警告の修正、macOS エディタの修正 |
 
-## Upgrade notes
+## アップグレード時の注意点
 
-- **Toolchain:** this release is validated on Visual Studio 2026 18.9.1 (MSVC 14.51) with Windows SDK
-  10.0.26100. Use the updated setup scripts from the release branch. See
-  [Toolchain Requirements](Toolchain-Requirements.md).
-- **Allocator:** mimalloc replaces TBB as the default Windows allocator. Projects that pinned a custom
-  allocator should re-check their configuration.
-- **Compile-time features:** UE5 local exposure (`VITE_UE5_POSTPROCESSING`) is compiled in by default;
-  bent-normal specular occlusion (`VITE_SPECULAR_OCCLUSION`) is off unless enabled at build time. See
-  [Compile-Time Switches](Compile-Time-Switches.md).
-- **Ray tracing:** landscape grass no longer enters the ray tracing scene by default.
+- **ツールチェーン:** このリリースは Visual Studio 2026 18.9.1（MSVC 14.51）と Windows SDK 10.0.26100 で検証して
+  います。リリースブランチの更新済みセットアップスクリプトを使用してください。
+  [ツールチェーン要件](Toolchain-Requirements.md) を参照してください。
+- **アロケーター:** Windows の既定のアロケーターが TBB から mimalloc に変わりました。独自のアロケーターを固定している
+  プロジェクトは設定を見直してください。
+- **コンパイル時の機能:** UE5 のローカル露出（`VITE_UE5_POSTPROCESSING`）は既定でコンパイルされます。ベントノーマル
+  によるスペキュラーオクルージョン（`VITE_SPECULAR_OCCLUSION`）は、ビルド時に有効にしない限り無効です。
+  [コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
+- **レイトレーシング:** ランドスケープのグラスは、既定ではレイトレーシングのシーンに含まれなくなりました。
 
 <!-- BEGIN GENERATED COMMIT RECORD -->
 
-## Full commit history {id="commit-history"}
+## 全コミット履歴 {id="commit-history"}
 
-Branch: [`ueVite26-AugustMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-AugustMajor-release)
+ブランチ: [`ueVite26-AugustMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-AugustMajor-release)
 
-### Commits by area
+### 領域別のコミット数
 
-| Area | Commits |
+| 領域 | コミット数 |
 |---|---:|
-| Rendering | 105 |
-| Editor and workflow | 69 |
-| Core and performance | 69 |
-| Gameplay framework | 48 |
-| Toolchain and platforms | 45 |
-| Other | 28 |
-| Ray tracing and GI | 27 |
-| Animation | 12 |
-| Upscaling and anti-aliasing | 11 |
-| Physics | 11 |
-| Plugins and media | 10 |
-| Hair | 3 |
+| レンダリング | 105 |
+| エディタとワークフロー | 69 |
+| コアとパフォーマンス | 69 |
+| ゲームプレイフレームワーク | 48 |
+| ツールチェーンとプラットフォーム | 45 |
+| その他 | 28 |
+| レイトレーシングと GI | 27 |
+| アニメーション | 12 |
+| アップスケーリングとアンチエイリアシング | 11 |
+| 物理 | 11 |
+| プラグインとメディア | 10 |
+| ヘア | 3 |
 
-### Public release branch — 18 commits {collapsible="true" default-state="collapsed"}
+### 公開リリースブランチ — 18 件 {collapsible="true" default-state="collapsed"}
 
-18 commits (2 merge commits omitted from the table).
+18 件のコミット（マージコミット 2 件は表から除外）。
 
-| Date | Commit | Author | Change |
+| 日付 | コミット | 作成者 | 変更内容 |
 |---|---|---|---|
 | 2026-09-09 | [`52ce867d8d`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/52ce867d8d0d15244eb9e64ec05ba5ff0b31f6ba) | RedPixel | GAS Debugger, and Engine Mat updates |
 | 2026-09-04 | [`14106a0cd7`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/14106a0cd70aa3f76cfac182d989bc458126cd8b) | Carlo V. | Update Bat Instructions README.md |
@@ -214,17 +213,17 @@ Branch: [`ueVite26-AugustMajor-release`](https://github.com/GapingPixel/UnrealEn
 | 2026-08-25 | [`bcef2e4bbf`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/bcef2e4bbf3226a0ae025be89baac672b625cff4) | RedPixel | Added a cvar to turn off the TAA bilateral filter (r.DOF.TAA.CoCBilateralFilterStrength). |
 | 2026-08-24 | [`e6c356946d`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e6c356946d6d17631c05f53af5e2a7308f60a091) | RedPixel | \[Release\] August Major |
 
-### Internal staging (released as one commit) — 420 commits {collapsible="true" default-state="collapsed"}
+### 内部ステージング（1 コミットとして公開） — 420 件 {collapsible="true" default-state="collapsed"}
 
 <note>
 <p>
-These commits were developed and reviewed on the internal staging branch <code>ueVite26-AugustMajor-staging-9</code> and published to the public branch as a single release commit. They are listed for the record; the short hashes refer to the internal repository and are not linked.
+これらのコミットは内部ステージングブランチ <code>ueVite26-AugustMajor-staging-9</code> で開発・レビューされ、公開ブランチには 1 つのリリースコミットとして反映されました。記録として掲載していますが、短縮ハッシュは内部リポジトリのものであり、リンクはありません。
 </p>
 </note>
 
-420 commits (14 merge commits omitted from the table).
+420 件のコミット（マージコミット 14 件は表から除外）。
 
-| Date | Commit | Author | Change |
+| 日付 | コミット | 作成者 | 変更内容 |
 |---|---|---|---|
 | 2026-08-24 | `cb6e64c2f9` | RedPixel | \[Re-Apply\] XeFG: enable frame-gen on UE4.27 via MIN path (0x1) |
 | 2026-08-24 | `70db0cef55` | RedPixel | \[Plugin\] Intel XeSS Updated to 3.1.0 |
@@ -649,9 +648,9 @@ These commits were developed and reviewed on the internal staging branch <code>u
 
 <!-- END GENERATED COMMIT RECORD -->
 
-## See also
+## 関連項目
 
-- [All release notes](Release-Notes.md)
+- [すべてのリリースノート](Release-Notes.md)
 - [ueVite26 September Major](ueVite26-SeptemberMajor.md)
 - [ueVite26 July Major](ueVite26-JulyMajor.md)
-- [Backporting Workflow](Backporting.md)
+- [バックポート](Backporting.md)

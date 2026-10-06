@@ -2,129 +2,129 @@
 
 <tldr>
 <p>
-The first 2026 major release. March adds the <b>Toon shading model</b>, a <b>compute-based SMAA</b> with
-quality levels, faster ray-traced reflections, <b>localized IBL</b>, the <b>PhysX Instanced Subsystem</b>
-for native PhysX actors, Android NDK 29 support, and removes roughly 3 GB of deprecated XR platform code.
+2026 年最初のメジャーリリースです。March では <b>トゥーンシェーディングモデル</b>、品質レベルを選べる
+<b>コンピュートベースの SMAA</b>、高速化したレイトレーシング反射、<b>ローカライズド IBL</b>、ネイティブ PhysX
+アクターのための <b>PhysX Instanced Subsystem</b>、Android NDK 29 への対応を追加し、非推奨の XR プラットフォームの
+コードをおよそ 3 GB 削除しました。
 </p>
 <p>
-Branch <code>ueVite26-MarchMajor-release</code> &middot; released 12 March 2026 &middot; builds on
-<a href="ueVite25-LTS.md">ueVite25 LTS</a>.
+ブランチ <code>ueVite26-MarchMajor-release</code> &middot; リリース日: 2026 年 3 月 12 日 &middot; ベース:
+<a href="ueVite25-LTS.md">ueVite25 LTS</a>
 </p>
 </tldr>
 
-| Status | Development window | Builds on | Commits |
+| 状態 | 開発期間 | ベース | コミット数 |
 |---|---|---|---:|
-| Major | 12 December 2025 &ndash; 12 March 2026, maintained to 21 August 2026 | [ueVite25 LTS](ueVite25-LTS.md) | 79 |
+| メジャー | 2025 年 12 月 12 日〜2026 年 3 月 12 日（2026 年 8 月 21 日までメンテナンス） | [ueVite25 LTS](ueVite25-LTS.md) | 79 |
 
-## Highlights
+## ハイライト
 
 <deflist>
-<def title="Toon shading model">
-A cel-shading model inspired by Guilty Gear, with explicit shaded colour, shadow bias, softness and
-specular controls. See <a href="Shading-Models.md">Shading Models</a>.
+<def title="トゥーンシェーディングモデル">
+Guilty Gear に着想を得たセルシェーディングのモデルで、影色、シャドウバイアス、ソフトネス、スペキュラーを明示的に
+制御できます。<a href="Shading-Models.md">シェーディングモデル</a> を参照してください。
 </def>
-<def title="Compute SMAA and better FXAA">
-SMAA is rebuilt as a compute pass with selectable quality levels and better performance; FXAA gains quality
-and speed improvements. See <a href="Anti-Aliasing.md">Anti-Aliasing</a>.
+<def title="コンピュート SMAA と FXAA の改良">
+SMAA を品質レベルを選べるコンピュートパスとして作り直し、性能も向上しました。FXAA も品質と速度が向上しています。
+<a href="Anti-Aliasing.md">アンチエイリアシング</a> を参照してください。
 </def>
-<def title="Faster RT reflections">
-Ray-traced reflections move to a 32-byte payload with updated settings; DDGI sky-light contribution and
-ray-traced translucency GI are fixed, and SSGI now works correctly alongside DDGI.
+<def title="レイトレーシング反射の高速化">
+レイトレーシング反射のペイロードを 32 バイトに縮小し、設定を更新しました。DDGI のスカイライトの寄与とレイトレーシング
+半透明の GI を修正し、SSGI が DDGI と正しく併用できるようになりました。
 </def>
-<def title="Native PhysX actors">
-The PhysX Instanced Subsystem plugin (updated to 1.11) drives large numbers of bodies as native PhysX
-actors. See <a href="Instanced-Physics.md">Instanced Physics Subsystem</a>.
+<def title="ネイティブ PhysX アクター">
+PhysX Instanced Subsystem プラグイン（1.11 に更新）により、多数のボディをネイティブの PhysX アクターとして扱えます。
+<a href="Instanced-Physics.md">インスタンス化物理</a> を参照してください。
 </def>
 </deflist>
 
-## What's new
+## 新機能と変更点
 
-### Rendering
+### レンダリング
 
-- **Toon** shading model.
-- **SMAA:** compute-based implementation with quality levels and performance work.
-- **FXAA:** improved quality and performance, with an RDG pass-flag validation fix backported.
-- **RT reflections:** 32-byte payload and optimised settings.
-- **GI:** DDGI sky-light contribution improved; `r.RayTracing.Translucency.GI` fixed; SSGI fixed when
-  combined with DDGI.
-- **Localized IBL** added.
-- Colour reproduction updated to match the UE 5.7 reference; sky and clouds fixed in split screen.
-- SSAO optimisation and new optimisation options.
-- TressFX staging integration (two parts) and Android compilation fixes, including arm32.
-- Forward shading: colour-write clear only runs with separate translucency.
+- **トゥーン** シェーディングモデル。
+- **SMAA:** 品質レベルと性能改善を備えたコンピュートベースの実装。
+- **FXAA:** 品質と性能を改善し、RDG のパスフラグの検証の修正をバックポート。
+- **レイトレーシング反射:** 32 バイトのペイロードと最適化された設定。
+- **GI:** DDGI のスカイライトの寄与を改善。`r.RayTracing.Translucency.GI` を修正。DDGI と組み合わせた際の SSGI を修正。
+- **ローカライズド IBL** を追加。
+- 色再現を UE 5.7 のリファレンスに合わせて更新。分割画面でのスカイとクラウドを修正。
+- SSAO の最適化と新しい最適化オプション。
+- TressFX のステージングの統合（2 段階）と、arm32 を含む Android でのコンパイルの修正。
+- フォワードシェーディング: カラー書き込みのクリアをセパレートトランスルーセンシーの場合のみ実行。
 
-### Physics
+### 物理
 
-- **PhysX Instanced Subsystem** plugin (native PhysX actors), updated to 1.10 and then 1.11.
-- PhysX libraries made compatible with the Android NDK Clang 19 toolchain, with build instructions.
-- Kawaii Physics upgraded to a port of the UE5 1.18 release.
+- **PhysX Instanced Subsystem** プラグイン（ネイティブ PhysX アクター）を 1.10、続いて 1.11 に更新。
+- PhysX のライブラリを Android NDK Clang 19 のツールチェーンに対応させ、ビルド手順を追加。
+- Kawaii Physics を UE5 向け 1.18 の移植版に更新。
 
-### Plugins
+### プラグイン
 
-- Splash Damage's Abilities and Automatron plugins ported.
-- EOS SDK 1.19.0.3 binaries.
+- Splash Damage の Abilities プラグインと Automatron プラグインを移植。
+- EOS SDK 1.19.0.3 のバイナリ。
 
-### Platforms and toolchain
+### プラットフォームとツールチェーン
 
-- Android NDK 29 support, with C++20 compilation fixes; Android Vulkan preview in the editor; NEON splat
-  helpers fixed for Clang.
-- Linux server toolchain fix; Python fixes.
-- Windows: `Setup.bat` handles GitDependencies cache paths containing spaces; shader compilation uses the
-  Windows scheduler by default.
-- .NET projects targeting 4.5.x raised to 4.6.2; installed engine builds default to VS 2026 with an option
-  to prefer VS 2022.
+- Android NDK 29 に対応し、C++20 でのコンパイルの問題を修正。エディタでの Android Vulkan プレビュー。Clang 向けに
+  NEON のスプラットヘルパーを修正。
+- Linux サーバーのツールチェーンの修正、Python の修正。
+- Windows: `Setup.bat` がスペースを含む GitDependencies のキャッシュパスに対応。シェーダーコンパイルの既定を
+  Windows のスケジューラーに変更。
+- .NET 4.5.x を対象とするプロジェクトを 4.6.2 に引き上げ。インストール済みエンジンビルドの既定を VS 2026 に変更
+  （VS 2022 を優先するオプションあり）。
 
-### Engine debloat
+### エンジンのデブロート
 
-- HoloLens and Windows Mixed Reality support removed (about 3 GB less engine source).
-- Google VR / Daydream, Azure Spatial Anchors and the outdated Steam Audio integration removed.
+- HoloLens と Windows Mixed Reality への対応を削除（エンジンソースが約 3 GB 減少）。
+- Google VR / Daydream、Azure Spatial Anchors、古い Steam Audio の統合を削除。
 
-### Defaults
+### 既定値
 
-- Overlap events re-enabled on the character capsule.
-- Derived Data Cache moved back to the engine directory.
-- Windows Movie Player plugin re-enabled so movies play without per-project setup.
+- キャラクターのカプセルのオーバーラップイベントを再び有効化。
+- 派生データキャッシュをエンジンディレクトリに戻しました。
+- Windows Movie Player プラグインを再び有効にし、プロジェクトごとの設定なしで動画を再生できるようにしました。
 
-## Maintenance after release
+## リリース後のメンテナンス
 
-| Date | Change |
+| 日付 | 変更内容 |
 |---|---|
-| 7 July 2026 | Mobile TressFX checks; `std::numeric_limits` infinity usage restored where required |
-| 21 August 2026 | Validated on Visual Studio 2026 18.8.2 (`_MSC_VER` 1950) with Windows SDK 10.0.26100; VS 2026 code entries updated |
+| 2026 年 7 月 7 日 | モバイル向け TressFX のチェック、必要な箇所での `std::numeric_limits` の infinity の使用を復元 |
+| 2026 年 8 月 21 日 | Visual Studio 2026 18.8.2（`_MSC_VER` 1950）と Windows SDK 10.0.26100 で検証、VS 2026 向けのコード項目を更新 |
 
-## Upgrade notes
+## アップグレード時の注意点
 
-- **Character overlap:** the character capsule generates overlap events again. Other primitive components
-  remain opt-in, as set in the LTS.
-- **DDC location:** the Derived Data Cache is back under the engine directory, so the first editor launch
-  after upgrading rebuilds cached data there. See [Cache Management](Cache-Management.md).
+- **キャラクターのオーバーラップ:** キャラクターのカプセルは再びオーバーラップイベントを生成します。その他の
+  プリミティブコンポーネントは、LTS での設定どおりオプトインのままです。
+- **DDC の場所:** 派生データキャッシュがエンジンディレクトリに戻ったため、アップグレード後の最初のエディタ起動時に
+  そこへキャッシュデータが再構築されます。[キャッシュ管理](Cache-Management.md) を参照してください。
 
 <!-- BEGIN GENERATED COMMIT RECORD -->
 
-## Full commit history {id="commit-history"}
+## 全コミット履歴 {id="commit-history"}
 
-Branch: [`ueVite26-MarchMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-MarchMajor-release)
+ブランチ: [`ueVite26-MarchMajor-release`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-MarchMajor-release)
 
-### Commits by area
+### 領域別のコミット数
 
-| Area | Commits |
+| 領域 | コミット数 |
 |---|---:|
-| Toolchain and platforms | 21 |
-| Rendering | 9 |
-| Other | 9 |
-| Physics | 9 |
-| Upscaling and anti-aliasing | 8 |
-| Editor and workflow | 6 |
-| Hair | 5 |
-| Ray tracing and GI | 5 |
-| Plugins and media | 5 |
-| Gameplay framework | 2 |
+| ツールチェーンとプラットフォーム | 21 |
+| レンダリング | 9 |
+| その他 | 9 |
+| 物理 | 9 |
+| アップスケーリングとアンチエイリアシング | 8 |
+| エディタとワークフロー | 6 |
+| ヘア | 5 |
+| レイトレーシングと GI | 5 |
+| プラグインとメディア | 5 |
+| ゲームプレイフレームワーク | 2 |
 
-### Public release branch — 79 commits {collapsible="true" default-state="collapsed"}
+### 公開リリースブランチ — 79 件 {collapsible="true" default-state="collapsed"}
 
-79 commits (21 merge commits omitted from the table).
+79 件のコミット（マージコミット 21 件は表から除外）。
 
-| Date | Commit | Author | Change |
+| 日付 | コミット | 作成者 | 変更内容 |
 |---|---|---|---|
 | 2026-08-21 | [`89271b45b7`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/89271b45b7830cc117ae8ca6d26066097e2c979f) | RedPixel | \[Toolchain\] Upgraded codebase toolchain compability |
 | 2026-08-21 | [`9d40ecae32`](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/9d40ecae323713b1fe04956dc2b92b628586eb8b) | RedPixel | \[Toolchain\] Compiling on VS 18.8.2 (\_MSC\_VER 1950) and Windows SDK (10.0.26100) for Windows 11 |
@@ -208,9 +208,9 @@ Branch: [`ueVite26-MarchMajor-release`](https://github.com/GapingPixel/UnrealEng
 
 <!-- END GENERATED COMMIT RECORD -->
 
-## See also
+## 関連項目
 
-- [All release notes](Release-Notes.md)
+- [すべてのリリースノート](Release-Notes.md)
 - [ueVite26 June Major](ueVite26-JuneMajor.md)
 - [ueVite25 LTS](ueVite25-LTS.md)
-- [Shading Models](Shading-Models.md)
+- [シェーディングモデル](Shading-Models.md)
