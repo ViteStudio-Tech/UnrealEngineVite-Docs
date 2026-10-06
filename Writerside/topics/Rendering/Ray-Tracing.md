@@ -161,13 +161,15 @@ Compiled out in a default build. Requires <code>VITE_RT_PSO_DEBLOAT=0</code>. Se
 <a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
 </note>
 
-Distinct from DDGI, Vite retains the per-pixel ray-traced GI path including the NvRTX ReStir GI improvements:
+Distinct from DDGI, Vite retains the per-pixel ray-traced GI path including the NvRTX ReSTIR GI improvements:
 a new SVGF-based denoiser, a reservoir-resampling final gather, emissive material support, quarter- and
 eighth-resolution modes, metallic material support and spherical harmonics for improved normal detail.
 
-It produces excellent reference imagery. It is also considerably more expensive than DDGI and reintroduces
-a denoising and temporal stability problems; DDGI exists to avoid. That trade is precisely why the debloat
-switch removes it by default. This Per Pixel RT GI Solution is higher Fidelity than HWRT Lumen, also somewhat more costly.
+It produces excellent reference imagery, at higher fidelity than hardware-ray-traced Lumen and a somewhat
+higher cost. It is also considerably more expensive than DDGI and reintroduces the denoising and
+temporal-stability problems DDGI exists to avoid. That trade is precisely why the debloat switch removes it
+by default. It is the foundation of [Vite ReSTIR](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/restir.html),
+which develops this path into a production GI and real-time path tracing solution.
 
 Key controls, if you do use it:
 

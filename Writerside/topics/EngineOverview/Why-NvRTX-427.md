@@ -51,7 +51,7 @@ NvRTX 4.27 Caustics is NVIDIA's ray tracing branch of Unreal Engine 4.27.1. On t
 - Enhanced translucency, including hybrid translucency modes that let rasterised and ray-traced
   translucency coexist.
 - Multi-bounce refraction optimisation with absorption and total internal reflection.
-- ReStir GI with a new SVGF-based denoiser, emissive material support and a reservoir-resampling final
+- ReSTIR GI with a new SVGF-based denoiser, emissive material support and a reservoir-resampling final
   gather.
 - Engine-side DDGI upgrades, including DDGI-lit ray-traced reflections.
 
@@ -73,17 +73,16 @@ Vite is not frozen at its base. The following are fully merged:
 | AMD GPUOpen engine branches | FSR, AMD-specific rendering optimisations highly relevant to console GPUs             |
 | UE 5.0&ndash;5.8 | 300+ backports in release; 1,000+ at internal staging                                 |
 
-Backports are generally not straight cherry-picks. They are adapted properly to Vite codebase, 
-by engineers with several years of experience with Unreal Engine private forks. 
+Backports are generally not straight cherry-picks. They are adapted to the Vite codebase by engineers with
+several years of experience maintaining private Unreal Engine forks. The
 [Backporting Workflow](Backporting.md) page documents the process.
 
 ## The counter-argument, and the answer
 
 The obvious objection is that Unreal Engine 4 is a dead codebase. In practice it is not. Recent and upcoming
-AAA releases on UE4 include Stellar Blade (4.26, 2024),
-Days Gone Remastered (4.11, 2025), Delta Force (4.22, 2026), Mortal Kombat 1 (4.27, 2023),
-Mario &amp; Luigi: Brothership (4.26, 2024), Princess Peach: Showtime! (4.26, 2024), Pikmin 4 (4.26, 2023), 
-and Square Enix's Final Fantasy VII Rebirth (4.26, 2024)
+AAA releases on UE4 include Stellar Blade (4.26, 2024), Days Gone Remastered (4.11, 2025), Delta Force
+(4.22, 2026), Mortal Kombat 1 (4.27, 2023), Mario &amp; Luigi: Brothership (4.26, 2024), Princess Peach:
+Showtime! (4.26, 2024), Pikmin 4 (4.26, 2023), and Square Enix's Final Fantasy VII Rebirth (4.26, 2024),
 Dragon Quest VII Reimagined (4.27, 2026) and Final Fantasy VII: Revelation (4.27, 2027).
 
 All of them ship PhysX. These teams stayed on UE4 to retain specific features and hit fidelity and

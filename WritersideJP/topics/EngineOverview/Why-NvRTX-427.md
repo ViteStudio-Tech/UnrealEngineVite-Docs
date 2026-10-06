@@ -1,103 +1,101 @@
-# Why NvRTX 4.27
+# なぜ NvRTX 4.27 なのか
 
 <tldr>
 <p>
-Unreal Engine 4.27 is the last iteration with an <b>engine-agnostic ray tracing pipeline</b>, closer in
-design to other AAA engines. From UE 5.1 onward, BLAS/TLAS management, culling and ray hit shading became
-progressively coupled to Lumen, Nanite, VSM and GPU Scene, and the PhysX API was removed.
+Unreal Engine 4.27 は、<b>ライティング手法に依存しないレイトレーシングパイプライン</b> を持つ最後のバージョンで、
+設計としては他の AAA エンジンに近いものです。UE 5.1 以降、BLAS/TLAS の管理、カリング、レイヒット時の
+シェーディングは次第に Lumen、Nanite、VSM、GPU Scene と結合され、PhysX の API は削除されました。
 </p>
 </tldr>
 
-Choosing a base version is the single most consequential decision in a long-lived engine fork. This page
-sets out why Vite is built on NvRTX 4.27 Caustics rather than a UE5 branch.
+長期にわたって維持するエンジンフォークにとって、ベースバージョンの選択は最も影響の大きい判断です。このページでは、
+Vite が UE5 のブランチではなく NvRTX 4.27 Caustics をベースにしている理由を説明します。
 
-## The ray tracing pipeline argument
+## レイトレーシングパイプラインの論点
 
-Unreal Engine 4.27 has an agnostic ray tracing pipeline. Acceleration structures are built and updated in a
-way that is not tied to any particular lighting solution, so a third-party GI or reflection technique can be
-integrated by hooking into the scene representation the renderer already maintains.
+Unreal Engine 4.27 のレイトレーシングパイプラインは、特定の手法に依存しません。アクセラレーション構造は特定の
+ライティング手法に縛られない形で構築・更新されるため、サードパーティの GI や反射の手法を、レンダラーがすでに
+管理しているシーン表現に接続するだけで統合できます。
 
-From UE 5.1 onward, the default rendering path &mdash; including ray tracing scene construction and update
-&mdash; became increasingly integrated around Lumen, Nanite, Virtual Shadow Maps and Temporal Super
-Resolution. Concretely:
+UE 5.1 以降、既定のレンダリングパス（レイトレーシングのシーン構築と更新を含む）は、Lumen、Nanite、仮想シャドウ
+マップ、Temporal Super Resolution を中心に統合が進みました。具体的には次のとおりです。
 
-- **BLAS/TLAS management** was adapted to support GPU Scene, Nanite fallback meshes and streamed ray
-  tracing geometry.
-- **Culling** was reworked around the same systems.
-- **Ray hit shading** increasingly relied on Lumen's separate Surface Cache and mesh-card representation
-  rather than shading the actual hit surface.
+- **BLAS/TLAS の管理** は、GPU Scene、Nanite のフォールバックメッシュ、ストリーミングされるレイトレーシング用
+  ジオメトリに対応するよう変更されました。
+- **カリング** も同じシステムを中心に作り直されました。
+- **レイヒット時のシェーディング** は、ヒットした実際のサーフェスをシェーディングするのではなく、Lumen 独自の
+  Surface Cache とメッシュカード表現への依存を強めました。
 
-Each of these is a reasonable decision in service of Lumen. Together they mean that integrating an
-alternative RTGI or reflection technique stops being a matter of consuming the scene and becomes a matter of
-fighting the scene. That is the concrete reason DDGI integrates cleanly into 4.27 and awkwardly into 5.x.
+いずれも Lumen のためには妥当な判断です。しかし、これらが重なることで、別の RTGI や反射手法の統合は、シーンを
+利用する作業からシーンと戦う作業に変わります。DDGI が 4.27 にはきれいに統合でき、5.x では統合しにくい具体的な
+理由がここにあります。
 
-In parallel, as PhysX was deprecated in favour of Chaos, the remaining PhysX-specific APIs and compatibility
-code were gradually removed &mdash; which independently rules out the UE5 branches for a fork whose physics
-argument depends on PhysX.
+並行して、PhysX が非推奨となり Chaos が優先されるにつれ、残っていた PhysX 固有の API と互換コードも段階的に
+削除されました。物理面の主張を PhysX に依存するフォークにとって、これだけでも UE5 のブランチは選択肢から外れます。
 
-> For detailed reasoning and proofs, see the Technical Reference document on moving Vite base to UE4 Latest.
-> [4.27 versus 5.0](https://docs.google.com/document/d/1gA0MGkzeWWzKkgwBDOP5xRPouSKaOIW6xlPZ2q6BXO0/edit?usp=sharing).
+> 詳しい論拠と検証は、Vite のベースを UE4 の最新版に移行した際の技術リファレンス文書を参照してください。
+> [4.27 と 5.0 の比較](https://docs.google.com/document/d/1gA0MGkzeWWzKkgwBDOP5xRPouSKaOIW6xlPZ2q6BXO0/edit?usp=sharing)
 >
 {style="note"}
 
-## Why the NvRTX Caustics branch specifically
+## NvRTX Caustics ブランチを選んだ理由
 
-NvRTX 4.27 Caustics is NVIDIA's ray tracing branch of Unreal Engine 4.27.1. On top of Epic's 4.27 it adds:
+NvRTX 4.27 Caustics は、NVIDIA による Unreal Engine 4.27.1 のレイトレーシングブランチです。Epic の 4.27 に次のものを
+追加しています。
 
-- DirectX 12 and DXR improvements, and a range of ray tracing performance optimisations tested against
-  real Marketplace content rather than synthetic scenes.
-- DLSS, NVIDIA Reflex and improved denoisers.
-- Ray-traced mesh caustics and water caustics.
-- Enhanced translucency, including hybrid translucency modes that let rasterised and ray-traced
-  translucency coexist.
-- Multi-bounce refraction optimisation with absorption and total internal reflection.
-- ReStir GI with a new SVGF-based denoiser, emissive material support and a reservoir-resampling final
-  gather.
-- Engine-side DDGI upgrades, including DDGI-lit ray-traced reflections.
+- DirectX 12 と DXR の改良、そして合成シーンではなく実際の Marketplace コンテンツで検証された、数々のレイトレーシング
+  の性能最適化。
+- DLSS、NVIDIA Reflex、改良されたデノイザー。
+- レイトレーシングによるメッシュコースティクスとウォーターコースティクス。
+- ラスタライズとレイトレーシングの半透明を共存させるハイブリッド半透明モードを含む、強化された半透明。
+- 吸収と全反射に対応した、マルチバウンス屈折の最適化。
+- 新しい SVGF ベースのデノイザー、エミッシブマテリアル対応、リザーバーリサンプリングによるファイナルギャザーを
+  備えた ReSTIR GI。
+- DDGI でライティングされたレイトレーシング反射を含む、エンジン側の DDGI の改良。
 
-That last item matters more than it sounds. The stock 4.27 launcher DDGI plugin is a plugin; the NvRTX
-integration reaches into the ray tracing pipeline, which is what makes probe-based ray-traced reflections
-possible. See [DDGI Dynamic](DDGI-Dynamic.md).
+最後の項目は見た目以上に重要です。標準の 4.27 向けランチャー版 DDGI はあくまでプラグインですが、NvRTX の統合は
+レイトレーシングパイプラインの内部にまで及んでおり、それによってプローブを使ったレイトレーシング反射が可能に
+なっています。[動的 DDGI](DDGI-Dynamic.md) を参照してください。
 
-Starting from a branch that already had this work done saved the fork a very large amount of integration
-effort, and meant the ray tracing features were already validated against shipped NVIDIA sample content.
+この作業がすでに済んだブランチから始めたことで、フォークは膨大な統合作業を省くことができ、レイトレーシング機能も
+NVIDIA の出荷済みサンプルコンテンツで検証済みの状態から始められました。
 
-## What has been merged on top
+## その上にマージしたもの
 
-Vite is not frozen at its base. The following are fully merged:
+Vite はベースのまま固定されているわけではありません。次のものを完全にマージしています。
 
-| Source | What it contributes                                                                   |
-|---|---------------------------------------------------------------------------------------|
-| Epic UE 4.27 Plus | Ongoing EpicGames fixes & updates to 4.27, plus the last toolchain compliance updates |
-| NvRTX 5.0 | Further NVIDIA rendering work backported down                                         |
-| AMD GPUOpen engine branches | FSR, AMD-specific rendering optimisations highly relevant to console GPUs             |
-| UE 5.0&ndash;5.8 | 300+ backports in release; 1,000+ at internal staging                                 |
+| 取り込み元 | 内容 |
+|---|---|
+| Epic UE 4.27 Plus | Epic による 4.27 への継続的な修正と更新、そして最後のツールチェーン準拠の更新 |
+| NvRTX 5.0 | NVIDIA によるさらなるレンダリング作業をバックポート |
+| AMD GPUOpen のエンジンブランチ | FSR と、コンソールの GPU に特に関係の深い AMD 固有のレンダリング最適化 |
+| UE 5.0〜5.8 | リリースで 300 件以上、内部ステージングで 1,000 件以上のバックポート |
 
-Backports are generally not straight cherry-picks. They are adapted properly to Vite codebase, 
-by engineers with several years of experience with Unreal Engine private forks. 
-[Backporting Workflow](Backporting.md) page documents the process.
+バックポートは基本的に単純なチェリーピックではありません。Unreal Engine の非公開フォークを長年保守してきた
+エンジニアが、Vite のコードベースに合わせて適応させています。手順は [バックポート](Backporting.md) のページに
+まとめています。
 
-## The counter-argument, and the answer
+## 反論とその答え
 
-The obvious objection is that Unreal Engine 4 is a dead codebase. In practice it is not. Recent and upcoming
-AAA releases on UE4 include Stellar Blade (4.26, 2024),
-Days Gone Remastered (4.11, 2025), Delta Force (4.22, 2026), Mortal Kombat 1 (4.27, 2023),
-Mario &amp; Luigi: Brothership (4.26, 2024), Princess Peach: Showtime! (4.26, 2024), Pikmin 4 (4.26, 2023), 
-and Square Enix's Final Fantasy VII Rebirth (4.26, 2024)
-Dragon Quest VII Reimagined (4.27, 2026) and Final Fantasy VII: Revelation (4.27, 2027).
+当然予想される反論は、「Unreal Engine 4 はもう終わったコードベースだ」というものです。実際にはそうではありません。
+UE4 で開発された最近および今後の AAA タイトルには、Stellar Blade（4.26、2024 年）、Days Gone Remastered
+（4.11、2025 年）、Delta Force（4.22、2026 年）、Mortal Kombat 1（4.27、2023 年）、Mario &amp; Luigi: Brothership
+（4.26、2024 年）、Princess Peach: Showtime!（4.26、2024 年）、Pikmin 4（4.26、2023 年）、そして Square Enix の
+Final Fantasy VII Rebirth（4.26、2024 年）、Dragon Quest VII Reimagined（4.27、2026 年）、Final Fantasy VII:
+Revelation（4.27、2027 年）があります。
 
-All of them ship PhysX. These teams stayed on UE4 to retain specific features and hit fidelity and
-performance targets &mdash; the same reasoning Vite is built on. UE4 also continues to receive updates from
-major studios via the 4.27 Plus branch, and remains a priority target for Nintendo platforms.
+いずれも PhysX を使って出荷されています。これらのチームは、特定の機能を維持し、品質とパフォーマンスの目標を
+達成するために UE4 にとどまりました。Vite が拠って立つ理由と同じです。UE4 は 4.27 Plus ブランチを通じて大手スタジオ
+から更新を受け続けており、任天堂のプラットフォームでは今も優先的なターゲットです。
 
-The difference between "using a deprecated codebase" and "maintaining a fork" is whether anyone is still
-improving it. Vite's plan is continued optimisation of core systems, rendering core modernisation, UI work
-and toolchain updates &mdash; see [Release Notes](Release-Notes.md) for what that has produced so far.
+「非推奨のコードベースを使っている」ことと「フォークを保守している」ことの違いは、それを改良し続けている人がいるか
+どうかです。Vite の計画は、コアシステムの継続的な最適化、レンダリングコアの近代化、UI の改善、ツールチェーンの
+更新です。これまでの成果は [リリースノート](Release-Notes.md) を参照してください。
 
-## See also
+## 関連項目
 
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
-- [Performance Targets](Performance-Targets.md)
-- [Ray Tracing](Ray-Tracing.md)
-- [PhysX Overview](PhysX.md)
-- [Backporting Workflow](Backporting.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [PhysX](PhysX.md)
+- [バックポート](Backporting.md)

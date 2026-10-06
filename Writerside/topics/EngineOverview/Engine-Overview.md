@@ -44,7 +44,8 @@ Slate, skeletal meshes, tick cost, render thread overhead, Blueprint nativizatio
 
 ### [Release Notes](Release-Notes.md)
 
-What is in the current release branch, what is in progress, and what is planned.
+Every public release from the LTS base to the latest major, with highlights, upgrade notes and the full
+commit history of each release branch.
 
 ## Design principles
 
@@ -54,7 +55,7 @@ because they explain choices that otherwise look conservative.
 **Battle-tested technology over in-house technology.** Where Epic built a new system for UE5, Vite prefers
 the industry-standard solutions that are widely shipped in AAA titles: PhysX rather than Chaos, DDGI rather than
 Lumen, HW Tessellation rather than Nanite, TressFX rather than Groom. These are not nostalgic choices; they are choices
-about which solutions has been through the most shipped games.
+about which solutions have been through the most shipped games.
 
 **Native resolution over reconstruction.** Vite's performance targets are stated at native 4K and native
 1440p. Upscalers are supported and integrated, but they are treated as a way to go faster than the target,

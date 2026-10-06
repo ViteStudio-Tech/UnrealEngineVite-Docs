@@ -18,7 +18,7 @@ every one of them is stated at native resolution rather than an upscaled interna
 
 ## The four targets
 
-| Target | Resolution and frame rate | Feature set | Intended for | Demonstraded in |
+| Target | Resolution and frame rate | Feature set | Intended for | Demonstrated in |
 |---|---|---|---|---|
 | **Stylised** | 4K, 120 FPS | RT DDGI | Competitive multiplayer titles | Stylized Demo |
 | **Performance, high end** | 4K, 60 FPS | DDGI + RT Reflections + Tessellation | Fidelity-focused titles that still need 60 | Unreal Tournament Vite Scene |
@@ -31,7 +31,7 @@ roughly an RDNA2 RX 6700 / RTX 2080 for the GPU. The 4700S GPU is fused off. The
 in RDNA2 compiler behaviour; it is not PS5 RDNA2. See [PS5 CPU FPU](PS5-CPU-FPU.md).
 
 Real-time path tracing is also available in the codebase, using the NVIDIA path tracing technology featured
-in Black Myth: Wukong. &mdash; see [Path Tracing](Path-Tracing.md).
+in Black Myth: Wukong; see [Path Tracing](Path-Tracing.md).
 
 ## The comparison being made
 
@@ -53,8 +53,9 @@ something concrete behind them. Each is a like-for-like comparison in the same s
 |---|---|---|---|
 | DDGI test scene, RTX 4080S, 1440p native | 811 FPS (RTXGI) | 324 FPS (Lumen 5.7) | ~2.5x |
 | DDGI test scene, RX 6600, 1080p native | 245 FPS (RTXGI) | &mdash; | &mdash; |
-| Physics stress scene | 157 FPS (PhysX) | 33.3 FPS (Chaos 5.7.3) | ~4.7x |
-| Physics, native PhysX actor fast path | ~2x regular PhysX | &mdash; | &mdash; |
+| Physics stress scene, 3,000 cubes | 157 FPS (PhysX) | 33.3 FPS (Chaos 5.7.3) | ~4.7x |
+| Physics solver, 10,005 bodies, 6 threads | 11.76 ms (Vite PhysX) | 791.97 ms (Chaos) | ~67x |
+| Physics, native PhysX actor path, 1,425 cubes | 374 FPS | &mdash; | Not a matched comparison |
 | Character movement and collision | 4.27 baseline | 5.6 | 2.2&ndash;2.8x faster on 4.27 |
 | Typical multiplayer map memory | ~1 GB less than 5.7 | &mdash; | &mdash; |
 
@@ -73,7 +74,7 @@ hardest to recover, so the frame-time budget should be spent holding native reso
 techniques that are noise-free by construction. DDGI's use of spherical harmonics to store and filter
 irradiance in probe volumes is precisely why it produces stable results without a denoiser.
 
-Upscalers are fully supported &mdash; DLSS 4.5, FSR 2 and 4, XeSS and NIS all ship with the engine. They are
+Upscalers are fully supported &mdash; DLSS 4.5, FSR 2, 3.1 and 4, XeSS 3 and NIS all ship with the engine. They are
 positioned as a way to exceed a target on weaker hardware, not as a way to reach it on the reference
 hardware. See [Upscalers and Frame Generation](Upscalers.md).
 

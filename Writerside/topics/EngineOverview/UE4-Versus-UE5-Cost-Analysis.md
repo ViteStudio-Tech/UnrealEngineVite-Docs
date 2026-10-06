@@ -153,11 +153,11 @@ logic. The clearest measurable part is per-instance memory: the size of the same
 
 This is cost paid before any game code runs, which is why it shows up even in projects that use none of the
 newer features: every Actor in a level, every component and every loaded mesh carries the larger footprint,
-and larger objects mean fewer of them per cache line during iteration. `UObject` itself is unchanged, so the
-growth is in the engine classes built on top of it.
+and larger objects mean fewer of them stay resident in the CPU caches while the engine iterates over them.
+`UObject` itself is unchanged, so the growth is in the engine classes built on top of it.
 
-Per-class figures are in the
-[measurements spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing),
+The figures above, with the compiler-reported layout of each class, are in the
+[sizeof comparison spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing),
 and class sizes per version are broken out in the
 [size of class report](https://docs.google.com/spreadsheets/d/1qfS04ke1cVGDGBFVLoAjeqE4IzW5QVJ-JAbvFbUw_SY/edit?usp=sharing).
 

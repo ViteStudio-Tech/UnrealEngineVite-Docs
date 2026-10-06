@@ -1,110 +1,113 @@
-# Performance Targets
+# パフォーマンス目標
 
 <tldr>
 <p>
-Four PS5-class reference configurations, all including ray tracing: <b>4K120</b> stylised,
-<b>4K60</b> performance, <b>4K30</b> fidelity, and <b>1440p30</b> with the full RT effect suite.
-All figures are at native resolution.
+PS5 クラスを基準とした 4 つの構成があり、いずれもレイトレーシングを含みます。スタイライズドの <b>4K120</b>、
+パフォーマンスの <b>4K60</b>、フィデリティの <b>4K30</b>、そしてレイトレーシングエフェクト一式を使う
+<b>1440p30</b> です。数値はすべてネイティブ解像度です。
 </p>
 </tldr>
 
-Vite's performance targets are not aspirational marketing numbers; they are the configurations the engine is
-tuned against and the ones the demo projects are built to hit. Every one of them includes ray tracing, and
-every one of them is stated at native resolution rather than an upscaled internal one.
+Vite のパフォーマンス目標は、願望を込めた宣伝用の数字ではありません。エンジンのチューニングの基準であり、
+デモプロジェクトが達成するよう作られている構成です。どの目標もレイトレーシングを含み、アップスケールした内部
+解像度ではなくネイティブ解像度で示しています。
 
-## The four targets
+[![Vite のレイトレーシング GI とレイトレーシング反射](https://img.youtube.com/vi/2vfG3W-Gy5E/maxresdefault.jpg)](https://youtu.be/2vfG3W-Gy5E)
 
-| Target | Resolution and frame rate | Feature set | Intended for | Demonstraded in |
+*Vite で動作するレイトレーシング GI とレイトレーシング反射。クリックすると YouTube で再生します。*
+
+## 4 つの目標
+
+| 目標 | 解像度とフレームレート | 機能構成 | 想定する用途 | 実演 |
 |---|---|---|---|---|
-| **Stylised** | 4K, 120 FPS | RT DDGI | Competitive multiplayer titles | Stylized Demo |
-| **Performance, high end** | 4K, 60 FPS | DDGI + RT Reflections + Tessellation | Fidelity-focused titles that still need 60 | Unreal Tournament Vite Scene |
-| **Fidelity, high end** | 4K, 30 FPS | As above, scaled for geometric density | Large open worlds | Demo In Progress |
-| **Fidelity, full RT** | 1440p, 30 FPS | DDGI + RT Reflections + RTAO + RT Shadows | Maximum image quality | NVIDIA Demos |
+| **スタイライズド** | 4K、120 FPS | RT DDGI | 対戦型マルチプレイヤータイトル | スタイライズドデモ |
+| **パフォーマンス（ハイエンド）** | 4K、60 FPS | DDGI + RT 反射 + テッセレーション | 品質を重視しつつ 60 FPS が必要なタイトル | Unreal Tournament Vite シーン |
+| **フィデリティ（ハイエンド）** | 4K、30 FPS | 上記をジオメトリ密度に合わせて拡張 | 大規模オープンワールド | デモ制作中 |
+| **フィデリティ（フル RT）** | 1440p、30 FPS | DDGI + RT 反射 + RTAO + RT シャドウ | 最高の画質 | NVIDIA デモ |
 
-The reference hardware for all four is PlayStation 5 class. On desktop that is an **AMD 4700S** for CPU
-FPU-bound work (PhysX 3.4, animation SIMD) — further-cut Zen 2 versus Series X, one FMA pipe — and
-roughly an RDNA2 RX 6700 / RTX 2080 for the GPU. The 4700S GPU is fused off. The 6700 is close enough
-in RDNA2 compiler behaviour; it is not PS5 RDNA2. See [PS5 CPU FPU](PS5-CPU-FPU.md).
+4 つすべての基準ハードウェアは PlayStation 5 クラスです。デスクトップでは、CPU の FPU 依存の処理（PhysX 3.4、
+アニメーションの SIMD）に **AMD 4700S**（Series X より削減された Zen 2 で、FMA パイプは 1 本）を、GPU にはおおよそ
+RDNA2 の RX 6700 / RTX 2080 を使います。4700S の GPU は無効化されています。6700 は RDNA2 のコンパイラ挙動が十分に
+近いものの、PS5 の RDNA2 そのものではありません。[PS5 CPU の FPU](PS5-CPU-FPU.md) を参照してください。
 
-Real-time path tracing is also available in the codebase, using the NVIDIA path tracing technology featured
-in Black Myth: Wukong. &mdash; see [Path Tracing](Path-Tracing.md).
+コードベースには、Black Myth: Wukong で使われた NVIDIA のパストレーシング技術によるリアルタイムパストレーシングも
+含まれています。[パストレーシング](Path-Tracing.md) を参照してください。
 
-## The comparison being made
+## 比較の前提
 
-Epic's UE 5.7 and 5.8 target approximately 60 FPS at dynamic internal resolutions of 720p&ndash;1080p on
-PS5, using Lumen, Nanite, VSM, TSR and Chaos. Vite's headline claim is a base performance improvement of up
-to 2.5x real game frame rate against that intended feature set.
+Epic の UE 5.7 と 5.8 は、Lumen、Nanite、VSM、TSR、Chaos を用いて、PS5 上で 720p〜1080p の動的内部解像度により
+約 60 FPS を目標としています。Vite の主要な主張は、その想定機能構成に対して実ゲームのフレームレートで最大 2.5 倍の
+基本性能向上です。
 
-The clearest single demonstration: a scene running in Vite with ray-traced global illumination, ray-traced
-reflections and tessellation outperforms the *same scene* in UE 5.7 with no ray tracing, no Lumen, no Nanite
-and no tessellation. This holds at 4K native on an RTX 4080 Super, at 4K native on an RDNA2 RX 6700, and at
-native resolution on Steam Deck hardware.
+最も分かりやすい実例は、レイトレーシング GI、レイトレーシング反射、テッセレーションを使った Vite のシーンが、
+レイトレーシングも Lumen も Nanite もテッセレーションも使わない UE 5.7 の *同一シーン* を上回ることです。これは
+RTX 4080 Super での 4K ネイティブ、RDNA2 の RX 6700 での 4K ネイティブ、そして Steam Deck のハードウェアでの
+ネイティブ解像度で成り立ちます。
 
-[![Vite RT GI and RT Reflections](https://img.youtube.com/vi/2vfG3W-Gy5E/maxresdefault.jpg)](https://youtu.be/2vfG3W-Gy5E)
+## 測定された基準値
 
-## Measured reference points
+以下はベンチマークシーンでの具体的な測定値で、上記の目標の裏付けとして掲載しています。いずれも同一シーンでの
+同条件比較です。
 
-These are specific measurements from the benchmark scenes, reproduced here so the targets above have
-something concrete behind them. Each is a like-for-like comparison in the same scene.
-
-| Measurement | Vite | UE5 | Ratio |
+| 測定項目 | Vite | UE5 | 比率 |
 |---|---|---|---|
-| DDGI test scene, RTX 4080S, 1440p native | 811 FPS (RTXGI) | 324 FPS (Lumen 5.7) | ~2.5x |
-| DDGI test scene, RX 6600, 1080p native | 245 FPS (RTXGI) | &mdash; | &mdash; |
-| Physics stress scene | 157 FPS (PhysX) | 33.3 FPS (Chaos 5.7.3) | ~4.7x |
-| Physics, native PhysX actor fast path | ~2x regular PhysX | &mdash; | &mdash; |
-| Character movement and collision | 4.27 baseline | 5.6 | 2.2&ndash;2.8x faster on 4.27 |
-| Typical multiplayer map memory | ~1 GB less than 5.7 | &mdash; | &mdash; |
+| DDGI テストシーン、RTX 4080S、1440p ネイティブ | 811 FPS（RTXGI） | 324 FPS（Lumen 5.7） | 約 2.5 倍 |
+| DDGI テストシーン、RX 6600、1080p ネイティブ | 245 FPS（RTXGI） | &mdash; | &mdash; |
+| 物理のストレスシーン、3,000 キューブ | 157 FPS（PhysX） | 33.3 FPS（Chaos 5.7.3） | 約 4.7 倍 |
+| 物理ソルバー、10,005 ボディ、6 スレッド | 11.76 ms（Vite PhysX） | 791.97 ms（Chaos） | 約 67 倍 |
+| 物理、ネイティブ PhysX アクターパス、1,425 キューブ | 374 FPS | &mdash; | 同条件の比較ではない |
+| キャラクタームーブメントとコリジョン | 4.27 を基準 | 5.6 | 4.27 のほうが 2.2〜2.8 倍高速 |
+| 一般的なマルチプレイヤーマップのメモリ | 5.7 より約 1 GB 少ない | &mdash; | &mdash; |
 
-The DDGI comparison is the most representative of the rendering argument; the physics comparison is the most
-representative of the CPU argument. The benchmark scenes themselves are downloadable from
-[Projects and Demos](ProjectsAndDemos.md).
+DDGI の比較はレンダリング面の主張を、物理の比較は CPU 面の主張を最もよく表しています。ベンチマークシーン自体は
+[プロジェクトとデモ](ProjectsAndDemos.md) からダウンロードできます。
 
-## Why native resolution is the constraint
+## ネイティブ解像度を制約とする理由
 
-Temporal reconstruction, denoising and stochastic sampling introduce noise, ghosting, temporal instability
-and blur. A 60 FPS target at a dynamic 720p&ndash;1080p internal resolution reconstructed to 4K is a
-different product than 60 FPS at native 4K, even when the frame rate number matches.
+時間的再構成、デノイズ、確率的サンプリングは、ノイズ、ゴースト、時間的な不安定さ、ブラーをもたらします。
+720p〜1080p の動的内部解像度から 4K に再構成した 60 FPS と、ネイティブ 4K の 60 FPS は、フレームレートの数字が
+同じでも別の製品です。
 
-Vite's position is that image clarity and gameplay responsiveness are the things that degrade first and are
-hardest to recover, so the frame-time budget should be spent holding native resolution and using lighting
-techniques that are noise-free by construction. DDGI's use of spherical harmonics to store and filter
-irradiance in probe volumes is precisely why it produces stable results without a denoiser.
+Vite の立場は、画像の鮮明さと操作の応答性こそが最初に劣化し、最も取り戻しにくいものだというものです。したがって、
+フレームタイムの予算はネイティブ解像度の維持と、原理的にノイズが出ないライティング手法に使うべきです。DDGI が
+デノイザーなしで安定した結果を出せるのは、プローブボリュームのイラディアンスを球面調和関数で保存・フィルタリング
+しているからです。
 
-Upscalers are fully supported &mdash; DLSS 4.5, FSR 2 and 4, XeSS and NIS all ship with the engine. They are
-positioned as a way to exceed a target on weaker hardware, not as a way to reach it on the reference
-hardware. See [Upscalers and Frame Generation](Upscalers.md).
+アップスケーラーは全面的にサポートしています。DLSS 4.5、FSR 2・3.1・4、XeSS 3、NIS がすべてエンジンに同梱されて
+います。これらは基準ハードウェアで目標を達成する手段ではなく、非力なハードウェアで目標を上回るための手段と
+位置付けています。[アップスケーラー](Upscalers.md) を参照してください。
 
-## Designing to a target
+## 目標に合わせて設計する
 
-Pick your target before you build content, because it determines your entire art budget.
+目標はアートの予算全体を決めるため、コンテンツを作る前に選んでください。
 
-<procedure title="Choose and hold a performance target" id="choose-target">
+<procedure title="パフォーマンス目標を選び、守る" id="choose-target">
     <step>
-        Pick the row from the table above that matches your genre. Competitive multiplayer almost always
-        means the Stylised 4K120 target; a narrative single-player title can usually afford Fidelity.
+        上の表からジャンルに合う行を選びます。対戦型マルチプレイヤーならほぼ間違いなくスタイライズドの 4K120、
+        物語重視のシングルプレイヤータイトルなら通常はフィデリティを選べます。
     </step>
     <step>
-        Configure the corresponding feature set and nothing more. Vite enables most ray tracing effects by
-        default, so this usually means turning things <i>off</i>. See <a href="Ray-Tracing.md">Ray Tracing</a>.
+        対応する機能構成だけを設定し、それ以上は加えません。DDGI は既定で有効で、個別のレイトレーシングエフェクトは
+        オプトインなので、多くの目標では自分の行にあるエフェクトだけを有効にすることになります。
+        <a href="Ray-Tracing.md">レイトレーシング</a> を参照してください。
     </step>
     <step>
-        Establish a frame-time budget per system &mdash; GI, reflections, shadows, geometry, post &mdash; and
-        measure against it with <code>stat gpu</code> from the first playable scene onward.
+        GI、反射、シャドウ、ジオメトリ、ポストプロセスなど、システムごとのフレームタイム予算を定め、最初の
+        プレイアブルなシーンから <code>stat gpu</code> で測定します。
     </step>
     <step>
-        Test on the lowest hardware in your matrix regularly, not at the end. See
-        <a href="System-Requirements.md">System Requirements</a> for the reference hardware list.
+        対象ハードウェアのうち最も非力なもので、最後にまとめてではなく定期的にテストします。基準ハードウェアの一覧は
+        <a href="System-Requirements.md">動作環境</a> を参照してください。
     </step>
     <step>
-        Use <a href="Engine-Defaults.md">scalability</a> settings to scale down, rather than designing for the
-        weakest machine and scaling up.
+        最も非力なマシンを基準に設計してスケールアップするのではなく、<a href="Engine-Defaults.md">スケーラビリティ</a>
+        の設定でスケールダウンします。
     </step>
 </procedure>
 
-## See also
+## 関連項目
 
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
-- [Profiling and Benchmarking](Profiling.md)
-- [Scalability](Engine-Defaults.md)
-- [Projects and Demos](ProjectsAndDemos.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+- [プロファイリング](Profiling.md)
+- [スケーラビリティ](Engine-Defaults.md)
+- [プロジェクトとデモ](ProjectsAndDemos.md)

@@ -145,8 +145,10 @@
                     Lumen in UE 5.7</strong> &mdash; noise-free by construction, with no denoiser in the path.
                 </p>
                 <p>
-                    ReSTIR is the next step on that stack: path-traced quality where DDGI's probe resolution
-                    stops, at a cost designed to stay below Lumen's.
+                    The engine also already contains a per-pixel ray-traced GI path with a ReSTIR-style
+                    reservoir-resampling final gather, inherited from NvRTX and compiled out by default. Vite
+                    ReSTIR develops that path into a production system: path-traced quality where DDGI's probe
+                    resolution stops, at a cost designed to stay below Lumen's.
                 </p>
             </div>
             <div class="bars" role="list" style="margin-top:28px">
@@ -174,7 +176,8 @@
                 <tbody>
                     <tr><td>Static DDGI</td><td>Baked probes, near-instant bakes</td><td>Hardware without ray tracing</td><td><span class="pill pill--live">Shipping</span></td></tr>
                     <tr><td>Dynamic DDGI + SSGI</td><td>Ray-traced probes plus screen-space contact detail</td><td>60&ndash;120 FPS titles on console-class GPUs</td><td><span class="pill pill--live">Shipping</span></td></tr>
-                    <tr><td>Vite ReSTIR GI</td><td>Per-pixel resampled multi-bounce GI</td><td>High-fidelity titles and high-end PCs</td><td><span class="pill pill--dev">In development</span></td></tr>
+                    <tr><td>Per-pixel RT GI, ReSTIR final gather</td><td>Reservoir-resampled per-pixel GI with an SVGF denoiser</td><td>Reference imagery; higher fidelity than hardware Lumen</td><td><span class="pill pill--live">Shipping, opt-in build</span></td></tr>
+                    <tr><td>Vite ReSTIR GI</td><td>Per-pixel resampled multi-bounce GI, production-tuned</td><td>High-fidelity titles and high-end PCs</td><td><span class="pill pill--dev">In development</span></td></tr>
                     <tr><td>Vite ReSTIR path tracer</td><td>Real-time path-traced lighting</td><td>Ultra settings, cinematics and captures</td><td><span class="pill pill--dev">In development</span></td></tr>
                 </tbody>
             </table>

@@ -1,76 +1,79 @@
-# Engine Overview
+# エンジン概要
 
 <tldr>
 <p>
-Vite is Unreal Engine 4.27.2 (<code>++UE4+Release-4.27</code>) forked from NvRTX 4.27 Caustics merged fully with UE 4.27
-Plus, NvRTX 5.0 and AMD branch features merged in, plus 300+ backports from UE 5.0&ndash;5.8.
+Vite は Unreal Engine 4.27.2（<code>++UE4+Release-4.27</code>）を NvRTX 4.27 Caustics からフォークしたもので、
+UE 4.27 Plus を完全にマージし、NvRTX 5.0 と AMD のブランチの機能を取り込み、さらに UE 5.0〜5.8 からの 300 件以上の
+バックポートを加えています。
 </p>
 </tldr>
 
-This section explains the reasoning behind Vite's architecture: why the fork is based on Unreal Engine 4.27
-rather than UE5, what performance envelope it is designed for, and where the measured cost differences
-between the two engine generations come from.
+このセクションでは、Vite のアーキテクチャの背景にある考え方を説明します。このフォークが UE5 ではなく
+Unreal Engine 4.27 をベースとする理由、どのようなパフォーマンス領域を想定して設計されているか、そして 2 つの
+エンジン世代の間で測定されたコスト差がどこから生じるかです。
 
-If you just want to get the engine running, go to [Getting Started](Getting-Started.md) instead.
+エンジンを動かしたいだけであれば、代わりに [はじめに](Getting-Started.md) に進んでください。
 
-## Base version
+## ベースバージョン
 
-| Property           | Value                                                |
-|--------------------|------------------------------------------------------|
-| Engine version     | 4.27.2                                               |
-| Repo name          | `UnrealEngineVite-PhysX`                             |
-| Upstream base      | NvRTX 4.27 Caustics                                  |
-| Merged branches    | UE 4.27 Plus, NvRTX 5.0, AMD GPUOpen engine branches |
-| UE5 backports      | 300+ in release, 1,000+ in internal staging          |
-| Physics backend    | Vite PhysX                                           |
-| Main Path Renderer | Deferred, agnostic DXR Ray Tracing pipeline          |
+| 項目 | 値 |
+|---|---|
+| エンジンバージョン | 4.27.2 |
+| リポジトリ名 | `UnrealEngineVite-PhysX` |
+| 上流のベース | NvRTX 4.27 Caustics |
+| マージしたブランチ | UE 4.27 Plus、NvRTX 5.0、AMD GPUOpen のエンジンブランチ |
+| UE5 からのバックポート | リリースで 300 件以上、内部ステージングで 1,000 件以上 |
+| 物理バックエンド | Vite PhysX |
+| メインのレンダラー | ディファード、ライティング手法に依存しない DXR レイトレーシングパイプライン |
 
-## Section contents
+## セクションの内容
 
-### [Why NvRTX 4.27](Why-NvRTX-427.md)
+### [なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md)
 
-The technical argument for the base version: what changed in UE 5.1's ray tracing scene construction, why
-Lumen coupling makes alternative GI integrations harder, and why PhysX removal matters.
+ベースバージョンを選んだ技術的な根拠です。UE 5.1 でレイトレーシングのシーン構築に何が変わったのか、Lumen との
+結合によって別の GI の統合がなぜ難しくなったのか、そして PhysX の削除がなぜ重要なのかを説明します。
 
-### [Performance Targets](Performance-Targets.md)
+### [パフォーマンス目標](Performance-Targets.md)
 
-The four PS5-class configurations Vite is tuned against, from 4K120 stylised through to 1440p30 with the
-full ray tracing effect suite.
+Vite がチューニングの基準としている、PS5 クラスの 4 つの構成です。4K120 のスタイライズドから、レイトレーシング
+エフェクト一式を使った 1440p30 までを扱います。
 
-### [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
+### [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
 
-Where the frame time actually goes: shader instruction counts, physics, character movement, memory,
-Slate, skeletal meshes, tick cost, render thread overhead, Blueprint nativization and volumetrics.
+フレームタイムが実際にどこへ消えているのかを分析します。シェーダーの命令数、物理、キャラクタームーブメント、
+メモリ、Slate、スケルタルメッシュ、Tick のコスト、レンダースレッドのオーバーヘッド、ブループリントの
+ネイティブ化、ボリュメトリクスです。
 
-### [Release Notes](Release-Notes.md)
+### [リリースノート](Release-Notes.md)
 
-What is in the current release branch, what is in progress, and what is planned.
+LTS ベースから最新のメジャーリリースまで、すべての公開リリースについて、ハイライト、アップグレード時の注意点、
+各リリースブランチの全コミット履歴をまとめています。
 
-## Design principles
+## 設計原則
 
-Three commitments shape almost every decision in the codebase, and they are worth stating explicitly
-because they explain choices that otherwise look conservative.
+コードベースのほぼすべての判断は、3 つの方針によって形作られています。保守的に見える選択の理由を説明するもの
+なので、明記しておきます。
 
-**Battle-tested technology over in-house technology.** Where Epic built a new system for UE5, Vite prefers
-the industry-standard solutions that are widely shipped in AAA titles: PhysX rather than Chaos, DDGI rather than
-Lumen, HW Tessellation rather than Nanite, TressFX rather than Groom. These are not nostalgic choices; they are choices
-about which solutions has been through the most shipped games.
+**自社開発の技術より実績のある技術を。** Epic が UE5 のために新しいシステムを作った分野では、Vite は AAA タイトルで
+広く出荷されている業界標準のソリューションを優先します。Chaos ではなく PhysX、Lumen ではなく DDGI、Nanite では
+なくハードウェアテッセレーション、Groom ではなく TressFX です。これは懐古趣味ではなく、どのソリューションが最も多く
+の出荷タイトルを経てきたかに基づく選択です。
 
-**Native resolution over reconstruction.** Vite's performance targets are stated at native 4K and native
-1440p. Upscalers are supported and integrated, but they are treated as a way to go faster than the target,
-not as a way to reach it.
+**再構成よりネイティブ解像度を。** Vite のパフォーマンス目標は、ネイティブ 4K とネイティブ 1440p で示しています。
+アップスケーラーはサポートし統合もしていますが、目標に到達する手段ではなく、目標より速く動かすための手段として
+扱います。
 
-**Frame-time budgets are a design constraint, not an optimisation phase.** Performance targets define a
-product's end feature set and the quality of the user experience. Vite maintains an iterative optimisation
-plan for every major feature it introduces, rather than deferring optimisation to the end of a project.
+**フレームタイム予算は最適化の工程ではなく設計上の制約です。** パフォーマンス目標は、製品の最終的な機能構成と
+ユーザー体験の質を決めます。Vite は最適化をプロジェクトの終盤まで先送りするのではなく、導入するすべての主要機能に
+ついて反復的な最適化計画を維持しています。
 
-The [Engine Coding Guidelines](Coding-Guidelines.md) encode these principles as concrete rules for
-contributors: no recursion, no new virtuals without justification, no ABI-breaking changes, and strict
-Clang compliance with an ARM-class CPU as the baseline performance target.
+[エンジンのコーディングガイドライン](Coding-Guidelines.md) は、これらの原則を貢献者向けの具体的なルールとして
+定めています。再帰の禁止、正当な理由のない仮想関数の追加禁止、ABI を壊す変更の禁止、そして ARM クラスの CPU を
+性能の基準とした厳格な Clang 準拠です。
 
-## See also
+## 関連項目
 
-- [Introduction to Vite](Introduction-to-Vite.md)
-- [Rendering](Rendering.md)
-- [Physics](Physics.md)
-- [Engine Coding Guidelines](Coding-Guidelines.md)
+- [Vite の概要](Introduction-to-Vite.md)
+- [レンダリング](Rendering.md)
+- [物理](Physics.md)
+- [コーディングガイドライン](Coding-Guidelines.md)

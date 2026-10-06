@@ -1,28 +1,28 @@
-# UE4 versus UE5 Cost Analysis
+# UE4 と UE5 のコスト分析
 
 <tldr>
 <p>
-The performance gap is not one system. It is shader instruction counts, physics, character movement,
-memory, Slate, skeletal meshes, tick cost, render thread structure, the loss of Blueprint nativization,
-and volumetric shaders &mdash; each contributing independently.
+性能差の原因は 1 つのシステムではありません。シェーダーの命令数、物理、キャラクタームーブメント、メモリ、Slate、
+スケルタルメッシュ、Tick のコスト、レンダースレッドの構造、ブループリントのネイティブ化の廃止、そして
+ボリュメトリクスのシェーダーが、それぞれ独立して寄与しています。
 </p>
 </tldr>
 
-This page documents where the measured cost differences between Unreal Engine 4.27 and modern UE5 come
-from. It exists because "UE5 is slower" is not actionable; knowing *which* subsystem regressed and by how
-much is what lets you decide whether a fork is worth maintaining.
+このページでは、Unreal Engine 4.27 と最新の UE5 の間で測定されたコスト差がどこから生じるかをまとめます。
+「UE5 は遅い」というだけでは行動に移せません。*どの* サブシステムがどれだけ劣化したかを知って初めて、フォークを
+維持する価値があるかを判断できるからです。
 
-Supporting measurements are collected in a
-[public spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing).
+裏付けとなる測定値は
+[公開スプレッドシート](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing)
+にまとめています。
 
-## Materials and shaders
+## マテリアルとシェーダー
 
-From UE 5.1, Shader Model 6 became the preferred rendering path, and general shader instruction count
-increased significantly for both the SM5 and SM6 paths. Subsequent versions expanded both instruction counts
-and permutation counts further.
+UE 5.1 からシェーダーモデル 6 が優先のレンダリングパスとなり、SM5 と SM6 の両方のパスでシェーダーの命令数が全般的に
+大きく増加しました。その後のバージョンでは、命令数とパーミュテーション数がさらに増えています。
 
-Unreal Engine 4.27 produces lighter-weight shaders that deliver the same visual result, which translates
-directly into faster GPU time across the board &mdash; not just in scenes that use the new features.
+Unreal Engine 4.27 は同じ見た目をより軽量なシェーダーで実現し、新機能を使うシーンに限らず、全体的に GPU 時間の
+短縮に直結します。
 
 <!--
     Figure pending: ShaderInstructionCount.png was never committed (only a 0-byte
@@ -34,95 +34,90 @@ directly into faster GPU time across the board &mdash; not just in scenes that u
     *Shader instruction count for equivalent material work, by engine version.*
 -->
 
-## Physics
+## 物理
 
-Chaos is significantly slower than PhysX across many workloads, largely from less efficient SIMD
-utilisation, comparatively poor multithreading, and generally less efficient engineering decisions.
+Chaos は多くのワークロードで PhysX より大幅に遅く、その主な原因は SIMD の活用効率の低さ、比較的貧弱なマルチ
+スレッド化、そして全般的に効率の劣る設計判断にあります。
 
-Internal stress tests show Chaos performing over 5x slower than PhysX in heavily physics-bound scenarios.
-The gap is not limited to rigid body simulation: it also affects physics queries, collision calculation and
-transform propagation, which means projects that make little or no explicit use of physics simulation still
-pay a measurable CPU cost.
+社内のストレステストでは、物理がボトルネックとなるシナリオで Chaos は PhysX より 5 倍以上遅くなっています。
+この差は剛体シミュレーションに限らず、物理クエリ、コリジョン計算、トランスフォームの伝播にも及ぶため、物理
+シミュレーションをほとんど、あるいはまったく明示的に使わないプロジェクトでも、測定可能な CPU コストを支払う
+ことになります。
 
-<img src="ChaosVsPhysX3000.png" alt="3000 simulated cubes, Unreal 5.7 Chaos at 33.26 FPS against Vite PhysX 3.4 at 157.88 FPS" border-effect="line"/>
+<img src="ChaosVsPhysX3000.png" alt="3,000 個のキューブのシミュレーション。Unreal 5.7 の Chaos は 33.26 FPS、Vite の PhysX 3.4 は 157.88 FPS" border-effect="line"/>
 
-*3000 simulated cubes. Unreal 5.7 with Chaos (left) 33.26 FPS at a 30.07 ms frame; Vite with PhysX 3.4
-(right) 157.88 FPS at a 6.33 ms frame &mdash; a 4.7x difference in delivered frame rate.*
+*3,000 個のキューブのシミュレーション。Unreal 5.7 と Chaos（左）は 33.26 FPS（フレーム 30.07 ms）、Vite と
+PhysX 3.4（右）は 157.88 FPS（フレーム 6.33 ms）で、実効フレームレートに 4.7 倍の差があります。*
 
-The practical consequence is scale. The same CPU budget buys substantially more complex cloth simulation and
-destruction under PhysX. See [PhysX Overview](PhysX.md).
+実際的な影響は規模に表れます。同じ CPU 予算で、PhysX ならはるかに複雑なクロスシミュレーションや破壊を扱えます。
+[PhysX](PhysX.md) を参照してください。
 
-## Character Movement Component
+## キャラクタームーブメントコンポーネント
 
-CMC has become progressively more expensive. Against Unreal Engine 5.6, version 4.27 performs 2.2&ndash;2.8x
-faster in movement and collision calculations, and that figure does not even account for PhysX's faster
-sweeps.
+CMC は世代を追うごとに重くなっています。Unreal Engine 5.6 と比べると、4.27 は移動とコリジョンの計算で 2.2〜2.8 倍
+高速で、この数字には PhysX のより速いスイープは含まれていません。
 
-This dominates scenes with many players or AI characters, and directly limits the feasible scale of
-simulation. The [400 Characters CMC Bench](400-Characters-CMC-Bench.md) scene exists to measure exactly
-this.
+これは多数のプレイヤーや AI キャラクターが登場するシーンで支配的なコストとなり、実現できるシミュレーション規模を
+直接制限します。[400 キャラクター CMC ベンチマーク](400-Characters-CMC-Bench.md) のシーンは、まさにこれを測定する
+ためのものです。
 
-## Memory
+## メモリ
 
-Overall memory usage has increased with each engine iteration. In a typical multiplayer map scene, Vite uses
-approximately 1 GB less total memory than UE 5.7, measured on the Stylized demo.
+全体のメモリ使用量は、エンジンのバージョンが上がるたびに増えてきました。一般的なマルチプレイヤーマップのシーン
+（スタイライズドデモで測定）では、Vite は UE 5.7 より総メモリ使用量がおよそ 1 GB 少なくなっています。
 
-On memory-constrained targets &mdash; handhelds, Switch 2, base consoles &mdash; a gigabyte is not a
-rounding error. It is often the difference between a texture pool that holds and one that thrashes.
+携帯機、Switch 2、標準のコンソールなどメモリに制約のある環境では、1 GB は誤差ではありません。テクスチャプールが
+収まるか、スラッシングを起こすかの分かれ目になることがよくあります。
 
-## Slate and UI
+## Slate と UI
 
-From UE 5.0, Slate's rendering cost increased considerably, alongside a more complex system for handling
-Slate object updates, layout calculation and transformations. The rendering of UI itself became more
-expensive in the pursuit of higher UI rendering fidelity.
+UE 5.0 から Slate の描画コストが大きく増え、Slate オブジェクトの更新、レイアウト計算、トランスフォームを扱う
+仕組みも複雑になりました。より高品質な UI 描画を追求した結果、UI の描画自体が重くなっています。
 
-For UI-heavy games &mdash; which is most of them, once you count HUDs, inventories and menus &mdash; this is
-a persistent per-frame cost that never goes away.
+HUD、インベントリ、メニューを含めればほとんどのゲームが UI を多用するため、これは決してなくならない毎フレームの
+コストです。
 
-## Skeletal meshes
+## スケルタルメッシュ
 
-Skeletal meshes became more complex around 5.1 to 5.4. The base cost of a skeletal mesh component in 4.27 is
-far lighter.
+スケルタルメッシュは 5.1 から 5.4 にかけて複雑になりました。4.27 のスケルタルメッシュコンポーネントの基本コストは
+はるかに軽量です。
 
-This matters disproportionately because skeletal meshes are frequently the worst CPU offenders in a shipped
-game. Vite additionally ships an optimised skeletal mesh configuration as the default &mdash; see
-[Engine Default Changes](Engine-Defaults.md).
+出荷されたゲームでは、スケルタルメッシュが CPU 負荷の最大の要因になることが多いため、これは不釣り合いなほど大きな
+影響を持ちます。さらに Vite は、最適化したスケルタルメッシュの設定を既定としています。
+[エンジン既定値の変更](Engine-Defaults.md) を参照してください。
 
-## World tick and game thread
+## ワールドの Tick とゲームスレッド
 
-Newer UE5 iterations increased the general cost of the ticking systems, and made physics, Niagara and
-controller ticks heavier to run. This is a flat tax on every frame, independent of what your game does.
+新しい UE5 では Tick システム全般のコストが増え、物理、Niagara、コントローラーの Tick も重くなりました。これは
+ゲームの内容に関係なく、毎フレームに一律にかかる負担です。
 
-## Render thread
+## レンダースレッド
 
-With the deeper integration of Lumen, Nanite, VSM, Virtual Textures, TSR, Substrate, Chaos Cloth and Hair,
-the render thread became larger and more fragmented, and PSOs became heavier. This affects overall renderer
-performance in every circumstance, not only when those features are enabled.
+Lumen、Nanite、VSM、仮想テクスチャ、TSR、Substrate、Chaos Cloth、Hair の統合が深まるにつれ、レンダースレッドは
+大きく断片化し、PSO も重くなりました。これらの機能が有効なときだけでなく、あらゆる状況でレンダラー全体の性能に
+影響します。
 
-## Loss of Blueprint nativization
+## ブループリントのネイティブ化の廃止
 
-This one is frequently overlooked and is often the largest single factor in real projects.
+見落とされがちですが、実際のプロジェクトでは最大の要因になることが多い項目です。
 
-The Blueprint VM is a slow runtime. For simple gameplay logic it is typically 50&ndash;80x slower than
-equivalent native C++. For algorithmic workloads &mdash; sorting, node operations, pathfinding &mdash; it can
-be 150&ndash;400x slower.
+ブループリント VM は低速なランタイムです。単純なゲームプレイロジックでは、同等のネイティブ C++ より一般に
+50〜80 倍遅く、ソート、ノード操作、経路探索などのアルゴリズム的な処理では 150〜400 倍遅くなることがあります。
 
-In Unreal Engine 4, Blueprint Nativization mitigated this by converting Blueprint bytecode into native C++
-during packaging, producing code roughly 10x faster than VM execution. UE5 removed the feature.
+Unreal Engine 4 では、ブループリントのネイティブ化がパッケージング時にブループリントのバイトコードをネイティブ C++ に
+変換することでこれを緩和し、VM 実行よりおよそ 10 倍速いコードを生成していました。UE5 はこの機能を削除しました。
 
-Because most Unreal projects rely heavily on Blueprints &mdash; especially through plugins and third-party
-code that you do not control &mdash; retaining nativization can make UE4's game thread substantially faster
-in real-world projects, reducing input latency, improving responsiveness and allowing higher simulation
-scale.
+ほとんどの Unreal プロジェクトはブループリントに大きく依存しており、特に自分では管理できないプラグインや
+サードパーティ製のコードを通じてその傾向が強いため、ネイティブ化を維持することで実際のプロジェクトにおける UE4 の
+ゲームスレッドは大幅に高速になり、入力遅延の削減、応答性の向上、より大きなシミュレーション規模につながります。
 
-## Volumetrics, fog and engine shaders
+## ボリュメトリクス、フォグ、エンジンのシェーダー
 
-There is a large performance regression in the systems and materials handling volumetrics, fog and sky, and
-in many other default engine shaders. The increased shader complexity compounds on top of the base material
-cost increases described above.
+ボリュメトリクス、フォグ、スカイを扱うシステムとマテリアル、そして多くの既定のエンジンシェーダーで、大きな性能の
+劣化があります。シェーダーの複雑化は、前述のマテリアルの基本コストの増加にさらに上乗せされます。
 
-Because the regression is in the default engine shaders themselves, it applies whether or not a project
-authors any custom volumetric material.
+劣化は既定のエンジンシェーダーそのものにあるため、プロジェクトが独自のボリュメトリックマテリアルを作るかどうかに
+関係なく影響します。
 
 <!--
     Figures pending: VolumetricFogCost1.png and VolumetricFogCost2.png were never
@@ -130,13 +125,13 @@ authors any custom volumetric material.
     restore the two <img> tags with their captions here.
 -->
 
-## Core class base costs
+## コアクラスの基本コスト
 
-Beyond any individual system, the base cost of core engine classes increased across both game and render
-logic. The clearest measurable part is per-instance memory: the size of the same core classes, as reported by
-`sizeof`, grew substantially between 4.27 and UE5.
+個々のシステムとは別に、ゲームロジックとレンダーロジックの両方で、コアとなるエンジンクラスの基本コストが増えて
+います。最も明確に測定できるのはインスタンスあたりのメモリで、同じコアクラスの `sizeof` が 4.27 から UE5 にかけて
+大きく増えています。
 
-| Class | 4.27 (bytes) | 5.6 (bytes) | 5.7 (bytes) | Latest vs 4.27 |
+| クラス | 4.27（バイト） | 5.6（バイト） | 5.7（バイト） | 最新版と 4.27 の差 |
 |---|---:|---:|---:|---:|
 | `UObject` | 48 | 48 | 48 | +0% |
 | `UActorComponent` | 184 | 232 | 232 | **+26%** |
@@ -148,22 +143,23 @@ logic. The clearest measurable part is per-instance memory: the size of the same
 | `UAnimInstance` | 768 | 1,120 | 1,136 | **+48%** |
 | `UAnimBlueprint` | 1,448 | 1,712 | 1,712 | **+18%** |
 | `UAnimMontage` | 728 | 880 | 880 | **+21%** |
-| `FRenderResource` | 16 | 40 | &mdash; | **+150%** (5.6) |
-| `FStaticMeshVertexBuffer` | 136 | 208 | &mdash; | **+53%** (5.6) |
+| `FRenderResource` | 16 | 40 | &mdash; | **+150%**（5.6） |
+| `FStaticMeshVertexBuffer` | 136 | 208 | &mdash; | **+53%**（5.6） |
 
-This is cost paid before any game code runs, which is why it shows up even in projects that use none of the
-newer features: every Actor in a level, every component and every loaded mesh carries the larger footprint,
-and larger objects mean fewer of them per cache line during iteration. `UObject` itself is unchanged, so the
-growth is in the engine classes built on top of it.
+これはゲームのコードが動き出す前から支払うコストです。そのため、新しい機能を何も使わないプロジェクトにも現れます。
+レベル内のすべてのアクター、すべてのコンポーネント、読み込まれたすべてのメッシュが大きなフットプリントを抱え、
+オブジェクトが大きいほど、エンジンが反復処理する間に CPU キャッシュに残れる数は少なくなります。`UObject` 自体は
+変わっていないため、増加はその上に構築されたエンジンクラスで起きています。
 
-Per-class figures are in the
-[measurements spreadsheet](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing),
-and class sizes per version are broken out in the
-[size of class report](https://docs.google.com/spreadsheets/d/1qfS04ke1cVGDGBFVLoAjeqE4IzW5QVJ-JAbvFbUw_SY/edit?usp=sharing).
+上記の数値と各クラスのコンパイラが報告するレイアウトは
+[sizeof 比較スプレッドシート](https://docs.google.com/spreadsheets/d/1TabQV7UTDLMHI9GVFCbMzXohax2Agm2qzET7tOOXN7w/edit?usp=sharing)
+に、バージョンごとのクラスサイズは
+[クラスサイズのレポート](https://docs.google.com/spreadsheets/d/1qfS04ke1cVGDGBFVLoAjeqE4IzW5QVJ-JAbvFbUw_SY/edit?usp=sharing)
+にまとめています。
 
-## See also
+## 関連項目
 
-- [Why NvRTX 4.27](Why-NvRTX-427.md)
-- [Performance Targets](Performance-Targets.md)
-- [Engine Default Changes](Engine-Defaults.md)
-- [Profiling and Benchmarking](Profiling.md)
+- [なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [エンジン既定値の変更](Engine-Defaults.md)
+- [プロファイリング](Profiling.md)
