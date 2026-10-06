@@ -32,7 +32,7 @@ offers:
 | FXAA | `AAM_FXAA` | 1 | Cheap post-process filter. Blurs texture detail along with edges. Vite's FXAA is higher quality and faster than stock (March Major). |
 | TemporalAA | `AAM_TemporalAA` | 2 | Improved over UE4 TAA in quality and stability. Resolves aliasing well, at a cost in sharpness. |
 | MSAA | `AAM_MSAA` | 3 | Forward shading only. Sample count via `r.MSAACount`. |
-| **SMAA** | `AAM_SMAA` | **4** | Vite's compute SMAA: faster and higher quality than the other morphological solutions evaluated. |
+| **SMAA** | `AAM_SMAA` | **4** | Vite's recommended method. Spatial, no history buffer, four quality levels. |
 
 ## SMAA
 
@@ -46,10 +46,18 @@ has none of those failure modes. What it gives up is subpixel detail reconstruct
 recover information that was never rendered &mdash; which matters much less when you are rendering at native
 4K in the first place.
 
-Vite's bespoke SMAA implementation is 32% faster than CMAA2 in Unreal Engine, which is why CMAA2 was deemed
-redundant. Other morphological solutions were evaluated, and none offered an objective reason to be
-implemented in Vite, so the work went into improving the base SMAA shader beyond its original form. Since
-the [March Major](ueVite26-MarchMajor.md) it runs as a compute pass with selectable quality levels. 
+Vite's SMAA measured 32% faster than CMAA2 in Unreal Engine, which is why CMAA2 was deemed redundant.
+Other morphological solutions were evaluated, and none offered an objective reason to be implemented in
+Vite. The implementation has gone through two generations:
+
+| Release | Implementation |
+|---|---|
+| [March Major](ueVite26-MarchMajor.md) to [July Major](ueVite26-JulyMajor.md) | Vite compute SMAA: three compute passes with the SMAA maths inlined, quality set by `r.Vite.SMAA.Mode` |
+| [August Major](ueVite26-AugustMajor.md) onwards | Port of Epic's UE 5.7 SMAA pipeline: edge detection, blending weight calculation stencil-masked to edge pixels only, and neighbourhood blending, with four quality levels and selectable edge detection |
+
+The reference SMAA algorithm itself is unchanged from upstream. What Vite keeps from its own implementation
+is the asynchronous loading of the SMAA area and search textures, which avoids loading texture assets from
+the render thread. 
 
 ### Enabling SMAA
 
@@ -69,11 +77,22 @@ r.DefaultFeature.AntiAliasing 4
 
 | CVar | Default | Values |
 |---|---|---|
-| `r.Vite.SMAA.Mode` | `1` | `0` = Low, `1` = High |
+| `r.SMAA.Quality` | `2` | `0` = Low, `1` = Medium, `2` = High, `3` = Ultra |
+| `r.SMAA.EdgeMode` | `0` | `0` = colour edge detection, `1` = luminance edge detection |
 
-Marked `ECVF_Scalability`, so it can be driven from scalability groups. High quality is the default and is
-what the [performance targets](Performance-Targets.md) assume; Low exists for the lowest scalability bucket
-where the difference in edge quality is a reasonable trade for the frame time.
+`r.SMAA.Quality` is marked `ECVF_Scalability`, so it can be driven from scalability groups. High is the
+default and is what the [performance targets](Performance-Targets.md) assume; Low and Medium exist for the
+lower scalability buckets where the difference in edge quality is a reasonable trade for the frame time.
+Colour edge detection catches edges between colours of similar brightness; luminance detection is slightly
+cheaper and finds fewer false edges in noisy textures.
+
+<note>
+<p>
+Releases up to <a href="ueVite26-JulyMajor.md">July Major</a> use <code>r.Vite.SMAA.Mode</code>
+(<code>0</code> = Low, <code>1</code> = High) and <code>r.AntiAliasing.SMAA.Debug</code> instead. Rename
+them in your config files when you move to August or later; the old names are silently ignored.
+</p>
+</note>
 
 ### Where SMAA runs in the pipeline
 
@@ -90,7 +109,7 @@ In non-Shipping builds:
 
 | CVar | Values |
 |---|---|
-| `r.AntiAliasing.SMAA.Debug` | `0` = off, `1` = show detected edges, `2` = show blend weights |
+| `r.SMAA.DebugVisualization` | `0` = off, `1` = edge texture, `2` = blend weights, `3` = scene colour with the smoothed edges highlighted |
 
 Edge visualisation is the fastest way to diagnose SMAA that appears to be doing nothing (usually the method
 is not actually selected) or is over-blurring (usually excessive high-frequency content in the source image,

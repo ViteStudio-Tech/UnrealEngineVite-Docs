@@ -41,6 +41,19 @@ FSR 4 と XeSS 3 は特筆に値します。どちらも標準の 4.27 には存
 使い、DirectX 12 が必要です。このセットの大部分は [June Major](ueVite26-JuneMajor.md) で導入され、
 [August Major](ueVite26-AugustMajor.md) で XeSS が 3.1.0 に、DLSS のランタイムが NGX 310.7.129 に更新されました。
 
+以前のリリースの FSR 2 のプラグインは `VitePlugins/FSR2-427` としてツリーに残っていますが、記述子が `.uplugin.disabled` に
+名前を変えてあるため、エンジンは読み込みません。FSR 2 が対象としていたハードウェアは、FSR 4 に組み込まれた FSR 3.1 の
+経路でカバーされます。
+
+<warning>
+<p>
+<a href="ViteSetup.md">ViteSetup</a> の Express の経路は、<code>Engine\Plugins\Runtime\VitePlugins</code> 以下の
+プラグインを ACL と MotionSymphony を除いてすべて <code>ViteDebloat_Moved</code> に移動します。FSR 4、Anti-Lag 2、XeSS も
+その中に含まれます。必要な場合は Custom の経路を選ぶか、<code>ViteDebloat_Moved</code> からフォルダーを戻してください。
+NVIDIA のプラグインは影響を受けません。
+</p>
+</warning>
+
 ### 任意のレンダー解像度
 
 `r.Upscaler.ScreenPercentageOverride` を使うと、FSR、DLSS、XeSS が固定の品質モードだけでなく任意の内部レンダー解像度を

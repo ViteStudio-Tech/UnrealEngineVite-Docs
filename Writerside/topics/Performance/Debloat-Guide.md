@@ -2,15 +2,16 @@
 
 <tldr>
 <p>
-Three scripts in <code>devops\</code>, driven by a single <code>config.txt</code>, remove engine content
-you do not need. Everything defaults to <b>dry run</b> and <b>move rather than delete</b>, so a mistake is
-recoverable.
+Scripts in <code>devops\</code>, driven by a single <code>config.txt</code>, remove engine content you do
+not need. Everything defaults to <b>dry run</b> and <b>move rather than delete</b>, and since the July
+Major a reference check confirms the stripped tree still builds. <a href="ViteSetup.md">ViteSetup</a>
+runs the same scripts for you on its Express path.
 </p>
 </tldr>
 
 A full Unreal Engine 4.27 source tree contains support for every platform, every workflow and every
-template Epic ships. A Win64-only project uses a fraction of it. Debloating recovers disk space and reduces
-build time.
+template Epic ships. A Win64-only project uses a fraction of it. ViteSetup estimates a full Windows source
+tree at around 137&nbsp;GB once built; debloating recovers much of that and reduces build time.
 
 Original Vite debloat scripts by Bikouz.
 
@@ -21,9 +22,12 @@ Original Vite debloat scripts by Bikouz.
 | `ueVite-debloat-SetupSlim.bat` | Runs engine dependency setup with a Win64-only focus, so unneeded platform dependencies are never downloaded |
 | `ueVite-debloat-StripExecute.bat` | Removes platform binaries, non-Windows tools, templates, sample content and optionally plugins |
 | `ueVite-debloat-StripDebugSymbols.bat` | Removes debug symbols according to `ExcludedPdbs.txt` |
+| `ueVite-debloat-ValidateRefs.ps1` | Checks that no module left in the tree references a module that was moved out, and can move the missing ones back. Since [July Major](ueVite26-JulyMajor.md). |
+| `ViteSpaceReport.ps1` | Estimates the download from the dependency manifest before setup, and measures the tree afterwards. Used by ViteSetup. Since July Major. |
+| `ueVite-ApplyVitePluginDefaults.bat` | Applies or reverts Vite's engine plugin profile. See [Engine Default Changes](Engine-Defaults.md#disabled-plugins). Since July Major. |
 
-All three live in `devops\` at the engine root and read `devops\config.txt`. You can pass an alternative
-config path as the first argument.
+All of them live in `devops\` at the engine root. The strip scripts read `devops\config.txt`; you can pass
+an alternative config path as the first argument.
 
 ## Safety model
 
@@ -42,6 +46,11 @@ inside the tree would be caught by subsequent passes.
 
 **The engine root is validated.** The script confirms `Engine\Binaries\` exists before doing anything.
 
+**References are checked afterwards.** With `VALIDATE_REFERENCES=1`, the default, a strip run ends by
+scanning the `.Build.cs` and `.uplugin` files left in the tree for modules that now live in `MOVE_DIR`. A
+clean result reads "No dangling references in the editor build". Otherwise it lists each missing module
+and who needs it.
+
 ## Configuration
 
 `devops\config.txt` uses `KEY=VALUE` lines. Comment a line out with `#` to **preserve** what it targets;
@@ -54,6 +63,7 @@ line means that thing gets removed.
 MODE=move
 MOVE_DIR=..\ViteDebloat_Moved
 DRYRUN=1
+VALIDATE_REFERENCES=1
 ```
 
 `MOVE_DIR` resolves against the engine root, so the default is a sibling folder of the engine.
@@ -133,13 +143,15 @@ The prebuilt binary is targeted by default; the source folder is preserved so th
 STRIP=Samples\StarterContent
 STRIP=Samples\MobileStarterContent
 STRIP=FeaturePacks\StarterContent.upack
-#STRIP=Samples\NGXTest
+STRIP=FeaturePacks\MobileStarterContent.upack
+STRIP=Samples\NGXTest
+STRIP=Samples\RTXGI_Test
 #STRIP=Samples\PixelStreaming
-#STRIP=Samples\RTXGI_Test
 ```
 
-Starter Content is removed per the debloat policy. The fork-specific test samples are preserved by default
-&mdash; `RTXGI_Test` in particular is useful when verifying [DDGI](DDGI-Dynamic.md).
+Starter Content is removed per the debloat policy. The NVIDIA test samples are demo content and are
+stripped by default; comment their lines out to keep them. `RTXGI_Test` in particular is useful when
+verifying [DDGI](DDGI-Dynamic.md). Pixel Streaming is a working feature rather than a demo, so it is kept.
 
 Entries that do not exist in the tree are skipped with a notice, which is harmless.
 
@@ -151,8 +163,8 @@ Disabled by default, because plugin needs vary per project:
 #PLUGIN_LIST=ExcludedPlugins.txt
 ```
 
-`ExcludedPlugins.txt` lists roughly 200 engine plugin paths, covering mobile and XR platforms, source
-control providers other than the one you use, Chaos plugins (unnecessary since Vite uses
+`ExcludedPlugins.txt`, at the engine root, lists roughly 200 engine plugin paths, covering mobile and XR
+platforms, source control providers other than the one you use, Chaos plugins (unnecessary since Vite uses
 [PhysX](PhysX.md)), enterprise and virtual production tooling, and a large set of experimental plugins.
 
 The file is looked up next to the scripts first, then in the engine root.
@@ -171,6 +183,10 @@ Comment out the lines for anything you use before running the pass.
 
 ## Running it
 
+The simplest route is [ViteSetup](ViteSetup.md). Its Express path runs these scripts after the build with
+a fixed selection, and its Custom path and menu option 9 open a picker over the same targets. Run the
+scripts directly when you want to control `config.txt` yourself.
+
 <procedure title="Debloat an engine installation" id="run-debloat">
     <step>
         Open <code>devops\config.txt</code> and review every uncommented <code>STRIP</code> line. Comment
@@ -181,7 +197,7 @@ Comment out the lines for anything you use before running the pass.
         Run <code>ueVite-debloat-StripExecute.bat</code> and read the full output. This is the step people
         skip and then regret.
     </step>
-    <step>Set <code>DRYRUN=0</code> and run it again.</step>
+    <step>Set <code>DRYRUN=0</code> and run it again. Read the reference check at the end.</step>
     <step>
         Build the engine and open the editor. Confirm your projects still load and the plugins you need
         are present.
@@ -195,6 +211,22 @@ Comment out the lines for anything you use before running the pass.
 For a fresh clone, run `ueVite-debloat-SetupSlim.bat` instead of `Setup.bat` so unneeded platform
 dependencies are never downloaded in the first place.
 
+## What the Express path strips
+
+ViteSetup's Express path moves, with no prompt beyond the dry-run review:
+
+- every platform folder except Win64
+- debug symbols (`.pdb`)
+- Starter Content and Mobile Starter Content
+- the NVIDIA sample projects `NGXTest` and `RTXGI_Test`
+- every template except Third Person, C++ and Blueprint
+- **every plugin under `Engine\Plugins\Runtime\VitePlugins` except ACL and MotionSymphony**
+
+The last item is the one to check. It moves FSR 4, Anti-Lag 2, XeSS, the PhysX Instanced Subsystem,
+KawaiiPhysics, ImGui, GPA, Automatron and SplashAbilities. If your project uses any of them, take the
+Custom path or copy the folders back from `ViteDebloat_Moved`. Express then offers a second, optional pass
+over the plugin list, UnrealFileServer, non-Windows tools and platform binaries.
+
 ## Debug symbols
 
 `ueVite-debloat-StripDebugSymbols.bat` removes PDB files according to `ExcludedPdbs.txt`. Debug symbols are
@@ -206,7 +238,16 @@ into is a large saving; stripping symbols for the ones you do turns a readable c
 ## Restoring
 
 In `move` mode, `MOVE_DIR` mirrors the engine tree's relative layout. Copy the contents back over the engine
-root to restore.
+root to restore everything.
+
+To restore only what the build needs, use the validator:
+
+```
+powershell -NoProfile -ExecutionPolicy Bypass -File devops\ueVite-debloat-ValidateRefs.ps1 -Restore
+```
+
+`-Restore` moves back the modules the editor build references. `-RestoreAll` also restores those needed by
+programs, templates and the game target.
 
 If you used `delete` mode, restoration means re-cloning or re-running `Setup.bat`.
 
@@ -222,6 +263,7 @@ saves roughly three minutes on a full 15-minute build; see
 
 ## See also
 
+- [ViteSetup](ViteSetup.md)
 - [Build from Source](Build-From-Source.md)
 - [Engine Default Changes](Engine-Defaults.md)
 - [Bundled Plugins](Bundled-Plugins.md)

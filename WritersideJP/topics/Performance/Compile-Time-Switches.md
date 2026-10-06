@@ -1,41 +1,67 @@
-# Compile-Time Switches
+# コンパイル時スイッチ
 
 <tldr>
 <p>
-Five <code>VITE_*</code> macros in
-<code>Engine/Source/Runtime/Core/Public/Misc/CoreDefines.h</code> control features that are decided at
-compile time rather than by console variable. <b><code>VITE_RT_PSO_DEBLOAT</code> defaults to
-<code>1</code> and compiles out several ray tracing effects entirely</b> &mdash; read that section before
-concluding a feature is broken.
+<code>Engine/Source/Runtime/Core/Public/Misc/CoreDefines.h</code> にある 14 の <code>VITE_*</code> マクロが、
+コンソール変数ではなくコンパイル時に決まる機能を制御します。<b><code>VITE_RT_PSO_DEBLOAT</code> は既定で
+<code>1</code> で、いくつかのレイトレーシングのエフェクトを完全にコンパイル対象から外します</b>。機能が壊れていると
+判断する前に、そのセクションを読んでください。
 </p>
 </tldr>
 
-Some Vite features cannot be console variables. Either they change shader permutation sets, which are
-decided when shaders are compiled, or they alter hot code paths where a runtime branch would cost more than
-the feature saves.
+Vite の機能の中には、コンソール変数にできないものがあります。シェーダーのパーミュテーションの集合を変える（これは
+シェーダーのコンパイル時に決まります）か、実行時の分岐のほうが機能による節約より高くつくホットなコードパスを変える
+ためです。
 
-## The switches
+## スイッチの一覧
 
-| Macro | Default | Effect when enabled |
-|---|---|---|
-| `VITE_RT_PSO_DEBLOAT` | `1` | Compiles out a large set of ray tracing shader permutations |
-| `VITE_O_SSAO` | `1` | Vite's optimised SSAO memory access path |
-| `VITE_PHYSX_FIXED_TIMESTEP` | `0` | Deterministic fixed-step PhysX with render interpolation |
-| `VITE_DLSS_PATCH` | `0` | Output-resolution translucency and volumetric fog when upscaling |
-| `VITE_NVRTX_TRANSLUCENCY_DEPTH` | `0` | Separate translucency depth texture from the NvRTX branch |
+以下の既定値は [ueVite26 September Major](ueVite26-SeptemberMajor.md) のリリースのものです。「導入」は、その
+スイッチを含む `CoreDefines.h` が初めて入ったメジャーリリースです。
 
-Each is defined with an `#ifndef` guard, so any of them can be overridden from the build system without
-editing the header.
+### レンダリングとレイトレーシング
 
-## Overriding a switch
+| マクロ | 既定値 | 有効にしたときの効果 | 導入 |
+|---|---|---|---|
+| `VITE_RT_PSO_DEBLOAT` | `1` | パストレーシングと、Vite の主要な経路以外の重いレイトレーシングのパーミュテーションをコンパイル対象から外す | [June](ueVite26-JuneMajor.md) |
+| `VITE_O_RT_REFLECTIONS` | `1` | ディファードのレイトレーシング反射の最適化。ペイロードは 64 バイトのまま | [August](ueVite26-AugustMajor.md) |
+| `VITE_O_SSAO` | `1` | テクスチャサンプラーを使わない、Vite の最適化された SSAO のメモリアクセスの経路 | [June](ueVite26-JuneMajor.md) |
+| `VITE_O_SSD_SAFE_SAMPLE_TRACK` | `1` | スクリーンスペースのデノイザーが `SampleTrackId` を VGPR に保持する（AMD で安全）。`0` で UE 5.0/5.1 の NVIDIA の占有率重視の経路に戻る | [August](ueVite26-AugustMajor.md) |
+| `VITE_SPECULAR_OCCLUSION` | `0` | UE4 の Karis の項の代わりに、Jimenez 2016 のベントノーマルによるスペキュラーオクルージョンを使う | [August](ueVite26-AugustMajor.md) |
+| `VITE_UE5_POSTPROCESSING` | `1` | UE 5.0 のローカル露出とポストプロセスのヒストグラムの経路 | [August](ueVite26-AugustMajor.md) |
+| `VITE_NVRTX_TRANSLUCENCY_DEPTH` | `0` | NvRTX のブランチ由来の、独立した半透明の深度テクスチャ | [July](ueVite26-JulyMajor.md) |
+| `VITE_DLSS_PATCH` | `0` | アップスケーリング時に、半透明とボリュメトリックフォグを出力解像度で処理する | [July](ueVite26-JulyMajor.md) |
+| `VITE_FSR2_REACTIVE_MASK` | `0` | エンジン側での FSR 2 のリアクティブマスクのサポート | [July](ueVite26-JulyMajor.md) |
 
-<procedure title="Change a compile-time switch" id="override-switch">
+### シェーディングモデルとヘア
+
+| マクロ | 既定値 | 有効にしたときの効果 | 導入 |
+|---|---|---|---|
+| `VITE_SHADINGMODEL_CALLISTO` | `0` | Callisto BRDF のシェーディングモデルをコンパイルに含める | [July](ueVite26-JulyMajor.md) |
+| `VITE_SHADINGMODEL_TOON` | `0` | Toon のシェーディングモデルをコンパイルに含める | [July](ueVite26-JulyMajor.md) |
+| `VITE_TRESSFX` | `0` | TressFX のストランドのヘアをコンパイルに含める | [July](ueVite26-JulyMajor.md) |
+
+シェーディングモデルのスイッチは [July Major](ueVite26-JulyMajor.md) で追加されました。追加のモデルを既定でオフにした
+ことで、基準シーンは 235.56 FPS から 264.44 FPS（+12.3%）に向上しました。プロジェクトで使うモデルだけを有効にして
+ください。[シェーディングモデル](Shading-Models.md) と [ヘアレンダリング](Hair-Rendering.md) を参照してください。
+
+### 物理とエディタ
+
+| マクロ | 既定値 | 有効にしたときの効果 | 導入 |
+|---|---|---|---|
+| `VITE_PHYSX_FIXED_TIMESTEP` | `0` | 描画の補間を伴う、決定的な固定ステップの PhysX | [June](ueVite26-JuneMajor.md) |
+| `VITE_UE4_ICON_BADGES` | `1` | アウトライナーのアイコンに UE4 スタイルのモビリティとスポーン可能のバッジを戻す。`0` で UE5 のラベルスタイル | [August](ueVite26-AugustMajor.md) |
+
+それぞれ `#ifndef` のガードで定義されているため、ヘッダーを編集せずにビルドシステムからどれでも上書きできます。
+
+## スイッチを上書きする
+
+<procedure title="コンパイル時スイッチを変更する" id="override-switch">
     <step>
-        Open your project's <code>Source/&lt;Project&gt;.Target.cs</code>, or the engine target file if
-        you are changing it engine-wide.
+        プロジェクトの <code>Source/&lt;Project&gt;.Target.cs</code> を開きます。エンジン全体で変更する場合は、エンジンの
+        ターゲットファイルを開きます。
     </step>
     <step>
-        Add the definition to <code>GlobalDefinitions</code>:
+        <code>GlobalDefinitions</code> に定義を追加します。
         <code-block lang="c#">
 public MyGameTarget(TargetInfo Target) : base(Target)
 {
@@ -47,132 +73,152 @@ public MyGameTarget(TargetInfo Target) : base(Target)
 }
         </code-block>
     </step>
-    <step>Regenerate project files.</step>
+    <step>プロジェクトファイルを再生成します。</step>
     <step>
-        Rebuild the engine, and wipe the shader cache if you changed
-        <code>VITE_RT_PSO_DEBLOAT</code> or any switch that affects shader permutations. See
-        <a href="Cache-Management.md">Cache Management</a>.
+        エンジンを再ビルドします。<code>VITE_RT_PSO_DEBLOAT</code> など、シェーダーのパーミュテーションに影響する
+        スイッチを変更した場合は、シェーダーキャッシュを消去してください。<a href="Cache-Management.md">キャッシュ管理</a>
+        を参照してください。
     </step>
 </procedure>
 
-Prefer `GlobalDefinitions` in a target file over editing `CoreDefines.h`. Editing the header changes the
-value for every target and creates a diff against the engine repository that you will have to carry through
-every merge.
+`CoreDefines.h` を編集するより、ターゲットファイルの `GlobalDefinitions` を使うほうを優先してください。ヘッダーを
+編集するとすべてのターゲットで値が変わり、エンジンのリポジトリとの差分が生まれて、マージのたびにそれを持ち越さなければ
+ならなくなります。
 
 ## VITE_RT_PSO_DEBLOAT
 
-This is the switch that surprises people, so it gets the most detail.
+これは多くの人を驚かせるスイッチなので、最も詳しく説明します。
 
-Ray tracing pipeline state objects are expensive in a way that is easy to miss. Every ray generation shader
-permutation that *could* be used has to be compiled, packaged and bound into the ray tracing pipeline, even
-if the effect it belongs to is disabled at runtime by a console variable. A CVar set to `0` does not stop
-its shaders existing. The result is long shader compile times, large packaged builds, high PSO counts and
-slow ray tracing pipeline creation at runtime.
+レイトレーシングのパイプラインステートオブジェクトは、見落としやすい形で高価です。使われる *可能性のある* レイ生成
+シェーダーのパーミュテーションはすべて、そのエフェクトが実行時にコンソール変数で無効になっていても、コンパイルされ、
+パッケージに含まれ、レイトレーシングのパイプラインにバインドされなければなりません。CVar を `0` にしても、その
+シェーダーがなくなるわけではありません。その結果、シェーダーのコンパイル時間が長くなり、パッケージ化したビルドが
+大きくなり、PSO の数が増え、実行時のレイトレーシングのパイプラインの作成が遅くなります。
 
-`VITE_RT_PSO_DEBLOAT` cuts the permutation set down to the effects Vite actually ships, by returning `false`
-from `ShouldCompilePermutation` for everything else.
+`VITE_RT_PSO_DEBLOAT` は、それ以外のすべてについて `ShouldCompilePermutation` から `false` を返すことで、パーミュテーションの
+集合を Vite が実際に出荷するエフェクトに絞り込みます。
 
-### What is compiled out at the default value
+### 既定値でコンパイル対象から外れるもの
 
-With `VITE_RT_PSO_DEBLOAT=1`, these effects are **unavailable regardless of their console variables**:
+`VITE_RT_PSO_DEBLOAT=1` では、次のエフェクトは **コンソール変数に関係なく利用できません**。
 
-| Effect | Normally controlled by |
+| エフェクト | 通常の制御 |
 |---|---|
-| Per-pixel ray-traced global illumination | `r.RayTracing.GlobalIllumination` |
-| RTXDI sampled direct lighting | `r.RayTracing.SampledDirectLighting` |
-| Path tracing | `r.PathTracing`, path tracing view mode |
-| Ray-traced translucency | `r.RayTracing.Translucency` |
-| Mesh caustics | NvRTX caustics CVars |
-| Water caustics | NvRTX water caustics CVars |
-| Single layer water ray-traced reflections | `r.Water.SingleLayer.RTR` |
-| Ray-traced reflection captures and reflection probes | `r.RayTracing.Reflections.RayTraceEnvironmentCaptures` |
+| ピクセルごとのレイトレーシングのグローバルイルミネーション | `r.RayTracing.GlobalIllumination` |
+| RTXDI のサンプリングによる直接光 | `r.RayTracing.SampledDirectLighting` |
+| パストレーシング | `r.PathTracing`、パストレーシングのビューモード |
+| レイトレーシングの半透明 | `r.RayTracing.Translucency` |
+| メッシュのコースティクス | NvRTX のコースティクスの CVar |
+| 水のコースティクス | NvRTX の水のコースティクスの CVar |
+| Single Layer Water のレイトレーシング反射 | `r.Water.SingleLayer.RTR` |
+| レイトレーシングのリフレクションキャプチャとリフレクションプローブ | `r.RayTracing.Reflections.RayTraceEnvironmentCaptures` |
 
-Setting the console variable will appear to succeed and the effect will not render.
+コンソール変数の設定は成功したように見えますが、エフェクトは描画されません。
 
-### What still works
+### 引き続き動作するもの
 
-| Effect | Notes |
+| エフェクト | 備考 |
 |---|---|
-| Ray-traced reflections | Forced to the sorted deferred algorithm. The older non-deferred path is compiled out. |
-| Ray-traced shadows | Unaffected |
-| Ray-traced ambient occlusion | Unaffected |
-| Ray-traced sky light | Unaffected |
-| DDGI | Unaffected. DDGI is a plugin and does not go through these permutations. |
+| レイトレーシング反射 | ソートされたディファードのアルゴリズムに固定されます。古いディファードではない経路はコンパイル対象から外れます。 |
+| レイトレーシングシャドウ | 影響なし |
+| レイトレーシングのアンビエントオクルージョン | 影響なし |
+| レイトレーシングのスカイライト | 影響なし |
+| DDGI | 影響なし。DDGI はプラグインであり、これらのパーミュテーションを通りません。 |
 
-The set that remains is exactly Vite's recommended configuration: [DDGI](DDGI-Dynamic.md) for indirect
-lighting, [RT reflections](RT-Reflections.md) via the deferred path, and
-[RT shadows and AO](RT-Shadows-And-Ambient-Occlusion.md). See
-[Global Illumination](Global-Illumination.md) for why DDGI is preferred over per-pixel ray-traced GI in the
-first place &mdash; the debloat switch encodes that recommendation into the build.
+残る集合は、まさに Vite の推奨構成です。間接光には [DDGI](DDGI-Dynamic.md)、ディファードの経路による
+[レイトレーシング反射](RT-Reflections.md)、そして [レイトレーシングシャドウと AO](RT-Shadows-And-Ambient-Occlusion.md)
+です。そもそもなぜピクセルごとのレイトレーシング GI より DDGI を優先するのかは
+[グローバルイルミネーション](Global-Illumination.md) を参照してください。デブロートのスイッチは、その推奨をビルドに
+組み込んだものです。
 
-### Turning it off
+### 無効にする
 
-Set `VITE_RT_PSO_DEBLOAT=0` and rebuild if you need path tracing for
-[reference imagery](Path-Tracing.md), RTXDI for a many-lights scene, or ray-traced translucency and
-caustics.
+[リファレンス画像](Path-Tracing.md) のためのパストレーシング、多数のライトがあるシーンのための RTXDI、あるいは
+レイトレーシングの半透明とコースティクスが必要な場合は、`VITE_RT_PSO_DEBLOAT=0` にして再ビルドしてください。
 
 <warning>
-Turning this off substantially increases shader compilation time, packaged build size and ray tracing PSO
-count. Consider maintaining a separate target configuration &mdash; debloat off for an internal
-reference-rendering build, debloat on for the shipping build &mdash; rather than turning it off globally.
+これを無効にすると、シェーダーのコンパイル時間、パッケージ化したビルドのサイズ、レイトレーシングの PSO の数が大幅に
+増えます。全体で無効にするのではなく、別のターゲット構成を維持することを検討してください。社内のリファレンス描画用
+ビルドではデブロートを無効に、出荷ビルドでは有効にします。
 </warning>
 
 ## VITE_O_SSAO
 
-Enables Vite's rewritten memory access pattern for the screen-space ambient occlusion pass. Same visual
-result as stock, lower cost.
+スクリーンスペースのアンビエントオクルージョンのパスで、Vite が書き直したメモリアクセスのパターンを有効にします。
+見た目は標準と同じで、コストは低くなります。
 
-Unusually among these switches, it also has a runtime CVar &mdash; but only in development builds:
+これらのスイッチの中では珍しく、実行時の CVar もあります。ただし開発用のビルドでのみです。
 
 ```
-r.Vite.SSAO 0   // stock UE path
-r.Vite.SSAO 1   // optimised path
+r.Vite.SSAO 0   // 標準の UE の経路
+r.Vite.SSAO 1   // 最適化された経路
 ```
 
-Shipping builds are locked to the compile-time value; the CVar does not exist. The runtime toggle exists so
-the two paths can be A/B compared during development, which is how the optimisation was validated. There is
-no reason to turn the compile-time switch off. See [Ambient Occlusion](Ambient-Occlusion.md).
+Shipping と Test のビルドはコンパイル時の値に固定され、そこには CVar が存在しません。実行時の切り替えは、開発中に
+2 つの経路を A/B 比較するためにあり、最適化の検証もその方法で行いました。コンパイル時のスイッチをオフにする理由は
+ありません。[アンビエントオクルージョン](Ambient-Occlusion.md) を参照してください。
 
 ## VITE_PHYSX_FIXED_TIMESTEP
 
-Off by default. Enables deterministic fixed-step PhysX simulation with render interpolation, plus the
-`p.VitePhysXFixedTimestep.*` console variables.
+既定ではオフです。描画の補間を伴う、決定的な固定ステップの PhysX のシミュレーションと、`p.VitePhysXFixedTimestep.*`
+のコンソール変数を有効にします。
 
-The compile-time gate exists because the feature adds branches and double-buffered transform storage to the
-physics scene, substep task and animation physics blend. Projects with no determinism requirement should
-not pay for it. Full documentation is in [Fixed Timestep](Fixed-Timestep.md).
+この機能は、物理シーン、サブステップのタスク、アニメーションの物理ブレンドに分岐とダブルバッファのトランスフォームの
+保存領域を追加するため、コンパイル時のゲートがあります。決定性を必要としないプロジェクトが、そのコストを払うべきでは
+ありません。詳しくは [固定タイムステップ](Fixed-Timestep.md) を参照してください。
 
 ## VITE_DLSS_PATCH
 
-Off by default. Adds `TranslucencyAfterDOFUpscaledRT` and `TranslucencyAfterDOFModulateUpscaledRT` mesh
-passes so selected translucent primitives render at output resolution after upscaling, and adds
-`r.VolumetricFog.UseUpScaledSizeVolumetricFog` so the fog grid can be computed from output resolution.
+既定ではオフです。`TranslucencyAfterDOFUpscaledRT` と `TranslucencyAfterDOFModulateUpscaledRT` のメッシュパスを追加し、
+選択した半透明のプリミティブがアップスケーリングの後に出力解像度で描画されるようにします。また
+`r.VolumetricFog.UseUpScaledSizeVolumetricFog` を追加し、フォグのグリッドを出力解像度から計算できるようにします。
 
-Only relevant to projects shipping with an upscaler enabled. See
-[Upscalers and Frame Generation](Upscalers.md).
+アップスケーラーを有効にして出荷するプロジェクトにだけ関係します。[アップスケーラー](Upscalers.md) を参照してください。
 
 ## VITE_NVRTX_TRANSLUCENCY_DEPTH
 
-Off by default. Allocates and writes a separate translucency depth texture alongside separate translucency
-colour, inherited from the NvRTX branch. Required by some NvRTX effects that need translucent depth; costs
-an extra render target when enabled.
+既定ではオフです。NvRTX のブランチから受け継いだもので、独立した半透明の色と並んで、独立した半透明の深度テクスチャを
+確保して書き込みます。半透明の深度を必要とする一部の NvRTX のエフェクトに必要で、有効にするとレンダーターゲットが
+1 つ増えます。
 
-## Checking what a build has
+## VITE_SPECULAR_OCCLUSION
 
-Compile-time switches are invisible at runtime, which makes "is this feature even compiled in?" a real
-question when debugging.
+既定ではオフです。UE4 のスペキュラーオクルージョンの項（Karis の `GetSpecularOcclusion(NoV, RoughnessSq, AO)`）を、
+DFAO または SSAO のベントノーマルによる Jimenez ら 2016 のコーンとコーンのスペキュラーオクルージョンに置き換えます。
+くぼみの中やオブジェクトの下での反射の光漏れを減らします。
 
-The most reliable check is to set the relevant CVar and see whether the effect appears. If
-`r.RayTracing.SampledDirectLighting 1` produces no change in a scene with hundreds of lights,
-`VITE_RT_PSO_DEBLOAT` is on.
+この定義は、イメージベースドライティングとレイトレーシング反射のシェーダーだけに対するコンパイル時の定数です。
+シェーダーのパーミュテーションでもグローバルなシェーダーの定義でもないため、PSO は増えません。変更するとそれらの
+シェーダーが再コンパイルされます。
 
-For the switches with runtime CVars, checking whether the CVar exists at all is a direct test: in a Shipping
-build, `r.Vite.SSAO` will not be found because it is compiled out.
+## VITE_UE5_POSTPROCESSING
 
-## See also
+既定でオンです。UE 5.0 のローカル露出のパスと、それに対応するポストプロセスのヒストグラムとトーンマッパーの変更を
+コンパイルに含め、プロジェクトを UE5 に移さずに UE5 に匹敵するローカル露出の制御を提供します。
 
-- [Shader Compilation and PSO](Shader-Compilation-And-PSO.md)
-- [Ray Tracing](Ray-Tracing.md)
-- [Fixed Timestep](Fixed-Timestep.md)
-- [Cache Management](Cache-Management.md)
-- [Build from Source](Build-From-Source.md)
+## シェーディングモデルと TressFX のスイッチ
+
+`VITE_SHADINGMODEL_CALLISTO`、`VITE_SHADINGMODEL_TOON`、`VITE_FSR2_REACTIVE_MASK`、`VITE_TRESSFX` は既定でオフです。
+追加のシェーディングモデルはそれぞれ、共有のライティングのシェーダーに分岐を、それを使える可能性のあるすべての
+マテリアルにパーミュテーションを追加します。そのため、プロジェクトはそれで何かを描画するかどうかに関係なくコストを
+払います。アートディレクションに必要なものだけを有効にしてください。TressFX は、スイッチに関係なく、モバイルと ES 3.1
+のシェーダープラットフォームからも除外されます。
+
+## ビルドに含まれているものを確認する
+
+コンパイル時スイッチは実行時には見えないため、デバッグ時には「この機能はそもそもコンパイルされているのか」が現実的な
+問いになります。
+
+最も確実な確認方法は、該当する CVar を設定してエフェクトが現れるかを見ることです。数百のライトがあるシーンで
+`r.RayTracing.SampledDirectLighting 1` にしても何も変わらなければ、`VITE_RT_PSO_DEBLOAT` が有効です。
+
+実行時の CVar を持つスイッチでは、CVar が存在するかどうかを確認するのが直接的なテストです。Shipping や Test のビルドでは、
+`r.Vite.SSAO` はコンパイル対象から外れているため見つかりません。
+
+## 関連項目
+
+- [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [固定タイムステップ](Fixed-Timestep.md)
+- [キャッシュ管理](Cache-Management.md)
+- [ソースからのビルド](Build-From-Source.md)

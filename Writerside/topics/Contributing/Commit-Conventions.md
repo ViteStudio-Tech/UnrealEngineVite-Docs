@@ -117,7 +117,6 @@ subsystem, then `Vite`:
 
 | Example | Subsystem |
 |---|---|
-| `r.Vite.SMAA.Mode` | Renderer |
 | `r.Vite.SSAO` | Renderer |
 | `p.VitePhysXFixedTimestep.Enabled` | Physics |
 

@@ -111,7 +111,7 @@ For a Vite project, the passes worth scrutinising:
 | Base pass | Driven by material complexity and overdraw |
 | Shadow depths | Driven by shadow-casting light count and cascade configuration |
 | Translucency | Driven by overdraw. Particles are the usual cause. |
-| SMAA | Small and fixed. If it is large, check `r.Vite.SMAA.Mode`. |
+| SMAA | Small and fixed. If it is large, check `r.SMAA.Quality`. |
 
 ## View modes
 

@@ -65,8 +65,11 @@ Houdini is the single largest contributor among the added plugins. See the
 
 To speed up shader compilation specifically:
 
-- Increase worker count in `BuildConfiguration.xml`, if you have the cores and RAM. Each worker needs
-  memory, so oversubscribing causes swapping and makes things worse.
+- Give the shader compiler more workers. Unreal starts one `ShaderCompileWorker` per logical core minus
+  `NumUnusedShaderCompilingThreads` (default `3`, or `4` while a game is running) from
+  `[DevOptions.Shaders]` in `Engine.ini`. Lowering it in your project's `DefaultEngine.ini` adds workers,
+  but each worker needs memory, so oversubscribing causes swapping and makes things worse.
+  `BuildConfiguration.xml` controls C++ compile parallelism, not shader workers.
 - Use a shared Derived Data Cache across the team. This is the single largest win for a team of more than
   one person: shaders compiled once by anyone are available to everyone.
 - Avoid touching global shader headers. A change to a widely-included `.ush` file rebuilds everything.

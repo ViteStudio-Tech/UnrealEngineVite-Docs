@@ -1,126 +1,129 @@
-# Shader Compilation and PSO
+# シェーダーコンパイルと PSO
 
 <tldr>
 <p>
-Shader permutation count drives compile time, package size and runtime hitching. Vite's main lever is
-<code>VITE_RT_PSO_DEBLOAT</code>, which removes ray tracing permutations for effects it does not ship.
-Your main levers are shading model discipline and PSO caching.
+シェーダーのパーミュテーションの数は、コンパイル時間、パッケージのサイズ、実行時のヒッチを左右します。Vite の主な
+調整手段は <code>VITE_RT_PSO_DEBLOAT</code> で、出荷しないエフェクトのレイトレーシングのパーミュテーションを取り除きます。
+プロジェクト側の主な手段は、シェーディングモデルの管理と PSO のキャッシュです。
 </p>
 </tldr>
 
-A shader permutation is one compiled variant of a shader for one specific combination of features. Unreal
-generates permutations combinatorially, so each independent option roughly doubles the count.
+シェーダーのパーミュテーションとは、ある特定の機能の組み合わせに対してコンパイルされたシェーダーの 1 つの派生です。
+Unreal はパーミュテーションを組み合わせで生成するため、独立したオプションが 1 つ増えるごとに数がおおよそ 2 倍に
+なります。
 
-This matters in four places: how long a full build takes, how large the packaged game is, how long the
-first-run shader compile takes on a player's machine, and whether the game hitches when it encounters a
-material for the first time.
+これは 4 つの場面で問題になります。フルビルドにかかる時間、パッケージ化したゲームのサイズ、プレイヤーのマシンでの
+初回起動時のシェーダーコンパイルの時間、そしてマテリアルに初めて出会ったときにゲームがヒッチするかどうかです。
 
-## Ray tracing permutations
+## レイトレーシングのパーミュテーション
 
-Ray tracing is the worst case, because ray tracing pipeline state objects must include every ray generation
-shader that could be dispatched. A console variable set to `0` does not remove its shaders &mdash; they are
-still compiled, packaged and bound into the pipeline.
+レイトレーシングは最悪のケースです。レイトレーシングのパイプラインステートオブジェクトには、ディスパッチされる
+可能性のあるすべてのレイ生成シェーダーを含める必要があるためです。コンソール変数を `0` にしてもシェーダーは
+取り除かれません。それらは引き続きコンパイルされ、パッケージに含まれ、パイプラインにバインドされます。
 
-`VITE_RT_PSO_DEBLOAT`, which defaults to `1`, addresses this by returning `false` from
-`ShouldCompilePermutation` for ray tracing effects outside Vite's recommended configuration: per-pixel
-ray-traced GI, RTXDI, path tracing, ray-traced translucency, mesh and water caustics, ray-traced reflection
-captures, and the non-deferred reflection path.
+既定で `1` の `VITE_RT_PSO_DEBLOAT` は、Vite の推奨構成に含まれないレイトレーシングのエフェクトについて
+`ShouldCompilePermutation` から `false` を返すことで、これに対処します。対象は、ピクセルごとのレイトレーシング GI、
+RTXDI、パストレーシング、レイトレーシングの半透明、メッシュと水のコースティクス、レイトレーシングのリフレクション
+キャプチャ、そしてディファードではない反射の経路です。
 
-This is a large reduction. It is also the reason those effects do not work in a default build. Full detail
-is in [Compile-Time Switches](Compile-Time-Switches.md).
+これは大きな削減です。同時に、それらのエフェクトが既定のビルドで動作しない理由でもあります。詳細は
+[コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
 
-## Material permutations
+## マテリアルのパーミュテーション
 
-The controls you have over material shader count:
+マテリアルのシェーダーの数に対して、プロジェクト側で制御できる要素:
 
-**Shading models.** Every [shading model](Shading-Models.md) in use adds permutations. A project using
-Default Lit and Callisto BRDF compiles far fewer shaders than one using six models. This is a real budget,
-not a theoretical one.
+**シェーディングモデル。** 使用中の [シェーディングモデル](Shading-Models.md) ごとにパーミュテーションが増えます。
+Default Lit と Callisto BRDF を使うプロジェクトは、6 つのモデルを使うプロジェクトよりはるかに少ないシェーダーを
+コンパイルします。これは理論上ではなく実際の予算です。
 
-**Material usage flags.** Each **Used With** flag on a material adds a vertex factory permutation: used
-with skeletal mesh, instanced static meshes, particle sprites, splines and so on. Unreal sets these
-automatically when it encounters a new usage, which means a material can silently accumulate flags it no
-longer needs. Audit them.
+**マテリアルの使用フラグ。** マテリアルの **Used With** フラグは、それぞれ頂点ファクトリのパーミュテーションを追加します。
+スケルタルメッシュ、インスタンス化スタティックメッシュ、パーティクルスプライト、スプラインなどです。Unreal は新しい
+使い方に出会うとこれらを自動的に設定するため、マテリアルには不要になったフラグが気づかないうちに溜まっていきます。
+定期的に見直してください。
 
-**Static switches.** Static switch parameters double the permutation count each. Two switches is four
-variants; ten is 1024. Use dynamic branches or separate materials when the count gets away from you.
+**スタティックスイッチ。** スタティックスイッチのパラメーターは 1 つごとにパーミュテーションの数を 2 倍にします。
+スイッチ 2 つで 4 通り、10 個で 1024 通りです。数が手に負えなくなったら、動的な分岐か別のマテリアルを使ってください。
 
-**Quality levels and feature levels.** Each shader platform and quality level the project targets
-multiplies everything above.
+**品質レベルとフィーチャーレベル。** プロジェクトが対象とするシェーダープラットフォームと品質レベルが、上記のすべてに
+掛け算で効きます。
 
-**Tessellation.** Enabling [tessellation](Tessellation.md) on a material adds hull and domain shader
-permutations.
+**テッセレーション。** マテリアルで [テッセレーション](Tessellation.md) を有効にすると、ハルシェーダーとドメイン
+シェーダーのパーミュテーションが追加されます。
 
-## Compile times
+## コンパイル時間
 
-Reference figures from the Vite repository, measured on a Ryzen 9 9950X3D:
+Ryzen 9 9950X3D で計測した、Vite のリポジトリの参考値:
 
-| Configuration | Full engine build |
+| 構成 | エンジンのフルビルド |
 |---|---|
-| Full repository | ~15 minutes |
-| Without Vite plugins | ~12 minutes |
+| リポジトリ全体 | 約 15 分 |
+| Vite のプラグインなし | 約 12 分 |
 
-Houdini is the single largest contributor among the added plugins. See the
-[Debloat Guide](Debloat-Guide.md) for how to strip plugins you do not need.
+追加したプラグインの中で単一で最も大きな要因は Houdini です。不要なプラグインを取り除く方法は
+[デブロートガイド](Debloat-Guide.md) を参照してください。
 
-To speed up shader compilation specifically:
+シェーダーコンパイルそのものを速くするには:
 
-- Increase worker count in `BuildConfiguration.xml`, if you have the cores and RAM. Each worker needs
-  memory, so oversubscribing causes swapping and makes things worse.
-- Use a shared Derived Data Cache across the team. This is the single largest win for a team of more than
-  one person: shaders compiled once by anyone are available to everyone.
-- Avoid touching global shader headers. A change to a widely-included `.ush` file rebuilds everything.
+- シェーダーコンパイラのワーカーを増やします。Unreal は、論理コア数から `Engine.ini` の `[DevOptions.Shaders]` の
+  `NumUnusedShaderCompilingThreads`（既定は `3`、ゲーム実行中は `4`）を引いた数の `ShaderCompileWorker` を起動します。
+  プロジェクトの `DefaultEngine.ini` でこの値を下げるとワーカーが増えますが、各ワーカーはメモリを必要とするため、
+  増やしすぎるとスワップが発生してかえって悪化します。`BuildConfiguration.xml` が制御するのは C++ のコンパイルの
+  並列度であり、シェーダーのワーカーではありません。
+- チームで共有の Derived Data Cache を使います。2 人以上のチームでは単一で最も大きな効果があります。誰かが一度
+  コンパイルしたシェーダーを全員が使えます。
+- グローバルなシェーダーのヘッダーには触れないようにします。広くインクルードされている `.ush` ファイルを変更すると、
+  すべてが再ビルドされます。
 
-## PSO caching
+## PSO のキャッシュ
 
-A pipeline state object bundles shaders and render state into the object the GPU driver actually needs.
-Creating one at the moment a material is first drawn is what causes shader compilation hitches in shipping
-games.
+パイプラインステートオブジェクトは、シェーダーとレンダーステートを、GPU ドライバーが実際に必要とするオブジェクトに
+まとめたものです。マテリアルが初めて描画される瞬間にこれを作成することが、出荷されたゲームでのシェーダーコンパイルの
+ヒッチの原因です。
 
-PSO caching solves this by recording which PSOs a build actually uses and precompiling them at startup or
-during loading.
+PSO のキャッシュは、ビルドが実際に使う PSO を記録し、起動時や読み込み中に事前にコンパイルすることでこれを解決します。
 
-<procedure title="Set up PSO caching" id="pso-caching">
-    <step>Enable PSO caching in <b>Project Settings &gt; Packaging</b>.</step>
+<procedure title="PSO のキャッシュを設定する" id="pso-caching">
+    <step><b>プロジェクト設定 &gt; パッケージング</b> で PSO のキャッシュを有効にします。</step>
     <step>
-        Package a build with logging enabled and play through it, covering every level, every material and
-        every effect the shipping game contains. Coverage is the whole point: a PSO not encountered during
-        recording will still hitch.
+        ログを有効にしてビルドをパッケージ化し、出荷するゲームに含まれるすべてのレベル、すべてのマテリアル、すべての
+        エフェクトを網羅するようにプレイします。網羅することこそが重要です。記録中に出会わなかった PSO は、
+        引き続きヒッチを起こします。
     </step>
-    <step>Collect the recorded PSO cache files from the build.</step>
-    <step>Use the shader pipeline cache tools to consolidate them into a single cache.</step>
-    <step>Include the cache in the shipping build and verify the hitches are gone.</step>
+    <step>ビルドから記録された PSO のキャッシュファイルを集めます。</step>
+    <step>シェーダーパイプラインキャッシュのツールで、それらを 1 つのキャッシュにまとめます。</step>
+    <step>そのキャッシュを出荷ビルドに含め、ヒッチがなくなったことを確認します。</step>
 </procedure>
 
-This is genuinely tedious work and it is usually left too late. Schedule it before content lock, not after.
+これは本当に手間のかかる作業で、たいてい後回しにされがちです。コンテンツロックの後ではなく前に予定してください。
 
-## Cache problems
+## キャッシュの問題
 
-Stale shader caches produce some of the most confusing failures in Unreal: shaders that do not match the
-source, materials that render incorrectly, editor crashes on load, and changes to compile-time switches that
-appear to have no effect.
+古いシェーダーキャッシュは、Unreal で最も紛らわしい不具合のいくつかを引き起こします。ソースと一致しないシェーダー、
+正しく描画されないマテリアル、読み込み時のエディタのクラッシュ、そして効果がないように見えるコンパイル時スイッチの
+変更です。
 
-If you changed `VITE_RT_PSO_DEBLOAT` or any other switch affecting shader permutations, wipe the cache. See
-[Cache Management](Cache-Management.md) for `WipeShaderCache.bat`, which clears the engine-level derived
-data cache, intermediate shaders and shader debug info.
+`VITE_RT_PSO_DEBLOAT` など、シェーダーのパーミュテーションに影響するスイッチを変更した場合は、キャッシュを消去して
+ください。エンジンレベルの Derived Data Cache、中間シェーダー、シェーダーのデバッグ情報を消去する `WipeShaderCache.bat`
+については [キャッシュ管理](Cache-Management.md) を参照してください。
 
-## Diagnosing
+## 診断
 
-| Symptom | Likely cause |
+| 症状 | 考えられる原因 |
 |---|---|
-| Hitch the first time an effect or material appears | Missing PSO cache entry |
-| Very long first launch after a build | Global shader recompile, often from a header change |
-| Shaders recompiling every launch | DDC not persisting, or a non-deterministic input to the shader hash |
-| Console variable has no visible effect | Feature compiled out. See [Compile-Time Switches](Compile-Time-Switches.md). |
-| Compile times growing over time | Permutation creep from accumulated material usage flags and static switches |
+| エフェクトやマテリアルが初めて表示されたときのヒッチ | PSO のキャッシュのエントリが欠けている |
+| ビルド後の初回起動が非常に長い | グローバルシェーダーの再コンパイル。ヘッダーの変更が原因であることが多い |
+| 起動のたびにシェーダーが再コンパイルされる | DDC が保持されていない、またはシェーダーのハッシュへの入力が非決定的 |
+| コンソール変数に目に見える効果がない | 機能がコンパイル対象から外れている。[コンパイル時スイッチ](Compile-Time-Switches.md) を参照 |
+| コンパイル時間が時間とともに伸びる | マテリアルの使用フラグとスタティックスイッチの蓄積によるパーミュテーションの増加 |
 
-`r.ShaderDevelopmentMode 1` and `r.DumpShaderDebugInfo 1` produce diagnostic output when you need to
-understand what is actually being compiled.
+実際に何がコンパイルされているかを把握する必要がある場合は、`r.ShaderDevelopmentMode 1` と `r.DumpShaderDebugInfo 1` で
+診断用の出力が得られます。
 
-## See also
+## 関連項目
 
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Shading Models](Shading-Models.md)
-- [Cache Management](Cache-Management.md)
-- [Build Troubleshooting](Build-Troubleshooting.md)
-- [Debloat Guide](Debloat-Guide.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [シェーディングモデル](Shading-Models.md)
+- [キャッシュ管理](Cache-Management.md)
+- [ビルドのトラブルシューティング](Build-Troubleshooting.md)
+- [デブロートガイド](Debloat-Guide.md)

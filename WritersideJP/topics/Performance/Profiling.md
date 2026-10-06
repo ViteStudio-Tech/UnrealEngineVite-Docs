@@ -1,168 +1,166 @@
-# Profiling
+# プロファイリング
 
 <tldr>
 <p>
-Find the bottleneck before optimising. <code>stat unit</code> tells you which thread is limiting the
-frame; everything else follows from that answer.
+最適化の前にボトルネックを見つけてください。<code>stat unit</code> はどのスレッドがフレームを制限しているかを示し、
+その答えから他のすべてが決まります。
 </p>
 </tldr>
 
-Unreal Engine 4.27's profiling tools are mature and well documented. This page covers how to use them
-in the context of Vite's [performance targets](Performance-Targets.md), and the Vite-specific things worth
-watching.
+Unreal Engine 4.27 のプロファイリングツールは成熟しており、ドキュメントも充実しています。このページでは、Vite の
+[パフォーマンス目標](Performance-Targets.md) の文脈でそれらを使う方法と、Vite 特有の注目すべき点を説明します。
 
-## Start with stat unit
+## まず stat unit から
 
 ```
 stat unit
 ```
 
-This is the first command in every profiling session. It reports:
+これはすべてのプロファイリングで最初に使うコマンドです。次の項目を表示します。
 
-| Line | Meaning |
+| 行 | 意味 |
 |---|---|
-| **Frame** | Total frame time. This is your actual frame rate. |
-| **Game** | Game thread: gameplay, ticks, physics, animation |
-| **Draw** | Render thread: building draw commands, RHI submission |
-| **GPU** | GPU time |
-| **RHIT** | RHI thread, where present |
+| **Frame** | フレーム全体の時間。これが実際のフレームレートです。 |
+| **Game** | ゲームスレッド。ゲームプレイ、ティック、物理、アニメーション |
+| **Draw** | レンダースレッド。描画コマンドの構築、RHI への送信 |
+| **GPU** | GPU の時間 |
+| **RHIT** | RHI スレッド（存在する場合） |
 
-The largest of Game, Draw and GPU is your bottleneck. Frame time will be roughly equal to it, because the
-threads run in parallel and the slowest one gates the rest.
+Game、Draw、GPU のうち最も大きいものがボトルネックです。各スレッドは並行して動作し、最も遅いものが残りを律速する
+ため、フレームの時間はおおむねその値と等しくなります。
 
-This one reading determines everything that follows. Optimising a system on a thread that is not the
-bottleneck produces exactly zero improvement in frame rate, which is the most common wasted effort in Unreal
-performance work.
+この 1 つの読み取りが、その後のすべてを決めます。ボトルネックではないスレッド上のシステムを最適化しても、フレームレートの
+改善はまったくゼロです。これは Unreal のパフォーマンス作業で最もよくある無駄な努力です。
 
-<procedure title="Identify the bottleneck" id="find-bottleneck">
-    <step>Run <code>stat unit</code> in a representative scene, in a build configuration close to shipping.</step>
-    <step>Note which of Game, Draw or GPU is closest to Frame.</step>
+<procedure title="ボトルネックを特定する" id="find-bottleneck">
+    <step>出荷に近いビルド構成で、代表的なシーンで <code>stat unit</code> を実行します。</step>
+    <step>Game、Draw、GPU のうち、Frame に最も近いものを確認します。</step>
     <step>
-        Confirm with <code>r.ScreenPercentage 50</code>. If frame time drops significantly, you are GPU
-        bound at pixel cost. If it barely changes, you are not.
+        <code>r.ScreenPercentage 50</code> で確認します。フレームの時間が大きく下がれば、ピクセルのコストによる GPU
+        ボトルネックです。ほとんど変わらなければ、そうではありません。
     </step>
-    <step>Follow the relevant section below.</step>
+    <step>以下の該当するセクションに進みます。</step>
 </procedure>
 
-## Game thread bound
+## ゲームスレッドがボトルネックの場合
 
-The game thread is where UE4-era engines most often bottleneck, and where Vite has the most inherited
-advantage over UE5.
-
-```
-stat game        // top-level game thread breakdown
-stat physics     // physics simulation cost
-stat anim        // animation and skeletal mesh evaluation
-stat engine      // tick counts and general engine stats
-stat slate       // UI cost
-```
-
-The usual suspects:
-
-**Actor tick count.** Every ticking actor costs, even one whose tick does nothing. `stat engine` reports
-tick counts. Disable tick on actors that do not need it, and use tick intervals rather than early-outs
-inside `Tick`.
-
-**Character movement.** CMC is expensive and scales badly with character count. The
-[400 Characters CMC Bench](400-Characters-CMC-Bench.md) demo exists to measure exactly this. If you have
-many characters, this is likely your cost.
-
-**Physics.** See [PhysX](PhysX.md). Watch physics time as a fraction of game thread time. Large numbers of
-simulated bodies should move to the [instanced subsystem](Instanced-Physics.md).
-
-**Overlap events.** Vite disables overlap events by default on primitive components precisely because they
-are a common hidden cost. See [Engine Default Changes](Engine-Defaults.md).
-
-**Blueprint.** Blueprint VM execution is slower than native C++. Hot per-frame logic belongs in C++.
-
-## Render thread bound
+ゲームスレッドは、UE4 世代のエンジンで最もボトルネックになりやすい場所であり、Vite が UE5 に対して最も大きな
+優位性を受け継いでいる場所でもあります。
 
 ```
-stat scenerendering    // render thread breakdown
-stat initviews         // visibility and culling cost
-stat rhi               // draw calls, primitives, triangles
+stat game        // ゲームスレッドの全体的な内訳
+stat physics     // 物理シミュレーションのコスト
+stat anim        // アニメーションとスケルタルメッシュの評価
+stat engine      // ティック数と一般的なエンジンの統計
+stat slate       // UI のコスト
 ```
 
-Render thread cost is dominated by draw call count and visibility work.
+よくある原因:
 
-**Draw calls.** `stat rhi` reports the count. Reduce with instancing, mesh merging and fewer material slots
-per mesh. Note that Vite has no Nanite, so draw call discipline matters more than it does in UE5.
+**アクターのティック数。** ティックするアクターは、ティックで何もしていなくてもすべてコストがかかります。
+`stat engine` でティック数を確認できます。必要のないアクターのティックを無効にし、`Tick` の中で早期リターンするのでは
+なく、ティックの間隔を使ってください。
 
-**Visibility.** `stat initviews` shows culling cost. Very high primitive counts make culling itself
-expensive. Precomputed visibility and occlusion culling help; so does simply having fewer primitives.
+**キャラクタームーブメント。** CMC は高価で、キャラクターの数に対してうまくスケールしません。
+[400 Characters CMC Bench](400-Characters-CMC-Bench.md) のデモは、まさにこれを計測するために存在します。キャラクターが
+多い場合、これがコストの原因である可能性が高いでしょう。
 
-## GPU bound
+**物理。** [PhysX](PhysX.md) を参照してください。ゲームスレッドの時間に占める物理の時間の割合を確認します。大量の
+シミュレーションするボディは [インスタンス化物理](Instanced-Physics.md) に移すべきです。
+
+**オーバーラップイベント。** オーバーラップイベントはよくある隠れたコストであるため、Vite はプリミティブコンポーネントで
+既定で無効にしています。[エンジンの既定値の変更](Engine-Defaults.md) を参照してください。
+
+**ブループリント。** ブループリント VM の実行はネイティブの C++ より遅くなります。毎フレーム実行される重いロジックは
+C++ に置くべきです。
+
+## レンダースレッドがボトルネックの場合
 
 ```
-stat gpu               // GPU pass breakdown
-profilegpu             // detailed single-frame GPU capture
-r.ScreenPercentage 50  // A/B test for pixel-cost bound
+stat scenerendering    // レンダースレッドの内訳
+stat initviews         // 可視性とカリングのコスト
+stat rhi               // ドローコール、プリミティブ、三角形
 ```
 
-`profilegpu` is the important one. It produces a per-pass breakdown of a single frame, which tells you
-whether your GPU time is in base pass, shadows, ray tracing, post processing or something unexpected.
+レンダースレッドのコストは、ドローコールの数と可視性の処理が大半を占めます。
 
-For a Vite project, the passes worth scrutinising:
+**ドローコール。** `stat rhi` で数を確認できます。インスタンシング、メッシュの結合、メッシュあたりのマテリアル
+スロットの削減で減らします。Vite には Nanite がないため、ドローコールの管理は UE5 よりも重要になります。
 
-| Pass | Notes |
+**可視性。** `stat initviews` でカリングのコストを確認できます。プリミティブの数が非常に多いと、カリング自体が
+高価になります。事前計算された可視性とオクルージョンカリングが役立ちますが、単純にプリミティブを減らすことも
+効果的です。
+
+## GPU がボトルネックの場合
+
+```
+stat gpu               // GPU のパスの内訳
+profilegpu             // 1 フレームの詳細な GPU キャプチャ
+r.ScreenPercentage 50  // ピクセルのコストが原因かを A/B テスト
+```
+
+重要なのは `profilegpu` です。1 フレームのパスごとの内訳を出力し、GPU の時間がベースパス、シャドウ、
+レイトレーシング、ポストプロセス、あるいは予期しない何かのどこにあるのかを示します。
+
+Vite のプロジェクトで注意して見るべきパス:
+
+| パス | 備考 |
 |---|---|
-| Ray tracing passes | See [Ray Tracing](Ray-Tracing.md). `r.RayTracing.ForceAllRayTracingEffects 0` establishes how much of the frame they account for. |
-| DDGI | Should be modest and stable. See [Dynamic DDGI](DDGI-Dynamic.md). |
-| Base pass | Driven by material complexity and overdraw |
-| Shadow depths | Driven by shadow-casting light count and cascade configuration |
-| Translucency | Driven by overdraw. Particles are the usual cause. |
-| SMAA | Small and fixed. If it is large, check `r.Vite.SMAA.Mode`. |
+| レイトレーシングのパス | [レイトレーシング](Ray-Tracing.md) を参照。`r.RayTracing.ForceAllRayTracingEffects 0` で、フレームのどれだけを占めているかを確認できます。 |
+| DDGI | 控えめで安定しているはずです。[動的 DDGI](DDGI-Dynamic.md) を参照。 |
+| ベースパス | マテリアルの複雑さとオーバードローで決まる |
+| シャドウの深度 | シャドウを落とすライトの数とカスケードの構成で決まる |
+| 半透明 | オーバードローで決まる。通常の原因はパーティクル |
+| SMAA | 小さく一定。大きい場合は `r.SMAA.Quality` を確認してください。 |
 
-## View modes
+## ビューモード
 
-Viewport view modes are often faster than a profile capture for locating a problem:
+問題の場所を突き止めるには、プロファイルのキャプチャよりビューポートのビューモードのほうが早いことがよくあります。
 
-| View mode | Reveals |
+| ビューモード | わかること |
 |---|---|
-| Shader Complexity | Expensive materials and overdraw |
-| Quad Overdraw | Small triangles wasting quad occupancy |
-| Light Complexity | Overlapping dynamic lights |
-| Lightmap Density | Lightmap resolution problems |
-| Wireframe | Runaway [tessellation](Tessellation.md) and unexpected geometry density |
+| Shader Complexity | 高価なマテリアルとオーバードロー |
+| Quad Overdraw | クアッドの占有率を無駄にする小さな三角形 |
+| Light Complexity | 重なり合う動的ライト |
+| Lightmap Density | ライトマップの解像度の問題 |
+| Wireframe | 暴走した [テッセレーション](Tessellation.md) と、予期しないジオメトリの密度 |
 
 ## Session Frontend
 
-**Window > Developer Tools > Session Frontend > Profiler** captures a timeline you can scrub through, which
-is the right tool for intermittent hitches. A hitch that happens once every thirty seconds will not show up
-in `stat unit`.
+**ウィンドウ > 開発者ツール > Session Frontend > Profiler** は、前後に移動しながら確認できるタイムラインを
+キャプチャします。断続的なヒッチにはこれが適したツールです。30 秒に 1 回起きるヒッチは `stat unit` には現れません。
 
-Common hitch sources in a Vite project:
+Vite のプロジェクトでよくあるヒッチの原因:
 
-- Shader compilation on first encounter with a material. See
-  [Shader Compilation and PSO](Shader-Compilation-And-PSO.md).
-- Ray tracing acceleration structure builds when large amounts of geometry stream in.
-- Physics body creation bursts. See `MaxAddActorsPerFrame` in
-  [Instanced Physics](Instanced-Physics.md).
-- Level streaming and asset loading.
-- Garbage collection.
+- マテリアルに初めて出会ったときのシェーダーコンパイル。[シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md)
+  を参照してください。
+- 大量のジオメトリがストリーミングされたときの、レイトレーシングのアクセラレーション構造の構築。
+- 物理ボディの集中的な生成。[インスタンス化物理](Instanced-Physics.md) の `MaxAddActorsPerFrame` を参照して
+  ください。
+- レベルストリーミングとアセットの読み込み。
+- ガベージコレクション。
 
-## Profiling against a target
+## 目標に照らしたプロファイリング
 
-Reading a number is only useful against a budget. Vite's [performance targets](Performance-Targets.md)
-give you one:
+数値を読むことは、予算と照らし合わせて初めて役に立ちます。Vite の [パフォーマンス目標](Performance-Targets.md) が
+その予算を与えます。
 
-| Target | Frame budget |
+| 目標 | フレームの予算 |
 |---|---|
 | Stylised 4K120 | 8.3&nbsp;ms |
 | Performance High End 4K60 | 16.6&nbsp;ms |
 | Fidelity High End 4K30 | 33.3&nbsp;ms |
 | Fidelity Full RT 1440p30 | 33.3&nbsp;ms |
 
-Profile on hardware representative of your minimum spec, in a Development or Test build rather than in the
-editor, in a scene representative of worst-case gameplay rather than an empty level. Editor overhead alone
-can be several milliseconds, and a profile taken in an empty level tells you nothing about the frame you
-have to ship.
+最低スペックを代表するハードウェアで、エディタではなく Development または Test ビルドで、空のレベルではなく最悪の
+ゲームプレイを代表するシーンでプロファイリングしてください。エディタのオーバーヘッドだけで数ミリ秒になることがあり、
+空のレベルで取ったプロファイルは、出荷しなければならないフレームについて何も教えてくれません。
 
-## See also
+## 関連項目
 
-- [PS5 CPU FPU](PS5-CPU-FPU.md)
-- [Performance Targets](Performance-Targets.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
-- [Engine Default Changes](Engine-Defaults.md)
-- [Shader Compilation and PSO](Shader-Compilation-And-PSO.md)
+- [PS5 CPU の FPU](PS5-CPU-FPU.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+- [エンジンの既定値の変更](Engine-Defaults.md)
+- [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md)
 - [Compiler Explorer](Compiler-Explorer.md)

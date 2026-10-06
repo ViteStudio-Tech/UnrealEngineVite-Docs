@@ -107,7 +107,7 @@ Per-pixel ray-traced GI is reference-only and compiled out by default. See
 ### Why SMAA instead of TAA?
 
 TAA's ghosting, smearing and motion softness are structural, not tuning problems. SMAA is spatial and does
-not have them. It is Vite's recommended default and is enabled with `r.Vite.SMAA.Mode`. See
+not have them. It is Vite's recommended method: select it with `r.DefaultFeature.AntiAliasing=4` and set its quality with `r.SMAA.Quality`. See
 [Anti-Aliasing](Anti-Aliasing.md).
 
 ### Which upscaler should I use?

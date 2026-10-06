@@ -18,7 +18,7 @@ Set variables at runtime in the console, or persistently in `Config\DefaultEngin
 
 ```ini
 [/Script/Engine.RendererSettings]
-r.Vite.SMAA.Mode=1
+r.SMAA.Quality=2
 r.HBAO.Enable=1
 ```
 
@@ -28,9 +28,10 @@ These do not exist in stock UE 4.27.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `r.Vite.SMAA.Mode` | 1 | SMAA quality. 0 = Low, 1 = High. See [Anti-Aliasing](Anti-Aliasing.md). |
-| `r.Vite.SSAO` | &mdash; | Vite's optimised SSAO path. See [Ambient Occlusion](Ambient-Occlusion.md). |
-| `r.AntiAliasing.SMAA.Debug` | &mdash; | SMAA debug visualisation |
+| `r.SMAA.Quality` | 2 | SMAA quality. 0 = Low, 1 = Medium, 2 = High, 3 = Ultra. August Major onwards; earlier releases use `r.Vite.SMAA.Mode` (0 = Low, 1 = High). See [Anti-Aliasing](Anti-Aliasing.md). |
+| `r.SMAA.EdgeMode` | 0 | SMAA edge detection. 0 = colour, 1 = luminance. August Major onwards. |
+| `r.SMAA.DebugVisualization` | 0 | SMAA debug view, non-Shipping builds. 1 = edges, 2 = blend weights, 3 = highlighted result. Earlier releases use `r.AntiAliasing.SMAA.Debug`. |
+| `r.Vite.SSAO` | 1 | Vite's optimised SSAO path, development builds only; Shipping and Test are locked to `VITE_O_SSAO`. See [Ambient Occlusion](Ambient-Occlusion.md). |
 | `p.VitePhysXFixedTimestep.Enabled` | 0 | Enable fixed timestep physics |
 | `p.VitePhysXFixedTimestep.DeltaTime` | 1/60 | Fixed step duration in seconds |
 | `p.VitePhysXFixedTimestep.MaxTimesteps` | &mdash; | Maximum steps per frame |

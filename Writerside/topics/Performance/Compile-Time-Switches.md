@@ -157,7 +157,7 @@ r.Vite.SSAO 0   // stock UE path
 r.Vite.SSAO 1   // optimised path
 ```
 
-Shipping builds are locked to the compile-time value; the CVar does not exist. The runtime toggle exists so
+Shipping and Test builds are locked to the compile-time value; the CVar does not exist there. The runtime toggle exists so
 the two paths can be A/B compared during development, which is how the optimisation was validated. There is
 no reason to turn the compile-time switch off. See [Ambient Occlusion](Ambient-Occlusion.md).
 
@@ -218,8 +218,7 @@ The most reliable check is to set the relevant CVar and see whether the effect a
 `r.RayTracing.SampledDirectLighting 1` produces no change in a scene with hundreds of lights,
 `VITE_RT_PSO_DEBLOAT` is on.
 
-For the switches with runtime CVars, checking whether the CVar exists at all is a direct test: in a Shipping
-build, `r.Vite.SSAO` will not be found because it is compiled out.
+For the switches with runtime CVars, checking whether the CVar exists at all is a direct test: in a Shipping or Test build, `r.Vite.SSAO` will not be found because it is compiled out.
 
 ## See also
 

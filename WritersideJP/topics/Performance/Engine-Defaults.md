@@ -1,68 +1,68 @@
-# Engine Default Changes
+# エンジンの既定値の変更
 
 <tldr>
 <p>
-Vite changes a number of stock Unreal Engine 4.27 defaults for performance. These changes affect your
-project directly &mdash; some of them change runtime behaviour, not just cost. Read this page before
-concluding that something is broken.
+Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいくつか変更しています。これらの変更はプロジェクトに直接
+影響し、一部はコストだけでなく実行時の挙動も変えます。何かが壊れていると判断する前に、このページを読んでください。
 </p>
 </tldr>
 
-Stock Unreal defaults are chosen to make everything work out of the box, which means they enable features
-most projects never use. Vite changes several of them to favour performance, on the principle that a
-feature you want should be something you turn on rather than something you forget to turn off.
+標準の Unreal の既定値は、すべてがそのまま動くように選ばれており、ほとんどのプロジェクトが使わない機能まで有効に
+なっています。Vite は、必要な機能は「オフにし忘れるもの」ではなく「オンにするもの」であるべきだという原則に基づき、
+その一部を性能重視に変更しています。
 
-The trade is that a project moved from stock 4.27 to Vite may behave differently. This page is the list.
+その代わり、標準の 4.27 から Vite に移したプロジェクトは挙動が変わることがあります。このページはその一覧です。
 
-## Runtime behaviour changes
+## 実行時の挙動の変更
 
 <warning>
-These change behaviour, not just performance. If gameplay logic depends on the stock default, it will need
-attention.
+これらは性能だけでなく挙動も変えます。ゲームプレイのロジックが標準の既定値に依存している場合は、対応が必要です。
 </warning>
 
-### Overlap events disabled by default
+### オーバーラップイベントは既定で無効
 
-Primitive components no longer generate overlap events unless explicitly enabled.
+プリミティブコンポーネントは、明示的に有効にしない限りオーバーラップイベントを生成しなくなりました。
 
-Overlap event generation costs on every component that has it, whether or not anything is bound to the
-event. In a stock project the majority of primitives generate overlap events that nothing listens to.
+オーバーラップイベントの生成は、イベントに何かがバインドされているかどうかに関係なく、それを持つすべての
+コンポーネントでコストがかかります。標準のプロジェクトでは、大半のプリミティブが誰も受け取らないオーバーラップ
+イベントを生成しています。
 
-**What this means for you:** components that need overlap events must set **Generate Overlap Events**
-explicitly. Trigger volumes, pickup detection and anything driven by `OnComponentBeginOverlap` need the
-flag set. This is the most likely source of "my trigger stopped working" after migrating a project.
+**影響:** オーバーラップイベントが必要なコンポーネントは、**Generate Overlap Events** を明示的に設定する必要が
+あります。トリガーボリューム、ピックアップの検出、`OnComponentBeginOverlap` で動くものはすべて、このフラグを設定して
+ください。プロジェクトを移行した後に「トリガーが動かなくなった」という問題の最も可能性の高い原因です。
 
-<img src="OverlapEventsDisabled.png" alt="Commit diff replacing SetGenerateOverlapEvents(true) with bGenerateOverlapEvents = false in PrimitiveComponent.cpp" border-effect="line"/>
+<img src="OverlapEventsDisabled.png" alt="PrimitiveComponent.cpp で SetGenerateOverlapEvents(true) を bGenerateOverlapEvents = false に置き換えるコミットの差分" border-effect="line"/>
 
-*One line in `UPrimitiveComponent`, applied to every primitive in every project.*
+*`UPrimitiveComponent` の 1 行が、あらゆるプロジェクトのあらゆるプリミティブに適用されます。*
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/02d7c0ad0a7542b382a70dc3e37877d6ec052d76)
+[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/02d7c0ad0a7542b382a70dc3e37877d6ec052d76)
 
-### Optimised actor runtime
+### 最適化されたアクターのランタイム
 
-Actor runtime defaults are changed to reduce per-actor overhead in `AActor::InitializeDefaults`:
+アクターのランタイムの既定値は、`AActor::InitializeDefaults` でのアクターごとのオーバーヘッドを減らすように変更されて
+います。
 
-| Default | Stock 4.27 | Vite | Why |
+| 既定値 | 標準の 4.27 | Vite | 理由 |
 |---|---|---|---|
-| `SetCanBeDamaged` | `true` | `false` | Only actors that use the damage system need it |
-| `bRelevantForNetworkReplays` | `true` | `false` | Keeps actors out of demo net recording unless wanted |
-| `bRelevantForLevelBounds` | `true` | `false` | Avoids level-bounds iteration over actors that do not define bounds |
+| `SetCanBeDamaged` | `true` | `false` | ダメージシステムを使うアクターだけが必要とするため |
+| `bRelevantForNetworkReplays` | `true` | `false` | 必要な場合を除き、アクターをデモのネットワーク録画から除外するため |
+| `bRelevantForLevelBounds` | `true` | `false` | 境界を定義しないアクターに対するレベル境界の反復処理を避けるため |
 
-<img src="OptimizedActorRuntime.png" alt="Commit diff in Actor.cpp changing SetCanBeDamaged, bRelevantForNetworkReplays and bRelevantForLevelBounds defaults" border-effect="line"/>
+<img src="OptimizedActorRuntime.png" alt="Actor.cpp で SetCanBeDamaged、bRelevantForNetworkReplays、bRelevantForLevelBounds の既定値を変更するコミットの差分" border-effect="line"/>
 
-*Large meshes, blocking volumes and foliage that must define world bounds need `bRelevantForLevelBounds`
-set back to `true`.*
+*ワールドの境界を定義する必要がある大きなメッシュ、ブロッキングボリューム、フォリッジは、`bRelevantForLevelBounds` を
+`true` に戻す必要があります。*
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/970cbb989c3712f13be1fa370b778e769e5d864c)
+[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/970cbb989c3712f13be1fa370b778e769e5d864c)
 
-### Skeletal mesh optimised configuration
+### スケルタルメッシュの最適化された構成
 
-Skeletal meshes are among the top CPU offenders in most projects, so `USkeletalMeshComponent` ships with
-performance-oriented defaults instead of Epic's fully featured ones. In-world assets often contain many
-skeletal meshes, which makes enabling optimised settings per component impractical; configuring the cheap
-path as the default and opting into the expensive options where they are needed is the workable order.
+スケルタルメッシュは、ほとんどのプロジェクトで CPU の主要な負荷要因の 1 つです。そのため `USkeletalMeshComponent` は、
+Epic の全機能を有効にした既定値ではなく、性能重視の既定値で出荷されます。ワールド内のアセットには多くのスケルタル
+メッシュが含まれることが多く、コンポーネントごとに最適化した設定を有効にするのは現実的ではありません。安価な経路を
+既定にし、必要な箇所でだけ高価なオプションを有効にするほうが、実際に運用できる順序です。
 
-| Default | Stock 4.27 | Vite |
+| 既定値 | 標準の 4.27 | Vite |
 |---|---|---|
 | `VisibilityBasedAnimTickOption` | `AlwaysTickPoseAndRefreshBones` | `OnlyTickPoseWhenRendered` |
 | `bEnableUpdateRateOptimizations` | `false` | `true` |
@@ -70,129 +70,176 @@ path as the default and opting into the expensive options where they are needed 
 | `bDisablePostProcessBlueprint` | `false` | `true` |
 | `bUpdateOverlapsOnAnimationFinalize` | `true` | `false` |
 
-<img src="SkeletalMeshesOptimizedConfig.png" alt="Commit diff in SkeletalMeshComponent.cpp showing the five changed defaults against Epic's originals" border-effect="line"/>
+<img src="SkeletalMeshesOptimizedConfig.png" alt="SkeletalMeshComponent.cpp で 5 つの既定値を Epic の元の値と並べて変更しているコミットの差分" border-effect="line"/>
 
-*Each changed line keeps Epic's original value in a trailing comment, so the stock behaviour is recoverable
-without consulting upstream.*
+*変更した各行には Epic の元の値が末尾のコメントとして残されているため、上流を参照しなくても標準の挙動に戻せます。*
 
-`VisibilityBasedAnimTickOption` is the one to watch. `OnlyTickPoseWhenRendered` means an off-screen
-character stops evaluating its pose entirely; gameplay that reads bone transforms or sockets on unrendered
-characters &mdash; weapon muzzle positions, IK targets, attach points on a distant actor &mdash; must set
-the component back to `AlwaysTickPose` or `AlwaysTickPoseAndRefreshBones`.
+注意すべきは `VisibilityBasedAnimTickOption` です。`OnlyTickPoseWhenRendered` では、画面外のキャラクターはポーズの評価を
+完全に止めます。描画されていないキャラクターのボーンのトランスフォームやソケットを読むゲームプレイ（武器の銃口の位置、
+IK のターゲット、遠くのアクターのアタッチポイントなど）では、コンポーネントを `AlwaysTickPose` または
+`AlwaysTickPoseAndRefreshBones` に戻す必要があります。
 
-`bDisablePostProcessBlueprint = true` is the second: post-process anim Blueprints, commonly used for IK
-and bone corrections, no longer run unless re-enabled per component.
+2 つ目は `bDisablePostProcessBlueprint = true` です。IK やボーンの補正によく使われるポストプロセスのアニメーション
+ブループリントは、コンポーネントごとに再び有効にしない限り実行されなくなります。
 
-<img src="SkeletalMeshDefault.png" alt="SkeletalMeshComponent.cpp constructor showing the surrounding default block" border-effect="line"/>
+<img src="SkeletalMeshDefault.png" alt="既定値のブロック全体を示す SkeletalMeshComponent.cpp のコンストラクター" border-effect="line"/>
 
-*The surrounding constructor block in `SkeletalMeshComponent.cpp`, for context on where these defaults are
-set.*
+*これらの既定値が設定されている場所の文脈として、`SkeletalMeshComponent.cpp` のコンストラクターの該当ブロック。*
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/33fe7c638829b8120e8a02ecc639acda761df835)
+[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/33fe7c638829b8120e8a02ecc639acda761df835)
 
-### Generate Lightmap UVs disabled
+### ライトマップ UV の生成は無効
 
-Static mesh import no longer generates lightmap UVs by default.
+スタティックメッシュのインポートで、既定ではライトマップ UV を生成しなくなりました。
 
-Most Vite projects use [DDGI](DDGI-Dynamic.md) rather than baked lighting, so generating lightmap UVs for
-every imported mesh is wasted import time and wasted UV channels. If your project bakes lighting, enable
-the setting in the static mesh import options.
+ほとんどの Vite のプロジェクトはベイクしたライティングではなく [DDGI](DDGI-Dynamic.md) を使うため、インポートする
+すべてのメッシュにライトマップ UV を生成するのは、インポート時間と UV チャンネルの無駄です。プロジェクトでライティングを
+ベイクする場合は、スタティックメッシュのインポートオプションでこの設定を有効にしてください。
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
+[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
 
-## Scalability
+## スケーラビリティ
 
-Shadow Quality 4 is used for the Medium shadow setting, raising shadow quality in the middle of the
-scalability range.
+Vite は `Engine/Config/BaseScalability.ini` のシャドウのスケーラビリティグループを調整し直しています。標準の 4.27 は、
+Low でほぼシャドウなし、Epic と Cinematic で非常に高価なシャドウという幅の広い構成です。Vite はその幅を狭め、Low で
+実用的なシャドウを出し、High と Epic を安価にし、Medium は変更していません。
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/1718cd66e08a2b47222f895162e3be2b2c98ee6a)
+| グループ | `r.ShadowQuality`（標準 &rarr; Vite） | 標準からのその他の変更 |
+|---|---|---|
+| Low（`@0`） | 0 &rarr; **2** | カスケードを 1 から 4 に、最大シャドウ解像度 1024、ディスタンスフィールドとカプセルのシャドウを有効、ライト関数を有効、ライトの描画距離を短縮しない |
+| Medium（`@1`） | 3 &rarr; 3 | なし |
+| High（`@2`） | 5 &rarr; **4** | シャドウの距離スケール 0.85 &rarr; 0.75、カスケードの遷移 0.8 &rarr; 0.7 |
+| Epic（`@3`） | 5 &rarr; 5 | カスケードの上限を 10 から 8 に、半径のしきい値 0.01 &rarr; 0.02、距離スケール 1.0 &rarr; 0.85、ボリュメトリックフォグのグリッドを 8&nbsp;px &times; 128 スライスから 16&nbsp;px &times; 64 スライスに |
+| Cinematic | 5 &rarr; 5 | 最大シャドウ解像度 4096 &rarr; 2048、ボリュメトリックフォグのグリッドを 4&nbsp;px から 8&nbsp;px に、履歴ミス時のスーパーサンプルを 16 から 4 に |
 
-## Disabled plugins
+トレーラーやオフラインのキャプチャで標準の Epic や Cinematic のシャドウの予算に頼っている場合は、エンジンのファイルを
+編集するのではなく、プロジェクトの `DefaultScalability.ini` でそれらの値を上書きしてください。
 
-A number of plugins that ship enabled in stock 4.27 are disabled by default. This reduces editor startup
-time, module load count and packaged build size.
+## ゲームプレイの既定値を元に戻す
 
-**VR plugins in particular must be re-enabled if you need them.**
+上記のオーバーラップとスケルタルメッシュの既定値は、移行したプロジェクトを最も壊しやすいものです。
+[August Major](ueVite26-AugustMajor.md) 以降、エンジンのルートにある `ViteDefaults.bat` で、エンジンのソースを手で編集せずに
+それぞれを Vite と標準の UE 4.27 の間で切り替えられます。
 
-[Commit 1](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e9aebc2ef9f8acb7326a7e989f288ef68969342f) &middot;
-[Commit 2](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
+```
+ViteDefaults.bat                                  :: 現在の状態を表示する対話式メニュー
+ViteDefaults.bat -DetectOnly                      :: 現在の状態を報告するだけ
+ViteDefaults.bat -SetOverlap ue427 -SetSkm vite   :: オーバーラップは標準、スケルタルメッシュは Vite の既定値
+```
 
-## Tick optimisations
+このツールは `PrimitiveComponent.cpp` と `SkeletalMeshComponent.cpp` の既定値を書き換えるため、実行後にエディタを再ビルド
+してください。可能であれば、影響を受けるコンポーネントをプロジェクト側で修正するほうを優先してください。エンジンの既定値を
+元に戻すと、そのコストがすべてのレベルのすべてのプリミティブやスケルタルメッシュに戻ってきます。
 
-### SpeedTree tick
+## 無効化されたプラグイン {id="disabled-plugins"}
 
-The SpeedTree tick in `LevelTick.cpp` is optimised. SpeedTree ticking runs regardless of whether a project
-uses SpeedTree assets, so this is a saving every project gets.
+Vite のプラグインプロファイルは、ほとんどの Win64 のプロジェクトが読み込まないエンジンのプラグインをオフにし、エディタの
+起動時間、読み込むモジュールの数、パッケージ化したビルドのサイズを減らします。プロファイルがツリーに適用される方法は
+リリースによって異なります。
 
-<img src="SpeedTreeTick.png" alt="LevelTick.cpp showing the UpdateSpeedTreeWind call inside the world tick" border-effect="line"/>
+| リリース | プロファイルの適用方法 |
+|---|---|
+| [LTS](ueVite25-LTS.md) から [June Major](ueVite26-JuneMajor.md) | ソースツリーに組み込み済み。プラグインは `EnabledByDefault` が `false` の状態で出荷 |
+| [July Major](ueVite26-JulyMajor.md) 以降 | 互換性のため、ツリーは標準の 4.27 の値で出荷。`devops\ueVite-ApplyVitePluginDefaults.bat` を実行してプロファイルを適用 |
 
-*`Scene->UpdateSpeedTreeWind` in the world tick &mdash; unconditional in stock 4.27.*
+プロファイルの内容は `devops\ViteEnginePluginDefaults.txt` の一覧です。39 のエンジンのプラグインを無効にし、1 つを有効に
+します。
 
-[Source](https://github.com/GapingPixel/UE5-PhysX-Vite/blob/3e4a16aa89de4f4c37da300c945d6a14dc62edd7/Engine/Source/Runtime/Engine/Private/LevelTick.cpp#L1709)
+- **無効:** Paper2D、CLion・CodeLite・KDevelop のソースコードアクセス、Plastic SCM と Subversion のソース管理、Chaos Cloth・
+  Chaos Editor・Chaos Niagara と Chaos のソルバーのプラグイン、Alembic のインポーター、Facial Animation、Crypto Keys、
+  Android・Apple・WMF のメディア再生、OpenXR・Oculus VR・SteamVR、そして Google Cloud Messaging、Google PAD、
+  Chunk Downloader、Mobile Patching Utils などのモバイル向けサービス。
+- **有効:** Vite の [破壊](Destruction-And-Cloth.md) の経路である Blast。
 
-### Niagara tick
+```
+devops\ueVite-ApplyVitePluginDefaults.bat            :: Vite のプロファイルを適用
+devops\ueVite-ApplyVitePluginDefaults.bat --dryrun   :: 変更内容を報告するだけ
+devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: 標準の 4.27 の値に戻す
+```
 
-Niagara ticks whenever the plugin is enabled. Disable the Niagara plugin at project level if you do not use
-it; Cascade remains available in 4.27.
+`--yes` を付けると確認のプロンプトを省略します。このスクリプトは `.uplugin` ファイルだけを編集するため、`.uproject` で
+明示的に指定したプラグインは、どちらの場合もそのまま残ります。
 
-## Ray tracing culling
+**特に VR のプラグインは、必要な場合は再び有効にする必要があります。** Windows で Media Framework を通じて動画を再生する
+プロジェクトでは、WMF Media も同様です。
 
-Ray tracing culling respects each primitive's minimum draw distance:
+[コミット 1](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e9aebc2ef9f8acb7326a7e989f288ef68969342f) &middot;
+[コミット 2](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
+
+## ティックの最適化
+
+### SpeedTree のティック
+
+`LevelTick.cpp` の SpeedTree のティックが最適化されています。SpeedTree のティックはプロジェクトが SpeedTree の
+アセットを使っているかどうかに関係なく実行されるため、これはすべてのプロジェクトが得られる節約です。
+
+<img src="SpeedTreeTick.png" alt="ワールドのティック内の UpdateSpeedTreeWind の呼び出しを示す LevelTick.cpp" border-effect="line"/>
+
+*ワールドのティック内の `Scene->UpdateSpeedTreeWind`。標準の 4.27 では無条件に実行されます。*
+
+[ソース](https://github.com/GapingPixel/UE5-PhysX-Vite/blob/3e4a16aa89de4f4c37da300c945d6a14dc62edd7/Engine/Source/Runtime/Engine/Private/LevelTick.cpp#L1709)
+
+### Niagara のティック
+
+Niagara はプラグインが有効であれば常にティックします。使わない場合はプロジェクトレベルで Niagara のプラグインを
+無効にしてください。4.27 では Cascade も引き続き利用できます。
+
+## レイトレーシングのカリング
+
+レイトレーシングのカリングは、各プリミティブの最小描画距離を考慮します。
 
 ```c++
 GEngine->Exec(nullptr, TEXT("r.RayTracing.Culling.UseMinDrawDistance 1"));
 ```
 
-This is a cheap and generally safe win in scenes with many small detail meshes, since geometry too small to
-be drawn is also too small to matter in the acceleration structure.
+描画するには小さすぎるジオメトリはアクセラレーション構造でも影響がないほど小さいため、小さなディテールメッシュが多い
+シーンでは、安価で一般に安全な効果が得られます。
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/595f376f6de0912606b05768739aa3d24ac4f61a)
+[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/595f376f6de0912606b05768739aa3d24ac4f61a)
 
-## Editor quality-of-life
+## エディタの使い勝手
 
-These do not affect runtime performance but change editor behaviour:
+これらは実行時の性能には影響しませんが、エディタの挙動を変えます。
 
-- Animation assets always open in a new tab
-  ([commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/8bdae919e6eae61a27ef8d09d38027592a473d8c))
-- A config variable to disable the new plugins popup
-  ([commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/9af0349c1832b7094ceae7f47ba8ca5d261e0e69))
+- アニメーションのアセットは常に新しいタブで開きます
+  （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/8bdae919e6eae61a27ef8d09d38027592a473d8c)）
+- 新しいプラグインのポップアップを無効にする設定変数
+  （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/9af0349c1832b7094ceae7f47ba8ca5d261e0e69)）
 - `bDisableAllTutorialAlerts=True`
-  ([commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/d9fd593e11581fd93d0ff60b2933794f150b4780))
-- Assorted safe backports from later engine versions
-  ([commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/fe7a6f4d7c54d8725d6308820d5b4fd546b9ff49))
+  （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/d9fd593e11581fd93d0ff60b2933794f150b4780)）
+- 後のエンジンバージョンからの安全なバックポートをいくつか
+  （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/fe7a6f4d7c54d8725d6308820d5b4fd546b9ff49)）
 
-## Optional debloat you can do yourself
+## 自分で行える任意のデブロート
 
-These cannot be disabled in the fork release branch for compatibility reasons, but are available to
-individual projects.
+これらは互換性のためにフォークのリリースブランチでは無効にできませんが、個々のプロジェクトでは利用できます。
 
-**Vite plugin removal.** Removing the added Vite plugins improves compile times. Measured on a Ryzen 9
-9950X3D: full repository 15 minutes, without Vite plugins 12 minutes. Houdini is the largest single
-contributor.
+**Vite のプラグインの削除。** 追加された Vite のプラグインを取り除くと、コンパイル時間が短くなります。Ryzen 9 9950X3D
+での計測では、リポジトリ全体で 15 分、Vite のプラグインなしで 12 分でした。単一で最も大きな要因は Houdini です。
 
-See the [Debloat Guide](Debloat-Guide.md) for the tooling.
+ツールについては [デブロートガイド](Debloat-Guide.md) を参照してください。
 
-## Migrating an existing project
+## 既存のプロジェクトを移行する
 
-<procedure title="Check a migrated project against Vite defaults" id="check-defaults">
+<procedure title="移行したプロジェクトを Vite の既定値と照らし合わせて確認する" id="check-defaults">
     <step>
-        Test every trigger volume and overlap-driven interaction. Overlap events are the most common
-        breakage.
+        すべてのトリガーボリュームとオーバーラップで動くインタラクションをテストします。オーバーラップイベントは
+        最もよくある不具合の原因です。
     </step>
     <step>
-        Check characters using leader/follower skeletal mesh setups for missing curve propagation.
+        リーダー／フォロワーのスケルタルメッシュ構成を使うキャラクターで、カーブの伝播が欠けていないかを確認します。
     </step>
     <step>
-        If the project bakes lighting, re-enable lightmap UV generation and confirm existing meshes still
-        have valid lightmap UVs.
+        プロジェクトでライティングをベイクする場合は、ライトマップ UV の生成を再び有効にし、既存のメッシュに有効な
+        ライトマップ UV があることを確認します。
     </step>
-    <step>Re-enable any plugins your project needs, VR in particular.</step>
-    <step>Review scalability settings, since Medium shadows now differ from stock.</step>
+    <step>プロジェクトに必要なプラグイン、特に VR と WMF Media を再び有効にします。</step>
+    <step>Low、High、Epic、Cinematic のシャドウが標準と異なるため、スケーラビリティの設定を見直します。</step>
 </procedure>
 
-## See also
+## 関連項目
 
-- [Migrating from UE5](Migrating-From-UE5.md)
-- [Debloat Guide](Debloat-Guide.md)
-- [Profiling](Profiling.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
+- [UE5 からの移行](Migrating-From-UE5.md)
+- [デブロートガイド](Debloat-Guide.md)
+- [プロファイリング](Profiling.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)

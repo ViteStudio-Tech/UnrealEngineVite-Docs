@@ -1,116 +1,118 @@
-# PS5 CPU FPU
+# PS5 CPU の FPU
 
 <tldr>
 <p>
-The PlayStation 5 CPU is Zen 2 with a <b>cut-down FPU</b>: two math pipes instead of four, 256-bit AVX2
-kept, latencies unchanged. Desktop Ryzen 3000 is the wrong proxy for FPU-bound work. Vite uses the
-<b>AMD 4700S</b> as the Windows-accessible stand-in for that FPU, and writes SIMD so it still issues on
-two pipes.
+PS5 の Zen 2 は <code>FP3</code> を削除し、<code>FP2</code> をストア専用のポートにして、<b>256 ビットの FMA パイプを
+1 本だけ</b> 残しています。AVX2 と FMA のレイテンシーはそのままです。Series X の Zen 2 にはこの削減はありません。
+Vite は FPU に依存する処理、とりわけ <b>PhysX 3.4</b> の近代化を <b>AMD 4700S</b> で検証します。その CPU は、デスクトップの
+Matisse の FPU でも Series X でもない、さらに削減された Zen 2 です。
 </p>
 </tldr>
 
-PS5-class GPU numbers on an RX 6700 do not tell you how physics, animation, audio or batch math will behave
-on the console CPU. Those kernels live on the floating-point unit, and the PS5 FPU is not a desktop Zen 2
-FPU with a lower clock.
+4700S はラボに GPU ではなく CPU のために置かれています。その Zen 2 は、Series X の Zen 2 に比べてさらに削減された FPU
+です。実際の用途は、PhysX 3.4 のライブラリにおける FPU 側の変更が PS5 クラスのコアでどう振る舞うかを確認することです。
+アイランドの解決、コンタクトの生成、コンストレイントの準備、積分は FMA のスループットに依存する処理であり、Vite が
+近代化を進めているのはまさにその負荷です。
 
-## Why the 4700S exists in the test matrix
+デスクトップの Ryzen 3000 の FPU では、その処理を過大評価してしまいます。Series X でも過大評価になります。4700S なら
+そうはなりません。
 
-AMD's 4700S desktop kit is eight Zen 2 cores with the on-die GPU fused off. The cores are the
-console-derived cut: mainly the FPU, relative to desktop Zen 2 and to Series X Zen 2. That is the reason
-the kit is in the lab. It is not a GPU box.
+## Series X が CPU の代替として不適切な理由
 
-| Machine | What it is good for | What it is not |
+Scarlett（Series X）は **153 億** トランジスター、Oberon（PS5）は **106 億** トランジスターです。トランジスター数で約
+**1.4 倍** で、よく 50% 多いと丸められます。追加のシリコンは大きな GPU（52 CU 対 36 CU）だけではありません。Series X は
+CPU にもより多くのトランジスターを使っており、その中にはより完全な Zen 2 の FPU が含まれます。
+
+PS5 の Zen 2 は、Matisse の整数、ロード／ストア、アウトオブオーダーの部分をほぼ標準のまま残し、FPU で面積を
+節約しています。
+
+| ポート | デスクトップの Zen 2 / Series X クラス | PS5 / 4700S クラス |
 |---|---|---|
-| **AMD 4700S** | Windows + PS5-class CPU FPU. Physics, animation, audio, SSE/AVX kernels. | GPU. The iGPU is fused off. |
-| **AMD 4800S** | Same class of kit; iGPU also fused off. | GPU testing. Do not treat it as a fuller FPU than the 4700S without measuring it. |
-| **RX 6700 / 6700-class RDNA2** | Desktop RDNA2 compiler and throughput proxy for the PS5 GPU. | Cycle-accurate PS5 GPU. Cache, RB+, RT, and several ISA bits differ. |
-| **AMD BC-250** | Harvested Oberon-class APU: same FPU family, working RDNA2-derived GPU. | Vite's Windows / DX12 path. No usable Windows GPU driver. |
+| `FP0` | 256 ビットの FMA / FMUL | **256 ビットの FMA / FMUL（残された FMA パイプ）** |
+| `FP1` | 256 ビットの FMA / FMUL | FMA 以外の浮動小数点演算（FADD など） |
+| `FP2` | FADD + ベクトルストア | **ベクトルストアのみ** |
+| `FP3` | FADD | **削除** |
+| AVX2 | 256 ビット | 256 ビット（AVX を 2 ビートで実行する 128 ビットの FPU ではない） |
+| FMA のレイテンシー | 約 5 サイクル | 約 5 サイクル |
+| 浮動小数点の物理レジスタファイル | 160 × 256 ビット | 160 × 256 ビット |
 
-The BC-250 is how public microbenchmarks (notably [Chips and Cheese](https://chipsandcheese.com/p/the-nerfed-fpu-in-ps5s-zen-2-cores))
-characterised the PS5 FPU. It is not a substitute for running Vite Editor or D3D12 shipping builds. The
-4700S is the machine that can actually run those builds against the cut-down FPU.
+同じクロックの Matisse コアと比べた定常状態の発行数:
 
-<note>
-Console platform code stays private. This page is about portable SIMD and a Windows proxy CPU. It is not a
-PS5 SDK document. See <a href="Platforms.md">Platforms</a>.
-</note>
-
-## What was actually cut
-
-Desktop Zen 2 has a four-port FPU (`FP0`–`FP3`). Two ports do FMA/MUL, two do FADD, and vector stores share
-the cluster. Die shots and 4700S / BC-250 measurements show the console-derived core does this:
-
-- **`FP3` deleted.**
-- **`FP2` stores only** — math units removed or folded into `FP0`/`FP1`.
-- **Math issue width is two**, not four.
-- **256-bit data path and AVX2 remain.** 256-bit and 128-bit vector FP drop by about the same factor versus
-  desktop Zen 2, which is the signature of a 256-bit FPU with fewer pipes, not a 128-bit FPU executing AVX
-  in two beats.
-- **160 × 256-bit FP register file, 36-entry FP scheduler, 64-entry non-scheduling queue, and execution
-  latencies are unchanged.**
-
-Approximate steady-state throughput versus a Matisse core at the same clock:
-
-| Operation | Desktop Zen 2 | PS5 / 4700S-class |
+| 演算 | デスクトップの Zen 2 | PS5 / 4700S |
 |---|---|---|
-| Packed FMA (the physics/animation default) | 2 × 256-bit / cycle | **1 × 256-bit / cycle** |
-| Packed FADD / FMUL | 2 × 256-bit / cycle each | **1 × 256-bit / cycle each** |
-| Vector store | Dedicated-ish | Still on `FP2` — stores do not steal the remaining math pipes |
-| Packed integer MUL | 1 pipe (already) | Unchanged |
-| Packed integer ADD | 3 pipes | ~2 pipes |
-| Scalar integer, branch, load | Full Zen 2 | Full Zen 2 (some integer IPC is slightly *better* than Matisse) |
-| FMA latency | ~5 cycles | ~5 cycles |
+| パックド FMA（`vfmadd` / `a*b+c`） | **256 ビット × 2 / サイクル** | **256 ビット × 1 / サイクル** |
+| 個別の演算としてのパックド FADD / FMUL | それぞれ 256 ビット × 2 / サイクル | それぞれ 256 ビット × 1 / サイクル |
+| ベクトルストア | 浮動小数点クラスターを共有 | 引き続き `FP2` 上。FMA パイプを奪わない |
+| パックド整数の MUL | 1 パイプ | 変化なし |
+| パックド整数の ADD | 3 パイプ | 約 2 パイプ |
 
-That split is the whole optimisation problem. A kernel that is FMA-throughput bound runs at about **half**
-desktop Zen 2 rate. A kernel that is latency-bound, cache-bound, integer-bound or store-bound often does
-not. Games in the large rarely fill four FP pipes; PhysX islands, pose blending, IK, cloth, audio
-convolution and procedural animation do.
+独立した FMA は、Series X と 3700X では 2 つ同時に発行されます。PS5 と 4700S では **1 本のパイプに並びます**。FMA と
+FADD を組み合わせても、`FP2`/`FP3` で隠すことはもうできません。2 つのアキュムレーターで 5 サイクルの FMA の
+レイテンシーは引き続き隠せますが、2 本目の FMA ユニットが戻るわけではありません。
 
 <warning>
-A Ryzen 7 3700X, a 5800X3D or a 13700K will lie about FPU-bound speedups. If the optimisation is for the
-PS5 CPU, time it on the 4700S. Use the desktop chip only to answer "did the codegen get worse?"
+PhysX をはじめとする FPU に依存するカーネルの計測は 4700S で行ってください。3700X、5800X3D、13700K、または Series X の
+シリコンは、PS5 のコアにはできない FMA の 2 命令同時発行を行います。それらのチップは「コンパイラの出力が悪化したか」を
+確認する目的にだけ使ってください。
 </warning>
 
-## What this means for Vite code
+## テスト機とそれぞれの用途
 
-Unreal 4.27 `VectorRegister` is four `float`s (SSE). PhysX 3.4 narrow phase and solver are SSE2/SSE4
-kernels over batched `float`. Neither automatically uses the second 128 bits of a 256-bit FMA. AVX2 is
-still legal on this CPU; it doubles floats per FMA **instruction**, but you still have **one FMA pipe**.
-You do not get desktop Zen 2's second FMA.
+| マシン | 役割 | 向かない用途 |
+|---|---|---|
+| **AMD 4700S** | Windows + PS5 クラスの CPU の FPU。PhysX 3.4、アニメーションの SIMD、オーディオ。 | GPU。内蔵 GPU は無効化されています。 |
+| **AMD 4800S** | Xbox Series X の APU をベースにし、GPU は無効化。Series X の CPU の代替であり、コンソールのクロックでの完全な FPU との比較用。 | PS5 の FPU の数値、および GPU。どちらの FPU のクラスとして扱う前にも、下の FMA のプローブを実行してください。 |
+| **RX 6700 RDNA2** | デスクトップの RDNA2 のコンパイラとスループットの代替。シェーダーコンパイラの挙動を捉えるのに十分なほど、性能とアーキテクチャが近い。 | サイクル単位で正確な PS5 の GPU。PS5 の RDNA2 は異なる点があります（キャッシュ、RB+、エクスポート、プリミティブシェーダー、RT の ISA）。そのため、6700 のキャプチャをコンソールの GPU としてどこまで信頼できるかには限界があります。 |
+| **AMD BC-250** | Oberon クラスの選別品の APU。FPU は同じ系統で、GPU は **動作します**。 | Vite の Windows / D3D12 の経路。使える Windows 用の GPU ドライバーがないため、エディタや Shipping の実用的なテスト機にはなりません。 |
 
-Rules that follow from the pipe map:
+BC-250 は、公開されたマイクロベンチマーク（特に [Chips and Cheese](https://chipsandcheese.com/p/the-nerfed-fpu-in-ps5s-zen-2-cores)）が
+PS5 の FPU を解明するのに使ったものです。Vite のエディタは動かせません。4700S なら、ディスクリート GPU に RHI を任せた
+うえで、削減された FPU で Vite のエディタを動かせます。
 
-1. **Issue-bound packed FMA is the budget that shrank.** Independent FMAs that a 3700X dual-issues now
-   queue on one pipe. Two accumulators still help (latency hiding: five-cycle FMA × one pipe ≈ five in
-   flight), they do not restore the missing pipe.
-2. **FMA + FADD no longer hide behind extra ADD ports.** On desktop, FADD can sit on `FP2`/`FP3` while FMA
-   occupies `FP0`/`FP1`. Here FMA and FADD share two math pipes. Prefer `fmadd` form (`a * b + c`) over
-   separate mul and add when the math allows it — one uop, one pipe.
-3. **Stores are comparatively cheap.** Streaming SoA writes can use `FP2`. Do not scalar-extract in the
-   inner loop just to "simplify" stores.
-4. **Do not rewrite AVX2 down to SSE because of the old 128-bit-FPU rumour.** Width is 256-bit. SSE-only
-   inner loops leave half the register on the table and still hit the same two math pipes.
-5. **Do not emit AVX-512.** Not present. Keep `/arch:AVX2` (or Clang `-mavx2 -mfma`) for hot translation
-   units; leave `VectorRegister` SSE unless the kernel is explicitly AVX2.
-6. **FP64 halves occupancy again.** Animation, physics and audio stay FP32. LWC-style doubles on this FPU
-   are a last resort, not a default.
-7. **Integer work is not the bottleneck you are modelling.** The 4700S exists to catch FPU throughput
-   regressions, not to re-tune the task graph.
+<note>
+コンソールのプラットフォームのコードは非公開のままです。このページは移植可能な SIMD、PhysX 3.4、そして Windows 上の
+CPU の代替について説明するもので、PS5 の SDK のドキュメントではありません。<a href="Platforms.md">対応プラットフォーム</a>
+を参照してください。
+</note>
 
-The [physics SIMD notes](Physics.md) still apply: occupancy across the whole step beats a heroic kernel
-that never runs. Chaos ISPC AVX2 paths assume more FPU issue bandwidth than this core has; that is one
-reason they are the wrong reference for Vite's PhysX target.
+## FPU の負荷は PhysX 3.4
 
-## Complete FPU-side patterns
+Vite は、PS5 の CPU を最適化の目標として、**PhysX 3.4** のライブラリを近代化しています（新しい Clang/MSVC、FMA への
+縮約、バッチ化した浮動小数点カーネル）。この SDK は `physx::shdfnd::aos`（`Vec3V`、`FloatV`、`V3ScaleAdd`、`V3MulAdd`）で
+`float` を扱う SSE2/SSE4 です。ナローフェーズ、コンストレイントの準備、PGS ソルバー、積分はパックド FMA です。まさに
+2 本目の FMA パイプを失うカーネルです。
 
-All of the following is portable Windows code. Time it on the 4700S. The first snippet is a pipe probe;
-the rest is the shape hot Vite/PhysX-adjacent math should have.
+Chaos の ISPC の AVX2 の経路は、このコアが持つより多くの FPU の発行帯域を前提としています。この作業の参考としては
+不適切です。ステップ全体での占有率は、実行されることのない見事なカーネルに今も勝ります（[物理](Physics.md) を参照）。
+しかし、SDK の書き直しが達成すべき予算は、残された 1 本の FMA パイプです。
 
-### 1. Measure FMA issue width
+書き直しのルール:
 
-This is the check that distinguishes a 4700S from a 3700X. Independent `_mm256_fmadd_ps` should approach
-**8 floats × 1 FMA/cycle** on the console-cut FPU and **8 floats × 2 FMA/cycle** on desktop Zen 2 (at the
-same clock, ignoring frequency and thermal noise).
+1. **縮小したのは発行数に制約されるパックド FMA です。** 3700X が 2 つ同時に発行する独立した `V3ScaleAdd` / `fmadd` は、
+   今は 1 本のパイプを待ちます。独立したアイランドとコンタクトのバッチを維持し、1 つの依存チェーンの中で 1 サイクルに
+   2 FMA を期待しないでください。
+2. **乗算と加算を FMA に縮約します。** `V3ScaleAdd(a, s, b)`（`a * s + b`）は 1 uop です。`V3Scale` の後に `V3Add` では
+   2 uop になり、残った演算ポートを奪い合います。デスクトップでは加算を `FP2`/`FP3` で隠せましたが、PS5 では隠せません。
+3. **SoA / `Vec3V` のバッチと、アラインされたロード。** 内側のループでスカラーの `PxVec3` を使うと、挿入とスカラーの
+   ストアに発行枠を使ってしまいます。`FP2` は引き続きベクトルストアを完了できるので、活用してください。
+4. **AVX2 は使ってよいが、2 本目の FMA は戻らない。** 256 ビットの FMA は SSE に比べて 1 命令あたりの浮動小数点数を
+   2 倍にしますが、完了は 1 サイクルに 1 つのままです。古い「128 ビットの FPU」という噂を理由に AVX2 をやめないで
+   ください。Matisse はパイプの少ない 256 ビットの FPU であり、256 ビットと 128 ビットのベクトルの浮動小数点演算は
+   Matisse に比べてほぼ同じ割合で低下します。
+5. **AVX-512 を生成しない。** 存在しません。ホットな翻訳単位は `/arch:AVX2` または `-mavx2 -mfma` にします。カーネルが
+   明示的に AVX2 でない限り、Unreal の `VectorRegister` は SSE のままにしてください。
+6. **FP32 を維持する。** ソルバー、コンタクト、積分は `float` です。FP64 は SIMD の占有率をさらに半分にします。LWC の
+   double はこの経路に入れるべきではありません。
+7. **SMT を有効にして 4700S で検証する**（PS5 は SMT 有効で出荷されています）。比率は、クロックをそろえた
+   `time_4700S / time_3700X` です。1.0 に近づけば FMA のトラフィックを減らせています。2 倍近くで止まっていれば、
+   デスクトップの追加の FMA パイプが吸収していた ILP を増やしただけです。
+
+### プローブ: FMA パイプが 1 本であることを確認する
+
+独立した `_mm256_fmadd_ps` は、同じクロックで 4700S では **約 1 サイクル/uop**、デスクトップの Zen 2 では
+**約 0.5 サイクル/uop** になるはずです。依存チェーン（同じアキュムレーター）では、**どちらも約 5 サイクル/uop** になる
+はずです。「改善」が依存チェーンのテストにしか現れない場合、隠したのはレイテンシーであり、PS5 の FPU の
+スループットを取り戻したわけではありません。
 
 ```cpp
 #include <immintrin.h>
@@ -128,9 +130,6 @@ static uint64_t Ticks()
 }
 #endif
 
-// Independent FMAs: throughput bound. Dependent FMAs: latency bound.
-// On 4700S, independent should be ~2x dependent (5-cycle latency, 1 pipe).
-// On desktop Zen 2, independent should be ~4x dependent (5-cycle latency, 2 pipes).
 float ProbeFmaThroughput(uint32_t Iters)
 {
 	__m256 A = _mm256_set1_ps(1.0001f);
@@ -156,250 +155,155 @@ float ProbeFmaThroughput(uint32_t Iters)
 	alignas(32) float Out[8];
 	_mm256_store_ps(Out, Acc0);
 
-	const float CyclesPerFma = float(Dt) / float(Iters * 4u);
 	(void)Out;
-	return CyclesPerFma; // ~1.0 on 4700S, ~0.5 on desktop Zen 2 if clocks are comparable
+	return float(Dt) / float(Iters * 4u); // 4700S で約 1.0、Matisse で約 0.5
 }
 ```
 
-Compile that translation unit with AVX2+FMA (`/arch:AVX2` or `-mavx2 -mfma`). If independent FMA sits at
-~1 cycle/uop on the 4700S and ~0.5 on a 3700X, the pipe map is matching the silicon you think you have.
+この翻訳単位は `/arch:AVX2` または `-mavx2 -mfma` でコンパイルしてください。
 
-Dependent-chain variant (same `Acc` on every line) should land near **5 cycles/uop on both chips**. If a
-"win" only shows up on the dependent test, you improved latency hiding, not PS5 FPU throughput.
+### ソルバー型の FMA: スケールしてから加算ではなく `V3ScaleAdd`
 
-### 2. SoA integrate — keep FMA fused, stores vectorised
-
-Scalar `FVector` in a particle or body loop wastes issue slots on shuffles and scalar stores. Structure of
-arrays lets one `VectorMultiplyAdd` produce four bodies and lets `FP2` eat the stores.
+PhysX 3.4 にはすでに融合した形があります。それを使ってください。バッチ化した法線方向のインパルスに対する PGS の
+差分は、レーンごとに 1 つの FMA です。分割すると、4700S に予備のないパイプを無駄にします。
 
 ```cpp
-#include "Math/UnrealMathSSE.h"
+#include "PsVecMath.h"
+using namespace physx::shdfnd::aos;
 
-struct FBodySoA
+// deltaV = deltaV + n * (impulse * invMass)   — V3Scale + V3Add ではなく FMA 1 つ
+inline void ApplyNormalImpulse(
+	Vec3V& DeltaLin,
+	const Vec3V N,
+	const FloatV Impulse,
+	const FloatV InvMass)
 {
-	TArray<float> Px, Py, Pz;
-	TArray<float> Vx, Vy, Vz;
-	TArray<float> Ax, Ay, Az;
+	const FloatV S = FMul(Impulse, InvMass);
+	DeltaLin = V3ScaleAdd(N, S, DeltaLin);
+}
 
-	void Reset(int32 Count)
-	{
-		Px.SetNumZeroed(Count); Py.SetNumZeroed(Count); Pz.SetNumZeroed(Count);
-		Vx.SetNumZeroed(Count); Vy.SetNumZeroed(Count); Vz.SetNumZeroed(Count);
-		Ax.SetNumZeroed(Count); Ay.SetNumZeroed(Count); Az.SetNumZeroed(Count);
-	}
-};
-
-void IntegrateBodiesSoA(FBodySoA& Bodies, float Dt, int32 Count)
+// この FPU では悪い例: 演算の uop が 2 つになり、FADD を FP2/FP3 で隠せない
+inline void ApplyNormalImpulseSplit(
+	Vec3V& DeltaLin,
+	const Vec3V N,
+	const FloatV Impulse,
+	const FloatV InvMass)
 {
-	const float Half = 0.5f;
-	const VectorRegister VDt = VectorLoadFloat1(&Dt);
-	const VectorRegister HalfDt = VectorMultiply(VDt, VectorLoadFloat1(&Half));
-	const int32 Padded = Count & ~3;
-	int32 I = 0;
+	const Vec3V Tmp = V3Scale(N, FMul(Impulse, InvMass));
+	DeltaLin = V3Add(DeltaLin, Tmp);
+}
+```
+
+積分も同じです。`x += v * dt` はスカラーの `PxVec3` のループではなく `V3ScaleAdd` です。ベクトルストアは引き続き `FP2` が
+受け持ちます。
+
+```cpp
+void IntegrateLinearSoA(
+	PxF32* RESTRICT Px, PxF32* RESTRICT Py, PxF32* RESTRICT Pz,
+	const PxF32* RESTRICT Vx, const PxF32* RESTRICT Vy, const PxF32* RESTRICT Vz,
+	PxF32 Dt,
+	PxU32 Count)
+{
+	const FloatV VDt = FLoad(Dt);
+	const PxU32 Padded = Count & ~3u;
+	PxU32 I = 0;
 
 	for (; I < Padded; I += 4)
 	{
-		VectorRegister Px = VectorLoad(Bodies.Px.GetData() + I);
-		VectorRegister Py = VectorLoad(Bodies.Py.GetData() + I);
-		VectorRegister Pz = VectorLoad(Bodies.Pz.GetData() + I);
-		VectorRegister Vx = VectorLoad(Bodies.Vx.GetData() + I);
-		VectorRegister Vy = VectorLoad(Bodies.Vy.GetData() + I);
-		VectorRegister Vz = VectorLoad(Bodies.Vz.GetData() + I);
-		VectorRegister Ax = VectorLoad(Bodies.Ax.GetData() + I);
-		VectorRegister Ay = VectorLoad(Bodies.Ay.GetData() + I);
-		VectorRegister Az = VectorLoad(Bodies.Az.GetData() + I);
-
-		Vx = VectorMultiplyAdd(Ax, VDt, Vx);
-		Vy = VectorMultiplyAdd(Ay, VDt, Vy);
-		Vz = VectorMultiplyAdd(Az, VDt, Vz);
-
-		Px = VectorMultiplyAdd(Vx, VDt, Px);
-		Py = VectorMultiplyAdd(Vy, VDt, Py);
-		Pz = VectorMultiplyAdd(Vz, VDt, Pz);
-		Px = VectorMultiplyAdd(Ax, VectorMultiply(HalfDt, VDt), Px);
-		Py = VectorMultiplyAdd(Ay, VectorMultiply(HalfDt, VDt), Py);
-		Pz = VectorMultiplyAdd(Az, VectorMultiply(HalfDt, VDt), Pz);
-
-		VectorStore(Px, Bodies.Px.GetData() + I);
-		VectorStore(Py, Bodies.Py.GetData() + I);
-		VectorStore(Pz, Bodies.Pz.GetData() + I);
-		VectorStore(Vx, Bodies.Vx.GetData() + I);
-		VectorStore(Vy, Bodies.Vy.GetData() + I);
-		VectorStore(Vz, Bodies.Vz.GetData() + I);
+		Vec3V P = V3LoadA(Px + I); // SoA: 4 つのボディの X を読み込む。実際のコードでは Y/Z も同様
+		Vec3V V = V3LoadA(Vx + I);
+		P = V3ScaleAdd(V, VDt, P);
+		V3StoreA(P, Px + I);
+		(void)Py; (void)Pz; (void)Vy; (void)Vz;
 	}
 
 	for (; I < Count; ++I)
 	{
-		Bodies.Vx[I] += Bodies.Ax[I] * Dt;
-		Bodies.Vy[I] += Bodies.Ay[I] * Dt;
-		Bodies.Vz[I] += Bodies.Az[I] * Dt;
-		Bodies.Px[I] += Bodies.Vx[I] * Dt + 0.5f * Bodies.Ax[I] * Dt * Dt;
-		Bodies.Py[I] += Bodies.Vy[I] * Dt + 0.5f * Bodies.Ay[I] * Dt * Dt;
-		Bodies.Pz[I] += Bodies.Vz[I] * Dt + 0.5f * Bodies.Az[I] * Dt * Dt;
+		Px[I] += Vx[I] * Dt;
+		Py[I] += Vy[I] * Dt;
+		Pz[I] += Vz[I] * Dt;
 	}
 }
 ```
 
-Do not "simplify" that inner loop to `FVector P = ...; P += V * Dt;`. Three scalar lanes become three
-dependency chains and twelve scalar stores. On this FPU you cannot buy those issue slots back with clock.
+上の SoA の例は 1 回の呼び出しで 1 つの成分を読み込みます。実際のカーネルは 3 つの `Vec3V` のレーン、または 4 つの
+ボディの AoSoA ブロックを使います。重要なのは FMA とアラインされたベクトルストアであり、簡略化したレイアウトでは
+ありません。
 
-AVX2 variant of the same loop (`__m256`, stride 8) is worth it once the working set is aligned and the
-kernel is actually FMA-bound. It does not recover the missing second FMA pipe; it only uses the 256-bit
-path that is still there.
-
-### 3. Pose blend — FMA form, engine quaternion multiply
-
-Pose blending is FMA-bound. Keep it as `a*(1-t) + b*t` in registers. For quaternion products, call
-Unreal's existing `VectorQuaternionMultiply` rather than a hand-rolled Hamilton product; the shuffle
-sequence is already SSE and does not need a 4700S-specific rewrite.
+### SDK のホットパスに入れてはいけないもの
 
 ```cpp
-#include "Math/UnrealMathSSE.h"
-
-void BlendPosesLinear(
-	const VectorRegister* RESTRICT A,
-	const VectorRegister* RESTRICT B,
-	VectorRegister* RESTRICT Out,
-	const VectorRegister Alpha,
-	int32 Count)
+// ソルバーの内側のループでのスカラーの PxVec3 — 挿入／抽出とスカラーのストア
+for (PxU32 I = 0; I < Count; ++I)
 {
-	const VectorRegister OneMinus = VectorSubtract(VectorOne(), Alpha);
-	for (int32 I = 0; I < Count; ++I)
-	{
-		Out[I] = VectorMultiplyAdd(B[I], Alpha, VectorMultiply(A[I], OneMinus));
-	}
+	PxVec3 V = Bodies[I].linearVelocity;
+	V.z += gravityZ * dt;
+	Bodies[I].linearVelocity = V;
 }
 
-void MulQuatArrays(
-	const FQuat* RESTRICT A,
-	const FQuat* RESTRICT B,
-	FQuat* RESTRICT Out,
-	int32 Count)
-{
-	for (int32 I = 0; I < Count; ++I)
-	{
-		VectorQuaternionMultiply(&Out[I], &A[I], &B[I]);
-	}
-}
+// V3ScaleAdd があるのに乗算と加算を分ける
+Vec3V Tmp = V3Scale(N, Impulse);
+Delta = V3Add(Delta, Tmp);
+
+// ボディごとのカーネルでの FP64
+PxF64 X = PxF64(p.x) + PxF64(v.x) * dt;
+
+// AVX2 で Series X / Matisse の FMA 2 本が戻ると想定する
+// 独立した Acc0 と Acc1 の fmadd — デスクトップ/SX: 2/サイクル、PS5/4700S: 1/サイクル
 ```
 
-If a profiler on the 4700S shows this blend as FMA-throughput bound at scale, switch the arrays to SoA
-(`Xxxx`, `Yyyy`, `Zzzz`, `Wwww`) so each FMA covers four bones. AoS quaternion multiply stays
-shuffle-heavy; that cost is permute/decode, not the missing FPU pipe. Measure both layouts on the 4700S
-before touching the engine pose path.
+## 4700S で PhysX の FPU の作業をテストする方法
 
-### 4. Reciprocal / rsqrt instead of DIV/SQRT in inner loops
-
-Divide and sqrt occupy the FPU for many cycles and block the scheduler. On a two-pipe FPU a blocked
-scheduler is the failure mode Chips and Cheese measured (Y-Cruncher: FP scheduler full ~17% of cycles
-versus ~6% on desktop Zen 2).
-
-```cpp
-#include "Math/UnrealMathSSE.h"
-
-FORCEINLINE VectorRegister VectorRcpNewton(const VectorRegister V)
-{
-	const float NegOne = -1.0f;
-	const VectorRegister Est = VectorReciprocal(V);
-	return VectorMultiplyAdd(
-		VectorLoadFloat1(&NegOne),
-		VectorMultiply(V, VectorMultiply(Est, Est)),
-		VectorAdd(Est, Est));
-}
-
-FORCEINLINE VectorRegister VectorNormalize3Fma(const VectorRegister V)
-{
-	const VectorRegister LenSq = VectorDot3(V, V);
-	return VectorMultiply(V, VectorReciprocalSqrt(LenSq));
-}
-```
-
-Use the Newton rcp only when the caller can tolerate ~11 bits then ~22 bits. Collision contact
-normalisation can; debug drawing can. Do not replace IEEE div in gameplay-visible integration if the
-4700S is not actually DIV-bound.
-
-### 5. What not to ship
-
-```cpp
-// BAD: scalar extract in the hot loop — kills FP2 vector stores and the FMA pipe
-for (int32 I = 0; I < Count; ++I)
-{
-	FVector V = Particles[I].Velocity;
-	V.Z += GravityZ * Dt;
-	Particles[I].Velocity = V;
-}
-
-// BAD: mul and add as separate ops when an FMA exists
-VectorRegister Tmp = VectorMultiply(A, B);
-R = VectorAdd(Tmp, C);
-
-// BAD: FP64 in a per-body kernel on this FPU
-double X = (double)P.X + (double)V.X * Dt;
-```
-
-Corrected inner loop for the gravity case, still SoA:
-
-```cpp
-const float GravityDt = GravityZ * Dt;
-const VectorRegister GDt = VectorLoadFloat1(&GravityDt);
-for (int32 I = 0; I < Padded; I += 4)
-{
-	VectorRegister Vz = VectorLoad(&VzSoA[I]);
-	Vz = VectorAdd(Vz, GDt);
-	VectorStore(Vz, &VzSoA[I]);
-}
-```
-
-## How to test FPU work on the 4700S
-
-<procedure title="Validate an FPU optimisation against the PS5 CPU" id="fpu-4700s">
+<procedure title="PhysX 3.4 の FPU の変更を PS5 の CPU に対して検証する" id="fpu-4700s-physx">
     <step>
-        Land the change behind a compile-time guard if it can affect codegen globally. See
-        <a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+        コード生成全体に影響する変更はガードします。
+        <a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
     </step>
     <step>
-        Build Shipping or Test, AVX2 enabled for the kernel TU, identical flags on the 4700S and on a
-        desktop Zen 2 box.
+        近代化した PhysX 3.4 のライブラリと、エンジンの Test/Shipping ターゲットを、4700S とデスクトップの Zen 2 の
+        マシンで同じ ISA のフラグでビルドします（カーネルの翻訳単位には <code>/arch:AVX2</code> または
+        <code>-mavx2 -mfma</code>）。
     </step>
     <step>
-        Run the FMA probe above. Confirm ~1 cycle/FMA independent on the 4700S before trusting the box.
+        FMA のプローブを実行します。マシンを信頼する前に、4700S で独立した FMA が約 1 サイクルであることを確認します。
     </step>
     <step>
-        Time the real kernel (PhysX step, pose eval, audio) with <code>stat physics</code> /
-        <code>stat anim</code> / ETW, not with a 13700K Unreal Insights capture.
+        実際の SDK の経路を計測します。<code>stat physics</code>、アイランド／コンタクト／ソルバーの内訳、ETW です。
+        13700K の Insights のキャプチャを PS5 の数値として使わないでください。
     </step>
     <step>
-        Compare ratios, not absolute milliseconds: <code>time_4700S / time_3700X</code> for the kernel
-        should move toward 1.0 if you removed FMA traffic, and stay ~2× if you only added ILP the extra
-        desktop pipes were eating.
+        クロックをそろえ、SMT を有効にした状態の <code>time_4700S / time_3700X</code> を報告します。1.0 に近づけば FMA の
+        トラフィックが減っています。2 倍近くで止まっていれば、デスクトップの 2 本目の FMA パイプだけが吸収していた ILP を
+        増やしただけです。
     </step>
     <step>
-        Re-run the same scene GPU-bound on the RX 6700-class card. If frame time did not move, you were
-        not CPU-FPU bound on that scene — keep the code only if the 4700S physics/anim capture still
-        needs it.
+        RX 6700 で GPU がボトルネックの状態でシーンを再実行します。フレームの時間が変わらなければ、そのシーンは CPU の
+        FPU がボトルネックではありませんでした。SDK の変更は、4700S の物理のキャプチャがまだそれを必要とする場合にだけ
+        残してください。
     </step>
 </procedure>
 
-Pin the 4700S test to a fixed clock if the kit will boost. SMT on or off must match between runs; PS5
-ships SMT on. Do not compare 8C/16T 4700S numbers to a 16-core desktop and call it FPU.
+キットがブーストする場合はクロックを固定してください。8 コア 16 スレッドの 4700S の数値を 16 コアのデスクトップと
+比べて、それを FPU の比較と呼ばないでください。
 
-## GPU testing stays on a different box
+## GPU のテストは 6700 で
 
-The 4700S / 4800S kits cannot answer GPU compiler questions. Their GPUs are fused off.
+4700S と 4800S では GPU のコンパイラに関する問いには答えられません。GPU は完全に無効化されています。
 
-The RX 6700 already on the [system requirements](System-Requirements.md) list is the desktop RDNA2
-stand-in: same generation, close enough throughput to catch ISA and driver compiler behaviour. It is
-**not** PS5 RDNA2. Treat 6700 captures as "RDNA2-class", not as a substitute for a console GPU trace.
+RX 6700 は性能とアーキテクチャが PS5 の RDNA2 に近く、**GPU のコンパイラの挙動** を調べるには十分です。それでも
+PS5 の RDNA2 は PC の RDNA2 と異なります（キャッシュ階層、RB+、エクスポートの経路、プリミティブシェーダー、RT の交差判定の
+ISA、ラストレベルキャッシュ）。こうした違いにより、6700 のトレースがコンソールの GPU の代わりになれる範囲には限界が
+あります。
 
-The BC-250 has a working GPU on the same APU family. Without Windows D3D12 it cannot run Vite's primary
-RHI. Do not build a test plan that requires it for Editor or Shipping Windows packages.
+BC-250 の GPU は Oberon クラスのシリコンで動作しますが、Windows の D3D12 では使えません。そのため Vite のエディタや
+Shipping の実用的なテストができません。GPU の検証をこれに頼る計画は立てないでください。
 
-## See also
+## 関連項目
 
-- [System Requirements](System-Requirements.md)
-- [Performance Targets](Performance-Targets.md)
-- [Physics](Physics.md)
-- [Profiling](Profiling.md)
-- [Coding Guidelines](Coding-Guidelines.md)
-- [Platforms](Platforms.md)
+- [PhysX](PhysX.md)
+- [物理](Physics.md)
+- [動作環境](System-Requirements.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [プロファイリング](Profiling.md)
+- [コーディングガイドライン](Coding-Guidelines.md)
+- [対応プラットフォーム](Platforms.md)

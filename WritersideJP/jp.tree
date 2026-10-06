@@ -73,7 +73,7 @@
     <toc-element topic="Performance.md" toc-title="パフォーマンスと最適化">
         <toc-element topic="Profiling.md" toc-title="プロファイリング"/>
         <toc-element topic="PS5-CPU-FPU.md" toc-title="PS5 CPU の FPU"/>
-        <toc-element topic="Engine-Defaults.md" toc-title="エンジンデフォルトの変更"/>
+        <toc-element topic="Engine-Defaults.md" toc-title="エンジンの既定値の変更"/>
         <toc-element topic="Compile-Time-Switches.md" toc-title="コンパイル時スイッチ"/>
         <toc-element topic="Shader-Compilation-And-PSO.md" toc-title="シェーダーコンパイルと PSO"/>
         <toc-element topic="Debloat-Guide.md" toc-title="デブロートガイド"/>

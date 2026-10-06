@@ -59,7 +59,7 @@ will dual-issue FMA that the PS5 core cannot. Use those chips only to answer "di
 | Machine | Role | Not for |
 |---|---|---|
 | **AMD 4700S** | Windows + PS5-class CPU FPU. PhysX 3.4, animation SIMD, audio. | GPU. The iGPU is fused off. |
-| **AMD 4800S** | Same class of kit; GPU also fused off. | GPU. Do not assume a fuller FPU than the 4700S without measuring it. |
+| **AMD 4800S** | Built on the Xbox Series X APU, GPU fused off. The Series X CPU proxy, and the full-FPU comparison at console clocks. | PS5 FPU numbers, and GPU. Run the FMA probe below before treating it as either FPU class. |
 | **RX 6700 RDNA2** | Desktop RDNA2 compiler and throughput proxy. Close enough in performance and architecture to catch shader-compiler behaviour. | Cycle-accurate PS5 GPU. PS5 RDNA2 diverges (cache, RB+, export, primitive shaders, RT ISA). That limits how far a 6700 capture can be trusted as console GPU. |
 | **AMD BC-250** | Harvested Oberon-class APU: same FPU family, GPU **works**. | Vite's Windows / D3D12 path. No usable Windows GPU driver, so it is not a practical Editor or Shipping test box. |
 

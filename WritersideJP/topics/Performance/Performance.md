@@ -1,62 +1,62 @@
-# Performance and Optimisation
+# パフォーマンスと最適化
 
 <tldr>
 <p>
-Vite exists to hit native-resolution, high-frame-rate targets on console-class hardware. This section
-covers how to measure whether you are hitting them, what Vite already changed on your behalf, and what
-levers remain.
+Vite は、コンソールクラスのハードウェアでネイティブ解像度かつ高フレームレートの目標を達成するために存在します。この
+セクションでは、目標を達成できているかを計測する方法、Vite があらかじめ変更してあること、そして残っている調整手段を
+説明します。
 </p>
 </tldr>
 
-Performance in Vite is not a post-production activity. The [performance targets](Performance-Targets.md)
-are the specification, and everything in this section exists to help you stay inside them.
+Vite におけるパフォーマンスは、制作の最後に行う作業ではありません。[パフォーマンス目標](Performance-Targets.md) が
+仕様であり、このセクションのすべてはその範囲内に収まるための手助けとして存在します。
 
-## In this section
+## このセクションの内容
 
-| Topic | Covers |
+| トピック | 内容 |
 |---|---|
-| [Profiling](Profiling.md) | Finding out where the frame actually goes |
-| [PS5 CPU FPU](PS5-CPU-FPU.md) | Cut-down Zen 2 FPU, 4700S proxy, and SIMD that still issues on two pipes |
-| [Engine Default Changes](Engine-Defaults.md) | What Vite changed from stock 4.27, and why it affects your project |
-| [Compile-Time Switches](Compile-Time-Switches.md) | The `VITE_*` macros, including the one that removes ray tracing effects |
-| [Shader Compilation and PSO](Shader-Compilation-And-PSO.md) | Permutation counts, compile times and pipeline state |
-| [Debloat Guide](Debloat-Guide.md) | Reducing engine disk footprint and build time |
+| [プロファイリング](Profiling.md) | フレームの時間が実際にどこで使われているかを突き止める |
+| [PS5 CPU の FPU](PS5-CPU-FPU.md) | 削減された Zen 2 の FPU、4700S による代替計測、そして今も 2 本のパイプで発行される SIMD |
+| [エンジンの既定値の変更](Engine-Defaults.md) | Vite が標準の 4.27 から変更した点と、それがプロジェクトに与える影響 |
+| [コンパイル時スイッチ](Compile-Time-Switches.md) | レイトレーシングのエフェクトを取り除くものを含む `VITE_*` マクロ |
+| [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md) | パーミュテーションの数、コンパイル時間、パイプラインステート |
+| [デブロートガイド](Debloat-Guide.md) | エンジンのディスク容量とビルド時間の削減 |
 
-## The general approach
+## 基本的な進め方
 
-**Measure before changing anything.** The single most common failure in Unreal optimisation is optimising
-the wrong thread. A game that is game-thread bound will not get faster if you reduce shader complexity, and
-one that is GPU bound will not get faster if you reduce actor count.
+**何かを変える前に計測する。** Unreal の最適化で最もよくある失敗は、間違ったスレッドを最適化することです。
+ゲームスレッドがボトルネックのゲームは、シェーダーの複雑さを減らしても速くならず、GPU がボトルネックのゲームは、
+アクターの数を減らしても速くなりません。
 
-**Know which target you are building for.** The [four performance targets](Performance-Targets.md) have
-different rendering configurations, and a scene that fits the 4K30 fidelity target will not fit 4K120
-stylised. Decide first.
+**どの目標に向けてビルドしているかを把握する。** [4 つのパフォーマンス目標](Performance-Targets.md) はそれぞれ
+レンダリングの構成が異なり、4K30 の Fidelity 目標に収まるシーンが 4K120 の Stylised 目標に収まるとは限りません。
+まずそれを決めてください。
 
-**Prefer removing work over making work cheaper.** Turning off an effect is always cheaper than optimising
-it. Vite's own approach demonstrates this: [`VITE_RT_PSO_DEBLOAT`](Compile-Time-Switches.md) removes
-unused ray tracing permutations rather than making them faster.
+**処理を安くするより、処理をなくすことを優先する。** エフェクトをオフにするほうが、最適化するより常に安価です。Vite 自身の
+手法がそれを示しています。[`VITE_RT_PSO_DEBLOAT`](Compile-Time-Switches.md) は、使われないレイトレーシングの
+パーミュテーションを速くするのではなく、取り除きます。
 
-**Budget explicitly.** At 60&nbsp;fps you have 16.6&nbsp;ms. Assigning that budget across game thread,
-render thread, GPU and specific systems in advance turns "is this too slow?" into a question with an answer.
+**予算を明示的に決める。** 60&nbsp;fps では 16.6&nbsp;ms しかありません。その予算をゲームスレッド、レンダースレッド、
+GPU、個々のシステムに前もって割り振っておくと、「これは遅すぎるか」という問いに答えが出るようになります。
 
-## Where Vite's performance comes from
+## Vite の性能はどこから来るのか
 
-It is worth being clear that Vite's advantage over UE5 is not one optimisation. It is the absence of
-several regressions, documented in [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md):
-cheaper materials, [PhysX rather than Chaos](PhysX.md), lower character movement cost, smaller memory
-footprint, cheaper Slate and UI, and a lighter render thread.
+Vite の UE5 に対する優位性は、1 つの最適化によるものではない点をはっきりさせておく価値があります。それは
+[UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md) で説明している、いくつもの劣化が存在しないことによるものです。
+より安価なマテリアル、[Chaos ではなく PhysX](PhysX.md)、より低いキャラクタームーブメントのコスト、より小さなメモリ使用量、
+より安価な Slate と UI、そしてより軽いレンダースレッドです。
 
-On top of that baseline, Vite adds targeted work: the [optimised SSAO path](Ambient-Occlusion.md),
-[ray tracing PSO debloat](Compile-Time-Switches.md), engine tick reductions, and
-[changed defaults](Engine-Defaults.md).
+その土台の上に、Vite は対象を絞った改良を加えています。[最適化された SSAO のパス](Ambient-Occlusion.md)、
+[レイトレーシングの PSO のデブロート](Compile-Time-Switches.md)、エンジンのティックの削減、そして
+[既定値の変更](Engine-Defaults.md) です。
 
-The practical implication is that most of the win is already yours before you optimise anything. Your job is
-mostly not to spend it.
+実践的には、何かを最適化する前から、得られる効果の大半はすでに手元にあるということです。あなたの仕事の大部分は、
+それを使い果たさないことです。
 
-## See also
+## 関連項目
 
-- [Performance Targets](Performance-Targets.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
-- [Rendering](Rendering.md)
-- [Physics](Physics.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+- [レンダリング](Rendering.md)
+- [物理](Physics.md)
 - [Compiler Explorer](Compiler-Explorer.md)

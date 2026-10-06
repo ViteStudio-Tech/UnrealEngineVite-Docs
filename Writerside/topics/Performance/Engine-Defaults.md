@@ -102,17 +102,68 @@ the setting in the static mesh import options.
 
 ## Scalability
 
-Shadow Quality 4 is used for the Medium shadow setting, raising shadow quality in the middle of the
-scalability range.
+Vite rebalances the shadow scalability groups in `Engine/Config/BaseScalability.ini`. Stock 4.27 spreads
+them from almost no shadows at Low to very expensive ones at Epic and Cinematic. Vite narrows that spread:
+Low gets usable shadows, High and Epic become cheaper, and Medium is unchanged.
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/1718cd66e08a2b47222f895162e3be2b2c98ee6a)
+| Group | `r.ShadowQuality` (stock &rarr; Vite) | Other changes from stock |
+|---|---|---|
+| Low (`@0`) | 0 &rarr; **2** | Four cascades instead of one, 1024 maximum shadow resolution, distance field and capsule shadows on, light functions on, lights keep their full draw distance |
+| Medium (`@1`) | 3 &rarr; 3 | None |
+| High (`@2`) | 5 &rarr; **4** | Shadow distance scale 0.85 &rarr; 0.75, cascade transition 0.8 &rarr; 0.7 |
+| Epic (`@3`) | 5 &rarr; 5 | At most 8 cascades instead of 10, radius threshold 0.01 &rarr; 0.02, distance scale 1.0 &rarr; 0.85, volumetric fog grid 16&nbsp;px &times; 64 slices instead of 8&nbsp;px &times; 128 |
+| Cinematic | 5 &rarr; 5 | Maximum shadow resolution 4096 &rarr; 2048, volumetric fog grid 8&nbsp;px instead of 4&nbsp;px, 4 history-miss supersamples instead of 16 |
 
-## Disabled plugins
+If a project relies on the stock Epic or Cinematic shadow budget for trailers or offline captures, override
+those values in the project's `DefaultScalability.ini` rather than editing the engine file.
 
-A number of plugins that ship enabled in stock 4.27 are disabled by default. This reduces editor startup
-time, module load count and packaged build size.
+## Switching gameplay defaults back
 
-**VR plugins in particular must be re-enabled if you need them.**
+The overlap and skeletal mesh defaults above are the ones most likely to break a migrated project. Since the
+[August Major](ueVite26-AugustMajor.md), `ViteDefaults.bat` at the engine root switches each of them between
+Vite and stock UE 4.27 without hand-editing engine source:
+
+```
+ViteDefaults.bat                                  :: interactive menu showing the current state
+ViteDefaults.bat -DetectOnly                      :: report the current state only
+ViteDefaults.bat -SetOverlap ue427 -SetSkm vite   :: stock overlap, Vite skeletal mesh defaults
+```
+
+It rewrites the defaults in `PrimitiveComponent.cpp` and `SkeletalMeshComponent.cpp`, so rebuild the editor
+afterwards. Prefer fixing the affected components in your project where you can; switching an engine
+default back puts its cost back on every primitive or skeletal mesh in every level.
+
+## Disabled plugins {id="disabled-plugins"}
+
+Vite's plugin profile turns off engine plugins that most Win64 projects never load, which reduces editor
+startup time, module load count and packaged build size. How the profile reaches your tree depends on the
+release:
+
+| Release | How the profile is applied |
+|---|---|
+| [LTS](ueVite25-LTS.md) to [June Major](ueVite26-JuneMajor.md) | Built into the source tree: the plugins ship with `EnabledByDefault` set to `false` |
+| [July Major](ueVite26-JulyMajor.md) onwards | The tree ships the stock 4.27 values for compatibility. Run `devops\ueVite-ApplyVitePluginDefaults.bat` to apply the profile |
+
+The profile is the list in `devops\ViteEnginePluginDefaults.txt`. It disables 39 engine plugins and enables
+one:
+
+- **Disabled:** Paper2D; the CLion, CodeLite and KDevelop source code accessors; Plastic SCM and Subversion
+  source control; Chaos Cloth, Chaos Editor, Chaos Niagara and the Chaos solver plugin; the Alembic importer;
+  Facial Animation; Crypto Keys; Android, Apple and WMF media playback; OpenXR, Oculus VR and SteamVR; and
+  mobile services such as Google Cloud Messaging, Google PAD, Chunk Downloader and Mobile Patching Utils.
+- **Enabled:** Blast, Vite's [destruction](Destruction-And-Cloth.md) path.
+
+```
+devops\ueVite-ApplyVitePluginDefaults.bat            :: apply the Vite profile
+devops\ueVite-ApplyVitePluginDefaults.bat --dryrun   :: report what would change
+devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: restore the stock 4.27 values
+```
+
+`--yes` skips the confirmation prompt. The script edits `.uplugin` files only, so a project that names a
+plugin explicitly in its `.uproject` keeps it either way.
+
+**VR plugins in particular must be re-enabled if you need them**, and so must WMF Media if your project
+plays video through Media Framework on Windows.
 
 [Commit 1](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e9aebc2ef9f8acb7326a7e989f288ef68969342f) &middot;
 [Commit 2](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
@@ -186,8 +237,8 @@ See the [Debloat Guide](Debloat-Guide.md) for the tooling.
         If the project bakes lighting, re-enable lightmap UV generation and confirm existing meshes still
         have valid lightmap UVs.
     </step>
-    <step>Re-enable any plugins your project needs, VR in particular.</step>
-    <step>Review scalability settings, since Medium shadows now differ from stock.</step>
+    <step>Re-enable any plugins your project needs, VR and WMF Media in particular.</step>
+    <step>Review scalability settings, since Low, High, Epic and Cinematic shadows now differ from stock.</step>
 </procedure>
 
 ## See also

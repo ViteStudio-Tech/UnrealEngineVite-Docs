@@ -41,6 +41,20 @@ FSR 4 and XeSS 3 are notable: both are backports that do not exist in stock 4.27
 `ffx-api` and requires DirectX 12. The [June Major](ueVite26-JuneMajor.md) introduced most of this set; the
 [August Major](ueVite26-AugustMajor.md) moved XeSS to 3.1.0 and the DLSS runtime to NGX 310.7.129.
 
+The FSR 2 plugin from earlier releases is still in the tree as `VitePlugins/FSR2-427`, but its descriptors
+are renamed `.uplugin.disabled`, so the engine does not load it. FSR 4's built-in FSR 3.1 path covers the
+hardware it served.
+
+<warning>
+<p>
+The <a href="ViteSetup.md">ViteSetup</a> Express path moves every plugin under
+<code>Engine\Plugins\Runtime\VitePlugins</code> except ACL and MotionSymphony to
+<code>ViteDebloat_Moved</code>. FSR 4, Anti-Lag 2 and XeSS are among them. If you need them, choose the
+Custom path, or copy the folders back from <code>ViteDebloat_Moved</code>. The NVIDIA plugins are not
+affected.
+</p>
+</warning>
+
 ### Arbitrary render resolution
 
 `r.Upscaler.ScreenPercentageOverride` lets FSR, DLSS and XeSS take any internal render resolution rather than

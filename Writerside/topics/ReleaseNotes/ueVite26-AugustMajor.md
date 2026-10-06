@@ -61,7 +61,9 @@ adds Clang 11 toolchain support, and cuts several of the slowest translation uni
   at compile time with `VITE_SPECULAR_OCCLUSION=1`. The Karis term remains the default.
 - **Local exposure:** UE 5.0 local exposure passes and post-process settings backported behind
   `VITE_UE5_POSTPROCESSING` (on by default).
-- **Anti-aliasing:** SMAA update.
+- **Anti-aliasing:** SMAA is replaced by a port of Epic's UE 5.7 pipeline: edge detection, stencil-masked
+  blending weights and neighbourhood blending, with four quality levels (`r.SMAA.Quality`) and colour or
+  luminance edge detection (`r.SMAA.EdgeMode`). `r.Vite.SMAA.Mode` is retired.
 - **Volumetrics:** volumetric clouds gain a tracing max-distance mode; the ray-traced volumetric fog light
   path is restored when shadow quality is `0`.
 - **Shadows:** fixes for translucent shadows, missing shadow casting from material instances using *Cast
