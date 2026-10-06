@@ -1,35 +1,34 @@
-﻿# Callisto BRDF Demos
+# Callisto BRDF デモ
 
 <tldr>
 <p>
-Two character scenes demonstrating Vite's custom Callisto BRDF shading model, which repurposes standard
-material pins for retroreflection, diffuse Fresnel and terminator control.
+Vite 独自の Callisto BRDF のシェーディングモデルを示す 2 つのキャラクターのシーンです。このモデルは、標準のマテリアルの
+ピンを流用して、再帰反射、ディフューズのフレネル、ターミネーターを制御します。
 </p>
 </tldr>
 
-## Downloads
+## ダウンロード
 
-| Demo | Link |
+| デモ | リンク |
 |---|---|
-| Male character | [Download](https://drive.google.com/file/d/133RwxvHT9jELgXWn338hieiAJUUeIoVq/view?usp=sharing) |
-| Female character | [Download](https://mega.nz/file/5I1STApA#zmKqFu_8X1bYZPakb2VvAbCF-GPQhmR98Iot3QVJtRM) |
+| 男性キャラクター | [ダウンロード](https://drive.google.com/file/d/133RwxvHT9jELgXWn338hieiAJUUeIoVq/view?usp=sharing) |
+| 女性キャラクター | [ダウンロード](https://mega.nz/file/5I1STApA#zmKqFu_8X1bYZPakb2VvAbCF-GPQhmR98Iot3QVJtRM) |
 
-<img src="CallistoMale.png" alt="Male character rendered with the Callisto BRDF shading model" border-effect="line"/>
+<img src="CallistoMale.png" alt="Callisto BRDF のシェーディングモデルで描画した男性キャラクター" border-effect="line"/>
 
-*Male demo character. Retroreflection and diffuse Fresnel are doing the work at grazing angles.*
+*男性のデモキャラクター。かすめる角度では、再帰反射とディフューズのフレネルが効いています。*
 
-<img src="CallistoFemale.png" alt="Female character rendered with the Callisto BRDF shading model" border-effect="line"/>
+<img src="CallistoFemale.png" alt="Callisto BRDF のシェーディングモデルで描画した女性キャラクター" border-effect="line"/>
 
-*Female demo character. Smooth Terminator softens the shadow line across the curved surfaces of the face
-and arms.*
+*女性のデモキャラクター。Smooth Terminator が、顔と腕の曲面にかかる影の境界を和らげています。*
 
-## What Callisto BRDF does
+## Callisto BRDF の役割
 
-Unreal's default lit model is a good general-purpose BRDF and a mediocre skin and character model. Callisto
-BRDF is a Vite addition that gives you direct control over the terms that matter for character rendering,
-by repurposing existing material pins rather than adding new ones:
+Unreal の既定の Lit モデルは汎用の BRDF としては優れていますが、肌やキャラクターのモデルとしては平凡です。Callisto BRDF は
+Vite が追加したもので、新しいピンを加えるのではなく既存のマテリアルのピンを流用して、キャラクターの描画で重要な項を直接
+制御できるようにします。
 
-| Standard pin | Becomes |
+| 標準のピン | 置き換わる役割 |
 |---|---|
 | Opacity | Retroreflection |
 | Anisotropy | Diffuse Fresnel |
@@ -37,34 +36,35 @@ by repurposing existing material pins rather than adding new ones:
 | Custom Data 1 | Diffuse Fresnel Falloff |
 | Ambient Occlusion | Retroreflection Falloff |
 
-Smooth Terminator is the one to look at first. The hard shadow terminator on curved surfaces is one of the
-most obvious tells of a real-time character, and controlling it directly is cheaper and more predictable
-than working around it with normal map or lighting tricks.
+まず見るべきは Smooth Terminator です。曲面上の硬いシャドウのターミネーターは、リアルタイムのキャラクターであることが最も
+よく分かる特徴の 1 つで、それを直接制御するほうが、ノーマルマップやライティングの工夫で回避するより安価で予測しやすく
+なります。
 
-Full pin reference and authoring notes in [Shading Models](Shading-Models.md).
+ピンの完全な一覧と作成時の注意点は [シェーディングモデル](Shading-Models.md) にあります。
 
-## Using the demos
+## デモの使い方
 
-Open the character material and change one pin at a time. The remapped pins interact, and the effect of
-each is much clearer in isolation than in the shipped combination.
+キャラクターのマテリアルを開き、ピンを 1 つずつ変えてみてください。流用したピンは互いに影響し合うため、出荷時の組み合わせ
+よりも、1 つずつ切り離したほうが効果がはるかに分かりやすくなります。
 
-Pay attention to how the model responds to grazing light. Retroreflection and diffuse Fresnel both act
-strongest there, and that is where the difference from the default lit model is most visible.
+かすめる光に対するモデルの反応に注目してください。再帰反射とディフューズのフレネルはどちらもそこで最も強く働き、既定の
+Lit モデルとの違いが最もよく見える場所です。
 
-## Porting the setup
+## 設定を移植する
 
-The material graph is the useful part of these demos. Callisto BRDF is a shading model selection, so
-adopting it is a matter of switching the model and rewiring the affected pins &mdash; there is no plugin to
-enable and no compile-time switch involved.
+これらのデモで役に立つのはマテリアルのグラフです。Callisto BRDF はシェーディングモデルの選択なので、採用するにはモデルを
+切り替えて、影響するピンをつなぎ直すだけで、有効にするプラグインはありません。[July Major](ueVite26-JulyMajor.md) 以降、
+このモデルは既定でコンパイル対象から外れているため、先にエンジンを `VITE_SHADINGMODEL_CALLISTO=1` でビルドしてください。
+[コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
 
 <note>
-Each additional shading model in use adds shader permutations. If you only need Callisto on characters,
-use it only on characters. See
-<a href="Shader-Compilation-And-PSO.md">Shader Compilation and PSO</a>.
+使用するシェーディングモデルが増えるごとに、シェーダーのパーミュテーションが増えます。Callisto がキャラクターにだけ必要
+なら、キャラクターにだけ使ってください。<a href="Shader-Compilation-And-PSO.md">シェーダーコンパイルと PSO</a>
+を参照してください。
 </note>
 
-## See also
+## 関連項目
 
-- [Shading Models](Shading-Models.md)
-- [Color Management](Color-Management.md)
-- [Hair Rendering](Hair-Rendering.md)
+- [シェーディングモデル](Shading-Models.md)
+- [カラーマネジメント](Color-Management.md)
+- [ヘアレンダリング](Hair-Rendering.md)

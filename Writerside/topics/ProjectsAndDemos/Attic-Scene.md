@@ -1,4 +1,4 @@
-﻿# Attic Scene
+# Attic Scene
 
 <tldr>
 <p>
@@ -17,7 +17,8 @@ how global illumination handles high-contrast interiors.
 
 <img src="AtticRTGIV2.jpg" alt="The attic scene rendered with the enhanced ray-traced GI path, volumetric shafts through the window" border-effect="line"/>
 
-*The same scene under NVIDIA's enhanced RTGI path, which the NvRTX Caustics branch contributes to Vite.*
+*The same scene under NVIDIA's enhanced per-pixel RTGI path, which the NvRTX Caustics branch contributes to
+Vite. It is compiled out by default; reproducing this image needs a build with `VITE_RT_PSO_DEBLOAT=0`.*
 
 ## What it exercises
 

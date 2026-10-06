@@ -1,4 +1,4 @@
-﻿# Stylized Raytracing Demo
+# Stylized Raytracing Demo
 
 <tldr>
 <p>
@@ -32,7 +32,9 @@ Specifically:
 | [Ambient occlusion](Ambient-Occlusion.md) | Grounded contact without the halos screen-space AO produces |
 
 Combining ray-traced lighting with the [Toon shading model](Shading-Models.md) is well supported in Vite
-&mdash; Toon is one of the custom shading models the fork adds.
+&mdash; Toon is one of the custom shading models the fork adds. Since the
+[July Major](ueVite26-JulyMajor.md) it is compiled in only when the engine is built with
+`VITE_SHADINGMODEL_TOON=1`.
 
 ## What to look at
 

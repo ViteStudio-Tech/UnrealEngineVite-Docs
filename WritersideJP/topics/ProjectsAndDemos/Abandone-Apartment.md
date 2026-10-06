@@ -1,56 +1,52 @@
-﻿# Abandoned Apartment
+# 廃アパートメント
 
 <tldr>
 <p>
-Interior lighting scene. Interiors are the hardest case for global illumination, which makes them the most
-useful place to evaluate it.
+屋内のライティングのシーンです。屋内はグローバルイルミネーションにとって最も難しいケースであり、だからこそ GI を評価するのに
+最も役立つ場所です。
 </p>
 </tldr>
 
-<img src="AbandonedAppartment.png" alt="Abandoned apartment interior lit entirely by indirect bounce light" border-effect="line"/>
+<img src="AbandonedAppartment.png" alt="ほぼすべてが間接光のバウンスで照らされた廃アパートメントの屋内" border-effect="line"/>
 
-*Almost every surface visible here is lit by bounce rather than by the sun directly. That is what makes
-interiors the honest test of a GI solution.*
+*ここに見えるほぼすべてのサーフェスは、太陽の直接光ではなくバウンスで照らされています。屋内が GI の手法の誠実なテストに
+なるのはこのためです。*
 
-## Download
+## ダウンロード
 
-[Abandoned Apartment](https://drive.google.com/file/d/1OCb9sW9xH3FsFUza0ZG1tKWOPMMus5XA/view?usp=sharing)
+[廃アパートメント](https://drive.google.com/file/d/1OCb9sW9xH3FsFUza0ZG1tKWOPMMus5XA/view?usp=sharing)
 
-## Why interiors
+## なぜ屋内なのか
 
-An interior is almost entirely indirect light. Sun enters through a small number of openings and everything
-else the eye sees is bounce. Get the GI wrong and the scene reads as flat or as leaking; there is no
-direct lighting to hide behind.
+屋内はほぼすべてが間接光です。太陽はわずかな開口部から入り、目に見えるそれ以外のものはすべてバウンスです。GI を間違えると、
+シーンは平板に見えるか光漏れして見え、それを隠してくれる直接光もありません。
 
-That makes scenes like this the right place to evaluate the practical differences between Vite's GI
-options:
+そのため、このようなシーンは、Vite の GI の選択肢の実際的な違いを評価するのに適した場所です。
 
-| Approach | Behaviour in an interior |
+| 手法 | 屋内での振る舞い |
 |---|---|
-| [Static DDGI](DDGI-Static.md) | Baked probe data. Cheapest, and correct if nothing moves. |
-| [Dynamic DDGI](DDGI-Dynamic.md) | Probes update at runtime. Handles time of day and moving occluders. |
-| [SSGI](SSGI.md) | Adds contact-scale detail the probe grid cannot resolve |
-| Per-pixel ray-traced GI | Reference quality, unaffordable at frame rate, and compiled out by default |
+| [静的 DDGI](DDGI-Static.md) | ベイクしたプローブのデータ。最も安価で、何も動かなければ正確 |
+| [動的 DDGI](DDGI-Dynamic.md) | プローブが実行時に更新される。時刻の変化や動く遮蔽物に対応 |
+| [SSGI](SSGI.md) | プローブのグリッドでは解像できない接触スケールのディテールを加える |
+| ピクセルごとのレイトレーシング GI | リファレンスの品質で、フレームレートを保つには高すぎ、既定ではコンパイル対象外 |
 
-The realistic answer for most interiors is DDGI plus SSGI. DDGI supplies the low-frequency bounce and SSGI
-fills in the detail near contacts and in corners. See
-[Global Illumination](Global-Illumination.md).
+ほとんどの屋内での現実的な答えは DDGI と SSGI の組み合わせです。DDGI が低周波のバウンスを担い、SSGI が接触部や隅の
+ディテールを補います。[グローバルイルミネーション](Global-Illumination.md) を参照してください。
 
-## What to look at
+## 見どころ
 
-- **Light leaking.** Probe-based GI leaks through thin geometry when probe spacing is too coarse relative
-  to wall thickness. Interiors are full of thin walls, so this is where to tune probe density.
-- **Corner darkening.** Compare DDGI alone against DDGI with SSGI enabled. The difference concentrates in
-  corners and at contacts.
-- **Ambient occlusion choice.** [HBAO+ versus the optimised SSAO path](Ambient-Occlusion.md) is most
-  visible in cluttered interiors.
-- **Ray-traced reflections.** Interior surfaces reflect a great deal of off-screen geometry, which is
-  exactly the case screen-space reflections cannot handle.
+- **光漏れ。** プローブベースの GI は、壁の厚さに対してプローブの間隔が粗すぎると、薄いジオメトリを通して光が漏れます。
+  屋内は薄い壁だらけなので、ここでプローブの密度を調整します。
+- **隅の暗さ。** DDGI 単独と、SSGI を有効にした DDGI を比べてください。違いは隅と接触部に集中します。
+- **アンビエントオクルージョンの選択。** [HBAO+ と最適化された SSAO の経路](Ambient-Occlusion.md) の違いは、物の多い
+  屋内で最もよく見えます。
+- **レイトレーシングの反射。** 屋内のサーフェスは画面外のジオメトリを多く映し、それはまさにスクリーンスペースの反射が
+  扱えないケースです。
 
-## See also
+## 関連項目
 
-- [Global Illumination](Global-Illumination.md)
-- [Dynamic DDGI](DDGI-Dynamic.md)
+- [グローバルイルミネーション](Global-Illumination.md)
+- [動的 DDGI](DDGI-Dynamic.md)
 - [SSGI](SSGI.md)
-- [Ambient Occlusion](Ambient-Occlusion.md)
-- [Attic Scene](Attic-Scene.md)
+- [アンビエントオクルージョン](Ambient-Occlusion.md)
+- [屋根裏シーン](Attic-Scene.md)

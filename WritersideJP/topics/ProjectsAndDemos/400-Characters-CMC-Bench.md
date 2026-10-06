@@ -1,74 +1,73 @@
-﻿# 400 Characters CMC Bench
+# 400 キャラクター CMC ベンチマーク
 
 <tldr>
 <p>
-400 simultaneously moving characters driven by the Character Movement Component. Measures the game thread
-cost that dominates crowd-heavy scenes.
+キャラクタームーブメントコンポーネントで動く 400 体のキャラクターが同時に移動します。群衆の多いシーンで大半を占める
+ゲームスレッドのコストを計測します。
 </p>
 </tldr>
 
-<img src="400CharCMCBench.png" alt="Side-by-side stat capture, Vite at 73.4 FPS against Unreal Engine 5.6 at 22.7 FPS with 400 characters" border-effect="line"/>
+<img src="400CharCMCBench.png" alt="400 体のキャラクターで、Vite の 73.4 FPS と Unreal Engine 5.6 の 22.7 FPS を並べた stat のキャプチャ" border-effect="line"/>
 
-*The same 400-character scene on the same hardware. Vite (left) 73.4 FPS, Unreal Engine 5.6 (right)
-22.7 FPS. World Tick 11.56 ms against 40.45 ms; Char Movement Total 5.73 ms against 12.49 ms.*
+*同じハードウェアでの同じ 400 体のキャラクターのシーン。Vite（左）は 73.4 FPS、Unreal Engine 5.6（右）は 22.7 FPS。
+World Tick は 11.56 ms 対 40.45 ms、Char Movement Total は 5.73 ms 対 12.49 ms。*
 
-## Download
+## ダウンロード
 
-[400 Characters CMC Bench](https://drive.google.com/file/d/1RrOXCeJEhO4H2x1QK9FlBv0GDD8qSsN7/view)
+[400 キャラクター CMC ベンチマーク](https://drive.google.com/file/d/1RrOXCeJEhO4H2x1QK9FlBv0GDD8qSsN7/view)
 
-## What it measures
+## 計測するもの
 
-The Character Movement Component is one of the most expensive stock Unreal components per instance. Every
-moving character runs collision sweeps, floor checks, root motion evaluation and network-prediction
-bookkeeping every tick, on the game thread.
+キャラクタームーブメントコンポーネントは、インスタンスあたりで最も高価な標準の Unreal のコンポーネントの 1 つです。
+動いているキャラクターはすべて、毎ティック、ゲームスレッド上で、コリジョンのスイープ、床のチェック、ルートモーションの評価、
+ネットワークの予測のための処理を行います。
 
-At one character it is invisible. At 400 it is often the entire frame budget, and it is the reason so many
-projects hit a game thread wall long before their GPU is saturated.
+1 体なら目に見えません。400 体になるとフレームの予算のすべてになることも多く、GPU が飽和するはるか前に多くの
+プロジェクトがゲームスレッドの壁に突き当たる理由になっています。
 
-This benchmark exists to make that cost measurable rather than theoretical.
+このベンチマークは、そのコストを理屈ではなく計測できるものにするために存在します。
 
-## Running it
+## 実行する
 
-Enable `stat unit` and watch **Game** rather than **Frame**. If Game is the largest number, you are
-CPU-bound on the game thread and no amount of rendering optimisation will help.
+`stat unit` を有効にし、**Frame** ではなく **Game** を見てください。Game が最も大きければ、ゲームスレッドで CPU が
+ボトルネックになっており、描画をいくら最適化しても効果はありません。
 
-Then narrow it down:
+次に絞り込みます。
 
-| Command | Shows |
+| コマンド | 表示されるもの |
 |---|---|
-| `stat game` | Game thread breakdown by category |
-| `stat character` | Character movement specifics |
-| `stat anim` | Animation evaluation cost, usually the second contributor |
-| `stat physics` | Collision query cost from movement sweeps |
+| `stat game` | カテゴリーごとのゲームスレッドの内訳 |
+| `stat character` | キャラクターの移動の詳細 |
+| `stat anim` | アニメーションの評価のコスト。通常は 2 番目に大きい要因 |
+| `stat physics` | 移動のスイープによるコリジョンのクエリのコスト |
 
-See [Profiling](Profiling.md).
+[プロファイリング](Profiling.md) を参照してください。
 
-## Why it matters for Vite
+## Vite にとって重要な理由
 
-Game thread cost is where UE 4.27 has a structural advantage over UE5, and it is central to
-[Vite's rationale](Why-NvRTX-427.md). The base cost of core classes, the tick pipeline and the movement
-component are all lighter in 4.27, and Vite trims them further &mdash; see
-[Engine Defaults](Engine-Defaults.md) for the specific changes.
+ゲームスレッドのコストは、UE 4.27 が UE5 に対して構造的な優位を持つ部分であり、[Vite の存在理由](Why-NvRTX-427.md) の
+中心です。コアクラスの基本コスト、ティックのパイプライン、移動のコンポーネントは、どれも 4.27 のほうが軽く、Vite はそれを
+さらに削っています。具体的な変更は [エンジンの既定値の変更](Engine-Defaults.md) を参照してください。
 
-The relevant comparison numbers are in
-[UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md).
+関連する比較の数値は [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md) にあります。
 
-## Reducing CMC cost in your own project
+## 自分のプロジェクトで CMC のコストを減らす
 
-If this benchmark's shape matches your bottleneck:
+このベンチマークの傾向が自分のボトルネックと一致する場合:
 
-- **Tick less.** Distant or off-screen characters do not need full-rate movement. Significance Manager and
-  tick interval both apply.
-- **Simplify collision.** Movement sweeps cost in proportion to collision complexity.
-- **Budget animation.** The Animation Budget Allocator plugin is stock 4.27 and directly targets this.
-- **Consider not using CMC.** For crowds that do not need networked prediction, a simpler custom movement
-  path avoids most of the cost.
-- **Consider ECS.** For very large entity counts, the bundled [Flecs ECS](Bundled-Plugins.md) integration
-  sidesteps actor-per-entity overhead entirely.
+- **ティックを減らす。** 遠くや画面外のキャラクターに、フルレートの移動は必要ありません。Significance Manager と
+  ティックの間隔のどちらも使えます。
+- **コリジョンを単純にする。** 移動のスイープのコストは、コリジョンの複雑さに比例します。
+- **アニメーションに予算を設ける。** Animation Budget Allocator のプラグインは標準の 4.27 にあり、まさにこれを対象として
+  います。
+- **CMC を使わないことを検討する。** ネットワークの予測が不要な群衆なら、より単純な独自の移動の経路でコストの大半を
+  避けられます。
+- **ECS を検討する。** 非常に多くのエンティティでは、エンティティコンポーネントシステムがエンティティごとのアクターの
+  オーバーヘッドを完全に回避します。Vite の [Flecs ECS の統合](Proposed-Plugins.md) は開発中です。
 
-## See also
+## 関連項目
 
-- [Performance Targets](Performance-Targets.md)
-- [Profiling](Profiling.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
-- [Engine Defaults](Engine-Defaults.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [プロファイリング](Profiling.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+- [エンジンの既定値の変更](Engine-Defaults.md)

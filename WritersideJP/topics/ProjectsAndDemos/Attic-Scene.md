@@ -1,52 +1,52 @@
-﻿# Attic Scene
+# 屋根裏シーン
 
 <tldr>
 <p>
-Interior lighting scene with strong directional light through a limited opening. A good case for observing
-how global illumination handles high-contrast interiors.
+限られた開口部から強い指向性の光が入る屋内のライティングのシーンです。コントラストの高い屋内をグローバルイルミネーションが
+どう扱うかを観察するのに適しています。
 </p>
 </tldr>
 
-<img src="AtticScene.png" alt="Attic interior with strong directional sunlight entering through a small window" border-effect="line"/>
+<img src="AtticScene.png" alt="小さな窓から強い太陽光が差し込む屋根裏の屋内" border-effect="line"/>
 
-*Direct sun and deep shadow in the same frame, with a large volume of dim indirect light between them.*
+*同じフレームに直射日光と深い影があり、その間に薄暗い間接光が大量に満ちています。*
 
-## Download
+## ダウンロード
 
-[Attic Scene](https://drive.google.com/file/d/12CEdigm95nuu7GhRd_KjYIGeCi9_QvVT/view?usp=sharing)
+[屋根裏シーン](https://drive.google.com/file/d/12CEdigm95nuu7GhRd_KjYIGeCi9_QvVT/view?usp=sharing)
 
-<img src="AtticRTGIV2.jpg" alt="The attic scene rendered with the enhanced ray-traced GI path, volumetric shafts through the window" border-effect="line"/>
+<img src="AtticRTGIV2.jpg" alt="強化されたレイトレーシング GI の経路で描画した屋根裏のシーン。窓から光の筋が差し込む" border-effect="line"/>
 
-*The same scene under NVIDIA's enhanced RTGI path, which the NvRTX Caustics branch contributes to Vite.*
+*同じシーンを、NvRTX Caustics のブランチが Vite にもたらした NVIDIA の強化版のピクセルごとの RTGI の経路で描画したもの。
+既定ではコンパイル対象から外れており、この画像を再現するには `VITE_RT_PSO_DEBLOAT=0` のビルドが必要です。*
 
-## What it exercises
+## 試されるもの
 
-An attic is a specific and demanding lighting situation: a strong directional source entering through a
-small opening, a large volume of dim indirect light, and a lot of geometric clutter casting into it.
+屋根裏は特殊で厳しいライティングの状況です。強い指向性の光源が小さな開口部から入り、薄暗い間接光が大量に満ち、多くの
+細かな物がそこに影を落とします。
 
-Three things get tested harder here than in an average scene:
+ここでは平均的なシーンよりも次の 3 つが厳しく試されます。
 
-- **Dynamic range.** Direct sun and deep shadow in the same frame stresses the
-  [tonemapper and exposure setup](Color-Management.md). Get this wrong and the scene either blows out at
-  the window or crushes everything else to black.
-- **Indirect bounce falloff.** How light attenuates as it bounces further from the opening is what sells
-  the depth of the space. This is where probe density and GI method choice show.
-- **Contact detail.** Clutter against floors and walls needs
-  [ambient occlusion](Ambient-Occlusion.md) and ideally [SSGI](SSGI.md) to read as grounded.
+- **ダイナミックレンジ。** 同じフレームに直射日光と深い影があり、[トーンマッパーと露出の設定](Color-Management.md) に
+  負荷がかかります。これを間違えると、窓のあたりが白飛びするか、それ以外がすべて黒くつぶれます。
+- **間接光のバウンスの減衰。** 開口部から離れるにつれて光がどう減衰するかが、空間の奥行きを感じさせます。ここで
+  プローブの密度と GI の手法の選択の差が現れます。
+- **接触のディテール。** 床や壁に接する細かな物が地に足のついたように見えるには、
+  [アンビエントオクルージョン](Ambient-Occlusion.md) と、できれば [SSGI](SSGI.md) が必要です。
 
-## What to look at
+## 見どころ
 
-Compare [static and dynamic DDGI](DDGI-Static.md) here. A static bake is entirely adequate for a scene
-where nothing moves, and it is the cheaper option; the value of dynamic DDGI only appears once the sun
-angle or an occluder changes. Moving the directional light makes the distinction obvious.
+ここで [静的 DDGI と動的 DDGI](DDGI-Static.md) を比べてください。何も動かないシーンでは静的なベイクで十分で、そのほうが
+安価です。動的 DDGI の価値は、太陽の角度や遮蔽物が変わったときに初めて現れます。ディレクショナルライトを動かすと、違いが
+はっきり分かります。
 
-Then look at the [anti-aliasing](Anti-Aliasing.md) treatment. Fine clutter geometry against a bright
-window is a hard case, and it is where SMAA's behaviour differs most visibly from TAA's.
+次に [アンチエイリアシング](Anti-Aliasing.md) の扱いを見てください。明るい窓を背景にした細かなジオメトリは難しいケースで、
+SMAA の振る舞いが TAA と最も目に見えて異なる場所です。
 
-## See also
+## 関連項目
 
-- [Global Illumination](Global-Illumination.md)
-- [Static DDGI](DDGI-Static.md)
-- [Color Management](Color-Management.md)
-- [Anti-Aliasing](Anti-Aliasing.md)
-- [Abandoned Apartment](Abandone-Apartment.md)
+- [グローバルイルミネーション](Global-Illumination.md)
+- [静的 DDGI](DDGI-Static.md)
+- [カラーマネジメント](Color-Management.md)
+- [アンチエイリアシング](Anti-Aliasing.md)
+- [廃アパートメント](Abandone-Apartment.md)

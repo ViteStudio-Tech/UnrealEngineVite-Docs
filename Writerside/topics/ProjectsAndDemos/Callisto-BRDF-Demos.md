@@ -1,4 +1,4 @@
-﻿# Callisto BRDF Demos
+# Callisto BRDF Demos
 
 <tldr>
 <p>
@@ -54,8 +54,10 @@ strongest there, and that is where the difference from the default lit model is 
 ## Porting the setup
 
 The material graph is the useful part of these demos. Callisto BRDF is a shading model selection, so
-adopting it is a matter of switching the model and rewiring the affected pins &mdash; there is no plugin to
-enable and no compile-time switch involved.
+adopting it is a matter of switching the model and rewiring the affected pins; there is no plugin to
+enable. Since the [July Major](ueVite26-JulyMajor.md) the model is compiled out by default, so build the
+engine with `VITE_SHADINGMODEL_CALLISTO=1` first &mdash; see
+[Compile-Time Switches](Compile-Time-Switches.md).
 
 <note>
 Each additional shading model in use adds shader permutations. If you only need Callisto on characters,

@@ -1,67 +1,66 @@
-﻿# PhysX Instanced Subsystem Demo
+# PhysX Instanced Subsystem のデモ
 
 <tldr>
 <p>
-Demonstrates rigid body counts that conventional actor-per-body simulation cannot reach, by backing
-instanced mesh transforms with PhysX bodies managed from a world subsystem.
+ワールドサブシステムが管理する PhysX のボディでインスタンス化メッシュのトランスフォームを動かすことで、ボディごとに
+アクターを持つ従来のシミュレーションでは到達できない数の剛体を実現します。
 </p>
 </tldr>
 
-## Download
+## ダウンロード
 
-[Demo project](https://drive.google.com/file/d/1NulunBP2Qre5vLyYnkiqywovsycNuWdQ/view) ·
-[Plugin repository](https://github.com/Dragomirson/PhysXInstancedSubsystem)
+[デモプロジェクト](https://drive.google.com/file/d/1NulunBP2Qre5vLyYnkiqywovsycNuWdQ/view) ·
+[プラグインのリポジトリ](https://github.com/Dragomirson/PhysXInstancedSubsystem)
 
-<img src="PhysXInstancedSubsystem.png" alt="Large number of instanced rigid bodies simulated by the PhysX instanced subsystem" border-effect="line"/>
+<img src="PhysXInstancedSubsystem.png" alt="PhysX Instanced Subsystem でシミュレーションした大量のインスタンス化した剛体" border-effect="line"/>
 
-*Instanced rendering with real per-instance PhysX bodies. The body count here is well past what
-actor-per-body simulation reaches on the same budget.*
+*インスタンス化した描画に、インスタンスごとの本物の PhysX のボディ。ここでのボディの数は、同じ予算でボディごとに
+アクターを持つシミュレーションが到達できる数をはるかに超えています。*
 
-## What it demonstrates
+## 示すもの
 
-Conventional Unreal physics spawns an `AActor` with a `UPrimitiveComponent` per body. That works to a few
-thousand bodies and then the actor and component overhead, not the solver, becomes the limit &mdash; as the
-[Physics Cube Bench](Physics-Cube-Bench.md) shows.
+従来の Unreal の物理は、ボディごとに `UPrimitiveComponent` を持つ `AActor` を生成します。これは数千のボディまでは機能
+しますが、その先はソルバーではなくアクターとコンポーネントのオーバーヘッドが上限になります。
+[物理キューブベンチマーク](Physics-Cube-Bench.md) がそれを示しています。
 
-The subsystem keeps one or a few instanced mesh actors for rendering, creates per-instance PhysX rigid
-bodies, and writes their poses back into ISM/HISM instance transforms. Rendering is instanced, simulation
-is real, and the actor overhead is gone.
+このサブシステムは、描画用に 1 つまたは少数のインスタンス化メッシュのアクターを保ち、インスタンスごとに PhysX の剛体を
+作成し、そのポーズを ISM/HISM のインスタンスのトランスフォームに書き戻します。描画はインスタンス化され、シミュレーションは
+本物で、アクターのオーバーヘッドはなくなります。
 
-Run this alongside the Physics Cube Bench for the comparison that makes the difference concrete.
+違いを具体的に理解するには、物理キューブベンチマークと並べて実行してください。
 
-## What to look at
+## 見どころ
 
-| Feature | Where it shows |
+| 機能 | どこに現れるか |
 |---|---|
-| Per-frame budgets | Spawn and simulation work is capped per frame rather than spiking |
-| Auto-stop conditions | Settled instances stop simulating and convert to storage |
-| Dynamic versus storage instances | Only what needs simulating is simulated |
-| Lifetime management | Instances expire without leaving actors behind |
-| CCD modes | Fast-moving bodies without tunnelling |
+| フレームごとの予算 | 生成とシミュレーションの処理がスパイクせず、フレームごとに上限が設けられる |
+| 自動停止の条件 | 落ち着いたインスタンスはシミュレーションを止め、保存用に変換される |
+| 動的なインスタンスと保存用のインスタンス | シミュレーションが必要なものだけがシミュレーションされる |
+| 寿命の管理 | インスタンスはアクターを残さずに期限切れになる |
+| CCD のモード | すり抜けのない高速なボディ |
 
-The budget and auto-stop behaviour is the part worth understanding. Large body counts are affordable
-because most bodies are asleep most of the time; the subsystem makes that automatic rather than something
-you manage.
+理解する価値があるのは、予算と自動停止の振る舞いです。大量のボディを扱えるのは、ほとんどのボディがほとんどの時間
+スリープしているからで、このサブシステムはそれを自分で管理するものではなく自動のものにします。
 
-Full API and configuration detail in [Instanced Physics](Instanced-Physics.md).
+API と設定の詳細は [インスタンス化物理](Instanced-Physics.md) にあります。
 
-## When to use it
+## 使いどころ
 
-Debris, rubble, shell casings, foliage knocked loose, destruction fallout &mdash; anything where you want
-many physically simulated objects that do not each need their own actor identity, gameplay logic or
-replication.
+破片、瓦礫、薬莢、はじき飛ばされた植生、破壊の後に残るもの。それぞれが独自のアクターとしての識別、ゲームプレイのロジック、
+レプリケーションを必要としない、物理的にシミュレーションされた多数のオブジェクトが欲しい場面です。
 
-It is not a replacement for actor-based physics where you need per-object gameplay behaviour. It is for the
-case where the objects are scenery that happens to move.
+オブジェクトごとのゲームプレイの振る舞いが必要な場合の、アクターベースの物理の代わりにはなりません。たまたま動く背景の
+ためのものです。
 
-## Status
+## 状況
 
-Bundled at version 1.11 in `Engine\Plugins\Runtime\VitePlugins\PhysXInstancedSubsystem`. See
-[Bundled Plugins](Bundled-Plugins.md).
+`Engine\Plugins\Runtime\VitePlugins\PhysXInstancedSubsystem` にバージョン 1.11 で同梱されており、既定ではオフなので、
+プロジェクトごとに有効にしてください。[ViteSetup](ViteSetup.md) の Express の経路はこれを `ViteDebloat_Moved` に移動する
+ため、その方法でセットアップした場合はコピーして戻してください。[同梱プラグイン](Bundled-Plugins.md) を参照してください。
 
-## See also
+## 関連項目
 
-- [Instanced Physics](Instanced-Physics.md)
-- [Physics Cube Bench](Physics-Cube-Bench.md)
+- [インスタンス化物理](Instanced-Physics.md)
+- [物理キューブベンチマーク](Physics-Cube-Bench.md)
 - [PhysX](PhysX.md)
-- [Bundled Plugins](Bundled-Plugins.md)
+- [同梱プラグイン](Bundled-Plugins.md)

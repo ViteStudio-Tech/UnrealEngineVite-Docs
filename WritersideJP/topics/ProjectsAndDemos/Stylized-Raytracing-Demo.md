@@ -1,64 +1,64 @@
-﻿# Stylized Raytracing Demo
+# スタイライズドレイトレーシングデモ
 
 <tldr>
 <p>
-Ray tracing applied to non-photorealistic art direction. A counterexample to the assumption that ray
-tracing only serves photorealism.
+非写実的なアートディレクションに適用したレイトレーシングです。レイトレーシングは写実性のためだけのものだという思い込みへの
+反例です。
 </p>
 </tldr>
 
-<img src="StylizedRTDemo.png" alt="Stylized outdoor scene lit by dynamic DDGI, frame counter reading 811 FPS" border-effect="line"/>
+<img src="StylizedRTDemo.png" alt="動的 DDGI で照らされたスタイライズドな屋外のシーン。フレームカウンターは 811 FPS" border-effect="line"/>
 
-*Dynamic DDGI, no baked lighting. The counter reads 811 FPS at 1440p native on an RTX 4080 Super.*
+*動的 DDGI で、ベイクしたライティングはありません。RTX 4080 Super で 1440p ネイティブのとき、カウンターは 811 FPS を
+示しています。*
 
-## Download
+## ダウンロード
 
-[Stylized Raytracing Demo](https://drive.google.com/file/d/1M0H60ESNuvUltF9eePO-CHrlUuBzvFHh/view)
+[スタイライズドレイトレーシングデモ](https://drive.google.com/file/d/1M0H60ESNuvUltF9eePO-CHrlUuBzvFHh/view)
 
-## Why stylized ray tracing
+## なぜスタイライズドなレイトレーシングなのか
 
-Ray tracing is usually presented as a photorealism feature, which leads stylized projects to skip it. That
-is a mistake. What ray tracing actually provides is correct light transport, and stylized rendering
-benefits from correct light transport just as much &mdash; arguably more, because stylized art tends to use
-strong, deliberate lighting where screen-space artefacts are conspicuous.
+レイトレーシングは一般に写実性のための機能として紹介されるため、スタイライズドなプロジェクトはそれを使わずに済ませがち
+です。それは誤りです。レイトレーシングが実際にもたらすのは正しい光の伝搬であり、スタイライズドなレンダリングも同じく、
+あるいはそれ以上にその恩恵を受けます。スタイライズドなアートは、スクリーンスペースのアーティファクトが目立つ、強く意図的な
+ライティングを使う傾向があるからです。
 
-Specifically:
+具体的には次のとおりです。
 
-| Ray-traced feature | What it gives stylized work |
+| レイトレーシングの機能 | スタイライズドな作品にもたらすもの |
 |---|---|
-| [Reflections](RT-Reflections.md) | Reflections of off-screen geometry, which screen-space reflections cannot produce |
-| [Shadows](RT-Shadows-And-Ambient-Occlusion.md) | Contact-accurate shadows without shadow map resolution and bias tuning |
-| [DDGI](DDGI-Dynamic.md) | Colour bleed that reinforces a limited palette rather than fighting it |
-| [Ambient occlusion](Ambient-Occlusion.md) | Grounded contact without the halos screen-space AO produces |
+| [反射](RT-Reflections.md) | スクリーンスペースの反射では作れない、画面外のジオメトリの反射 |
+| [シャドウ](RT-Shadows-And-Ambient-Occlusion.md) | シャドウマップの解像度やバイアスの調整なしに、接触まで正確なシャドウ |
+| [DDGI](DDGI-Dynamic.md) | 限られたパレットと衝突せず、それを強める色のにじみ |
+| [アンビエントオクルージョン](Ambient-Occlusion.md) | スクリーンスペースの AO が生むハローのない、地に足のついた接触の表現 |
 
-Combining ray-traced lighting with the [Toon shading model](Shading-Models.md) is well supported in Vite
-&mdash; Toon is one of the custom shading models the fork adds.
+レイトレーシングのライティングと [Toon のシェーディングモデル](Shading-Models.md) の組み合わせは、Vite でよくサポート
+されています。Toon はこのフォークが追加した独自のシェーディングモデルの 1 つです。[July Major](ueVite26-JulyMajor.md)
+以降は、エンジンを `VITE_SHADINGMODEL_TOON=1` でビルドした場合にだけコンパイルに含まれます。
 
-## What to look at
+## 見どころ
 
-Turn ray-traced reflections off and on in the demo. The difference is largest exactly where screen-space
-reflections fail: reflections of things outside the frame, at grazing angles, and behind the camera.
+デモでレイトレーシングの反射をオフとオンで切り替えてみてください。違いが最も大きいのは、まさにスクリーンスペースの反射が
+失敗する場所です。フレームの外にあるもの、かすめる角度、そしてカメラの後ろにあるものの反射です。
 
-Then look at how the stylized materials respond to the ray-traced lighting rather than to a baked
-approximation of it. The lighting is doing work the art direction can rely on being consistent as the
-camera moves.
+次に、スタイライズドなマテリアルが、ベイクした近似ではなくレイトレーシングのライティングにどう反応するかを見てください。
+ライティングは、カメラが動いても一貫していることをアートディレクションが当てにできる仕事をしています。
 
-## Availability caveat
+## 利用可否についての注意
 
 <warning>
-Reflections, shadows, ambient occlusion and sky light are available in a default Vite build. Translucency,
-caustics, RTXDI, path tracing and per-pixel ray-traced GI are <b>compiled out</b> by
-<code>VITE_RT_PSO_DEBLOAT</code>, which defaults to <code>1</code>.
+反射、シャドウ、アンビエントオクルージョン、スカイライトは、既定の Vite のビルドで利用できます。半透明、コースティクス、
+RTXDI、パストレーシング、ピクセルごとのレイトレーシング GI は、既定で <code>1</code> の
+<code>VITE_RT_PSO_DEBLOAT</code> によって <b>コンパイル対象から外れています</b>。
 <p>
-If a console variable from that second group appears to do nothing, this is why. See
-<a href="Ray-Tracing.md">Ray Tracing</a> and
-<a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+後者のグループのコンソール変数が何もしないように見えるのはこのためです。<a href="Ray-Tracing.md">レイトレーシング</a> と
+<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
 </p>
 </warning>
 
-## See also
+## 関連項目
 
-- [Ray Tracing](Ray-Tracing.md)
-- [Shading Models](Shading-Models.md)
-- [Dynamic DDGI](DDGI-Dynamic.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [シェーディングモデル](Shading-Models.md)
+- [動的 DDGI](DDGI-Dynamic.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)

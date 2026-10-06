@@ -1,61 +1,56 @@
-﻿# PhysX Test
+# PhysX テスト
 
 <tldr>
 <p>
-General PhysX behaviour and stability test project. Useful for verifying that a build's physics layer is
-intact after engine changes.
+PhysX の全般的な挙動と安定性をテストするプロジェクトです。エンジンの変更後に、ビルドの物理の層が無事かを確認するのに
+役立ちます。
 </p>
 </tldr>
 
-## Download
+## ダウンロード
 
-[PhysicsTest repository](https://github.com/tanger1n/PhysicsTest)
+[PhysicsTest のリポジトリ](https://github.com/tanger1n/PhysicsTest)
 
-## What it covers
+## 対象
 
-A broad exercise of PhysX behaviour rather than a throughput benchmark: collision response, constraints,
-stacking stability, sleeping and waking, and the general question of whether the solver behaves the way it
-should.
+スループットのベンチマークではなく、PhysX の挙動を幅広く動かすものです。コリジョンの応答、コンストレイント、積み重ねの
+安定性、スリープと起床、そしてソルバーが本来あるべき振る舞いをするかという全般的な問いを扱います。
 
-<img src="PhysXTest1.png" alt="PhysX test project, collision and constraint scenario" border-effect="line"/>
+<img src="PhysXTest1.png" alt="PhysX テストのプロジェクト、コリジョンとコンストレイントのシナリオ" border-effect="line"/>
 
-<img src="PhysXTest2.png" alt="PhysX test project, stacking stability scenario" border-effect="line"/>
+<img src="PhysXTest2.png" alt="PhysX テストのプロジェクト、積み重ねの安定性のシナリオ" border-effect="line"/>
 
-<img src="PhysXTest3.png" alt="PhysX test project, sleeping and waking scenario" border-effect="line"/>
+<img src="PhysXTest3.png" alt="PhysX テストのプロジェクト、スリープと起床のシナリオ" border-effect="line"/>
 
-*Scenarios from the test project. Each isolates one behaviour so a regression shows up as a visible
-difference rather than as a number that moved.*
+*テストプロジェクトのシナリオ。それぞれが 1 つの挙動を切り離しているため、不具合は動いた数値としてではなく、目に見える
+違いとして現れます。*
 
-This is the project to run when you have changed something physics-adjacent and want to know whether you
-broke it, as opposed to how fast it is.
+物理に関わる何かを変更して、どれだけ速いかではなく、壊していないかを知りたいときに実行するのがこのプロジェクトです。
 
-## Relevance to Vite
+## Vite との関わり
 
-Vite retains PhysX rather than migrating to Chaos, and that choice is only defensible if the PhysX layer
-stays correct through engine changes. Anything touching:
+Vite は Chaos に移行せず PhysX を維持しており、その選択は、エンジンの変更を経ても PhysX の層が正しく保たれて初めて正当化
+できます。次のものに触れる変更は:
 
-- The physics scene or substepping, particularly with
-  [`VITE_PHYSX_FIXED_TIMESTEP`](Fixed-Timestep.md) enabled
-- Body instance transforms or interpolation
-- Collision query paths, which the Character Movement Component uses heavily
-- Apex Destruction or Cloth integration
+- 物理シーンやサブステップ、特に [`VITE_PHYSX_FIXED_TIMESTEP`](Fixed-Timestep.md) を有効にした場合
+- ボディのインスタンスのトランスフォームや補間
+- キャラクタームーブメントコンポーネントが多用する、コリジョンのクエリの経路
+- Apex Destruction や Cloth の統合
 
-should be verified here before it is considered done. See
-[Coding Guidelines](Coding-Guidelines.md) for the verification requirements.
+完了とみなす前に、ここで確認すべきです。確認の要件は [コーディングガイドライン](Coding-Guidelines.md) を参照してください。
 
-## Fixed timestep testing
+## 固定タイムステップのテスト
 
-If you are evaluating [fixed timestep physics](Fixed-Timestep.md), this project is a reasonable place to
-observe the difference. Run it at an unlocked frame rate and then with `t.MaxFPS` set to various values:
-with the default variable timestep the simulation result changes with frame rate, and with fixed timestep
-it should not.
+[固定タイムステップの物理](Fixed-Timestep.md) を評価するなら、このプロジェクトは違いを観察するのに適した場所です。
+フレームレートを制限せずに実行し、次に `t.MaxFPS` をさまざまな値にして実行します。既定の可変タイムステップでは
+シミュレーションの結果がフレームレートによって変わり、固定タイムステップでは変わらないはずです。
 
-Remember that fixed timestep is a compile-time feature. Without `VITE_PHYSX_FIXED_TIMESTEP=1` in the
-build, `p.VitePhysXFixedTimestep.Enabled` does nothing.
+固定タイムステップはコンパイル時の機能であることを忘れないでください。ビルドに `VITE_PHYSX_FIXED_TIMESTEP=1` がなければ、
+`p.VitePhysXFixedTimestep.Enabled` は何もしません。
 
-## See also
+## 関連項目
 
 - [PhysX](PhysX.md)
-- [Fixed Timestep](Fixed-Timestep.md)
-- [Physics Cube Bench](Physics-Cube-Bench.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
+- [固定タイムステップ](Fixed-Timestep.md)
+- [物理キューブベンチマーク](Physics-Cube-Bench.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)

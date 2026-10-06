@@ -1,50 +1,49 @@
-﻿# Projects and Demos
+# プロジェクトとデモ
 
 <tldr>
 <p>
-Downloadable projects demonstrating Vite's features and establishing its performance numbers. Several are
-the benchmarks the <a href="Performance-Targets.md">performance targets</a> are measured against.
+Vite の機能を示し、その性能の数値を裏付けるダウンロード可能なプロジェクトです。いくつかは、
+<a href="Performance-Targets.md">パフォーマンス目標</a> の計測の基準となるベンチマークです。
 </p>
 </tldr>
 
-These fall into two groups: **showcases** that demonstrate what the engine can do visually, and
-**benchmarks** that establish what it costs. The benchmarks are the more useful of the two if you are
-deciding whether Vite fits your project.
+これらは 2 つのグループに分かれます。エンジンが見た目の面で何をできるかを示す **ショーケース** と、それにかかるコストを
+示す **ベンチマーク** です。Vite がプロジェクトに合うかを判断するなら、役に立つのはベンチマークのほうです。
 
-## Showcases
+## ショーケース
 
-| Project | Demonstrates |
+| プロジェクト | 示すもの |
 |---|---|
-| [Tech Demo Project](Tech-Demo-Project.md) | DDGI, SSGI, Apex Destruction and Apex Cloth in one package |
-| [Stylized Raytracing Demo](Stylized-Raytracing-Demo.md) | Ray tracing applied to non-photoreal art direction |
-| [Callisto BRDF Demos](Callisto-BRDF-Demos.md) | The custom skin and character shading model |
-| [Abandoned Apartment](Abandone-Apartment.md) | Interior lighting scene |
-| [Attic Scene](Attic-Scene.md) | Interior lighting scene |
-| [Crash Bandicoot: Timetwister](Crash-Bandicoot.md) | A complete gameplay level built on UE4 |
+| [テックデモプロジェクト](Tech-Demo-Project.md) | DDGI、SSGI、Apex Destruction、Apex Cloth を 1 つのパッケージで |
+| [スタイライズドレイトレーシングデモ](Stylized-Raytracing-Demo.md) | 非写実的なアートディレクションへのレイトレーシングの適用 |
+| [Callisto BRDF デモ](Callisto-BRDF-Demos.md) | 肌とキャラクターのための独自のシェーディングモデル |
+| [廃アパートメント](Abandone-Apartment.md) | 屋内のライティングのシーン |
+| [屋根裏シーン](Attic-Scene.md) | 屋内のライティングのシーン |
+| [Crash Bandicoot: Timetwister](Crash-Bandicoot.md) | UE4 で作られた完全なゲームプレイのレベル |
 
-## Benchmarks
+## ベンチマーク
 
-| Project | Measures |
+| プロジェクト | 計測するもの |
 |---|---|
-| [400 Characters CMC Bench](400-Characters-CMC-Bench.md) | Character Movement Component cost at scale |
-| [Physics Cube Bench](Physics-Cube-Bench.md) | PhysX rigid body throughput |
-| [PhysX Test](PhysXTest.md) | General PhysX behaviour and stability |
-| [PhysX Instanced Subsystem](PhysX-Instanced-Subsystem.md) | Instanced rigid bodies at counts individual actors cannot reach |
+| [400 キャラクター CMC ベンチマーク](400-Characters-CMC-Bench.md) | 大規模なキャラクタームーブメントコンポーネントのコスト |
+| [物理キューブベンチマーク](Physics-Cube-Bench.md) | PhysX の剛体のスループット |
+| [PhysX テスト](PhysXTest.md) | PhysX の全般的な挙動と安定性 |
+| [PhysX インスタンスサブシステム](PhysX-Instanced-Subsystem.md) | 個別のアクターでは到達できない数のインスタンス化した剛体 |
 
-## Using the benchmarks
+## ベンチマークの使い方
 
-The benchmarks are more informative than a frame rate number suggests. Run them with `stat unit` visible
-and note which thread is the limit &mdash; that tells you what a similar workload will cost you, and which
-of Vite's optimisations apply. See [Profiling](Profiling.md).
+ベンチマークは、フレームレートの数値から想像する以上に多くのことを教えてくれます。`stat unit` を表示して実行し、どの
+スレッドが上限になっているかを確認してください。それによって、似た負荷にどれだけのコストがかかり、Vite のどの最適化が
+効くかが分かります。[プロファイリング](Profiling.md) を参照してください。
 
 <note>
-Numbers from these projects reflect the hardware they were captured on. Vite's
-<a href="Coding-Guidelines.md">performance baseline</a> is an ARM-class ~1 GHz CPU, which is far below a
-development desktop. A benchmark that is comfortable on your machine may not be on your target.
+これらのプロジェクトの数値は、それを計測したハードウェアを反映しています。Vite の
+<a href="Coding-Guidelines.md">性能の基準</a> は ARM クラスの約 1 GHz の CPU で、開発用のデスクトップよりはるかに低い
+ものです。手元のマシンで余裕のあるベンチマークでも、対象のハードウェアではそうとは限りません。
 </note>
 
-## See also
+## 関連項目
 
-- [Performance Targets](Performance-Targets.md)
-- [Profiling](Profiling.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [プロファイリング](Profiling.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)

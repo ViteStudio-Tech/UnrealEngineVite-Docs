@@ -1,54 +1,51 @@
-﻿# Crash Bandicoot: Timetwister
+# Crash Bandicoot: Timetwister
 
 <tldr>
 <p>
-A community remake of the Tomb Wader level from Crash Bandicoot 3: Warped, built on Unreal Engine 4.26.
-A complete gameplay level rather than a lighting scene.
+Crash Bandicoot 3: Warped の Tomb Wader のレベルを Unreal Engine 4.26 で再現した、コミュニティによるリメイクです。
+ライティングのシーンではなく、完全なゲームプレイのレベルです。
 </p>
 </tldr>
 
-<img src="CrashBandicootRemake.png" alt="Tomb Wader level remake running in the engine" border-effect="line"/>
+<img src="CrashBandicootRemake.png" alt="エンジン上で動作する Tomb Wader のレベルのリメイク" border-effect="line"/>
 
-*A complete playable level rather than a lighting scene, which gives it a frame cost profile closer to a
-real project.*
+*ライティングのシーンではなく完全にプレイできるレベルなので、フレームのコストの傾向が実際のプロジェクトに近くなります。*
 
-## Source
+## ソース
 
 [dyanikoglu/CrashBandicoot-Timetwister](https://github.com/dyanikoglu/CrashBandicoot-Timetwister)
 
-## Why it is here
+## ここにある理由
 
-Most of the projects in this section are technology demonstrations: a scene that exists to show one
-rendering feature. This one is a playable level with movement, collision, hazards, collectibles and a
-camera system, which makes it a different kind of reference.
+このセクションのプロジェクトの大半は技術のデモで、1 つのレンダリングの機能を見せるためのシーンです。これは移動、
+コリジョン、障害物、収集物、カメラのシステムを備えたプレイできるレベルで、性質の異なる基準になります。
 
-It is useful for two things:
+役に立つ点は 2 つです。
 
-- **Gameplay-shaped profiling.** A real level has a frame cost profile that a lighting scene does not:
-  actor ticks, animation, collision queries and gameplay logic competing with rendering. That is the shape
-  most projects actually have. See [Profiling](Profiling.md).
-- **Demonstrating 4.x sufficiency.** Stylized platformers are precisely the genre where UE5's headline
-  features add cost without adding much, and where 4.27's lower base cost is the better trade. See
-  [Why NvRTX 4.27](Why-NvRTX-427.md).
+- **ゲームプレイの形をしたプロファイリング。** 実際のレベルには、ライティングのシーンにはないフレームのコストの傾向が
+  あります。アクターのティック、アニメーション、コリジョンのクエリ、ゲームプレイのロジックが描画と競合します。それが
+  ほとんどのプロジェクトの実際の姿です。[プロファイリング](Profiling.md) を参照してください。
+- **4.x で十分であることの実証。** スタイライズドなプラットフォーマーは、UE5 の目玉機能がたいした価値を加えずにコストだけを
+  加え、4.27 の低い基本コストのほうが良い取引になるジャンルそのものです。[なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md) を
+  参照してください。
 
-## Version note
+## バージョンについて
 
 <note>
-The project targets Unreal Engine 4.26, not 4.27. Opening it in Vite will prompt an engine version
-conversion. Expect to resolve some asset and API differences; the 4.26 to 4.27 gap is small but not zero.
+このプロジェクトの対象は 4.27 ではなく Unreal Engine 4.26 です。Vite で開くと、エンジンのバージョンの変換を求められます。
+アセットと API の違いをいくつか解決する必要があると考えてください。4.26 と 4.27 の差は小さいものの、ゼロではありません。
 </note>
 
-This is a much easier conversion than coming from UE5, which requires the Asset Downgrader &mdash; see
-[Migrating from UE5](Migrating-From-UE5.md).
+UE5 から移る場合は Asset Downgrader が必要なので、それに比べればはるかに簡単な変換です。
+[UE5 からの移行](Migrating-From-UE5.md) を参照してください。
 
-## Licensing
+## ライセンス
 
-This is a third-party community project, not a Vite deliverable. It is a fan remake of copyrighted
-material; treat it as a reference to study rather than a source of assets to reuse. See the repository for
-its own terms.
+これはサードパーティのコミュニティのプロジェクトで、Vite の提供物ではありません。著作物のファンによるリメイクなので、
+アセットを再利用する素材としてではなく、学ぶための参考として扱ってください。条件はリポジトリを参照してください。
 
-## See also
+## 関連項目
 
-- [Profiling](Profiling.md)
-- [Why NvRTX 4.27](Why-NvRTX-427.md)
-- [First Project](First-Project.md)
+- [プロファイリング](Profiling.md)
+- [なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md)
+- [最初のプロジェクト](First-Project.md)

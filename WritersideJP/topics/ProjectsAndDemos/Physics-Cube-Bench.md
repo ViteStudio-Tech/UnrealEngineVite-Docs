@@ -1,64 +1,62 @@
-﻿# Physics Cube Bench
+# 物理キューブベンチマーク
 
 <tldr>
 <p>
-Rigid body throughput test using conventional PhysX actors. The baseline that the
-<a href="Instanced-Physics.md">instanced subsystem</a> is measured against.
+従来の PhysX のアクターを使った剛体のスループットのテストです。<a href="Instanced-Physics.md">インスタンス化サブシステム</a>
+の比較の基準になります。
 </p>
 </tldr>
 
-<img src="PhysicsCubeBench.png" alt="Side-by-side capture of 1400 simulated cubes, Chaos at 75.45 FPS against PhysX 3.4 at 148.44 FPS" border-effect="line"/>
+<img src="PhysicsCubeBench.png" alt="1400 個のキューブのシミュレーションで、Chaos の 75.45 FPS と PhysX 3.4 の 148.44 FPS を並べたキャプチャ" border-effect="line"/>
 
-*1400 simulated cubes, identical scene. Chaos (left) 75.45 FPS at a 13.25 ms frame; PhysX 3.4 (right)
-148.44 FPS at a 6.74 ms frame.*
+*同じシーンで 1400 個のキューブをシミュレーション。Chaos（左）は 13.25 ms のフレームで 75.45 FPS、PhysX 3.4（右）は
+6.74 ms のフレームで 148.44 FPS。*
 
-## Download
+## ダウンロード
 
-[Physics Cube Bench](https://drive.google.com/file/d/1WVsC8cp2fx8eiM56Ueek-mJbO_EdPKOR/view?usp=sharing)
+[物理キューブベンチマーク](https://drive.google.com/file/d/1WVsC8cp2fx8eiM56Ueek-mJbO_EdPKOR/view?usp=sharing)
 
-## What it measures
+## 計測するもの
 
-Simple rigid bodies simulated conventionally: one actor per body, each with its own component, transform
-and tick. It establishes how many PhysX bodies you can simulate before the frame budget runs out using the
-standard workflow.
+従来の方法でシミュレーションした単純な剛体です。ボディごとに 1 つのアクターがあり、それぞれが独自のコンポーネント、
+トランスフォーム、ティックを持ちます。標準のワークフローで、フレームの予算が尽きるまでにいくつの PhysX のボディを
+シミュレーションできるかを確かめます。
 
-The interesting part is not the number, it is where it stops scaling and why. Two costs grow with body
-count and they grow differently:
+面白いのは数値そのものではなく、どこでスケールしなくなり、それがなぜかです。ボディの数とともに増えるコストは 2 つあり、
+増え方が異なります。
 
-| Cost | Grows with |
+| コスト | 増える要因 |
 |---|---|
-| PhysX solver | Bodies actually in contact and awake |
-| Actor and component overhead | Total body count, whether or not anything is moving |
+| PhysX のソルバー | 実際に接触していて起きているボディ |
+| アクターとコンポーネントのオーバーヘッド | 何かが動いているかどうかに関係なく、ボディの総数 |
 
-The second one is what the [PhysX Instanced Subsystem](Instanced-Physics.md) eliminates. Comparing this
-benchmark against the [instanced subsystem demo](PhysX-Instanced-Subsystem.md) shows the difference
-directly.
+2 つ目を取り除くのが [PhysX Instanced Subsystem](Instanced-Physics.md) です。このベンチマークと
+[インスタンス化サブシステムのデモ](PhysX-Instanced-Subsystem.md) を比べると、その違いが直接分かります。
 
-## Running it
+## 実行する
 
-`stat unit` first, then:
+まず `stat unit`、次に:
 
-| Command | Shows |
+| コマンド | 表示されるもの |
 |---|---|
-| `stat physics` | Solver time |
-| `stat game` | Actor tick and component overhead |
-| `p.showConstraints 1` | Constraint visualisation |
+| `stat physics` | ソルバーの時間 |
+| `stat game` | アクターのティックとコンポーネントのオーバーヘッド |
+| `p.showConstraints 1` | コンストレイントの可視化 |
 
-If **Game** exceeds **Physics** by a wide margin, actor overhead rather than the solver is your limit,
-and the instanced path is the answer.
+**Game** が **Physics** を大きく上回っていれば、上限はソルバーではなくアクターのオーバーヘッドであり、答えは
+インスタンス化の経路です。
 
-## PhysX versus Chaos
+## PhysX と Chaos
 
-Vite retains PhysX rather than migrating to Chaos. On this class of workload PhysX is the faster and more
-predictable solver, which is part of why. See [PhysX](PhysX.md).
+Vite は Chaos に移行せず PhysX を維持しています。この種の負荷では PhysX のほうが速く予測しやすいソルバーであることが、
+その理由の一部です。[PhysX](PhysX.md) を参照してください。
 
-If you need frame-rate-independent determinism from this kind of simulation, Vite's optional
-[fixed timestep](Fixed-Timestep.md) applies &mdash; it requires rebuilding with
-`VITE_PHYSX_FIXED_TIMESTEP=1`.
+この種のシミュレーションでフレームレートに依存しない決定性が必要なら、Vite の任意の
+[固定タイムステップ](Fixed-Timestep.md) が使えます。`VITE_PHYSX_FIXED_TIMESTEP=1` での再ビルドが必要です。
 
-## See also
+## 関連項目
 
 - [PhysX](PhysX.md)
-- [Instanced Physics](Instanced-Physics.md)
-- [Fixed Timestep](Fixed-Timestep.md)
-- [Profiling](Profiling.md)
+- [インスタンス化物理](Instanced-Physics.md)
+- [固定タイムステップ](Fixed-Timestep.md)
+- [プロファイリング](Profiling.md)

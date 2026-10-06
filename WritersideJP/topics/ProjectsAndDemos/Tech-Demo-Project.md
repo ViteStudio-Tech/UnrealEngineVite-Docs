@@ -1,56 +1,54 @@
-﻿# Tech Demo Project
+# テックデモプロジェクト
 
 <tldr>
 <p>
-Vite's main showcase package. Four scenes covering dynamic global illumination, Apex Destruction and Apex
-Cloth. The reference project for verifying that a build works correctly.
+Vite の主要なショーケースのパッケージです。動的なグローバルイルミネーション、Apex Destruction、Apex Cloth をカバーする
+4 つのシーンを含みます。ビルドが正しく動作するかを確認するための基準のプロジェクトです。
 </p>
 </tldr>
 
-<img src="TechDemo.png" alt="Tech Demo Project scene rendered in Unreal Engine Vite" border-effect="line"/>
+<img src="TechDemo.png" alt="Unreal Engine Vite で描画したテックデモプロジェクトのシーン" border-effect="line"/>
 
-*The Tech Demo package is the reference project for verifying that a fresh build renders and simulates
-correctly.*
+*テックデモのパッケージは、新しいビルドが正しく描画・シミュレーションできるかを確認するための基準のプロジェクトです。*
 
-## Contents
+## 内容
 
-| Scene | Demonstrates |
+| シーン | 示すもの |
 |---|---|
-| NVIDIA DDGI Cornell Box office sample | [Dynamic DDGI](DDGI-Dynamic.md) in a controlled reference setting |
-| PhysX Apex Destruction test bed | [Apex Destruction](Destruction-And-Cloth.md) |
-| PhysX Apex Cloth sample | [Apex Cloth](Destruction-And-Cloth.md) |
-| "High End" DDGI + SSGI Deep Elder Caves | [DDGI](DDGI-Dynamic.md) combined with [SSGI](SSGI.md) in production-scale content |
+| NVIDIA DDGI の Cornell Box のオフィスのサンプル | 制御された基準の環境での [動的 DDGI](DDGI-Dynamic.md) |
+| PhysX Apex Destruction のテストベッド | [Apex Destruction](Destruction-And-Cloth.md) |
+| PhysX Apex Cloth のサンプル | [Apex Cloth](Destruction-And-Cloth.md) |
+| 「High End」DDGI + SSGI の Deep Elder Caves | 本番規模のコンテンツでの [DDGI](DDGI-Dynamic.md) と [SSGI](SSGI.md) の組み合わせ |
 
-The Cornell Box is the useful one for understanding DDGI. It is the standard global illumination reference
-scene precisely because the correct answer is known, so probe placement, leaking and response time are all
-visible against a ground truth.
+DDGI を理解するのに役立つのは Cornell Box です。正解が分かっているからこそ標準的なグローバルイルミネーションの基準の
+シーンになっており、プローブの配置、光漏れ、応答の速さのすべてを、正解と比べて見ることができます。
 
-The Deep Elder Caves scene is the opposite case: production-scale geometry where DDGI and SSGI are layered.
-DDGI supplies the low-frequency bounce and SSGI adds the contact-scale detail DDGI's probe grid cannot
-resolve. See [Global Illumination](Global-Illumination.md) for why both are used together.
+Deep Elder Caves のシーンはその逆のケースで、DDGI と SSGI を重ねた本番規模のジオメトリです。DDGI が低周波のバウンスを
+担い、SSGI が DDGI のプローブのグリッドでは解像できない接触スケールのディテールを加えます。両方を一緒に使う理由は
+[グローバルイルミネーション](Global-Illumination.md) を参照してください。
 
-## Download
+## ダウンロード
 
-[Tech Demo Project](https://drive.google.com/file/d/1SuHlT4KC3nTQrB2rwVcwBpNgWa_r6yKh/view)
+[テックデモプロジェクト](https://drive.google.com/file/d/1SuHlT4KC3nTQrB2rwVcwBpNgWa_r6yKh/view)
 
-## Using it as a verification project
+## 検証用のプロジェクトとして使う
 
-Vite's [contribution guidelines](Coding-Guidelines.md) name this project specifically: engine changes must
-produce no crashes on startup, shutdown or on the Tech Showcase project. If you are modifying the engine,
-run this before opening a pull request.
+Vite の [コントリビュートのガイドライン](Coding-Guidelines.md) は、このプロジェクトを名指ししています。エンジンの変更は、
+起動時、終了時、そして Tech Showcase のプロジェクトでクラッシュを起こしてはなりません。エンジンを変更する場合は、
+プルリクエストを出す前にこれを実行してください。
 
-It exercises a useful cross-section: dynamic GI, ray tracing, PhysX destruction and cloth. A change that
-breaks any of those tends to break it here.
+動的 GI、レイトレーシング、PhysX の破壊とクロスという、役に立つ範囲を一通り動かします。それらのどれかを壊す変更は、
+ここで問題になる傾向があります。
 
-## Requirements
+## 要件
 
-Dynamic DDGI requires a DXR-capable GPU on DirectX 12. Apex Destruction and Apex Cloth require their
-plugins, which are stock 4.27 plugins Vite retains. See [Platforms](Platforms.md) and
-[System Requirements](System-Requirements.md).
+動的 DDGI には、DirectX 12 で DXR に対応した GPU が必要です。Apex Destruction と Apex Cloth にはそれぞれのプラグインが
+必要で、これは Vite が残している標準の 4.27 のプラグインです。[対応プラットフォーム](Platforms.md) と
+[動作環境](System-Requirements.md) を参照してください。
 
-## See also
+## 関連項目
 
-- [Dynamic DDGI](DDGI-Dynamic.md)
-- [Global Illumination](Global-Illumination.md)
-- [Destruction and Cloth](Destruction-And-Cloth.md)
-- [Projects and Demos](ProjectsAndDemos.md)
+- [動的 DDGI](DDGI-Dynamic.md)
+- [グローバルイルミネーション](Global-Illumination.md)
+- [破壊とクロス](Destruction-And-Cloth.md)
+- [プロジェクトとデモ](ProjectsAndDemos.md)

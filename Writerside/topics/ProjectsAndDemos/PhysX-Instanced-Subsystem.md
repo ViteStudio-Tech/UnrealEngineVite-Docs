@@ -1,4 +1,4 @@
-﻿# PhysX Instanced Subsystem Demo
+# PhysX Instanced Subsystem Demo
 
 <tldr>
 <p>
@@ -56,8 +56,9 @@ case where the objects are scenery that happens to move.
 
 ## Status
 
-Bundled at version 1.11 in `Engine\Plugins\Runtime\VitePlugins\PhysXInstancedSubsystem`. See
-[Bundled Plugins](Bundled-Plugins.md).
+Bundled at version 1.11 in `Engine\Plugins\Runtime\VitePlugins\PhysXInstancedSubsystem`, off by
+default; enable it per project. The [ViteSetup](ViteSetup.md) Express path moves it to
+`ViteDebloat_Moved`, so copy it back if you set up that way. See [Bundled Plugins](Bundled-Plugins.md).
 
 ## See also
 
