@@ -20,7 +20,7 @@ projects shipping there: toolchains, compile fixes and the forward (mobile) rend
 | Windows 32-bit | Support files only | Required by Win64 tooling; not a shipping target |
 | Android | Maintained | Android NDK 29 with C++20 fixes, arm32 fixes and Android Vulkan preview in the editor ([March Major](ueVite26-MarchMajor.md)); Meta Quest device profiles and packaging fixes ([LTS](ueVite25-LTS.md)); NEON math upgrades ([June Major](ueVite26-JuneMajor.md)) |
 | Linux | Maintained for servers | Server toolchain fix (March), dedicated-server plugin updates ([August Major](ueVite26-AugustMajor.md)), Unix file-layer locking fix ([September Major](ueVite26-SeptemberMajor.md)). The ray tracing suite is untested. |
-| Mac | Inherited | Stock 4.27 support. No DXR, so the ray tracing suite does not apply. |
+| Mac | Builds | macOS / Xcode 26 build port, kept separate from the Windows toolchain ([August Major](ueVite26-AugustMajor.md), carried into September). No DXR, so the ray tracing suite does not apply. |
 | iOS / tvOS | Inherited | Stock 4.27 support, plus the shared forward-renderer changes |
 | HTML5 | Not available | Epic moved HTML5 out of the engine into a community-maintained extension in 4.24. The name survives only as a dependency filter in the setup scripts. |
 | Consoles | Private | Console SDKs are under NDA, so console-specific changes cannot be published in this repository |
@@ -28,6 +28,8 @@ projects shipping there: toolchains, compile fixes and the forward (mobile) rend
 "Inherited" means the stock 4.27 code is present and has not been deliberately broken, but Vite does not
 test it and the fork's rendering features are unavailable or unvalidated there. "Maintained" means Vite
 fixes and updates the platform's toolchain and build, without promising the full rendering feature set.
+"Builds" means the engine compiles for the platform with a current toolchain, but Vite does not test
+projects on it.
 
 ## Enabling other platforms
 
