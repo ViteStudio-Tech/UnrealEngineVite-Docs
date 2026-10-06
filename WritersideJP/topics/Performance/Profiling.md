@@ -34,7 +34,7 @@ Game、Draw、GPU のうち最も大きいものがボトルネックです。�
     <step>Game、Draw、GPU のうち、Frame に最も近いものを確認します。</step>
     <step>
         <code>r.ScreenPercentage 50</code> で確認します。フレームの時間が大きく下がれば、ピクセルのコストによる GPU
-        ボトルネックです。ほとんど変わらなければ、そうではありません。
+        ボトルネックです。ほとんど変わらなければ、そうではありません。FSR、DLSS、XeSS を使っている場合は、代わりに <code>r.Upscaler.ScreenPercentageOverride 50</code> を使ってください。これらのプラグインは <code>r.ScreenPercentage</code> を無視します。
     </step>
     <step>以下の該当するセクションに進みます。</step>
 </procedure>

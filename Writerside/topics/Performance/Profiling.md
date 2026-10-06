@@ -39,7 +39,9 @@ performance work.
     <step>Note which of Game, Draw or GPU is closest to Frame.</step>
     <step>
         Confirm with <code>r.ScreenPercentage 50</code>. If frame time drops significantly, you are GPU
-        bound at pixel cost. If it barely changes, you are not.
+        bound at pixel cost. If it barely changes, you are not. With FSR, DLSS or XeSS active, use
+        <code>r.Upscaler.ScreenPercentageOverride 50</code> instead; those plugins ignore
+        <code>r.ScreenPercentage</code>.
     </step>
     <step>Follow the relevant section below.</step>
 </procedure>
