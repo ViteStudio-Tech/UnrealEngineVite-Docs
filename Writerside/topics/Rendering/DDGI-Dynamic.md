@@ -128,7 +128,7 @@ drives both memory and per-frame ray cost.*
 
 The settings that matter most, roughly in order of impact:
 
-**Probe density.** The dominant cost and quality control. Denser grids resolve smaller lighting features and
+**Probe density** (`Probe Counts` on the volume, default 8&times;8&times;8). The dominant cost and quality control. Denser grids resolve smaller lighting features and
 cost proportionally more in both rays traced and memory. Interior spaces with lots of small rooms need more
 probes than open exteriors.
 
@@ -140,14 +140,14 @@ representation at any quality setting &mdash; that is what [SSGI](SSGI.md) is fo
 **Volume placement and count.** Several tightly-fitted volumes usually beat one large loose one. A volume
 that spans a whole level at low density wastes probes on solid geometry and starves the spaces that matter.
 
-**Rays per probe.** Trades convergence speed against per-frame cost. Lower counts converge more slowly,
+**Rays per probe** (`Rays Per Probe`, default 288). Trades convergence speed against per-frame cost. Lower counts converge more slowly,
 which shows up as lag when lighting changes rapidly &mdash; a door opening onto a bright exterior, for
 instance.
 
-**Hysteresis / update rate.** How quickly probes accept new information. Faster response reduces lag but
+**Hysteresis / update rate** (`Probe History Weight`, default 0.97). How quickly probes accept new information. Faster response reduces lag but
 increases temporal variation.
 
-**Normal and view bias.** The standard controls for trading light leaking against contact shadow darkening.
+**Normal and view bias** (`Normal Bias` 10, `View Bias` 40). The standard controls for trading light leaking against contact shadow darkening.
 If you see light bleeding through thin walls, increase bias; if contact areas look detached, reduce it.
 
 ## Reference material
