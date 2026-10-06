@@ -26,6 +26,7 @@
     </toc-element>
 
     <toc-element topic="Release-Notes.md" toc-title="Release Notes">
+        <toc-element topic="ueVite26-SeptemberMajor.md" toc-title="ueVite26 September Major (Latest)"/>
         <toc-element topic="ueVite26-AugustMajor.md"/>
         <toc-element topic="ueVite26-JulyMajor.md"/>
         <toc-element topic="ueVite26-JuneMajor.md"/>

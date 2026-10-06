@@ -22,6 +22,14 @@ individual fibres, which looks dramatically better and costs dramatically more.
 Neither hair system is enabled by default. Enable one from **Edit > Plugins**; there is little reason to
 enable both in the same project.
 
+<note>
+<p>
+Since the <a href="ueVite26-JulyMajor.md">July Major</a>, TressFX is also a compile-time feature: build the
+engine with <code>VITE_TRESSFX=1</code> before enabling the plugin. TressFX shaders are excluded from mobile
+and ES 3.1 platforms. See <a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+</p>
+</note>
+
 ## TressFX 5.0
 
 TressFX is AMD's open hair and fur system. The Vite integration includes three modules: `TressFXCore` for

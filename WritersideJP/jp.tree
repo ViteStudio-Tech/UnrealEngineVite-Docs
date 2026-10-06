@@ -29,7 +29,16 @@
         <toc-element topic="Why-NvRTX-427.md" toc-title="なぜ NvRTX 4.27 なのか"/>
         <toc-element topic="Performance-Targets.md" toc-title="パフォーマンス目標"/>
         <toc-element topic="UE4-Versus-UE5-Cost-Analysis.md" toc-title="UE4 と UE5 のコスト分析"/>
-        <toc-element topic="Release-Notes.md" toc-title="リリースノート"/>
+    </toc-element>
+
+    <toc-element topic="Release-Notes.md" toc-title="リリースノート">
+        <toc-element topic="ueVite26-SeptemberMajor.md" toc-title="ueVite26 September Major（最新）"/>
+        <toc-element topic="ueVite26-AugustMajor.md" toc-title="ueVite26 August Major"/>
+        <toc-element topic="ueVite26-JulyMajor.md" toc-title="ueVite26 July Major"/>
+        <toc-element topic="ueVite26-JuneMajor.md" toc-title="ueVite26 June Major"/>
+        <toc-element topic="ueVite26-MarchMajor.md" toc-title="ueVite26 March Major"/>
+        <toc-element topic="ueVite25-LTS.md" toc-title="ueVite25 LTS"/>
+        <toc-element topic="Original-Vite.md" toc-title="初代 Vite"/>
     </toc-element>
 
     <toc-element topic="Rendering.md" toc-title="レンダリング">

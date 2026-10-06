@@ -2,7 +2,7 @@
 
 <tldr>
 <p>
-Five <code>VITE_*</code> macros in
+Fourteen <code>VITE_*</code> macros in
 <code>Engine/Source/Runtime/Core/Public/Misc/CoreDefines.h</code> control features that are decided at
 compile time rather than by console variable. <b><code>VITE_RT_PSO_DEBLOAT</code> defaults to
 <code>1</code> and compiles out several ray tracing effects entirely</b> &mdash; read that section before
@@ -16,13 +16,41 @@ the feature saves.
 
 ## The switches
 
-| Macro | Default | Effect when enabled |
-|---|---|---|
-| `VITE_RT_PSO_DEBLOAT` | `1` | Compiles out a large set of ray tracing shader permutations |
-| `VITE_O_SSAO` | `1` | Vite's optimised SSAO memory access path |
-| `VITE_PHYSX_FIXED_TIMESTEP` | `0` | Deterministic fixed-step PhysX with render interpolation |
-| `VITE_DLSS_PATCH` | `0` | Output-resolution translucency and volumetric fog when upscaling |
-| `VITE_NVRTX_TRANSLUCENCY_DEPTH` | `0` | Separate translucency depth texture from the NvRTX branch |
+Defaults below are those in the [ueVite26 September Major](ueVite26-SeptemberMajor.md) release. *Since*
+is the first major release whose `CoreDefines.h` contains the switch.
+
+### Rendering and ray tracing
+
+| Macro | Default | Effect when enabled | Since |
+|---|---|---|---|
+| `VITE_RT_PSO_DEBLOAT` | `1` | Compiles out path tracing and the heavier ray tracing permutations outside Vite's main path | [June](ueVite26-JuneMajor.md) |
+| `VITE_O_RT_REFLECTIONS` | `1` | Deferred RT reflection optimisations; the payload stays 64 bytes | [August](ueVite26-AugustMajor.md) |
+| `VITE_O_SSAO` | `1` | Vite's optimised SSAO memory access path, without texture samplers | [June](ueVite26-JuneMajor.md) |
+| `VITE_O_SSD_SAFE_SAMPLE_TRACK` | `1` | Screen-space denoiser keeps `SampleTrackId` in VGPRs (safe on AMD); `0` restores the UE 5.0/5.1 NVIDIA occupancy path | [August](ueVite26-AugustMajor.md) |
+| `VITE_SPECULAR_OCCLUSION` | `0` | Jimenez 2016 bent-normal specular occlusion instead of the UE4 Karis term | [August](ueVite26-AugustMajor.md) |
+| `VITE_UE5_POSTPROCESSING` | `1` | UE 5.0 local exposure and post-process histogram path | [August](ueVite26-AugustMajor.md) |
+| `VITE_NVRTX_TRANSLUCENCY_DEPTH` | `0` | Separate translucency depth texture from the NvRTX branch | [July](ueVite26-JulyMajor.md) |
+| `VITE_DLSS_PATCH` | `0` | Output-resolution translucency and volumetric fog when upscaling | [July](ueVite26-JulyMajor.md) |
+| `VITE_FSR2_REACTIVE_MASK` | `0` | Engine-side FSR 2 reactive-mask support | [July](ueVite26-JulyMajor.md) |
+
+### Shading models and hair
+
+| Macro | Default | Effect when enabled | Since |
+|---|---|---|---|
+| `VITE_SHADINGMODEL_CALLISTO` | `0` | Compiles in the Callisto BRDF shading model | [July](ueVite26-JulyMajor.md) |
+| `VITE_SHADINGMODEL_TOON` | `0` | Compiles in the Toon shading model | [July](ueVite26-JulyMajor.md) |
+| `VITE_TRESSFX` | `0` | Compiles in TressFX strand hair | [July](ueVite26-JulyMajor.md) |
+
+The shading-model switches were added in the [July Major](ueVite26-JulyMajor.md): gating the extra models
+off by default raised the reference scene from 235.56 to 264.44 FPS (+12.3%). Turn on only the models a
+project uses. See [Shading Models](Shading-Models.md) and [Hair Rendering](Hair-Rendering.md).
+
+### Physics and editor
+
+| Macro | Default | Effect when enabled | Since |
+|---|---|---|---|
+| `VITE_PHYSX_FIXED_TIMESTEP` | `0` | Deterministic fixed-step PhysX with render interpolation | [June](ueVite26-JuneMajor.md) |
+| `VITE_UE4_ICON_BADGES` | `1` | Restores UE4-style mobility and spawnable badges on outliner icons; `0` uses the UE5 label style | [August](ueVite26-AugustMajor.md) |
 
 Each is defined with an `#ifndef` guard, so any of them can be overridden from the build system without
 editing the header.
@@ -156,6 +184,30 @@ Only relevant to projects shipping with an upscaler enabled. See
 Off by default. Allocates and writes a separate translucency depth texture alongside separate translucency
 colour, inherited from the NvRTX branch. Required by some NvRTX effects that need translucent depth; costs
 an extra render target when enabled.
+
+## VITE_SPECULAR_OCCLUSION
+
+Off by default. Replaces the UE4 specular occlusion term &mdash; Karis's
+`GetSpecularOcclusion(NoV, RoughnessSq, AO)` &mdash; with Jimenez et al. 2016 cone-cone specular occlusion
+driven by DFAO or SSAO bent normals. It reduces light leaking in reflections inside creases and under
+objects.
+
+The define is a compile-time constant on the image-based-lighting and ray-traced reflection shaders only.
+It is not a shader permutation and not a global shader define, so it adds no PSOs; changing it recompiles
+those shaders.
+
+## VITE_UE5_POSTPROCESSING
+
+On by default. Compiles in the UE 5.0 local exposure passes and the matching post-process histogram and
+tonemapper changes, giving local exposure control comparable to UE5 without moving the project to UE5.
+
+## Shading model and TressFX switches
+
+`VITE_SHADINGMODEL_CALLISTO`, `VITE_SHADINGMODEL_TOON`, `VITE_FSR2_REACTIVE_MASK` and `VITE_TRESSFX` are
+off by default. Each extra shading model adds branches to the shared lighting shaders and permutations to
+every material that can use it, so a project pays for them whether or not it renders anything with them.
+Enable only what the art direction needs. TressFX is additionally excluded from mobile and ES 3.1 shader
+platforms regardless of the switch.
 
 ## Checking what a build has
 

@@ -6,6 +6,11 @@ Vite adds three shading models to the stock 4.27 set: <b>Callisto BRDF</b> for h
 character surfaces, <b>Toon</b> for stylised non-photorealistic rendering, and <b>Lit Reactive</b>.
 Each repurposes existing material pins, so read the pin mapping tables before authoring.
 </p>
+<p>
+<b>Callisto BRDF and Toon are compiled out by default</b> since the July Major. Build with
+<code>VITE_SHADINGMODEL_CALLISTO=1</code> or <code>VITE_SHADINGMODEL_TOON=1</code> to use them. See
+<a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+</p>
 </tldr>
 
 Shading models are selected from the **Shading Model** dropdown in the material's details panel, or driven
