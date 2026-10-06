@@ -32,6 +32,7 @@ These do not exist in stock UE 4.27.
 | `r.SMAA.EdgeMode` | 0 | SMAA edge detection. 0 = colour, 1 = luminance. August Major onwards. |
 | `r.SMAA.DebugVisualization` | 0 | SMAA debug view, non-Shipping builds. 1 = edges, 2 = blend weights, 3 = highlighted result. Earlier releases use `r.AntiAliasing.SMAA.Debug`. |
 | `r.Vite.SSAO` | 1 | Vite's optimised SSAO path, development builds only; Shipping and Test are locked to `VITE_O_SSAO`. See [Ambient Occlusion](Ambient-Occlusion.md). |
+| `r.SSGI.SkipSSAO` | 1 | Skip SSAO when SSGI will supply the ambient-occlusion mask that frame. September Major onwards. See [SSGI](SSGI.md). |
 | `p.VitePhysXFixedTimestep.Enabled` | 0 | Enable fixed timestep physics |
 | `p.VitePhysXFixedTimestep.DeltaTime` | 0.01667 (1/60) | Fixed step duration in seconds |
 | `p.VitePhysXFixedTimestep.MaxTimesteps` | 16 | Maximum fixed steps per game tick |

@@ -83,6 +83,9 @@ actually costs in your scene, and it is frequently less than people assume.
 
 Since the [September Major](ueVite26-SeptemberMajor.md), SSAO is skipped whenever SSGI is guaranteed to run
 and supply the ambient-occlusion term, so the recommended DDGI plus SSGI setup no longer pays for both.
+SSAO still runs whenever SSGI cannot produce the mask that frame: during history warm-up and camera cuts, with
+multiple views, under forward shading or low scalability, and when per-pixel ray-traced GI is active.
+`r.SSGI.SkipSSAO 0` restores the old behaviour of always running SSAO.
 
 ## See also
 

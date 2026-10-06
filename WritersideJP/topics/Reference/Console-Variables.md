@@ -29,6 +29,7 @@ r.HBAO.Enable=1
 | `r.SMAA.EdgeMode` | 0 | SMAA のエッジ検出。0 = 色、1 = 輝度。August Major 以降 |
 | `r.SMAA.DebugVisualization` | 0 | SMAA のデバッグ表示（Shipping 以外のビルド）。1 = エッジ、2 = ブレンドの重み、3 = 強調した結果。それ以前のリリースは `r.AntiAliasing.SMAA.Debug` |
 | `r.Vite.SSAO` | 1 | Vite の最適化された SSAO の経路。開発用のビルドのみで、Shipping と Test は `VITE_O_SSAO` に固定。[アンビエントオクルージョン](Ambient-Occlusion.md) を参照 |
+| `r.SSGI.SkipSSAO` | 1 | そのフレームで SSGI がアンビエントオクルージョンのマスクを提供する場合は SSAO を省略する。September Major 以降。[SSGI](SSGI.md) を参照 |
 | `p.VitePhysXFixedTimestep.Enabled` | 0 | 固定タイムステップの物理を有効にする |
 | `p.VitePhysXFixedTimestep.DeltaTime` | 0.01667（1/60） | 固定ステップの長さ（秒） |
 | `p.VitePhysXFixedTimestep.MaxTimesteps` | 16 | 1 回のゲームのティックあたりの固定ステップの最大数 |
