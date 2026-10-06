@@ -30,7 +30,8 @@ ray tracing cost.
 
 ### Test Hardware
 
-These are the configurations Vite is actively benchmarked and tuned against. The following Test Hardware is owned by main Devs of this fork.
+These are the configurations Vite is actively benchmarked and tuned against, all owned by the fork's core
+developers.
 
 
 
@@ -43,13 +44,13 @@ GPU works but not under Windows. Detail is in [PS5 CPU FPU](PS5-CPU-FPU.md).
 |---|---------------------------------|----------------------------------------------|
 | AMD | 4700S (Zen 2, iGPU fused off)   | PS5 CPU FPU proxy (one FMA pipe). PhysX 3.4  |
 | AMD | RX 6700 (RDNA2)                 | PC RDNA2 compiler/throughput proxy for PS5   |
-| AMD | Steam Deck LCD Van Gogh (RDNA2) | Handheld Class                               |
-| AMD | RX 9600XT (RDNA4)               | Mid Tier GPU                                 |
-| NVIDIA | RTX 2060 (Turing)               | Lower Bound for HW RT & DLSS                 |
-| NVIDIA | RTX 3060 (Ampere)               | Matches Steam most common GPU                |
+| AMD | Steam Deck LCD Van Gogh (RDNA2) | Handheld class                               |
+| AMD | RX 9060 XT (RDNA4)              | Mid-tier GPU                                 |
+| NVIDIA | RTX 2060 (Turing)               | Lower bound for hardware RT and DLSS         |
+| NVIDIA | RTX 3060 (Ampere)               | Close to the most common GPU in the Steam Hardware Survey |
 | NVIDIA | RTX 4080 Super (Ada Lovelace)   | Upper-bound reference for 4K native captures |
 
-Testing is most useful on a 4K native monitor or TV(from 6700/RTX 4060), because Vite's whole argument is about holding native
+Testing is most useful on a 4K native monitor or TV (with an RX 6700 / RTX 4060 or faster), because Vite's whole argument is about holding native
 resolution rather than upscaling from a lower internal one.
 
 If you want to showcase results in your hardware (as in from the Demos), the `#showcase` channel on Discord is where testing is coordinated.
@@ -62,7 +63,7 @@ Building is CPU-, RAM- and disk-bound. Treat these as practical guidance rather 
 |---|-----------------------------|-------------------------------------|
 | CPU | 6 cores / 12 threads        | 16 cores / 32 threads or more       |
 | RAM | 24&nbsp;GB                  | 32&nbsp;GB                          |
-| Storage | SATA SSD with 50gb of Space | NVMe SSD 157GB of space (Full Size) |
+| Storage | SATA SSD, 50&nbsp;GB free | NVMe SSD, about 140&nbsp;GB free for a full Windows tree |
 | OS | Windows 10 x64              | Windows 11 x64                      |
 
 An Unreal Engine 4.27 source tree with dependencies, intermediates and a built editor is very large &mdash;
@@ -71,7 +72,7 @@ that writes a second copy into `LocalBuilds\Engine\Windows\`. A mechanical hard 
 every step painful; use an SSD.
 
 Compile time scales almost linearly with core count. A full build on a Ryzen 9 9950X3D takes roughly
-14 minutes. You can reclaim a meaningful amount of both time and disk space by excluding platforms you do
+15 minutes. You can reclaim a meaningful amount of both time and disk space by excluding platforms you do
 not target and stripping optional content &mdash; see [Debloat Guide](Debloat-Guide.md) and the setup
 presets described in [Building from Source](Build-From-Source.md).
 
