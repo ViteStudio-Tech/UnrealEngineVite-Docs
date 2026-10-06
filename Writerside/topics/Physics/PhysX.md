@@ -80,9 +80,12 @@ See [Destruction and Cloth](Destruction-And-Cloth.md) for authoring and runtime 
 
 ### Modern toolchain support
 
-Vite's PhysX libraries and build files have been updated for newer MSVC and Clang toolchains, including the
-Android NDK Clang path used by current Vite builds. Toolchain changes are validated with the physics test and
-stress workloads before release.
+Vite's PhysX 3.4 libraries and build files are being modernised for current MSVC and Clang (including the
+Android NDK Clang path) and retuned for **PS5 Zen 2's cut-down FPU**: `FP3` gone, `FP2` store-only,
+**one 256-bit FMA pipe**. That work is validated on an AMD 4700S, not on desktop Matisse and not on
+Series X. Series X is 15.3 billion transistors vs Oberon's 10.6 billion; part of that delta is CPU FPU
+silicon, so Series X dual-issues FMA the PS5 core cannot. Kernel rules, probes and `V3ScaleAdd` patterns
+are in [PS5 CPU FPU](PS5-CPU-FPU.md).
 
 ### Fixed-timestep simulation
 
@@ -155,6 +158,7 @@ For high body counts, compare standard Actor-based simulation with the
 ## See also
 
 - [Physics](Physics.md)
+- [PS5 CPU FPU](PS5-CPU-FPU.md)
 - [Fixed Timestep](Fixed-Timestep.md)
 - [Destruction and Cloth](Destruction-And-Cloth.md)
 - [Instanced Physics Subsystem](Instanced-Physics.md)

@@ -62,7 +62,8 @@ fast does not clear the bar. See <a href="Performance-Targets.md">Performance Ta
 <def title="Copyright cleanliness">
 Contributions must be original work or permissively licensed (MIT, Apache 2.0, BSD, Zlib). Code copied
 from UE5 into a 4.27 fork sits under Epic's licence, which is a different question from a permissive
-licence &mdash; see <a href="Backporting.md">Backporting</a>.
+licence &mdash; see <a href="Backporting.md">Backporting</a> and
+<a href="License-And-Copyright.md">License and Copyright</a>.
 </def>
 </deflist>
 
@@ -71,6 +72,7 @@ licence &mdash; see <a href="Backporting.md">Backporting</a>.
 Contributions that fit Vite well tend to share a shape:
 
 - **Measurable.** A profiling capture before and after, on representative content, beats an argument.
+  [Compiler Explorer](Compiler-Explorer.md) is for assembly and Clang compliance, not frame time.
 - **Guarded.** Anything not needed in shipping is behind a
   [compile-time switch](Compile-Time-Switches.md) or a console variable, and off by default when it costs
   something.
@@ -90,5 +92,7 @@ See [Build from Source](Build-From-Source.md) and
 - [Coding Guidelines](Coding-Guidelines.md)
 - [Commit Conventions](Commit-Conventions.md)
 - [Backporting](Backporting.md)
+- [License and Copyright](License-And-Copyright.md)
 - [Build from Source](Build-From-Source.md)
 - [Performance Targets](Performance-Targets.md)
+- [Compiler Explorer](Compiler-Explorer.md)

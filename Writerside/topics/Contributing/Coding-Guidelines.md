@@ -30,7 +30,9 @@ is permissive about it does not meet this bar, even when MSVC is the compiler yo
 </def>
 <def title="Licensing clarity">
 All contributions must be copyright-clean. Code may be included only if it is original work by the
-contributor, or licensed permissively &mdash; MIT, Apache 2.0, BSD, Zlib.
+contributor, or licensed permissively &mdash; MIT, Apache 2.0, BSD, Zlib. Vite-original files use
+<code>// Copyright 2026 Vite Studio. All rights reserved.</code> See
+<a href="License-And-Copyright.md">License and Copyright</a>.
 </def>
 <def title="ABI safety">
 Do not modify engine bitmask layouts, payload structures, serialization formats, or any CPU/GPU-shared
@@ -92,7 +94,9 @@ cross-vendor GPU behaviour. This is the single most common cause of immediate re
 2. Avoid unpredictable branching in hot paths.
 3. No `FString` processing, reflection calls, dynamic allocation or virtual dispatch inside per-frame
    loops.
-4. Use SIMD-friendly math (SSE/AVX/NEON) where appropriate.
+4. Use SIMD-friendly math (SSE/AVX/NEON) where appropriate. On the PS5 CPU that means fused FMA and SoA
+   layouts on **one FMA pipe** (`FP3` gone, `FP2` store-only) — see [PS5 CPU FPU](PS5-CPU-FPU.md).
+   Desktop and Series X Zen 2 will overstate FMA throughput.
 
 Rule 3 is the one most often violated by otherwise reasonable code. An `FString` format call in a per-actor
 tick is invisible in a test scene and catastrophic at scale &mdash; see the
@@ -111,7 +115,10 @@ multiplied out.
 ### Compilation
 
 Must compile cleanly under MSVC and be Clang compliant. "Compiles on my machine with warnings" is not
-clean.
+clean. For an isolated kernel, compile it on [Compiler Explorer](Compiler-Explorer.md) under the newest
+x64 MSVC and Clang 22 / clang-cl. That confirms both compilers accept the code and shows the assembly
+they emit. It does not time them. Runtime comparison is [Quick Bench](https://quick-bench.com/) for GCC
+or Clang on Linux, or a local benchmark for MSVC versus clang-cl.
 
 ### Stability
 
@@ -155,7 +162,7 @@ Confirm all of these before opening a pull request:
 | No recursion | ☐ |
 | No added virtual calls, existing engine virtuals cached where possible | ☐ |
 | No new Kismet exposure | ☐ |
-| Copyright-clean code | ☐ |
+| Copyright-clean code, Vite or Epic header present as required | ☐ |
 | ABI and bitmask integrity preserved | ☐ |
 | Strict Clang compliance | ☐ |
 | No undefined behaviour | ☐ |
@@ -166,6 +173,20 @@ Confirm all of these before opening a pull request:
 | New compile-time switches documented | ☐ |
 
 ## Marking your changes
+
+### Copyright headers
+
+New Vite-original files start with:
+
+```c++
+// Copyright 2026 Vite Studio. All rights reserved.
+```
+
+Edited Epic files keep Epic's header and add the Vite Studio line underneath it. Do not remove Epic
+notices. The full rules, and why they exist, are in
+[License and Copyright](License-And-Copyright.md).
+
+### Inline change markers
 
 Vite's engine modifications are marked inline so they survive upstream merges and are findable later. The
 existing convention in the tree uses trailing comments on modified lines:
@@ -184,5 +205,7 @@ Follow whatever marker the surrounding code uses. For a new region, a `// AKCHAN
 - [Contributing](Contributing.md)
 - [Commit Conventions](Commit-Conventions.md)
 - [Backporting](Backporting.md)
+- [License and Copyright](License-And-Copyright.md)
 - [Compile-Time Switches](Compile-Time-Switches.md)
 - [Performance Targets](Performance-Targets.md)
+- [Compiler Explorer](Compiler-Explorer.md)

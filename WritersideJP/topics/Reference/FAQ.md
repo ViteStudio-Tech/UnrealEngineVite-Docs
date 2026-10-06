@@ -34,6 +34,12 @@ equivalent such as Nanite geometry. Features that do not exist in 4.27 cannot be
 Windows 64-bit, primarily on DirectX 12. Other platforms inherit stock 4.27 support but are neither tested
 nor tuned. See [Platforms](Platforms.md).
 
+### Do I need an Unreal Engine licence to use Vite?
+
+Yes, the same one every Unreal Engine source build uses. Vite is a 4.27 fork, so source and editor
+tools are covered by Epic's [Unreal Engine EULA](https://www.unrealengine.com/eula/unreal). The
+project you make with Vite is yours. See [License and Copyright](License-And-Copyright.md).
+
 ## Setup and building
 
 ### What toolchain do I need?
@@ -142,6 +148,12 @@ instanced mesh transforms directly.
 
 ## Performance
 
+### Can I measure MSVC versus Clang on Compiler Explorer?
+
+No. [Compiler Explorer](https://gcc.godbolt.org/) shows the assembly each compiler emits; it does not
+time the generated code. [Quick Bench](https://quick-bench.com/) times GCC or Clang on Linux and has no
+MSVC. Time MSVC versus clang-cl locally. See [Compiler Explorer](Compiler-Explorer.md).
+
 ### Where do I start optimising?
 
 `stat unit`, and identify which of Game, Draw or GPU is the largest. Optimising the wrong one produces no
@@ -209,5 +221,6 @@ in [Compile-Time Switches](Compile-Time-Switches.md), and changed defaults go in
 
 - [Console Variables](Console-Variables.md)
 - [Glossary](Glossary.md)
+- [License and Copyright](License-And-Copyright.md)
 - [Compile-Time Switches](Compile-Time-Switches.md)
 - [Build Troubleshooting](Build-Troubleshooting.md)

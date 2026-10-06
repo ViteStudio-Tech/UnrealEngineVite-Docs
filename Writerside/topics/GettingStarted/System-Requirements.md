@@ -34,9 +34,15 @@ These are the configurations Vite is actively benchmarked and tuned against. The
 
 
 
+CPU FPU work and GPU compiler work are different boxes. The 4700S is further-cut Zen 2 versus Series X
+(mainly the FPU) and exists to time PhysX 3.4 and other FPU kernels as they will on the PS5 CPU. The RX
+6700 is a PC RDNA2 compiler proxy; PS5 RDNA2 still differs. 4700S/4800S GPUs are fused off. The BC-250
+GPU works but not under Windows. Detail is in [PS5 CPU FPU](PS5-CPU-FPU.md).
+
 | Vendor | Hardware                        | Why it matters                               |
 |---|---------------------------------|----------------------------------------------|
-| AMD | RX 6700 (RDNA2)                 | Closest desktop match to PlayStation 5       |
+| AMD | 4700S (Zen 2, iGPU fused off)   | PS5 CPU FPU proxy (one FMA pipe). PhysX 3.4  |
+| AMD | RX 6700 (RDNA2)                 | PC RDNA2 compiler/throughput proxy for PS5   |
 | AMD | Steam Deck LCD Van Gogh (RDNA2) | Handheld Class                               |
 | AMD | RX 9600XT (RDNA4)               | Mid Tier GPU                                 |
 | NVIDIA | RTX 2060 (Turing)               | Lower Bound for HW RT & DLSS                 |

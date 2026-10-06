@@ -16,6 +16,7 @@ are the specification, and everything in this section exists to help you stay in
 | Topic | Covers |
 |---|---|
 | [Profiling](Profiling.md) | Finding out where the frame actually goes |
+| [PS5 CPU FPU](PS5-CPU-FPU.md) | Cut-down Zen 2 FPU, 4700S proxy, and SIMD that still issues on two pipes |
 | [Engine Default Changes](Engine-Defaults.md) | What Vite changed from stock 4.27, and why it affects your project |
 | [Compile-Time Switches](Compile-Time-Switches.md) | The `VITE_*` macros, including the one that removes ray tracing effects |
 | [Shader Compilation and PSO](Shader-Compilation-And-PSO.md) | Permutation counts, compile times and pipeline state |
@@ -58,3 +59,4 @@ mostly not to spend it.
 - [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
 - [Rendering](Rendering.md)
 - [Physics](Physics.md)
+- [Compiler Explorer](Compiler-Explorer.md)

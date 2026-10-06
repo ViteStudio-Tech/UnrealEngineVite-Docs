@@ -10,7 +10,8 @@ requires a pinned toolchain.
 
 This section takes you from nothing installed to a running editor and a first project on Unreal Engine
 Vite. Read [Introduction to Vite](Introduction-to-Vite.md) first if you have not yet decided whether the
-fork is right for your project.
+fork is right for your project. Source builds use the same Unreal Engine licence as stock 4.27; see
+[License and Copyright](License-And-Copyright.md).
 
 ## Choose how you install
 
@@ -79,3 +80,4 @@ and following it is a common source of confusion for people arriving from UE5.
 - [Toolchain Requirements](Toolchain-Requirements.md)
 - [ViteSetup Assistant](ViteSetup.md)
 - [Engine Default Changes](Engine-Defaults.md)
+- [License and Copyright](License-And-Copyright.md)

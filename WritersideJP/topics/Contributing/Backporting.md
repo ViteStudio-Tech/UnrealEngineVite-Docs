@@ -24,7 +24,8 @@ a routine activity in order to upgrade the source.
         <b>Check the licence.</b> UE5 code is under Epic's licence, which permits use in an Unreal
         Engine fork but not arbitrary redistribution. Third-party code must be permissively licensed
         &mdash; MIT, Apache 2.0, BSD, Zlib. See
-        <a href="Coding-Guidelines.md">Coding Guidelines</a>.
+        <a href="Coding-Guidelines.md">Coding Guidelines</a> and
+        <a href="License-And-Copyright.md">License and Copyright</a>.
     </step>
     <step>
         <b>Check the dependency graph.</b> A UE5 feature that depends on Nanite, Lumen, the UE5 RDG API
@@ -132,5 +133,6 @@ See [Migrating from UE5](Migrating-From-UE5.md) and
 - [Contributing](Contributing.md)
 - [Coding Guidelines](Coding-Guidelines.md)
 - [Commit Conventions](Commit-Conventions.md)
+- [License and Copyright](License-And-Copyright.md)
 - [Compile-Time Switches](Compile-Time-Switches.md)
 - [Migrating from UE5](Migrating-From-UE5.md)

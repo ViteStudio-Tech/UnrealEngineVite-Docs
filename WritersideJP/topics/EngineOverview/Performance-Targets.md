@@ -21,8 +21,10 @@ every one of them is stated at native resolution rather than an upscaled interna
 | **Fidelity, high end** | 4K, 30 FPS | As above, scaled for geometric density | Large open worlds | Demo In Progress |
 | **Fidelity, full RT** | 1440p, 30 FPS | DDGI + RT Reflections + RTAO + RT Shadows | Maximum image quality | NVIDIA Demos |
 
-The reference hardware for all four is PlayStation 5 class, which on desktop means roughly an RDNA2
-RX 6700/RTX 2080
+The reference hardware for all four is PlayStation 5 class. On desktop that is an **AMD 4700S** for CPU
+FPU-bound work (PhysX 3.4, animation SIMD) — further-cut Zen 2 versus Series X, one FMA pipe — and
+roughly an RDNA2 RX 6700 / RTX 2080 for the GPU. The 4700S GPU is fused off. The 6700 is close enough
+in RDNA2 compiler behaviour; it is not PS5 RDNA2. See [PS5 CPU FPU](PS5-CPU-FPU.md).
 
 Real-time path tracing is also available in the codebase, using the NVIDIA path tracing technology featured
 in Black Myth: Wukong. &mdash; see [Path Tracing](Path-Tracing.md).

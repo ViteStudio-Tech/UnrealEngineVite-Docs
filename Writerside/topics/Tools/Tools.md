@@ -18,6 +18,7 @@ that sequence in tooling so the common paths do not require remembering the exac
 | [ViteSetup Assistant](ViteSetup.md) | The guided setup and build assistant, and its menu mode |
 | [Installed Builds](Installed-Builds.md) | Producing and packaging a redistributable binary engine |
 | [Cache Management](Cache-Management.md) | Wiping shader and DDC caches when things go wrong |
+| [Compiler Explorer](Compiler-Explorer.md) | MSVC vs Clang assembly on Godbolt; timings go to Quick Bench or a local bench |
 
 ## The tools at a glance
 
@@ -54,6 +55,10 @@ Run the <code>devops\</code> debloat suite. See <a href="Debloat-Guide.md">Deblo
 <code>ViteSetup.bat menu</code> and choose option 3, or run <code>GenerateProjectFiles.bat</code>
 directly.
 </def>
+<def title="I want to compare MSVC and Clang codegen">
+Open <a href="https://gcc.godbolt.org/">Compiler Explorer</a>. It shows assembly, not timings. See
+<a href="Compiler-Explorer.md">Compiler Explorer</a>.
+</def>
 </deflist>
 
 ## See also
@@ -62,3 +67,4 @@ directly.
 - [Toolchain Requirements](Toolchain-Requirements.md)
 - [Build Troubleshooting](Build-Troubleshooting.md)
 - [Debloat Guide](Debloat-Guide.md)
+- [Compiler Explorer](Compiler-Explorer.md)

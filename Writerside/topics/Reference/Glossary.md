@@ -13,7 +13,8 @@ Unreal or graphics vocabulary that these docs assume.
 <def title="Vite">
 This engine: a fork of Unreal Engine 4.27 based on NVIDIA's NvRTX branches, focused on performance and
 rendering technology that 4.27 does not ship with upstream. Engine association identifier
-<code>UE_ViteFork</code>.
+<code>UE_ViteFork</code>. Licensed as Unreal Engine 4.27; Vite-original work is copyright Vite
+Studio. See <a href="License-And-Copyright.md">License and Copyright</a>.
 </def>
 <def title="NvRTX">
 NVIDIA's public Unreal Engine branches carrying their ray tracing technology ahead of upstream. Vite draws
@@ -202,6 +203,16 @@ expensive per-instance costs in a crowd scene. See
 ## Engine and build
 
 <deflist>
+<def title="Compiler Explorer / Godbolt">
+An online C++ compiler that shows the assembly MSVC, Clang and GCC emit.
+<a href="https://gcc.godbolt.org/">gcc.godbolt.org</a>. It does not measure runtime. See
+<a href="Compiler-Explorer.md">Compiler Explorer</a>.
+</def>
+<def title="Quick Bench">
+An online Google Benchmark runner for GCC and Clang on Linux.
+<a href="https://quick-bench.com/">quick-bench.com</a>. No MSVC. See
+<a href="Compiler-Explorer.md">Compiler Explorer</a>.
+</def>
 <def title="DDC">
 Derived Data Cache. Where compiled shaders, cooked textures and other derived artefacts are stored. See
 <a href="Cache-Management.md">Cache Management</a>.
@@ -230,6 +241,16 @@ better size-to-quality curve.
 <def title="Motion matching">
 Selecting animation frames at runtime by matching current pose and trajectory against a database, rather
 than following a state machine. Provided by the Motion Symphony plugin.
+</def>
+<def title="FPU">
+Floating-point unit. PS5 Zen 2 deletes <code>FP3</code>, uses <code>FP2</code> as store-only, and keeps
+one 256-bit FMA pipe. AVX2 and FMA latency remain. Series X Zen 2 does not take that cut. See
+<a href="PS5-CPU-FPU.md">PS5 CPU FPU</a>.
+</def>
+<def title="4700S">
+AMD desktop kit with eight further-cut Zen 2 cores (FPU reduced versus Series X) and the iGPU fused off.
+Windows proxy for PS5 CPU FPU work, including the PhysX 3.4 rewrite. Not a GPU test box. See
+<a href="PS5-CPU-FPU.md">PS5 CPU FPU</a>.
 </def>
 </deflist>
 

@@ -11,6 +11,7 @@ what you are looking for; use the feature sections when you do not.
 
 | Topic | Covers |
 |---|---|
+| [License and Copyright](License-And-Copyright.md) | Unreal Engine EULA and Vite Studio copyright |
 | [Console Variables](Console-Variables.md) | Vite-specific and commonly needed console variables, grouped by subsystem |
 | [Compile-Time Switches](Compile-Time-Switches.md) | The `VITE_*` build switches and what they change |
 | [Glossary](Glossary.md) | Terminology used throughout these docs |
@@ -43,3 +44,4 @@ Stale cache. See <a href="Cache-Management.md">Cache Management</a>.
 - [Getting Started](Getting-Started.md)
 - [Performance](Performance.md)
 - [Contributing](Contributing.md)
+- [License and Copyright](License-And-Copyright.md)

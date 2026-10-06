@@ -145,8 +145,9 @@ Plugins bundled with the engine, and the vetting process for proposing new ones.
 <a href="Plugins.md">Plugins</a>.
 </def>
 <def title="Tools and Automation">
-The <code>ViteSetup.bat</code> assistant, installed engine builds, packaging and distribution scripts, and
-cache management. See <a href="Tools.md">Tools and Automation</a>.
+The <code>ViteSetup.bat</code> assistant, installed engine builds, packaging and distribution scripts,
+cache management, and Compiler Explorer for MSVC versus Clang codegen. See
+<a href="Tools.md">Tools and Automation</a>.
 </def>
 <def title="Projects and Demos">
 Downloadable sample projects and benchmark scenes, with the hardware numbers they were captured on. See
@@ -157,7 +158,7 @@ Coding guidelines, commit and pull request conventions, and the backporting work
 changes into the fork. See <a href="Contributing.md">Contributing</a>.
 </def>
 <def title="Reference">
-Console variable reference, compile-time switches, glossary and FAQ. See
+Console variable reference, compile-time switches, licence and copyright, glossary and FAQ. See
 <a href="Reference.md">Reference</a>.
 </def>
 </deflist>

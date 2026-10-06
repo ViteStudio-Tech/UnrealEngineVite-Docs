@@ -131,3 +131,4 @@ toolchain UBT reports using. Catching a mismatch there is much cheaper than catc
 - [Build Troubleshooting](Build-Troubleshooting.md)
 - [ViteSetup Assistant](ViteSetup.md)
 - [System Requirements](System-Requirements.md)
+- [Compiler Explorer](Compiler-Explorer.md)

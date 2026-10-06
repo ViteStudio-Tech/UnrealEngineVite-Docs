@@ -63,6 +63,7 @@
 
     <toc-element topic="Performance.md" toc-title="パフォーマンスと最適化">
         <toc-element topic="Profiling.md" toc-title="プロファイリング"/>
+        <toc-element topic="PS5-CPU-FPU.md" toc-title="PS5 CPU の FPU"/>
         <toc-element topic="Engine-Defaults.md" toc-title="エンジンデフォルトの変更"/>
         <toc-element topic="Compile-Time-Switches.md" toc-title="コンパイル時スイッチ"/>
         <toc-element topic="Shader-Compilation-And-PSO.md" toc-title="シェーダーコンパイルと PSO"/>
@@ -80,6 +81,7 @@
         <toc-element topic="ViteSetup.md" toc-title="ViteSetup"/>
         <toc-element topic="Installed-Builds.md" toc-title="インストール済みビルド"/>
         <toc-element topic="Cache-Management.md" toc-title="キャッシュ管理"/>
+        <toc-element topic="Compiler-Explorer.md" toc-title="Compiler Explorer"/>
     </toc-element>
 
     <toc-element topic="ProjectsAndDemos.md" toc-title="プロジェクトとデモ">
@@ -103,6 +105,7 @@
     </toc-element>
 
     <toc-element topic="Reference.md" toc-title="リファレンス">
+        <toc-element topic="License-And-Copyright.md" toc-title="ライセンスと著作権"/>
         <toc-element topic="Console-Variables.md" toc-title="コンソール変数"/>
         <toc-element topic="Glossary.md" toc-title="用語集"/>
         <toc-element topic="FAQ.md" toc-title="よくある質問"/>

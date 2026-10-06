@@ -88,6 +88,11 @@ whose [performance targets](Performance-Targets.md) do not leave budget for DXR.
 
 See [System Requirements](System-Requirements.md) for development and runtime hardware.
 
+PS5 CPU FPU-bound code — especially the PhysX 3.4 modernisation — is timed on the AMD 4700S (further-cut
+Zen 2 FPU versus Series X: `FP3` gone, `FP2` store-only, one FMA pipe). GPU compiler checks use a
+discrete RX 6700; 4700S/4800S GPUs are fused off, and BC-250 is not a Windows D3D12 box. Detail is in
+[PS5 CPU FPU](PS5-CPU-FPU.md). Console platform code stays private.
+
 
 ## Packaging
 

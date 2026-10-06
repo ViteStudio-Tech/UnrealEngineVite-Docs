@@ -54,6 +54,12 @@ PhysX's narrow phase and solver were developed around batched float data and pla
 useful measurement is effective vector occupancy across the complete simulation step, including work that
 remains scalar or loses time to data movement.
 
+On the PS5 CPU that occupancy hits **one 256-bit FMA pipe** (`FP3` deleted, `FP2` stores only), not
+desktop or Series X Zen 2's two FMA pipes. FMA-throughput-bound solver work runs at about half a 3700X
+at the same clock. Vite's PhysX 3.4 modernisation is timed on the 4700S for that reason. Keep kernels
+FMA-fused (`V3ScaleAdd`) and SoA. Do not treat a desktop Ryzen or Series X capture as the PS5 result.
+Patterns are in [PS5 CPU FPU](PS5-CPU-FPU.md).
+
 ### Numeric precision
 
 UE5 Large World Coordinates changed core world-space types to double precision. Epic's
@@ -252,6 +258,7 @@ the lower-overhead native integration path; it is not a matched Chaos-versus-Phy
 
 ## See also
 
+- [PS5 CPU FPU](PS5-CPU-FPU.md)
 - [PhysX](PhysX.md)
 - [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
 - [Performance Targets](Performance-Targets.md)
