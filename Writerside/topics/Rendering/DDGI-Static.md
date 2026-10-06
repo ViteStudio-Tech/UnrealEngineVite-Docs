@@ -8,24 +8,25 @@ no DXR support at all.
 </p>
 </tldr>
 
-Static DDGI uses the same probe volumes and the same Irradiance calculations and Octahedral representations as
+Static DDGI uses the same probe volumes, irradiance calculations and octahedral representation as
 [Dynamic DDGI](DDGI-Dynamic.md), but resolves irradiance once at bake time instead of continuously at
-runtime. It is the low-end and no Ray-Tracing Hardware GPU support (GTX 900/ Radeon 5000 series or older) path.
+runtime. It is the path for low-end GPUs and for GPUs without ray tracing support (GTX 900 / Radeon 5000
+series and older).
 
 <note>
-Dynamic RT DDGI works from 2016's GTX 1060 6GB (10 years old), 
-the minimum requirement is Pascal Architecture with atleast 6GB of VRAM.
+Dynamic RT DDGI works from 2016's GTX 1060 6&nbsp;GB onward: the minimum requirement is a Pascal-architecture
+GPU with at least 6&nbsp;GB of VRAM.
 </note>
 
 ## What you get
 
-**Near-instant bakes.** This is the headline difference from LightMass. Baking probe irradiance is a
+**Near-instant bakes.** This is the headline difference from Lightmass. Baking probe irradiance is a
 fundamentally cheaper problem than solving lightmap UVs and per-texel radiosity, and the iteration loop
 changes character entirely when a bake takes seconds rather than hours.
 
-**Better bounce fidelity than traditional baked lighting.** The Actual Geometrical Scene traversal representation 
-captures directional irradiance rather than a flat lightmap values, so surfaces respond correctly to their orientation
-even where lighting was baked.
+**Better bounce fidelity than traditional baked lighting.** Probes are filled by tracing the actual scene
+geometry and store directional irradiance rather than flat lightmap values, so surfaces respond correctly
+to their orientation even where lighting was baked.
 
 **Better coverage of moving objects.** This is the structural advantage over lightmaps. Lightmaps store
 lighting on *surfaces*, so a moving object has to fall back to indirect lighting samples or volumetric
@@ -34,19 +35,20 @@ characters, vehicles, physics debris &mdash; samples the same representation sta
 consistent with it.
 
 <note>
-**No DXR requirement at runtime.** Once baked, the Probe texture data is serialized there is no RT acceleration. 
-This is what makes Static DDGI viable on ultra-low-end GPUs and on hardware with no ray tracing support at all.
+**No DXR requirement at runtime.** Once baked, the probe texture data is serialised and no ray tracing
+acceleration structure is needed. This is what makes Static DDGI viable on ultra-low-end GPUs and on
+hardware with no ray tracing support at all.
 </note>
 
 ## When to use it
 
 | Situation | Recommendation                               |
 |---|----------------------------------------------|
-| Minimum spec has no DXR support | Static RT DDGI                               |
-| Minimum spec is very low-end but DXR capable | Dynamic RT DDGI at lower Ray Budget          |
+| Minimum spec has no DXR support | Static DDGI |
+| Minimum spec is very low-end but DXR capable | Dynamic RT DDGI with a lower ray budget |
 | Lighting is fully static (no time of day, no destructible lights) | Static DDGI is sufficient                    |
 | Lighting changes at runtime | [Dynamic RT DDGI](DDGI-Dynamic.md)           |
-| Shipping across a wide hardware range | Both, switched automatically by HW detection |
+| Shipping across a wide hardware range | Both, selected by hardware detection |
 
 That last row is the common case and the reason Static DDGI is worth setting up even on a project targeting
 dynamic lighting. Because the two modes share volumes and authoring, supporting both is a scalability
@@ -90,8 +92,8 @@ Note that Vite disables lightmap UV generation by default on import &mdash; see
 of Static DDGI, you will need to re-enable it.
 
 <note>
-It's feasible to combine traditional LightMass with Static or Dynamic DDGI, the GI does blend nicely 
-and in general there won't be artifacts or crush out calculations from the GI related math.
+Traditional Lightmass lightmaps can be combined with Static or Dynamic DDGI. The two blend well, and in
+general the combination does not produce artefacts or crushed lighting.
 </note>
 
 

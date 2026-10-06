@@ -1,124 +1,122 @@
-# Ray-Traced Reflections
+# レイトレーシング反射
 
 <tldr>
 <p>
-Enabled with <code>r.RayTracing.Reflections 1</code>. Vite's reflections are heavily optimised and can
-run at 4K native 60 FPS on PS5-class hardware. When <a href="DDGI-Dynamic.md">DDGI</a> is active,
-reflection rays sample probe irradiance for their secondary bounce, which is a large quality win.
+<code>r.RayTracing.Reflections 1</code> で有効にします（既定では無効）。Vite の反射は高度に最適化されており、
+PS5 クラスのハードウェアで 4K ネイティブ 60 FPS で動作できます。<a href="DDGI-Dynamic.md">DDGI</a> が有効な場合、
+反射レイは二次バウンスでプローブのイラディアンスをサンプリングし、品質が大きく向上します。
 </p>
 </tldr>
 
-Ray-traced reflections replace screen-space reflections with rays traced against the actual scene, which
-resolves the two fundamental SSR failures: reflections of off-screen geometry, and reflections of surfaces
-facing away from the camera.
+レイトレーシング反射は、スクリーンスペース反射を実際のシーンに対してトレースしたレイに置き換え、SSR の 2 つの根本的な
+失敗を解消します。画面外のジオメトリの反射と、カメラの反対側を向いたサーフェスの反射です。
 
-<img src="SSRArtifacts.png" alt="Reflective surfaces showing screen-space reflection dropout where the reflected geometry leaves the frame" border-effect="line"/>
+<img src="SSRArtifacts.png" alt="反射されるジオメトリが画面外に出た部分でスクリーンスペース反射が途切れている反射面" border-effect="line"/>
 
-*The failure mode, circled. The reflection terminates where the reflected geometry leaves the screen,
-because screen-space reflection has nothing left to sample.*
+*丸で囲んだのが失敗の例です。スクリーンスペース反射にはサンプリングするものが残っていないため、反射されるジオメトリが
+画面外に出たところで反射が途切れます。*
 
-## Performance
+## パフォーマンス
 
-This is one of the areas Vite has invested the most optimisation work in, because reflections are usually
-the second most expensive ray tracing effect after per-pixel GI.
+反射は通常、ピクセル単位の GI に次いで 2 番目に重いレイトレーシングエフェクトであるため、Vite が最も多くの最適化を
+投じてきた分野の 1 つです。
 
-Vite's reflections are capable of running at 4K native 60 FPS on a PS5-class GPU, as demonstrated by the
-Unreal Tournament Vite demo, which combines them with DDGI and tessellation. That configuration is the
-"Performance, high end" row in [Performance Targets](Performance-Targets.md).
+Vite の反射は、PS5 クラスの GPU で 4K ネイティブ 60 FPS で動作できます。これは DDGI とテッセレーションを組み合わせた
+Unreal Tournament Vite のデモで実証しています。この構成は [パフォーマンス目標](Performance-Targets.md) の
+「パフォーマンス（ハイエンド）」の行に当たります。
 
-Further RT reflection performance work is ongoing, with the stated goal of reaching performance
-characteristics comparable to RE Engine's implementation as seen in Devil May Cry 5 Special Edition on PS5.
+RT 反射の性能改善は続いており、PS5 の Devil May Cry 5 Special Edition に見られる RE Engine の実装に匹敵する性能特性を
+目標としています。
 
-## DDGI-lit reflections
+### 最近の改善
 
-The most important interaction in the renderer, and one of the concrete reasons Vite is built on the NvRTX
-branch rather than stock 4.27.
+| リリース | 変更内容 |
+|---|---|
+| [March Major](ueVite26-MarchMajor.md) | レイのペイロードの縮小と反射設定の最適化 |
+| [June Major](ueVite26-JuneMajor.md) | HWRT の反射シェーダーの最後で NaN を除去し、1 つの不正なサンプルが画面全体に広がらないように |
+| [August Major](ueVite26-AugustMajor.md) | ディファード反射がミス時にスカイのキューブマップをサンプリングし、フォリッジ、サブサーフェス、スキンへのヒットに追加のディフューズを加えるように。既定値の最適化。`VITE_O_RT_REFLECTIONS`（既定で有効）によるディファード反射の最適化。RTPSO のゲーティングの完了 |
 
-A reflection ray hits a surface. That surface needs to be shaded, which requires knowing the indirect light
-arriving at it. Without a global illumination representation available to the ray tracing pipeline, the
-options are to return direct lighting only (reflections of shadowed areas go black), or to fall back to a
-cubemap (reflections look wrong and static).
+## DDGI でライティングされた反射
 
-With DDGI active, the reflection ray samples probe irradiance at the hit point. Reflected surfaces are lit
-consistently with the rest of the scene, shadowed areas in reflections retain bounce light, and the whole
-image becomes coherent.
+レンダラーで最も重要な連携であり、Vite が標準の 4.27 ではなく NvRTX のブランチをベースにしている具体的な理由の 1 つです。
 
-This is enabled by the engine-side integration rather than by a separate switch: run DDGI and RT reflections
-together and you get it.
+反射レイがサーフェスに当たると、そのサーフェスをシェーディングする必要があり、そのためにはそこに届く間接光を知る必要が
+あります。レイトレーシングのパイプラインから利用できるグローバルイルミネーションの表現がない場合、選択肢は直接光だけを
+返す（反射の中の影になった部分が黒くなる）か、キューブマップにフォールバックする（反射が不正確で静的に見える）かです。
 
-## Tuning
+DDGI が有効な場合、反射レイはヒットした点でプローブのイラディアンスをサンプリングします。反射されたサーフェスはシーンの
+他の部分と一貫してライティングされ、反射の中の影の部分もバウンス光を保ち、画像全体に一貫性が生まれます。
 
-The controls that matter, in rough order of impact on cost:
+これは個別のスイッチではなく、エンジン側の統合によって実現されています。DDGI と RT 反射を一緒に動かせば、この効果が
+得られます。
 
-**Resolution.** Reflections can be traced at reduced resolution and upscaled. This is usually the largest
-single saving available and the quality cost is modest on rough surfaces.
+## 調整
 
-**Maximum roughness.** Surfaces rougher than this threshold fall back to cheaper techniques. Lowering it is
-very effective, because rough reflections are exactly the case where the expensive accurate answer is least
-visible.
+重要な設定を、おおよそコストへの影響が大きい順に示します。
 
-**Maximum bounces.** Additional bounces are expensive and rarely visible outside of scenes deliberately
-built with facing mirrors.
+**解像度。** 反射は低い解像度でトレースしてアップスケールできます。通常これが最大の節約になり、粗いサーフェスでの
+品質の低下はわずかです。
 
-**Ray distance.** Limiting how far reflection rays travel bounds cost in large open scenes.
+**最大ラフネス。** このしきい値より粗いサーフェスは、より安価な手法にフォールバックします。粗い反射こそ、高価で正確な
+答えが最も目立たないケースなので、この値を下げるのは非常に効果的です。
 
-**Denoiser settings.** Reflections use a denoiser, unlike DDGI. If you see boiling or ghosting in
-reflections under motion, this is where to look.
+**最大バウンス数。** 追加のバウンスは高価で、意図的に鏡を向かい合わせたシーン以外ではほとんど目に見えません。
 
-## Which reflection algorithm runs
+**レイの距離。** 反射レイが進む距離を制限すると、大きな開けたシーンでコストを抑えられます。
 
-Vite has two ray-traced reflection implementations inherited from 4.27 and NvRTX: the older
-`FRayTracingReflectionsRGS` path, which supports hybrid reflections and reflected translucency, and the
-newer sorted deferred path.
+**デノイザーの設定。** DDGI とは異なり、反射はデノイザーを使います。動いているときに反射にうねりやゴーストが見える
+場合は、ここを確認してください。
 
-In a default build, `VITE_RT_PSO_DEBLOAT` forces the **sorted deferred** path and compiles out the older
-one. This is the faster of the two and the one Vite's [performance targets](Performance-Targets.md) are
-measured against.
+## どの反射アルゴリズムが動くか
 
-Consequences worth knowing:
+Vite には、4.27 と NvRTX から受け継いだ 2 つのレイトレーシング反射の実装があります。ハイブリッド反射と反射内の半透明に
+対応する古い `FRayTracingReflectionsRGS` のパスと、新しいソート済みのディファードのパスです。
 
-- `r.RayTracing.Reflections.ExperimentalDeferred` has no effect &mdash; the deferred path is used
-  unconditionally.
-- Hybrid reflections and the reflected translucency controls below are unavailable.
-- Ray-traced reflection captures and reflection probes
-  (`r.RayTracing.Reflections.RayTraceEnvironmentCaptures`) are compiled out.
-- Single layer water ray-traced reflections (`r.Water.SingleLayer.RTR`) are compiled out.
+既定のビルドでは、`VITE_RT_PSO_DEBLOAT` が **ソート済みのディファード** パスを強制し、古いほうをコンパイル対象から
+外します。こちらのほうが高速で、Vite の [パフォーマンス目標](Performance-Targets.md) もこれを基準に測定しています。
 
-See [Compile-Time Switches](Compile-Time-Switches.md) to restore the full set.
+知っておくべき影響:
 
-## Reflected translucency
+- `r.RayTracing.Reflections.ExperimentalDeferred` は効果がありません。ディファードのパスが無条件に使われます。
+- ハイブリッド反射と、後述の反射内の半透明の設定は利用できません。
+- レイトレーシングによるリフレクションキャプチャとリフレクションプローブ
+  （`r.RayTracing.Reflections.RayTraceEnvironmentCaptures`）はコンパイル対象から外れています。
+- シングルレイヤーウォーターのレイトレーシング反射（`r.Water.SingleLayer.RTR`）はコンパイル対象から外れています。
+
+すべてを元に戻すには [コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
+
+## 反射内の半透明
 
 <note>
-Requires <code>VITE_RT_PSO_DEBLOAT=0</code>. These controls are permutation dimensions on the non-deferred
-reflection shader, which is compiled out by default.
+<code>VITE_RT_PSO_DEBLOAT=0</code> が必要です。これらの設定は、既定でコンパイル対象から外れている非ディファードの
+反射シェーダーのパーミュテーションの次元です。
 </note>
 
-By default, Unreal Engine 4 only blends the emissive colour of reflected translucent meshes when rendering
-ray-traced reflections, which makes glass and similar surfaces look wrong in reflections. Vite inherits the
-NvRTX option to render fully ray-traced translucent objects inside reflections:
+既定では、Unreal Engine 4 はレイトレーシング反射を描画する際に、反射される半透明メッシュのエミッシブカラーしか
+ブレンドしないため、反射の中のガラスなどが不自然に見えます。Vite は、反射の中で半透明オブジェクトを完全に
+レイトレーシングで描画する NvRTX のオプションを受け継いでいます。
 
-| Console variable | Purpose |
+| コンソール変数 | 用途 |
 |---|---|
-| `r.RayTracing.Reflections.ReflectedTranslucencyMode` | 0 emissive only, 1 shading, 2 shading and refraction, 3 shading, refraction and absorption. Default 0. |
-| `r.RayTracing.Reflections.ReflectedTranslucencyMaxBounces` | Maximum ray-traced translucency bounces inside reflections. Default 8. |
-| `r.RayTracing.Reflections.ReflectedTranslucencyTransmissionThreshold` | Stops the translucency walk when accumulated transmission falls below this. Default 0.1. |
+| `r.RayTracing.Reflections.ReflectedTranslucencyMode` | 0 はエミッシブのみ、1 はシェーディング、2 はシェーディングと屈折、3 はシェーディング・屈折・吸収。既定値 0。 |
+| `r.RayTracing.Reflections.ReflectedTranslucencyMaxBounces` | 反射の中での半透明のレイトレーシングの最大バウンス数。既定値 8。 |
+| `r.RayTracing.Reflections.ReflectedTranslucencyTransmissionThreshold` | 蓄積した透過率がこの値を下回ると半透明の追跡を止めます。既定値 0.1。 |
 
-Mode 3 gives the best result and the highest cost. In scenes with a lot of glass visible in reflections, the
-difference is substantial; in scenes without, leave it at 0.
+モード 3 が最も良い結果になり、コストも最も高くなります。反射の中にガラスが多く映るシーンでは差が大きく、そうでない
+シーンでは 0 のままにしてください。
 
-## When to use SSR instead
+## 代わりに SSR を使うべき場合
 
-Screen-space reflections remain the right answer for the 4K120 stylised target and for any project whose
-minimum spec lacks DXR. SSR is dramatically cheaper, and in scenes without large flat reflective surfaces
-its failures are frequently not noticeable.
+4K120 のスタイライズドの目標や、最低スペックが DXR に対応していないプロジェクトでは、スクリーンスペース反射が引き続き
+正解です。SSR は桁違いに安価で、大きな平らな反射面のないシーンでは、その失敗に気付かないことがよくあります。
 
-The cases where RT reflections earn their cost are wet streets, polished floors, water, glass architecture
-and vehicle paint &mdash; anywhere a large, smooth surface reflects something the camera cannot see.
+RT 反射がコストに見合うのは、濡れた路面、磨かれた床、水面、ガラス張りの建築、車の塗装など、大きく滑らかなサーフェスが
+カメラから見えないものを映す場面です。
 
-## See also
+## 関連項目
 
-- [Ray Tracing](Ray-Tracing.md)
-- [Dynamic DDGI](DDGI-Dynamic.md)
-- [RT Translucency and Caustics](RT-Translucency-And-Caustics.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Performance Targets](Performance-Targets.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [動的 DDGI](DDGI-Dynamic.md)
+- [RT 半透明とコースティクス](RT-Translucency-And-Caustics.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [パフォーマンス目標](Performance-Targets.md)

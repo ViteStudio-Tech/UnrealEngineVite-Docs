@@ -2,44 +2,41 @@
 
 <tldr>
 <p>
-UE4-era screen-space global illumination, enabled with <code>r.SSGI.Enable 1</code>. Recommended
-<i>alongside</i> <a href="DDGI-Dynamic.md">DDGI</a> rather than instead of it: DDGI supplies world-scale
-bounce, SSGI supplies high-frequency contact detail. No ray tracing hardware required.
+UE4 世代のスクリーンスペースグローバルイルミネーションで、<code>r.SSGI.Enable 1</code> で有効にします。
+<a href="DDGI-Dynamic.md">DDGI</a> の代わりではなく <i>併用</i> を推奨します。DDGI がワールド規模のバウンスを、SSGI が
+高周波の接触ディテールを担います。レイトレーシング対応のハードウェアは不要です。
 </p>
 </tldr>
 
-Screen-space global illumination gathers indirect light by sampling the depth and colour buffers. It only
-knows about what is on screen, which is simultaneously its great limitation and the reason it complements a
-world-space solution so well.
+スクリーンスペースグローバルイルミネーションは、深度バッファとカラーバッファをサンプリングして間接光を集めます。画面上に
+あるものしか知らないことが大きな制約であると同時に、ワールド空間のソリューションをうまく補完できる理由でもあります。
 
-## Why this matters in Vite specifically
+## Vite で特に重要な理由
 
-SSGI experienced both quality and performance regressions in UE5 as a result of being integrated into
-Lumen, and it is no longer possible to activate it alongside a separate GI solution there.
+UE5 では SSGI が Lumen に統合された結果、品質と性能の両方が低下し、別の GI ソリューションと併用して有効にすることが
+できなくなりました。
 
-Vite retains the UE4-era implementation, which is both faster and composable. Running SSGI in tandem with
-DDGI is the recommended default configuration, not an exotic combination.
+Vite は UE4 世代の実装を維持しており、より高速で、組み合わせも可能です。SSGI と DDGI の併用は特殊な組み合わせでは
+なく、推奨の既定構成です。
 
-## What each technique contributes
+## それぞれの手法が担うもの
 
 | | DDGI | SSGI |
 |---|---|---|
-| Spatial resolution | Probe grid | Per-pixel |
-| Knows about off-screen geometry | Yes | No |
-| Knows about occluded geometry | Yes | No |
-| Captures contact-scale detail | No | Yes |
-| Requires ray tracing hardware | Yes (dynamic mode) | No |
-| Stable under camera motion | Yes | Screen-space artefacts at frame edges |
+| 空間的な解像度 | プローブのグリッド | ピクセル単位 |
+| 画面外のジオメトリを把握 | はい | いいえ |
+| 遮蔽されたジオメトリを把握 | はい | いいえ |
+| 接触規模のディテールを捉える | いいえ | はい |
+| レイトレーシング対応のハードウェアが必要 | はい（動的モード） | いいえ |
+| カメラの動きに対して安定 | はい | 画面端でスクリーンスペース特有のアーティファクト |
 
-The two fail in opposite directions, which is exactly what you want from a pair of techniques. DDGI has
-complete world knowledge at coarse resolution; SSGI has pixel resolution over an incomplete view. Together
-they cover both scales.
+2 つの手法は正反対の方向で失敗します。これはまさに、組み合わせる手法に求めるものです。DDGI はワールド全体の情報を
+粗い解像度で持ち、SSGI は不完全な視界をピクセル単位の解像度で持ちます。両者を合わせれば両方の規模をカバーできます。
 
-Concretely, SSGI is what gives you the darkening where a chair leg meets the floor, bounce inside a narrow
-gap between two objects, and the colour bleed from a nearby red wall onto a character's shoulder &mdash; all
-features smaller than typical probe spacing.
+具体的には、椅子の脚が床に接する部分の暗がり、2 つのオブジェクトの間の狭い隙間でのバウンス、近くの赤い壁から
+キャラクターの肩への色移りなど、一般的なプローブの間隔より小さい特徴はすべて SSGI がもたらします。
 
-## Enabling
+## 有効にする
 
 ```c++
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.SSGI.Enable"))->Set(1);
@@ -51,40 +48,40 @@ IConsoleManager::Get().FindConsoleVariable(TEXT("r.SSGI.Enable"))->Set(1);
 r.SSGI.Enable=1
 ```
 
-SSGI quality is controlled through the standard UE4 SSGI console variables and the post process volume. The
-quality setting trades ray count and resolution against cost in the usual way.
+SSGI の品質は、標準の UE4 の SSGI コンソール変数とポストプロセスボリュームで制御します。品質の設定は、通常どおり
+レイの数と解像度をコストとトレードオフします。
 
-## Limitations to design around
+## 設計上考慮すべき制限
 
-Everything screen-space shares the same failure modes, and it is worth knowing them so you do not chase
-them as bugs:
+スクリーンスペースの手法はすべて同じ失敗の仕方をします。バグとして追いかけないよう、知っておく価値があります。
 
-**Off-screen light is missing.** A brightly lit wall just outside the frustum contributes nothing. As the
-camera turns and it comes into view, its contribution appears. This is why SSGI alone is not a viable GI
-solution and why the pairing matters.
+**画面外の光は欠けます。** 視錐台のすぐ外にある明るく照らされた壁は何も寄与しません。カメラが回ってそれが視界に
+入ると、寄与が現れます。SSGI 単独では GI のソリューションとして成立せず、組み合わせが重要なのはこのためです。
 
-**Occluded geometry is missing.** SSGI can only see the depth buffer's front surface. Light that should
-bounce from behind an object is not represented.
+**遮蔽されたジオメトリは欠けます。** SSGI は深度バッファの最前面しか見えません。オブジェクトの背後から跳ね返るはずの
+光は表現されません。
 
-**Frame edges.** Contributions fade out towards the screen border because the sampling kernel runs out of
-buffer. This is usually acceptable but becomes visible with fast camera motion.
+**画面端。** サンプリングのカーネルがバッファの外にはみ出すため、画面の端に向かって寄与がフェードアウトします。通常は
+許容範囲ですが、カメラを速く動かすと目に見えるようになります。
 
-Because DDGI is providing the world-scale answer, none of these produce a *wrong* image in the combined
-setup &mdash; they produce a locally less detailed one, which is a much better failure mode.
+DDGI がワールド規模の答えを提供しているため、組み合わせた構成ではこれらのどれも *誤った* 画像にはならず、局所的に
+ディテールが減るだけです。これは失敗の仕方としてはるかに好ましいものです。
 
-## Cost
+## コスト
 
-SSGI is cheap relative to any world-space technique, and it scales with resolution and quality setting
-rather than with scene complexity. On the [Performance Targets](Performance-Targets.md) that include it, it
-is not the dominant cost; DDGI and reflections are.
+SSGI はワールド空間のどの手法と比べても軽く、そのコストはシーンの複雑さではなく解像度と品質設定に応じて増えます。
+SSGI を含む [パフォーマンス目標](Performance-Targets.md) でも、主要なコストではありません。主要なのは DDGI と反射です。
 
-If you are hunting frame time, measure before you disable it. `stat gpu` will tell you what the pass
-actually costs in your scene, and it is frequently less than people assume.
+フレームタイムを削る場合は、無効にする前に計測してください。`stat gpu` でシーン内でのそのパスの実際のコストが分かり、
+多くの場合は想定より小さいものです。
 
-## See also
+[September Major](ueVite26-SeptemberMajor.md) 以降、SSGI が確実に実行されてアンビエントオクルージョンの項を提供する
+場合は SSAO がスキップされるため、推奨の DDGI と SSGI の構成で両方のコストを払う必要はなくなりました。
 
-- [Global Illumination](Global-Illumination.md)
-- [Dynamic DDGI](DDGI-Dynamic.md)
-- [Static DDGI](DDGI-Static.md)
-- [Ambient Occlusion](Ambient-Occlusion.md)
-- [Console Variable Reference](Console-Variables.md)
+## 関連項目
+
+- [グローバルイルミネーション](Global-Illumination.md)
+- [動的 DDGI](DDGI-Dynamic.md)
+- [静的 DDGI](DDGI-Static.md)
+- [アンビエントオクルージョン](Ambient-Occlusion.md)
+- [コンソール変数](Console-Variables.md)

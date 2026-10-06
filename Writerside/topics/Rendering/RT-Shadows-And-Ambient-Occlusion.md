@@ -2,9 +2,10 @@
 
 <tldr>
 <p>
-<code>r.RayTracing.Shadows 1</code> and <code>r.RayTracing.AmbientOcclusion 1</code>. Both are enabled by
-default in new Vite projects. Both are typically the first things to turn off when a project needs frame
-time, because cheaper alternatives get close for much less.
+<code>r.RayTracing.Shadows 1</code> and <code>r.RayTracing.AmbientOcclusion 1</code>. Both are compiled
+into a default build but start disabled (both default to <code>0</code>). Enable them when your target has
+room; they are the first to drop when a project needs frame time, because cheaper alternatives get close for
+much less.
 </p>
 </tldr>
 
@@ -34,8 +35,10 @@ on shadow maps. This is by far the most effective optimisation available and it 
 
 **Maximum distance.** Bounding shadow ray distance limits cost in large scenes.
 
-Vite includes rendering optimisations specifically targeting RT shadows and RT direct lighting, and further
-performance work on RTAO and RT shadows is in progress. See [Release Notes](Release-Notes.md).
+Vite includes rendering optimisations specifically targeting RT shadows and RT direct lighting. The
+[August Major](ueVite26-AugustMajor.md) adjusted the RT shadow and RTAO defaults, added source-length
+support for RT shadows and stopped tracing invalid shadow rays; earlier, the
+[June Major](ueVite26-JuneMajor.md) fixed the RT shadow encoding. See [Release Notes](Release-Notes.md).
 
 ## Ray-traced ambient occlusion
 
@@ -63,7 +66,7 @@ Before committing frame time to either effect, know what you are buying relative
 | RT shadows | Cascaded shadow maps | Much cheaper. Resolution artefacts, no correct contact hardening, cascade transitions. |
 | RT shadows | Distance field shadows | Cheap soft shadows. Approximate, needs mesh distance fields. |
 | RTAO | [SSAO fast path](Ambient-Occlusion.md) | Dramatically cheaper. Screen-space artefacts. Vite's implementation is significantly optimised. |
-| RTAO | [HBAO+](Ambient-Occlusion.md) | Higher quality than SSAO at moderate cost. DirectX 11 only. |
+| RTAO | [HBAO+](Ambient-Occlusion.md) | Higher quality than SSAO at moderate cost. DirectX 11, and DirectX 12 since the June Major. |
 
 In practice, most Vite projects targeting 60 FPS or above run cascaded shadow maps and either the SSAO fast
 path or HBAO+, and spend the ray tracing budget on [DDGI](DDGI-Dynamic.md) and

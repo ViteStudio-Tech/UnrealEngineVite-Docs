@@ -68,8 +68,8 @@ targets in [Performance Targets](Performance-Targets.md).
 | Target | GI | Reflections | Shadows | AO             | Geometry | AA          |
 |---|---|---|---|----------------|---|-------------|
 | Stylised 4K120 | Dynamic DDGI | Raster / SSR | Cascaded | SSAO fast path | LODs | SMAA / TAA  |
-| Performance 4K60 | DDGI + SSGI | Ray traced | Cascaded | SSAO / HBAO4+  | Tessellation | TAA / SMAA  |
-| Fidelity 4K30 | DDGI + SSGI | Ray traced | Cascaded | HBAO4+         | Tessellation | TAA         |
+| Performance 4K60 | DDGI + SSGI | Ray traced | Cascaded | SSAO / HBAO+ | Tessellation | TAA / SMAA |
+| Fidelity 4K30 | DDGI + SSGI | Ray traced | Cascaded | HBAO+ | Tessellation | TAA |
 | Full RT 1440p30 | DDGI + SSGI | Ray traced | Ray traced | RTAO           | Tessellation | TAA         |
 | No-RT hardware | Static DDGI | SSR | Cascaded | SSAO           | LODs | TAA / SMAA / FXAA |
 

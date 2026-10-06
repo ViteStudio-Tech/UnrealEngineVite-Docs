@@ -81,6 +81,9 @@ is not the dominant cost; DDGI and reflections are.
 If you are hunting frame time, measure before you disable it. `stat gpu` will tell you what the pass
 actually costs in your scene, and it is frequently less than people assume.
 
+Since the [September Major](ueVite26-SeptemberMajor.md), SSAO is skipped whenever SSGI is guaranteed to run
+and supply the ambient-occlusion term, so the recommended DDGI plus SSGI setup no longer pays for both.
+
 ## See also
 
 - [Global Illumination](Global-Illumination.md)

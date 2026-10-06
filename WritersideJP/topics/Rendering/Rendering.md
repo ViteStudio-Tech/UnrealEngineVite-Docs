@@ -1,85 +1,84 @@
-# Rendering
+# レンダリング
 
 <tldr>
 <p>
-Vite's renderer is a deferred SM5 renderer with an engine-agnostic DXR ray tracing pipeline. Global
-illumination is <a href="DDGI-Dynamic.md">DDGI</a> rather than Lumen, geometric detail is
-<a href="Tessellation.md">tessellation</a> rather than Nanite, and anti-aliasing defaults to native
-resolution with <a href="Anti-Aliasing.md">SMAA</a> rather than temporal reconstruction.
+Vite のレンダラーは、特定のライティング手法に依存しない DXR レイトレーシングパイプラインを備えた、SM5 の
+ディファードレンダラーです。グローバルイルミネーションは Lumen ではなく <a href="DDGI-Dynamic.md">DDGI</a>、
+ジオメトリのディテールは Nanite ではなく <a href="Tessellation.md">テッセレーション</a>、アンチエイリアシングは
+時間的再構成ではなくネイティブ解像度と <a href="Anti-Aliasing.md">SMAA</a> を基本とします。
 </p>
 </tldr>
 
-This is the largest section of the manual, because rendering is where Vite diverges most from both stock
-Unreal Engine 4.27 and from UE5.
+レンダリングは、Vite が標準の Unreal Engine 4.27 と UE5 の両方から最も大きく異なる部分であるため、このマニュアルで
+最大のセクションになっています。
 
-## How the renderer is put together
+## レンダラーの構成
 
-The pipeline is Unreal Engine 4.27's deferred renderer, inheriting NvRTX Caustics' DirectX 12 and DXR
-improvements, with Vite's own additions layered on top. The important structural property is that the ray
-tracing pipeline is *agnostic*: acceleration structures are built and updated independently of any
-particular lighting solution, which is what allows DDGI, RTXDI and the various RT effects to coexist and be
-enabled independently.
+パイプラインは Unreal Engine 4.27 のディファードレンダラーで、NvRTX Caustics の DirectX 12 と DXR の改良を受け継ぎ、
+その上に Vite 独自の追加機能を重ねています。構造上の重要な特性は、レイトレーシングパイプラインが *手法に依存しない*
+ことです。アクセラレーション構造は特定のライティング手法とは無関係に構築・更新されるため、DDGI、RTXDI、各種 RT
+エフェクトが共存でき、それぞれを独立して有効にできます。
 
-That is the opposite of the UE 5.1+ arrangement, where ray tracing scene construction is coupled to Lumen,
-Nanite and GPU Scene. See [Why NvRTX 4.27](Why-NvRTX-427.md).
+これは、レイトレーシングのシーン構築が Lumen、Nanite、GPU Scene と結合している UE 5.1 以降の構成とは正反対です。
+[なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md) を参照してください。
 
-> Vite enables Ray Tracing effects by default in new projects. This is intentional for
-> discoverability but means you should consciously decide what to turn off. See
-> [Ray Tracing](Ray-Tracing.md).
+> 新規プロジェクトはレイトレーシングのサポートと動的 DDGI が有効な状態で始まります。レイトレーシングの反射、
+> シャドウ、アンビエントオクルージョンはオプトインで、半透明、コースティクス、RTXDI、パストレーシングは既定で
+> コンパイル対象から外れています。どのエフェクトを有効にするかは意識的に決めてください。
+> [レイトレーシング](Ray-Tracing.md) を参照してください。
 >
-{style="warning"}
+{style="note"}
 
-## Section contents
+## セクションの内容
 
-### Global illumination
+### グローバルイルミネーション
 
-- [Global Illumination](Global-Illumination.md) &mdash; choosing between the available GI solutions
-- [Dynamic DDGI](DDGI-Dynamic.md) &mdash; real-time ray-traced irradiance probe volumes
-- [Static DDGI](DDGI-Static.md) &mdash; baked probe volumes with near-instant bake times
-- [SSGI](SSGI.md) &mdash; screen-space GI, and why it belongs alongside DDGI
+- [グローバルイルミネーション](Global-Illumination.md) &mdash; 利用できる GI ソリューションの選び方
+- [動的 DDGI](DDGI-Dynamic.md) &mdash; リアルタイムのレイトレーシングによるイラディアンスプローブボリューム
+- [静的 DDGI](DDGI-Static.md) &mdash; ほぼ一瞬でベイクできるプローブボリューム
+- [SSGI](SSGI.md) &mdash; スクリーンスペース GI と、それを DDGI と併用すべき理由
 
-### Ray tracing
+### レイトレーシング
 
-- [Ray Tracing](Ray-Tracing.md) &mdash; overview and the master switches
-- [Ray-Traced Reflections](RT-Reflections.md)
-- [Ray-Traced Shadows and Ambient Occlusion](RT-Shadows-And-Ambient-Occlusion.md)
-- [Ray-Traced Translucency and Caustics](RT-Translucency-And-Caustics.md)
-- [RTXDI](RTXDI.md) &mdash; ray-traced direct lighting for many-light scenes
-- [Path Tracing](Path-Tracing.md)
+- [レイトレーシング](Ray-Tracing.md) &mdash; 概要と主要なスイッチ
+- [レイトレーシング反射](RT-Reflections.md)
+- [レイトレーシングシャドウとアンビエントオクルージョン](RT-Shadows-And-Ambient-Occlusion.md)
+- [レイトレーシング半透明とコースティクス](RT-Translucency-And-Caustics.md)
+- [RTXDI](RTXDI.md) &mdash; 多数のライトがあるシーンのためのレイトレーシングによる直接光
+- [パストレーシング](Path-Tracing.md)
 
-### Surface and geometry
+### サーフェスとジオメトリ
 
-- [Shading Models](Shading-Models.md) &mdash; including Callisto BRDF and Toon
-- [Tessellation](Tessellation.md)
-- [Hair Rendering](Hair-Rendering.md) &mdash; TressFX
+- [シェーディングモデル](Shading-Models.md) &mdash; Callisto BRDF とトゥーンを含む
+- [テッセレーション](Tessellation.md)
+- [ヘアレンダリング](Hair-Rendering.md) &mdash; TressFX
 
-### Image quality
+### 画質
 
-- [Anti-Aliasing](Anti-Aliasing.md) &mdash; SMAA, FXAA, TAA and MSAA
-- [Upscalers and Frame Generation](Upscalers.md) &mdash; DLSS, FSR, XeSS, NIS
-- [Ambient Occlusion](Ambient-Occlusion.md) &mdash; SSAO fast path and HBAO+
-- [Colour Management](Color-Management.md) &mdash; ACES, tonemapping and HDR output
+- [アンチエイリアシング](Anti-Aliasing.md) &mdash; SMAA、FXAA、TAA、MSAA
+- [アップスケーラー](Upscalers.md) &mdash; DLSS、FSR、XeSS、NIS
+- [アンビエントオクルージョン](Ambient-Occlusion.md) &mdash; SSAO の高速パスと HBAO+
+- [カラーマネジメント](Color-Management.md) &mdash; ACES、トーンマッピング、HDR 出力
 
-## Choosing a rendering configuration
+## レンダリング構成の選び方
 
-The right starting point depends on your performance target. These are the configurations behind the four
-targets in [Performance Targets](Performance-Targets.md).
+適切な出発点はパフォーマンス目標によって決まります。以下は [パフォーマンス目標](Performance-Targets.md) にある
+4 つの目標の背後にある構成です。
 
-| Target | GI | Reflections | Shadows | AO             | Geometry | AA          |
-|---|---|---|---|----------------|---|-------------|
-| Stylised 4K120 | Dynamic DDGI | Raster / SSR | Cascaded | SSAO fast path | LODs | SMAA / TAA  |
-| Performance 4K60 | DDGI + SSGI | Ray traced | Cascaded | SSAO / HBAO4+  | Tessellation | TAA / SMAA  |
-| Fidelity 4K30 | DDGI + SSGI | Ray traced | Cascaded | HBAO4+         | Tessellation | TAA         |
-| Full RT 1440p30 | DDGI + SSGI | Ray traced | Ray traced | RTAO           | Tessellation | TAA         |
-| No-RT hardware | Static DDGI | SSR | Cascaded | SSAO           | LODs | TAA / SMAA / FXAA |
+| 目標 | GI | 反射 | シャドウ | AO | ジオメトリ | AA |
+|---|---|---|---|---|---|---|
+| スタイライズド 4K120 | 動的 DDGI | ラスター / SSR | カスケード | SSAO の高速パス | LOD | SMAA / TAA |
+| パフォーマンス 4K60 | DDGI + SSGI | レイトレーシング | カスケード | SSAO / HBAO+ | テッセレーション | TAA / SMAA |
+| フィデリティ 4K30 | DDGI + SSGI | レイトレーシング | カスケード | HBAO+ | テッセレーション | TAA |
+| フル RT 1440p30 | DDGI + SSGI | レイトレーシング | レイトレーシング | RTAO | テッセレーション | TAA |
+| RT 非対応のハードウェア | 静的 DDGI | SSR | カスケード | SSAO | LOD | TAA / SMAA / FXAA |
 
-Every one of these is a starting point, not a prescription. The console variables for each are documented
-on the corresponding pages and collected in the
-[Console Variable Reference](Console-Variables.md).
+どれも処方箋ではなく出発点です。各構成のコンソール変数は対応するページで説明しており、
+[コンソール変数](Console-Variables.md) にもまとめています。
 
-## See also
+## 関連項目
 
-- [Performance Targets](Performance-Targets.md)
-- [Profiling and Benchmarking](Profiling.md)
-- [Shader Compilation and PSO](Shader-Compilation-And-PSO.md)
-- [Console Variable Reference](Console-Variables.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [プロファイリング](Profiling.md)
+- [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md)
+- [コンソール変数](Console-Variables.md)

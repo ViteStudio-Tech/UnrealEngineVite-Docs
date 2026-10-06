@@ -2,8 +2,9 @@
 
 <tldr>
 <p>
-Real-time ray-traced irradiance probe volumes. Enable with
-<code>r.GlobalIllumination.ExperimentalPlugin 1</code>, then place DDGI volumes in the level.
+Real-time ray-traced irradiance probe volumes. Enabled by default
+(<code>r.GlobalIllumination.ExperimentalPlugin 1</code> since the June Major); place DDGI volumes in the
+level to light it.
 Noise-free by construction, fully dynamic, and roughly 2x the frame rate of hardware Lumen in
 comparable scenes.
 </p>
@@ -74,8 +75,9 @@ reaches into the ray tracing pipeline rather than sitting alongside it. The prac
         Confirm ray tracing is enabled for the project. DDGI needs DXR support.
     </step>
     <step>
-        Enable the plugin path with <code>r.GlobalIllumination.ExperimentalPlugin 1</code>, either from the
-        console, from code, or in <code>DefaultEngine.ini</code>.
+        Confirm the plugin path is on: <code>r.GlobalIllumination.ExperimentalPlugin 1</code> is set in
+        <code>BaseEngine.ini</code> since the June Major, so this only needs attention if a project
+        turned it off in its own configuration or code.
     </step>
     <step>
         Place a DDGI volume actor so that it encloses the playable space you want lit. Volumes cover
@@ -152,7 +154,7 @@ If you see light bleeding through thin walls, increase bias; if contact areas lo
 
 NVIDIA's original documentation and talks remain the best deep reference for the technique itself.
 
-- [RTXGI plugin README](https://github.com/GapingPixel/UE5-PhysX-Vite/tree/ue5Vite-release/Engine/Plugins/Runtime/Nvidia/RTXGI)
+- [RTXGI plugin in the current release](https://github.com/GapingPixel/UnrealEngineVite-PhysX/tree/ueVite26-SeptemberMajor-release/Engine/Plugins/Runtime/Nvidia/RTXGI)
 - [Dynamic Diffuse Global Illumination, GDC presentation](https://developer.download.nvidia.com/video/gputechconf/gtc/2019/presentation/s9900-irradiance-fields-rtx-diffuse-global-illumination-for-local-and-cloud-graphics.pdf)
 
 Ray-Traced Irradiance Fields:

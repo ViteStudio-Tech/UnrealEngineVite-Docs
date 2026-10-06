@@ -1,83 +1,81 @@
-# Global Illumination
+# グローバルイルミネーション
 
 <tldr>
 <p>
-Vite's recommended GI setup is <b>Dynamic DDGI plus SSGI</b>. DDGI resolves world-scale bounce without
-noise; SSGI fills in the high-frequency contact detail that probe volumes are too coarse to capture.
-Enable with <code>r.GlobalIllumination.ExperimentalPlugin 1</code> and <code>r.SSGI.Enable 1</code>.
+Vite が推奨する GI の構成は <b>動的 DDGI と SSGI の併用</b> です。DDGI はワールド規模のバウンスをノイズなしで解決し、
+SSGI はプローブボリュームでは粗すぎて捉えられない高周波の接触ディテールを補います。DDGI は既定で有効です
+（<code>r.GlobalIllumination.ExperimentalPlugin 1</code>）。<code>r.SSGI.Enable 1</code> を追加してください。
 </p>
 </tldr>
 
-Global illumination is the single biggest reason Vite exists as a separate fork. This page explains the
-options and how to choose between them; the individual techniques have their own pages.
+<img src="StylizedRTDemo.png" alt="動的 DDGI でライティングされたスタイライズドシーン。フレームカウンターは 811 FPS を示している" border-effect="line"/>
 
-## The options
+*811 FPS、RTX 4080 Super、1440p ネイティブ、動的 DDGI。同じシーンを 5.7 の Lumen で描画すると 324 FPS です。*
 
-| Solution                          | Cost                 | Requires DXR | Dynamic lighting | Best for                                                          |
-|-----------------------------------|----------------------|---|---|-------------------------------------------------------------------|
-| [Dynamic DDGI](DDGI-Dynamic.md)   | Low                  | Yes | Fully dynamic | Almost everything                                                 |
-| [Static DDGI](DDGI-Static.md)     | Near zero at runtime | No | Baked | Low-end and no-DXR hardware                                       |
-| [SSGI](SSGI.md)                   | Low                  | No | Fully dynamic | High Frequency Detail, made to run alongside DDGI                 |
-| [Per-pixel RT GI](Ray-Tracing.md) | High                 | Yes | Fully dynamic | GPUs non trivially faster than PS5, Reference                     |
-| Path-Tracing                      | Ultra                | Yes | Fully dynamic | RTX 5080 and above, Ground Truth Reference                        |
-| Baked lightmaps                   | Zero at runtime      | No | Static only | Fully static scenes, Always use CPU LightMass for maximum quality |
+グローバルイルミネーションは、Vite が独立したフォークとして存在する最大の理由です。このページでは選択肢とその選び方を
+説明します。個々の手法にはそれぞれ専用のページがあります。
+
+## 選択肢
+
+| ソリューション | コスト | DXR が必要 | 動的ライティング | 適した用途 |
+|---|---|---|---|---|
+| [動的 DDGI](DDGI-Dynamic.md) | 低 | はい | 完全に動的 | ほぼすべて |
+| [静的 DDGI](DDGI-Static.md) | 実行時はほぼゼロ | いいえ | ベイク | ローエンドと DXR 非対応のハードウェア |
+| [SSGI](SSGI.md) | 低 | いいえ | 完全に動的 | 高周波のディテール。DDGI と併用する前提 |
+| [ピクセル単位の RT GI](Ray-Tracing.md) | 高 | はい | 完全に動的 | PS5 より大幅に速い GPU、リファレンス画像 |
+| [パストレーシング](Path-Tracing.md) | 非常に高 | はい | 完全に動的 | RTX 5080 以上、真値のリファレンス |
+| ベイクしたライトマップ | 実行時はゼロ | いいえ | 静的のみ | 完全に静的なシーン。最高品質には CPU 版 Lightmass を使用 |
 
 <note>
-"Vite includes several secondary Indirect Bounce solutions, such as Distance Fields Bounce and IBL capture (Vite specific addition). 
-These are rarely considered over the solutions listed above, except for very specific target platforms or specialized setups."
+Vite には、距離フィールドによるバウンスや Vite 独自のローカライズド IBL キャプチャなど、補助的な間接バウンスの手法も
+含まれています。特定のターゲットプラットフォームや特殊な構成を除けば、上記のソリューションより優先して選ばれることは
+ほとんどありません。
 </note>
 
-## Why DDGI rather than Lumen
+## Lumen ではなく DDGI を選ぶ理由
 
-Dynamic Diffuse Global Illumination stores irradiance in a grid of probes and filters it using spherical
-harmonics. Because the representation is smooth by construction, the result is noise-free without a
-denoiser &mdash; which is the root cause of most of its advantages over Lumen.
+Dynamic Diffuse Global Illumination は、イラディアンスをプローブのグリッドに保存し、球面調和関数でフィルタリングします。
+表現が原理的に滑らかなため、デノイザーなしでもノイズのない結果が得られます。これが Lumen に対する利点の大半の根本的な
+理由です。
 
-Against Software Lumen, DDGI provides higher quality bounce and less light leaking. Against Hardware Lumen,
-it is comparable for bounce quality while typically running around twice as fast (End Scene FPS not just the isolated GI cost).
-In one representative test scene at 1440p native on an RTX 4080 Super, DDGI measured 811 FPS against Lumen 5.7's 324 FPS. 
-On AMD hardware the technique holds up well: the same class of test scene runs at 245 FPS at 1080p native on an
-RX 6600.
+ソフトウェア Lumen と比べると、DDGI はより高品質なバウンスと少ない光漏れを実現します。ハードウェア Lumen と比べると、
+バウンスの品質は同等で、一般におよそ 2 倍の速度で動作します。これは GI 単体のコストではなく、シーン全体の
+フレームレートで測った値です。RTX 4080 Super、1440p ネイティブの代表的なテストシーンでは、DDGI が 811 FPS、
+Lumen 5.7 が 324 FPS でした。AMD のハードウェアでも良好で、同じ種類のテストシーンが RX 6600 で 1080p ネイティブ
+245 FPS で動作します。
 
-DDGI is also not experimental technology. Implementations ship in Metro Exodus, Overwatch 2, The Finals,
-Control, The Witcher 3, Warhammer 40,000: Darktide, DOOM: The Dark Ages, Indiana Jones and the Great Circle,
-007 First Light, Ghost of Yotei and Star Wars Outlaws including its Switch 2 version. AAA engines including
-Anvil and Snowdrop use DDGI probes as part of their ray-traced GI pipelines. The technique was designed to
-scale across a wide hardware range, starting from Xbox One S GPU for Static Mode and GTX 1060 class GPUs for Dynamic RT mode.
+DDGI は実験的な技術でもありません。その実装は Metro Exodus、Overwatch 2、The Finals、Control、The Witcher 3、
+Warhammer 40,000: Darktide、DOOM: The Dark Ages、Indiana Jones and the Great Circle、007 First Light、Ghost of Yotei、
+そして Switch 2 版を含む Star Wars Outlaws で出荷されています。Anvil や Snowdrop といった AAA エンジンも、
+レイトレーシング GI のパイプラインの一部として DDGI のプローブを使っています。この手法は幅広いハードウェアに対応する
+よう設計されており、静的モードは Xbox One S の GPU から、動的な RT モードは GTX 1060 クラスの GPU から動作します。
 
-<img src="StylizedRTDemo.png" alt="Stylized scene lit by Dynamic DDGI with the frame counter reading 811 FPS" border-effect="line"/>
+<img src="DDGIEmissiveSurfaces.png" alt="エミッシブサーフェスが DDGI に寄与してライティングされた室内" border-effect="line"/>
 
-*811 FPS, RTX 4080 Super, 1440p native, Dynamic DDGI. The same scene on Lumen in 5.7 measures 324 FPS.*
+*エミッシブマテリアルは DDGI に直接寄与するため、ライトアクターを配置しなくてもエミッシブなジオメトリでシーンを
+照らせます。*
 
-<img src="DDGIEmissiveSurfaces.png" alt="Interior lit by emissive surfaces contributing to DDGI" border-effect="line"/>
+## DDGI と SSGI を組み合わせる理由
 
-*Emissive materials contribute to DDGI directly, so a scene can be lit from emissive geometry without
-placing light actors for it.*
+プローブボリュームには空間的な解像度があります。椅子の脚が床に接する部分の暗がり、狭い隙間でのバウンス、机の下の
+接触シャドウなど、プローブの間隔より小さいディテールは、それを表現するプローブがないため表現されません。
 
-## Why pair DDGI with SSGI
+スクリーンスペース GI はピクセル単位の解像度で動作し、まさにそれを捉えます。2 つの手法の弱点は正反対です。SSGI は
+画面外や遮蔽されたものの情報を持たず、DDGI はワールド全体の情報を粗い解像度で持ちます。両方を使えば、DDGI による
+ワールド規模のバウンスと、SSGI による高周波の接触ディテールの両方が得られます。NVIDIA は Unreal Engine の DDGI に
+関する発表でこの組み合わせを推奨しており、Vite の SSGI は標準で DDGI と併用できるよう設定されています。
 
-Probe volumes have a spatial resolution. Detail smaller than the probe spacing &mdash; the darkening where a
-chair leg meets the floor, bounce inside a narrow gap, contact shading under a desk &mdash; is not
-represented, because there is no probe there to represent it.
+これは UE5 では不可能です。SSGI は Lumen に統合された際に品質と性能の両方が低下し、別の GI ソリューションと併用できなく
+なりました。Vite の SSGI は UE4 世代の実装で、きれいに組み合わせられます。
 
-Screen-space GI operates at pixel resolution and captures exactly that. The two techniques have shortcomings in opposite
-directions: SSGI has no information about anything off-screen or occluded, while DDGI has complete world
-knowledge at coarse resolution. Running both gives you world-scale bounce from DDGI and high-frequency
-contact detail from SSGI. This is an officially recommended setup by NVIDIA from their Unreal Engine DDGI 
-presentations. Vite's SSGI is configured to work alongside DDGI from the get-go.
-
-This is not possible in UE5. SSGI regressed in both quality and performance when it was folded into Lumen,
-and can no longer be enabled alongside a separate GI solution. In Vite it is the UE4-era implementation and
-composes cleanly.
-
-## Enabling the recommended setup
+## 推奨構成を有効にする
 
 ```c++
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.GlobalIllumination.ExperimentalPlugin"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.SSGI.Enable"))->Set(1);
 ```
 
-Or in configuration, which is preferable for shipping projects because it participates in scalability:
+製品版では、スケーラビリティの仕組みに組み込まれる設定ファイルでの指定をお勧めします。
 
 ```ini
 ; Config/DefaultEngine.ini
@@ -86,40 +84,38 @@ r.GlobalIllumination.ExperimentalPlugin=1
 r.SSGI.Enable=1
 ```
 
-You then need to place DDGI volumes in the level. See [Dynamic DDGI](DDGI-Dynamic.md) for volume setup,
-probe density and the settings that matter.
+その後、レベルに DDGI のボリュームを配置する必要があります。ボリュームの設定、プローブの密度、重要な設定については
+[動的 DDGI](DDGI-Dynamic.md) を参照してください。
 
-## Choosing for your hardware floor
+## 最低スペックに合わせて選ぶ
 
-<procedure title="Pick a GI configuration" id="pick-gi">
+<procedure title="GI の構成を選ぶ" id="pick-gi">
     <step>
-        If your minimum spec has DXR support, use Dynamic DDGI plus SSGI. This is the default
-        recommendation and covers GTX 1060 6&nbsp;GB and above.
+        最低スペックが DXR に対応しているなら、動的 DDGI と SSGI を併用します。これが既定の推奨で、
+        GTX 1060 6&nbsp;GB 以上をカバーします。
     </step>
     <step>
-        If your minimum spec has no DXR support at all, use
-        <a href="DDGI-Static.md">Static DDGI</a>. It bakes almost instantly, gives better bounce fidelity
-        than traditional baked lighting, and handles moving objects better because the probe volumes
-        cover the space rather than the surfaces.
+        最低スペックが DXR に一切対応していないなら、<a href="DDGI-Static.md">静的 DDGI</a> を使います。ほぼ一瞬で
+        ベイクでき、従来のベイクライティングより高精度なバウンスが得られ、プローブボリュームがサーフェスではなく
+        空間をカバーするため、動くオブジェクトもより適切に扱えます。
     </step>
     <step>
-        If you need to support both, ship Static DDGI as a scalability fallback. The volumes and authoring
-        are shared between the two modes, so this is a scalability setting rather than a second lighting
-        pass through the level.
+        両方に対応する必要がある場合は、静的 DDGI をスケーラビリティのフォールバックとして出荷します。ボリュームと
+        作成作業は 2 つのモードで共通なので、レベルのライティングをもう一度行うのではなく、スケーラビリティの設定に
+        なります。
     </step>
     <step>
-        Only reach for per-pixel ray-traced GI if you are producing reference imagery or
-        previsualisation. It is far more expensive than DDGI and its advantage does not survive a
-        frame-time budget. It is also compiled out of a default build and requires rebuilding with
-        <code>VITE_RT_PSO_DEBLOAT=0</code> &mdash; see
-        <a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+        ピクセル単位のレイトレーシング GI は、リファレンス画像やプリビジュアライゼーションを作る場合に限って使って
+        ください。DDGI よりはるかに重く、フレームタイムの予算の中ではその利点が残りません。また既定のビルドでは
+        コンパイル対象から外れており、<code>VITE_RT_PSO_DEBLOAT=0</code> で再ビルドする必要があります。
+        <a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
     </step>
 </procedure>
 
-## See also
+## 関連項目
 
-- [Dynamic DDGI](DDGI-Dynamic.md)
-- [Static DDGI](DDGI-Static.md)
+- [動的 DDGI](DDGI-Dynamic.md)
+- [静的 DDGI](DDGI-Static.md)
 - [SSGI](SSGI.md)
-- [Ray Tracing](Ray-Tracing.md)
-- [Performance Targets](Performance-Targets.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [パフォーマンス目標](Performance-Targets.md)

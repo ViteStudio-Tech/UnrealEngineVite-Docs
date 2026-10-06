@@ -1,105 +1,101 @@
-# Static DDGI
+# 静的 DDGI
 
 <tldr>
 <p>
-Baked probe volumes with virtually instantaneous bake times. Better bounce fidelity than traditional baked
-lighting, better coverage of moving objects, and no runtime ray tracing cost &mdash; so it runs on GPUs with
-no DXR support at all.
+ほぼ一瞬でベイクできるプローブボリュームです。従来のベイクライティングより高精度なバウンス、動くオブジェクトへの
+より良いカバレッジを備え、実行時のレイトレーシングのコストがかかりません。そのため、DXR に一切対応していない GPU でも
+動作します。
 </p>
 </tldr>
 
-Static DDGI uses the same probe volumes and the same Irradiance calculations and Octahedral representations as
-[Dynamic DDGI](DDGI-Dynamic.md), but resolves irradiance once at bake time instead of continuously at
-runtime. It is the low-end and no Ray-Tracing Hardware GPU support (GTX 900/ Radeon 5000 series or older) path.
+静的 DDGI は、[動的 DDGI](DDGI-Dynamic.md) と同じプローブボリューム、同じイラディアンスの計算、同じ八面体表現を
+使いますが、イラディアンスを実行時に継続的に求めるのではなく、ベイク時に一度だけ求めます。ローエンドの GPU や、
+レイトレーシングに対応していない GPU（GTX 900 / Radeon 5000 シリーズ以前）のためのパスです。
 
 <note>
-Dynamic RT DDGI works from 2016's GTX 1060 6GB (10 years old), 
-the minimum requirement is Pascal Architecture with atleast 6GB of VRAM.
+動的な RT DDGI は 2016 年の GTX 1060 6&nbsp;GB 以降で動作します。最低要件は、6&nbsp;GB 以上の VRAM を備えた
+Pascal アーキテクチャの GPU です。
 </note>
 
-## What you get
+## 得られるもの
 
-**Near-instant bakes.** This is the headline difference from LightMass. Baking probe irradiance is a
-fundamentally cheaper problem than solving lightmap UVs and per-texel radiosity, and the iteration loop
-changes character entirely when a bake takes seconds rather than hours.
+**ほぼ一瞬のベイク。** これが Lightmass との最大の違いです。プローブのイラディアンスのベイクは、ライトマップの UV と
+テクセルごとのラジオシティを解くより本質的に安価な問題であり、ベイクが数時間ではなく数秒で終わると、イテレーションの
+進め方そのものが変わります。
 
-**Better bounce fidelity than traditional baked lighting.** The Actual Geometrical Scene traversal representation 
-captures directional irradiance rather than a flat lightmap values, so surfaces respond correctly to their orientation
-even where lighting was baked.
+**従来のベイクライティングより高精度なバウンス。** プローブは実際のシーンのジオメトリをトレースして埋められ、平坦な
+ライトマップの値ではなく方向を持つイラディアンスを保存します。そのため、ライティングをベイクした場所でもサーフェスは
+向きに応じて正しく反応します。
 
-**Better coverage of moving objects.** This is the structural advantage over lightmaps. Lightmaps store
-lighting on *surfaces*, so a moving object has to fall back to indirect lighting samples or volumetric
-lightmaps. DDGI probe volumes store lighting in *space*, so anything that moves through the volume &mdash;
-characters, vehicles, physics debris &mdash; samples the same representation static geometry does, and looks
-consistent with it.
+**動くオブジェクトへのより良いカバレッジ。** これがライトマップに対する構造的な利点です。ライトマップはライティングを
+*サーフェス* に保存するため、動くオブジェクトは間接光のサンプルやボリュメトリックライトマップにフォールバックする
+必要があります。DDGI のプローブボリュームはライティングを *空間* に保存するため、キャラクター、ビークル、物理の破片
+など、ボリュームの中を動くものはすべて静的なジオメトリと同じ表現をサンプリングし、見た目も一貫します。
 
 <note>
-**No DXR requirement at runtime.** Once baked, the Probe texture data is serialized there is no RT acceleration. 
-This is what makes Static DDGI viable on ultra-low-end GPUs and on hardware with no ray tracing support at all.
+<b>実行時に DXR は不要です。</b> ベイク後はプローブのテクスチャデータがシリアライズされ、レイトレーシングの
+アクセラレーション構造は不要になります。これにより、静的 DDGI は極めてローエンドの GPU や、レイトレーシングに一切
+対応していないハードウェアでも使えます。
 </note>
 
-## When to use it
+## 使うべき場面
 
-| Situation | Recommendation                               |
-|---|----------------------------------------------|
-| Minimum spec has no DXR support | Static RT DDGI                               |
-| Minimum spec is very low-end but DXR capable | Dynamic RT DDGI at lower Ray Budget          |
-| Lighting is fully static (no time of day, no destructible lights) | Static DDGI is sufficient                    |
-| Lighting changes at runtime | [Dynamic RT DDGI](DDGI-Dynamic.md)           |
-| Shipping across a wide hardware range | Both, switched automatically by HW detection |
+| 状況 | 推奨 |
+|---|---|
+| 最低スペックが DXR に対応していない | 静的 DDGI |
+| 最低スペックが非常にローエンドだが DXR には対応 | レイの予算を下げた動的 RT DDGI |
+| ライティングが完全に静的（時間帯の変化なし、破壊可能なライトなし） | 静的 DDGI で十分 |
+| ライティングが実行時に変わる | [動的 RT DDGI](DDGI-Dynamic.md) |
+| 幅広いハードウェアで出荷する | ハードウェアの検出で両方を切り替え |
 
-That last row is the common case and the reason Static DDGI is worth setting up even on a project targeting
-dynamic lighting. Because the two modes share volumes and authoring, supporting both is a scalability
-setting rather than a second lighting pass through every level.
+最後の行がよくあるケースで、動的なライティングを目標とするプロジェクトでも静的 DDGI を設定しておく価値がある理由です。
+2 つのモードはボリュームと作成作業を共有するため、両方に対応してもすべてのレベルのライティングを 2 回行う必要はなく、
+スケーラビリティの設定で済みます。
 
-## Setting up
+## セットアップ
 
-<procedure title="Bake Static DDGI" id="bake-static-ddgi">
+<procedure title="静的 DDGI をベイクする" id="bake-static-ddgi">
     <step>
-        Place and size DDGI volumes exactly as you would for the dynamic mode. Volume placement and probe
-        density authoring is shared.
+        動的モードとまったく同じように DDGI ボリュームを配置し、サイズを決めます。ボリュームの配置とプローブ密度の
+        作成作業は共通です。
     </step>
     <step>
-        Switch the volume to its static mode.
+        ボリュームを静的モードに切り替えます。
     </step>
     <step>
-        Finalise your lighting. Anything that changes after the bake will not be reflected in the probes.
+        ライティングを確定させます。ベイク後に変わったものはプローブに反映されません。
     </step>
     <step>
-        Bake. Iterate freely &mdash; the bake is fast enough that you can treat it as part of the
-        lighting loop rather than an overnight job.
+        ベイクします。ベイクは十分に速いので、夜間のジョブではなくライティング作業の一部として気軽に繰り返して
+        ください。
     </step>
     <step>
-        Verify with moving objects in the scene, since that is where Static DDGI most visibly beats
-        lightmaps.
+        シーン内で動くオブジェクトを使って確認します。静的 DDGI がライトマップに最もはっきり勝るのはそこだからです。
     </step>
 </procedure>
 
-## Limitations
+## 制限事項
 
-Static DDGI is baked, so everything that implies applies: no time-of-day, no lights that move or change
-intensity contributing bounce, no bounce from destructible geometry after it is destroyed. Direct lighting
-can still be fully dynamic; it is only the indirect bounce that is frozen.
+静的 DDGI はベイクするものなので、それに伴う制限はすべて当てはまります。時間帯の変化はなく、移動したり明るさが
+変わったりするライトはバウンスに寄与せず、破壊されたジオメトリからのバウンスも反映されません。直接光は完全に動的な
+ままにでき、固定されるのは間接光のバウンスだけです。
 
-Probe spacing still bounds spatial resolution, so the same reasoning about contact detail applies. Combining
-with [SSGI](SSGI.md) is worthwhile here too, and SSGI has no ray tracing requirement, so it remains
-available on the same hardware.
+プローブの間隔が空間的な解像度を決めることに変わりはないため、接触ディテールについても同じ考え方が当てはまります。
+ここでも [SSGI](SSGI.md) の併用は有効で、SSGI はレイトレーシングを必要としないため、同じハードウェアで利用できます。
 
-Note that Vite disables lightmap UV generation by default on import &mdash; see
-[Engine Default Changes](Engine-Defaults.md). If you intend to use traditional lightmaps alongside or instead
-of Static DDGI, you will need to re-enable it.
+Vite はインポート時のライトマップ UV の生成を既定で無効にしている点に注意してください。
+[エンジン既定値の変更](Engine-Defaults.md) を参照してください。静的 DDGI と併用して、または代わりに従来の
+ライトマップを使う場合は、再び有効にする必要があります。
 
 <note>
-It's feasible to combine traditional LightMass with Static or Dynamic DDGI, the GI does blend nicely 
-and in general there won't be artifacts or crush out calculations from the GI related math.
+従来の Lightmass のライトマップは、静的 DDGI または動的 DDGI と組み合わせられます。両者はうまくブレンドされ、
+一般的にこの組み合わせでアーティファクトやライティングのつぶれは生じません。
 </note>
 
+## 関連項目
 
-
-## See also
-
-- [Dynamic DDGI](DDGI-Dynamic.md)
-- [Global Illumination](Global-Illumination.md)
+- [動的 DDGI](DDGI-Dynamic.md)
+- [グローバルイルミネーション](Global-Illumination.md)
 - [SSGI](SSGI.md)
-- [Scalability](Engine-Defaults.md)
-- [Platform Support](Platforms.md)
+- [スケーラビリティ](Engine-Defaults.md)
+- [対応プラットフォーム](Platforms.md)

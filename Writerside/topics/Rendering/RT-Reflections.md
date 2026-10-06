@@ -2,7 +2,8 @@
 
 <tldr>
 <p>
-Enabled with <code>r.RayTracing.Reflections 1</code>. Vite's reflections are heavily optimised and can
+Enabled with <code>r.RayTracing.Reflections 1</code> (off by default). Vite's reflections are heavily
+optimised and can
 run at 4K native 60 FPS on PS5-class hardware. When <a href="DDGI-Dynamic.md">DDGI</a> is active,
 reflection rays sample probe irradiance for their secondary bounce, which is a large quality win.
 </p>
@@ -28,6 +29,14 @@ Unreal Tournament Vite demo, which combines them with DDGI and tessellation. Tha
 
 Further RT reflection performance work is ongoing, with the stated goal of reaching performance
 characteristics comparable to RE Engine's implementation as seen in Devil May Cry 5 Special Edition on PS5.
+
+### Recent improvements
+
+| Release | Change |
+|---|---|
+| [March Major](ueVite26-MarchMajor.md) | Smaller ray payload and optimised reflection settings |
+| [June Major](ueVite26-JuneMajor.md) | NaNs removed at the end of the HWRT reflection shader, so one bad sample no longer spreads across the screen |
+| [August Major](ueVite26-AugustMajor.md) | Deferred reflections sample the sky cubemap on a miss and add extra diffuse on foliage, subsurface and skin hits; optimised defaults; deferred-reflection optimisations behind `VITE_O_RT_REFLECTIONS` (on by default); complete RTPSO gating |
 
 ## DDGI-lit reflections
 

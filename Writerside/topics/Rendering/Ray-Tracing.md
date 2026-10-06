@@ -129,7 +129,7 @@ which follows directly from the PS5-class performance targets.
 | ROG Xbox Ally X | RDNA 3.5 | 16 CUs (Ryzen AI Z2 Extreme) |
 | Valve Steam Machine (2026) | RDNA 3 | Semi-custom GPU, 28 CUs, up to 2.45 GHz |
 
-\*Sony officially labels the PS5 Pro GPU as “AMD Radeon RDNA-based”; it includes features beyond PC RDNA 3.5 Spec, inherting very specific tech from RDNA4.
+\*Sony officially labels the PS5 Pro GPU as “AMD Radeon RDNA-based”; it includes features beyond the PC RDNA 3.5 specification, inheriting specific technology from RDNA 4.
 
 ### **Major Android Flagship; Samsung Galaxy with Exynos Xclipse GPUs**
 
@@ -149,8 +149,8 @@ which follows directly from the PS5-class performance targets.
 
 *Samsung describes the Xclipse 960 as a new architecture, rather than assigning it a public AMD RDNA version.
 
-*Stock Vite **DOES NOT** support Ray Tracing on Android, but this is a reference for future Vite Major Releases, 
-current optimizations are applicable to any Future Rendering path.
+Stock Vite **does not** support ray tracing on Android. This table is a reference for future Vite major
+releases; the current RDNA optimisations carry over to any future rendering path on these GPUs.
 
 
 

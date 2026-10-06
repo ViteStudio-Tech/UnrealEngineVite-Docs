@@ -1,60 +1,67 @@
-# Ray Tracing
+# レイトレーシング
 
 <tldr>
 <p>
-Vite ships the ray tracing suite from NvRTX 4.27 Caustics and NvRTX 5.0. In a default build,
-<b>reflections, shadows, ambient occlusion and sky light are available; the rest are compiled out</b> by
-<code>VITE_RT_PSO_DEBLOAT</code>. Read the availability table below before debugging a console variable
-that appears to do nothing.
+Vite には NvRTX 4.27 Caustics と NvRTX 5.0 のレイトレーシング一式が含まれています。既定のビルドでは
+<b>反射、シャドウ、アンビエントオクルージョン、スカイライトが利用でき、それ以外は <code>VITE_RT_PSO_DEBLOAT</code> に
+よってコンパイル対象から外れています</b>。何も起きないように見えるコンソール変数をデバッグする前に、下の利用可否の
+表を確認してください。
 </p>
 </tldr>
 
-Ray tracing in Vite is an engine-agnostic pipeline: acceleration structures are maintained independently of
-any single lighting solution, so each effect can be enabled or disabled on its own. This is the arrangement
-UE 4.27 had and UE 5.1+ moved away from &mdash; see [Why NvRTX 4.27](Why-NvRTX-427.md).
+<img src="AtticRTGIV2.jpg" alt="レイトレーシング GI でライティングされた屋根裏の室内。窓から差し込む光の筋と、木の床に広がる柔らかなバウンス光" border-effect="line"/>
 
-## Availability
+*レイトレーシング GI を使った屋根裏シーン。プロジェクトは [屋根裏シーン](Attic-Scene.md) を参照してください。*
 
-The `VITE_RT_PSO_DEBLOAT` compile-time switch defaults to `1` and removes shader permutations for effects
-outside Vite's recommended configuration. Ray tracing PSOs must be compiled and bound whether or not their
-console variable is set, so leaving unused effects compiled in costs shader build time, package size and
-pipeline creation time for nothing.
+Vite のレイトレーシングは、特定の手法に依存しないパイプラインです。アクセラレーション構造は特定のライティング手法とは
+独立して管理されるため、各エフェクトを個別に有効・無効にできます。これは UE 4.27 にはあり、UE 5.1 以降で失われた構成です。
+[なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md) を参照してください。
 
-The practical consequence: **setting the console variable for a compiled-out effect appears to succeed and
-renders nothing.**
+## 利用可否
 
-| Effect | Console variable | Default build | Page |
+コンパイル時スイッチ `VITE_RT_PSO_DEBLOAT` は既定で `1` で、Vite の推奨構成に含まれないエフェクトのシェーダー
+パーミュテーションを取り除きます。レイトレーシングの PSO はコンソール変数の設定に関係なくコンパイルとバインドが必要な
+ため、使わないエフェクトをコンパイルに含めておくと、シェーダーのビルド時間、パッケージサイズ、パイプラインの生成時間を
+無駄に消費します。
+
+実際の影響は次のとおりです。**コンパイル対象から外れたエフェクトのコンソール変数を設定すると、成功したように見えて
+何も描画されません。**
+
+| エフェクト | コンソール変数 | 既定のビルド | ページ |
 |---|---|---|---|
-| Reflections | `r.RayTracing.Reflections` | Available | [RT Reflections](RT-Reflections.md) |
-| Shadows | `r.RayTracing.Shadows` | Available | [RT Shadows and AO](RT-Shadows-And-Ambient-Occlusion.md) |
-| Ambient occlusion | `r.RayTracing.AmbientOcclusion` | Available | [RT Shadows and AO](RT-Shadows-And-Ambient-Occlusion.md) |
-| Sky light | `r.RayTracing.SkyLight` | Available | This page |
-| Translucency | `r.RayTracing.Translucency` | Compiled out | [RT Translucency and Caustics](RT-Translucency-And-Caustics.md) |
-| Mesh caustics | `r.RayTracing.MeshCaustics.Enable` | Compiled out | [RT Translucency and Caustics](RT-Translucency-And-Caustics.md) |
-| Water caustics | `r.RayTracing.WaterCaustics.Type` | Compiled out | [RT Translucency and Caustics](RT-Translucency-And-Caustics.md) |
-| Sampled direct lighting (RTXDI) | `r.RayTracing.SampledDirectLighting` | Compiled out | [RTXDI](RTXDI.md) |
-| Per-pixel global illumination | `r.RayTracing.GlobalIllumination` | Compiled out | This page |
-| Reflection captures and probes | `r.RayTracing.Reflections.RayTraceEnvironmentCaptures` | Compiled out | [RT Reflections](RT-Reflections.md) |
-| Path tracing | `r.PathTracing` | Compiled out | [Path Tracing](Path-Tracing.md) |
+| 反射 | `r.RayTracing.Reflections` | 利用可能 | [レイトレーシング反射](RT-Reflections.md) |
+| シャドウ | `r.RayTracing.Shadows` | 利用可能 | [RT シャドウと AO](RT-Shadows-And-Ambient-Occlusion.md) |
+| アンビエントオクルージョン | `r.RayTracing.AmbientOcclusion` | 利用可能 | [RT シャドウと AO](RT-Shadows-And-Ambient-Occlusion.md) |
+| スカイライト | `r.RayTracing.SkyLight` | 利用可能 | このページ |
+| 半透明 | `r.RayTracing.Translucency` | コンパイル対象外 | [RT 半透明とコースティクス](RT-Translucency-And-Caustics.md) |
+| メッシュコースティクス | `r.RayTracing.MeshCaustics.Enable` | コンパイル対象外 | [RT 半透明とコースティクス](RT-Translucency-And-Caustics.md) |
+| ウォーターコースティクス | `r.RayTracing.WaterCaustics.Type` | コンパイル対象外 | [RT 半透明とコースティクス](RT-Translucency-And-Caustics.md) |
+| サンプリングによる直接光（RTXDI） | `r.RayTracing.SampledDirectLighting` | コンパイル対象外 | [RTXDI](RTXDI.md) |
+| ピクセル単位のグローバルイルミネーション | `r.RayTracing.GlobalIllumination` | コンパイル対象外 | このページ |
+| リフレクションキャプチャとプローブ | `r.RayTracing.Reflections.RayTraceEnvironmentCaptures` | コンパイル対象外 | [レイトレーシング反射](RT-Reflections.md) |
+| パストレーシング | `r.PathTracing` | コンパイル対象外 | [パストレーシング](Path-Tracing.md) |
 
-To use anything in the compiled-out set, rebuild with `VITE_RT_PSO_DEBLOAT=0`. See
-[Compile-Time Switches](Compile-Time-Switches.md).
+コンパイル対象外のものを使うには、`VITE_RT_PSO_DEBLOAT=0` で再ビルドしてください。
+[コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
 
-Reflections have one further caveat even when available: the debloat switch forces the sorted deferred
-reflection algorithm and compiles out the older non-deferred path.
+**利用可能であることと有効であることは別です。** 現行のリリースでは、`r.RayTracing.Reflections`、
+`r.RayTracing.Shadows`、`r.RayTracing.AmbientOcclusion`、`r.RayTracing.Translucency` の既定値はすべて `0` です。
+これらのエフェクトはコンパイルに含まれていても無効の状態で始まり、プロジェクトやポストプロセスボリュームで有効にします。
+例外は動的 DDGI で、`BaseEngine.ini` の `r.GlobalIllumination.ExperimentalPlugin=True` により既定で有効です。
 
-Dynamic DDGI is a separate system, enabled through `r.GlobalIllumination.ExperimentalPlugin` rather than the
-`r.RayTracing.*` group, and is **not** affected by the debloat switch. See
-[Dynamic DDGI](DDGI-Dynamic.md).
+反射には、利用可能な場合でももう 1 つ注意点があります。デブロートのスイッチは、ソート済みのディファード反射の
+アルゴリズムを強制し、古い非ディファードのパスをコンパイル対象から外します。
 
-This is the rendering stack Black Myth: Wukong shipped on.
+動的 DDGI は `r.RayTracing.*` のグループではなく `r.GlobalIllumination.ExperimentalPlugin` で有効にする別のシステムで、
+デブロートのスイッチの影響を **受けません**。[動的 DDGI](DDGI-Dynamic.md) を参照してください。
 
-[![Black Myth: Wukong ray tracing comparison](https://img.youtube.com/vi/A5boaueGopg/0.jpg)](https://www.youtube.com/watch?v=A5boaueGopg)
+これは Black Myth: Wukong が出荷に使ったレンダリングスタックです。
 
+[![Black Myth: Wukong のレイトレーシング比較](https://img.youtube.com/vi/A5boaueGopg/0.jpg)](https://www.youtube.com/watch?v=A5boaueGopg)
 
-## Enabling and disabling
+## 有効化と無効化
 
-From code:
+コードからは次のようにします。
 
 ```c++
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.AmbientOcclusion"))->Set(1);
@@ -62,7 +69,7 @@ IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.Reflections"))->Se
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.Shadows"))->Set(1);
 ```
 
-From configuration, which is what shipping projects should use:
+出荷するプロジェクトでは、設定ファイルで指定します。
 
 ```ini
 ; Config/DefaultEngine.ini
@@ -73,112 +80,112 @@ r.RayTracing.AmbientOcclusion=0
 r.RayTracing.Translucency=0
 ```
 
-`r.RayTracing.ForceAllRayTracingEffects 1` turns everything on at once. Treat it as a diagnostic &mdash; a
-way to see the ceiling and to audit which effects a scene responds to &mdash; not as a shipping setting.
-`r.RayTracing.ForceAllRayTracingEffects 0` forces everything off, which is the fastest way to establish how
-much of your frame time ray tracing accounts for.
+`r.RayTracing.ForceAllRayTracingEffects 1` はすべてを一度に有効にします。上限を確認したり、シーンがどのエフェクトに
+反応するかを調べたりするための診断用として扱い、出荷用の設定にはしないでください。
+`r.RayTracing.ForceAllRayTracingEffects 0` はすべてを強制的に無効にし、フレームタイムのうちレイトレーシングが占める
+割合を最も早く把握できます。
 
-## Culling and cost control
+## カリングとコストの制御
 
-Ray tracing cost scales with how much geometry is in the acceleration structure, so culling is the first
-lever to reach for before reducing effect quality.
+レイトレーシングのコストはアクセラレーション構造に含まれるジオメトリの量に比例するため、エフェクトの品質を下げる前に
+まずカリングを検討します。
 
 ```c++
 GEngine->Exec(nullptr, TEXT("r.RayTracing.Culling.UseMinDrawDistance 1"));
 ```
 
-This makes ray tracing culling respect each primitive's minimum draw distance, which is a cheap and
-generally safe win in scenes with a lot of small detail meshes.
+これにより、レイトレーシングのカリングが各プリミティブの最小描画距離を考慮するようになります。小さなディテール用
+メッシュの多いシーンでは、安価で一般に安全な改善です。
 
-Beyond culling, the standard levers in rough order of effectiveness:
+カリング以外の標準的な手段を、おおよそ効果の大きい順に示します。
 
-1. Reduce the number of effects enabled. Turning an effect off is always cheaper than optimising it.
-2. Reduce effect resolution &mdash; most effects support half or quarter resolution buffers.
-3. Reduce sample counts and maximum bounce depth.
-4. Reduce the geometry that participates in ray tracing, per-primitive.
+1. 有効にするエフェクトの数を減らします。エフェクトを無効にするほうが、最適化するより常に安価です。
+2. エフェクトの解像度を下げます。ほとんどのエフェクトは半分または 4 分の 1 の解像度のバッファに対応しています。
+3. サンプル数と最大バウンス数を減らします。
+4. レイトレーシングに参加するジオメトリをプリミティブ単位で減らします。
 
-## AMD hardware
+## AMD のハードウェア
 
-Vite integrates AMD GPUOpen RT optimizations and a number of custom AMD RDNA specific GPU optimizations targeted at
-consoles. Ray tracing performance on RDNA2 hardware is a first-class concern rather than an afterthought,
-which follows directly from the PS5-class performance targets. 
+Vite は AMD GPUOpen の RT 最適化と、コンソールを対象とした AMD RDNA 固有の独自 GPU 最適化を多数統合しています。
+PS5 クラスのパフォーマンス目標から直接導かれることとして、RDNA2 のハードウェアでのレイトレーシング性能は後回しでは
+なく最優先の関心事です。
 
+### RDNA ベースのコンソールと携帯機
 
-### **RDNA-based Console and Handheld Hardware**
-
-| Hardware | GPU architecture | GPU configuration |
+| ハードウェア | GPU アーキテクチャ | GPU の構成 |
 |---|---:|---|
-| PlayStation 5 | RDNA 2–based custom GPU | 36 CUs, up to 10.28 TFLOPS |
-| PlayStation 5 Pro | RDNA-based custom GPU* | 60 CUs, 16.7 TFLOPS |
-| Xbox Series X | RDNA 2 | 52 CUs, 12 TFLOPS |
-| Xbox Series S | RDNA 2 | 20 CUs, 4 TFLOPS |
-| Steam Deck / Steam Deck OLED | RDNA 2 | 8 CUs, up to 1.6 GHz |
-| ASUS ROG Ally | RDNA 3 | Z1: 4 CUs; Z1 Extreme: 12 CUs |
-| ASUS ROG Ally X | RDNA 3 | 12 CUs (Ryzen Z1 Extreme) |
-| ROG Xbox Ally | RDNA 3 | 8 CUs (Ryzen Z2 A) |
-| ROG Xbox Ally X | RDNA 3.5 | 16 CUs (Ryzen AI Z2 Extreme) |
-| Valve Steam Machine (2026) | RDNA 3 | Semi-custom GPU, 28 CUs, up to 2.45 GHz |
+| PlayStation 5 | RDNA 2 ベースのカスタム GPU | 36 CU、最大 10.28 TFLOPS |
+| PlayStation 5 Pro | RDNA ベースのカスタム GPU* | 60 CU、16.7 TFLOPS |
+| Xbox Series X | RDNA 2 | 52 CU、12 TFLOPS |
+| Xbox Series S | RDNA 2 | 20 CU、4 TFLOPS |
+| Steam Deck / Steam Deck OLED | RDNA 2 | 8 CU、最大 1.6 GHz |
+| ASUS ROG Ally | RDNA 3 | Z1: 4 CU、Z1 Extreme: 12 CU |
+| ASUS ROG Ally X | RDNA 3 | 12 CU（Ryzen Z1 Extreme） |
+| ROG Xbox Ally | RDNA 3 | 8 CU（Ryzen Z2 A） |
+| ROG Xbox Ally X | RDNA 3.5 | 16 CU（Ryzen AI Z2 Extreme） |
+| Valve Steam Machine（2026 年） | RDNA 3 | セミカスタム GPU、28 CU、最大 2.45 GHz |
 
-\*Sony officially labels the PS5 Pro GPU as “AMD Radeon RDNA-based”; it includes features beyond PC RDNA 3.5 Spec, inherting very specific tech from RDNA4.
+\*Sony は PS5 Pro の GPU を公式に「AMD Radeon RDNA ベース」としています。PC の RDNA 3.5 の仕様を超える機能を備え、
+RDNA 4 の特定の技術を受け継いでいます。
 
-### **Major Android Flagship; Samsung Galaxy with Exynos Xclipse GPUs**
+### 主要な Android フラッグシップ: Exynos Xclipse GPU を搭載した Samsung Galaxy
 
-| Galaxy phone | SoC | Xclipse GPU | RDNA architecture | Availability |
+| Galaxy の機種 | SoC | Xclipse GPU | RDNA アーキテクチャ | 提供地域 |
 |---|---|---|---|---|
-| Galaxy S22 | Exynos 2200 | Xclipse 920 | RDNA 2 | Selected regions |
-| Galaxy S22+ | Exynos 2200 | Xclipse 920 | RDNA 2 | Selected regions |
-| Galaxy S22 Ultra | Exynos 2200 | Xclipse 920 | RDNA 2 | Selected regions |
-| Galaxy S23 FE | Exynos 2200 | Xclipse 920 | RDNA 2 | Selected regions |
-| Galaxy S24 | Exynos 2400 | Xclipse 940 | RDNA 3 | Selected regions |
-| Galaxy S24+ | Exynos 2400 | Xclipse 940 | RDNA 3 | Selected regions |
-| Galaxy S24 FE | Exynos 2400e | Xclipse 940 | RDNA 3 | Global |
-| Galaxy Z Flip7 | Exynos 2500 | Xclipse 950 | RDNA 3–based | Global |
-| Galaxy S25 FE | Exynos 2400 | Xclipse 940 | RDNA 3 | Global |
-| Galaxy S26 | Exynos 2600 | Xclipse 960 | New Samsung architecture* | Selected regions |
-| Galaxy S26+ | Exynos 2600 | Xclipse 960 | New Samsung architecture* | Selected regions |
+| Galaxy S22 | Exynos 2200 | Xclipse 920 | RDNA 2 | 一部の地域 |
+| Galaxy S22+ | Exynos 2200 | Xclipse 920 | RDNA 2 | 一部の地域 |
+| Galaxy S22 Ultra | Exynos 2200 | Xclipse 920 | RDNA 2 | 一部の地域 |
+| Galaxy S23 FE | Exynos 2200 | Xclipse 920 | RDNA 2 | 一部の地域 |
+| Galaxy S24 | Exynos 2400 | Xclipse 940 | RDNA 3 | 一部の地域 |
+| Galaxy S24+ | Exynos 2400 | Xclipse 940 | RDNA 3 | 一部の地域 |
+| Galaxy S24 FE | Exynos 2400e | Xclipse 940 | RDNA 3 | 全世界 |
+| Galaxy Z Flip7 | Exynos 2500 | Xclipse 950 | RDNA 3 ベース | 全世界 |
+| Galaxy S25 FE | Exynos 2400 | Xclipse 940 | RDNA 3 | 全世界 |
+| Galaxy S26 | Exynos 2600 | Xclipse 960 | Samsung の新アーキテクチャ* | 一部の地域 |
+| Galaxy S26+ | Exynos 2600 | Xclipse 960 | Samsung の新アーキテクチャ* | 一部の地域 |
 
-*Samsung describes the Xclipse 960 as a new architecture, rather than assigning it a public AMD RDNA version.
+\*Samsung は Xclipse 960 を、公開された AMD RDNA のバージョンではなく新しいアーキテクチャとして説明しています。
 
-*Stock Vite **DOES NOT** support Ray Tracing on Android, but this is a reference for future Vite Major Releases, 
-current optimizations are applicable to any Future Rendering path.
+標準の Vite は Android でのレイトレーシングに **対応していません**。この表は今後の Vite のメジャーリリースのための
+参考資料です。現在の RDNA 向けの最適化は、これらの GPU での将来のあらゆるレンダリングパスに引き継がれます。
 
-
-
-## Per-pixel ray-traced GI
+## ピクセル単位のレイトレーシング GI
 
 <note>
-Compiled out in a default build. Requires <code>VITE_RT_PSO_DEBLOAT=0</code>. See
-<a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+既定のビルドではコンパイル対象から外れています。<code>VITE_RT_PSO_DEBLOAT=0</code> が必要です。
+<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
 </note>
 
-Distinct from DDGI, Vite retains the per-pixel ray-traced GI path including the NvRTX ReStir GI improvements:
-a new SVGF-based denoiser, a reservoir-resampling final gather, emissive material support, quarter- and
-eighth-resolution modes, metallic material support and spherical harmonics for improved normal detail.
+DDGI とは別に、Vite はピクセル単位のレイトレーシング GI のパスを、NvRTX の ReSTIR GI の改良とともに維持しています。
+新しい SVGF ベースのデノイザー、リザーバーリサンプリングによるファイナルギャザー、エミッシブマテリアルへの対応、
+4 分の 1 と 8 分の 1 の解像度のモード、メタリックマテリアルへの対応、そして法線のディテールを改善する球面調和関数です。
 
-It produces excellent reference imagery. It is also considerably more expensive than DDGI and reintroduces
-a denoising and temporal stability problems; DDGI exists to avoid. That trade is precisely why the debloat
-switch removes it by default. This Per Pixel RT GI Solution is higher Fidelity than HWRT Lumen, also somewhat more costly.
+ハードウェアレイトレーシングの Lumen より高い品質のリファレンス画像を、やや高いコストで生成できます。一方で DDGI より
+はるかに重く、DDGI がそもそも避けるために存在するデノイズと時間的な安定性の問題を再び持ち込みます。このトレードオフ
+こそが、デブロートのスイッチが既定でこれを取り除く理由です。このパスは
+[Vite ReSTIR](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/restir.html) の基盤であり、Vite ReSTIR は
+これを製品向けの GI とリアルタイムパストレーシングのソリューションへと発展させます。
 
-Key controls, if you do use it:
+使う場合の主要な設定:
 
-- `r.RayTracing.GlobalIllumination.FinalGather.UseReservoirResampling 0/1` &mdash; toggles the new final
-  gather sampler, which significantly reduces sampler noise and produces a much more stable result before
-  denoising, allowing lower samples per pixel.
-- `r.DiffuseIndirect.Denoiser 2` &mdash; selects the new SVGF denoiser.
-- `r.RayTracing.GlobalIllumination.EvalSkyLight 0/1` &mdash; includes skylight contribution. The skylight
-  actor's **Affect Global Illumination** flag must also be set.
-- `r.DiffuseIndirect.ApplyAO` &mdash; applies AO to the indirect lighting result. Significantly increases
-  lighting detail and is strongly recommended when this path is in use.
+- `r.RayTracing.GlobalIllumination.FinalGather.UseReservoirResampling 0/1` &mdash; 新しいファイナルギャザーの
+  サンプラーを切り替えます。サンプラーのノイズを大幅に減らし、デノイズ前の結果をはるかに安定させるため、
+  ピクセルあたりのサンプル数を減らせます。
+- `r.DiffuseIndirect.Denoiser 2` &mdash; 新しい SVGF デノイザーを選択します。
+- `r.RayTracing.GlobalIllumination.EvalSkyLight 0/1` &mdash; スカイライトの寄与を含めます。スカイライトのアクターの
+  **Affect Global Illumination** フラグも設定する必要があります。
+- `r.DiffuseIndirect.ApplyAO` &mdash; 間接光の結果に AO を適用します。ライティングのディテールが大きく向上するため、
+  このパスを使う場合は強く推奨します。
 
-In typical use, 4 samples per pixel with `r.RayTracing.GlobalIllumination.ScreenPercentage` at 12.5 produces
-a reasonable result.
+一般的な用途では、ピクセルあたり 4 サンプルと `r.RayTracing.GlobalIllumination.ScreenPercentage` 12.5 で妥当な結果が
+得られます。
 
-## See also
+## 関連項目
 
-- [Global Illumination](Global-Illumination.md)
-- [RT Reflections](RT-Reflections.md)
-- [RT Shadows and Ambient Occlusion](RT-Shadows-And-Ambient-Occlusion.md)
-- [RT Translucency and Caustics](RT-Translucency-And-Caustics.md)
+- [グローバルイルミネーション](Global-Illumination.md)
+- [レイトレーシング反射](RT-Reflections.md)
+- [RT シャドウとアンビエントオクルージョン](RT-Shadows-And-Ambient-Occlusion.md)
+- [RT 半透明とコースティクス](RT-Translucency-And-Caustics.md)
 - [RTXDI](RTXDI.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Console Variable Reference](Console-Variables.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [コンソール変数](Console-Variables.md)

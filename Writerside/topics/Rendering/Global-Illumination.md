@@ -4,7 +4,8 @@
 <p>
 Vite's recommended GI setup is <b>Dynamic DDGI plus SSGI</b>. DDGI resolves world-scale bounce without
 noise; SSGI fills in the high-frequency contact detail that probe volumes are too coarse to capture.
-Enable with <code>r.GlobalIllumination.ExperimentalPlugin 1</code> and <code>r.SSGI.Enable 1</code>.
+DDGI is on by default (<code>r.GlobalIllumination.ExperimentalPlugin 1</code>); add
+<code>r.SSGI.Enable 1</code>.
 </p>
 </tldr>
 
@@ -22,13 +23,14 @@ options and how to choose between them; the individual techniques have their own
 | [Dynamic DDGI](DDGI-Dynamic.md)   | Low                  | Yes | Fully dynamic | Almost everything                                                 |
 | [Static DDGI](DDGI-Static.md)     | Near zero at runtime | No | Baked | Low-end and no-DXR hardware                                       |
 | [SSGI](SSGI.md)                   | Low                  | No | Fully dynamic | High Frequency Detail, made to run alongside DDGI                 |
-| [Per-pixel RT GI](Ray-Tracing.md) | High                 | Yes | Fully dynamic | GPUs non trivially faster than PS5, Reference                     |
-| Path-Tracing                      | Ultra                | Yes | Fully dynamic | RTX 5080 and above, Ground Truth Reference                        |
-| Baked lightmaps                   | Zero at runtime      | No | Static only | Fully static scenes, Always use CPU LightMass for maximum quality |
+| [Per-pixel RT GI](Ray-Tracing.md) | High | Yes | Fully dynamic | GPUs substantially faster than PS5; reference imagery |
+| [Path tracing](Path-Tracing.md) | Very high | Yes | Fully dynamic | RTX 5080 and above; ground-truth reference |
+| Baked lightmaps | Zero at runtime | No | Static only | Fully static scenes; use CPU Lightmass for maximum quality |
 
 <note>
-"Vite includes several secondary Indirect Bounce solutions, such as Distance Fields Bounce and IBL capture (Vite specific addition). 
-These are rarely considered over the solutions listed above, except for very specific target platforms or specialized setups."
+Vite also includes secondary indirect-bounce solutions, such as distance-field bounce and the Vite-specific
+localized IBL capture. They are rarely chosen over the solutions above, except for specific target platforms
+or specialised setups.
 </note>
 
 ## Why DDGI rather than Lumen
@@ -38,7 +40,8 @@ harmonics. Because the representation is smooth by construction, the result is n
 denoiser &mdash; which is the root cause of most of its advantages over Lumen.
 
 Against Software Lumen, DDGI provides higher quality bounce and less light leaking. Against Hardware Lumen,
-it is comparable for bounce quality while typically running around twice as fast (End Scene FPS not just the isolated GI cost).
+it is comparable for bounce quality while typically running around twice as fast, measured as whole-scene
+frame rate rather than isolated GI cost.
 In one representative test scene at 1440p native on an RTX 4080 Super, DDGI measured 811 FPS against Lumen 5.7's 324 FPS. 
 On AMD hardware the technique holds up well: the same class of test scene runs at 245 FPS at 1080p native on an
 RX 6600.
@@ -63,8 +66,8 @@ represented, because there is no probe there to represent it.
 Screen-space GI operates at pixel resolution and captures exactly that. The two techniques have shortcomings in opposite
 directions: SSGI has no information about anything off-screen or occluded, while DDGI has complete world
 knowledge at coarse resolution. Running both gives you world-scale bounce from DDGI and high-frequency
-contact detail from SSGI. This is an officially recommended setup by NVIDIA from their Unreal Engine DDGI 
-presentations. Vite's SSGI is configured to work alongside DDGI from the get-go.
+contact detail from SSGI. NVIDIA recommends this combination in its Unreal Engine DDGI presentations, and Vite's SSGI is configured
+to work alongside DDGI out of the box.
 
 This is not possible in UE5. SSGI regressed in both quality and performance when it was folded into Lumen,
 and can no longer be enabled alongside a separate GI solution. In Vite it is the UE4-era implementation and

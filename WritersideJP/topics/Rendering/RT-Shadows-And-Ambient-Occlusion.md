@@ -1,80 +1,83 @@
-# Ray-Traced Shadows and Ambient Occlusion
+# レイトレーシングシャドウとアンビエントオクルージョン
 
 <tldr>
 <p>
-<code>r.RayTracing.Shadows 1</code> and <code>r.RayTracing.AmbientOcclusion 1</code>. Both are enabled by
-default in new Vite projects. Both are typically the first things to turn off when a project needs frame
-time, because cheaper alternatives get close for much less.
+<code>r.RayTracing.Shadows 1</code> と <code>r.RayTracing.AmbientOcclusion 1</code> です。どちらも既定のビルドに
+含まれていますが、無効の状態で始まります（既定値はどちらも <code>0</code>）。目標に余裕があれば有効にしてください。
+より安価な代替手段がはるかに少ないコストで近い結果を出せるため、フレームタイムが必要になったときに最初に外すのが
+この 2 つです。
 </p>
 </tldr>
 
-These two effects are grouped together because they share a cost profile, a set of tuning controls, and a
-recommendation: enable them when your target has room, disable them first when it does not.
+この 2 つのエフェクトをまとめて扱うのは、コストの特性、調整項目、そして推奨が共通しているからです。目標に余裕があれば
+有効にし、余裕がなければ最初に無効にします。
 
-## Ray-traced shadows
+## レイトレーシングシャドウ
 
-Ray-traced shadows replace shadow map sampling with rays traced from the shaded point toward each light.
-The benefits are correct contact hardening, accurate soft shadows from area lights, and no shadow map
-resolution artefacts, peter-panning or cascade transitions.
+レイトレーシングシャドウは、シャドウマップのサンプリングを、シェーディングする点から各ライトへ向けて飛ばすレイに
+置き換えます。利点は、正しいコンタクトハードニング、エリアライトからの正確なソフトシャドウ、そしてシャドウマップの
+解像度のアーティファクト、ピーターパン現象、カスケードの切り替わりがないことです。
 
-The costs are real. Every light casting ray-traced shadows adds rays per pixel, so cost scales with light
-count in a way shadow maps do not. Shadow maps amortise across the frame; ray-traced shadows do not.
+コストは確かにあります。レイトレーシングシャドウを落とすライトごとにピクセルあたりのレイが増えるため、シャドウマップ
+とは異なり、コストがライトの数に比例します。シャドウマップはフレーム全体でコストを償却できますが、レイトレーシング
+シャドウはできません。
 
-### Tuning
+### 調整
 
-**Sample count per light.** The dominant quality and cost control. Low counts are noisy and lean on the
-denoiser; high counts are expensive.
+**ライトあたりのサンプル数。** 品質とコストを支配する設定です。少ないとノイズが多くデノイザーに頼ることになり、多いと
+高価になります。
 
-**Light source radius.** Larger radii produce softer shadows and need more samples to resolve cleanly. A
-scene tuned for sharp shadows can use far fewer samples.
+**光源の半径。** 半径が大きいほど影は柔らかくなり、きれいに解像するにはより多くのサンプルが必要です。くっきりした影に
+調整したシーンなら、サンプル数ははるかに少なくて済みます。
 
-**Per-light opt-in.** Rather than enabling ray-traced shadows globally, enable them on the lights where the
-difference is visible &mdash; usually the key light and any large area light &mdash; and leave fill lights
-on shadow maps. This is by far the most effective optimisation available and it is frequently overlooked.
+**ライトごとのオプトイン。** レイトレーシングシャドウを全体で有効にするのではなく、違いが目に見えるライト（通常は
+キーライトと大きなエリアライト）でだけ有効にし、フィルライトはシャドウマップのままにします。これは利用できる中で
+圧倒的に効果的な最適化ですが、しばしば見落とされます。
 
-**Maximum distance.** Bounding shadow ray distance limits cost in large scenes.
+**最大距離。** シャドウレイの距離を制限すると、大きなシーンでコストを抑えられます。
 
-Vite includes rendering optimisations specifically targeting RT shadows and RT direct lighting, and further
-performance work on RTAO and RT shadows is in progress. See [Release Notes](Release-Notes.md).
+Vite には RT シャドウと RT 直接光を特に対象としたレンダリングの最適化が含まれています。
+[August Major](ueVite26-AugustMajor.md) では RT シャドウと RTAO の既定値を調整し、RT シャドウが光源の長さに対応し、
+無効なシャドウレイをトレースしないようにしました。それ以前に、[June Major](ueVite26-JuneMajor.md) で RT シャドウの
+エンコードを修正しています。[リリースノート](Release-Notes.md) を参照してください。
 
-## Ray-traced ambient occlusion
+## レイトレーシングアンビエントオクルージョン
 
-RTAO traces short rays into the hemisphere around each shaded point to determine how occluded it is. Unlike
-screen-space AO it accounts for geometry that is off-screen or occluded, so it does not exhibit the halo and
-disocclusion artefacts SSAO produces under camera motion.
+RTAO は、シェーディングする各点の周囲の半球に短いレイを飛ばして、どれだけ遮蔽されているかを求めます。スクリーン
+スペースの AO と異なり画面外や遮蔽されたジオメトリも考慮するため、カメラの動きで SSAO に生じるハローや
+ディスオクルージョンのアーティファクトが出ません。
 
-### Tuning
+### 調整
 
-**Radius.** How far occlusion rays travel. This is an art direction control as much as a performance one
-&mdash; small radii give tight contact darkening, large radii give broad ambient shaping and cost more.
+**半径。** 遮蔽のレイが進む距離です。性能の設定であると同時にアートディレクションの設定でもあり、半径が小さいと
+引き締まった接触部の暗がりに、大きいと広い環境の陰影になり、コストも増えます。
 
-**Samples per pixel.** Quality against cost, mediated by the denoiser.
+**ピクセルあたりのサンプル数。** デノイザーを介した品質とコストのトレードオフです。
 
-**Intensity.** Post-process strength. Cheap to change and worth exhausting before increasing sample counts.
+**強度。** ポストプロセスの強さです。変更のコストが小さいため、サンプル数を増やす前に調整し尽くす価値があります。
 
-**Resolution.** Half-resolution RTAO is often visually indistinguishable and substantially cheaper.
+**解像度。** 半分の解像度の RTAO は見た目で区別できないことが多く、大幅に安価です。
 
-## The cheaper alternatives
+## より安価な代替手段
 
-Before committing frame time to either effect, know what you are buying relative to the alternatives.
+どちらかのエフェクトにフレームタイムを割く前に、代替手段と比べて何を得るのかを把握してください。
 
-| Effect | Alternative | Trade-off |
+| エフェクト | 代替手段 | トレードオフ |
 |---|---|---|
-| RT shadows | Cascaded shadow maps | Much cheaper. Resolution artefacts, no correct contact hardening, cascade transitions. |
-| RT shadows | Distance field shadows | Cheap soft shadows. Approximate, needs mesh distance fields. |
-| RTAO | [SSAO fast path](Ambient-Occlusion.md) | Dramatically cheaper. Screen-space artefacts. Vite's implementation is significantly optimised. |
-| RTAO | [HBAO+](Ambient-Occlusion.md) | Higher quality than SSAO at moderate cost. DirectX 11 only. |
+| RT シャドウ | カスケードシャドウマップ | はるかに安価。解像度のアーティファクト、正しいコンタクトハードニングがない、カスケードの切り替わり。 |
+| RT シャドウ | 距離フィールドシャドウ | 安価なソフトシャドウ。近似であり、メッシュの距離フィールドが必要。 |
+| RTAO | [SSAO の高速パス](Ambient-Occlusion.md) | 桁違いに安価。スクリーンスペースのアーティファクトがある。Vite の実装は大幅に最適化されている。 |
+| RTAO | [HBAO+](Ambient-Occlusion.md) | 中程度のコストで SSAO より高品質。DirectX 11 と、June Major 以降は DirectX 12 に対応。 |
 
-In practice, most Vite projects targeting 60 FPS or above run cascaded shadow maps and either the SSAO fast
-path or HBAO+, and spend the ray tracing budget on [DDGI](DDGI-Dynamic.md) and
-[reflections](RT-Reflections.md) instead. Only the 1440p30 "Fidelity, full RT" target in
-[Performance Targets](Performance-Targets.md) enables both RT shadows and RTAO.
+実際には、60 FPS 以上を目標とする Vite のプロジェクトの多くは、カスケードシャドウマップと、SSAO の高速パスまたは
+HBAO+ を使い、レイトレーシングの予算は [DDGI](DDGI-Dynamic.md) と [反射](RT-Reflections.md) に使っています。
+[パフォーマンス目標](Performance-Targets.md) のうち RT シャドウと RTAO の両方を有効にするのは、1440p30 の
+「フィデリティ（フル RT）」の目標だけです。
 
-Note that Vite's SSAO has both a fast path and a memory-access optimisation. It is much cheaper than the
-stock 4.27 implementation, which shifts the calculus further away from RTAO than you might expect from
-experience with other engines.
+Vite の SSAO には高速パスとメモリアクセスの最適化の両方がある点にも注意してください。標準の 4.27 の実装よりはるかに
+安価で、他のエンジンでの経験から想像するよりも、RTAO を選ぶ理由はさらに少なくなっています。
 
-## Disabling
+## 無効にする
 
 ```ini
 ; Config/DefaultEngine.ini
@@ -83,12 +86,12 @@ r.RayTracing.Shadows=0
 r.RayTracing.AmbientOcclusion=0
 ```
 
-Measure with `stat gpu` before and after. In a scene with many shadow-casting lights, RT shadows are
-frequently the single largest ray tracing cost in the frame, ahead of reflections.
+前後で `stat gpu` を使って計測してください。影を落とすライトが多いシーンでは、RT シャドウが反射を上回ってフレーム内で
+最大のレイトレーシングのコストになることがよくあります。
 
-## See also
+## 関連項目
 
-- [Ray Tracing](Ray-Tracing.md)
-- [Ambient Occlusion](Ambient-Occlusion.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [アンビエントオクルージョン](Ambient-Occlusion.md)
 - [RTXDI](RTXDI.md)
-- [Performance Targets](Performance-Targets.md)
+- [パフォーマンス目標](Performance-Targets.md)
