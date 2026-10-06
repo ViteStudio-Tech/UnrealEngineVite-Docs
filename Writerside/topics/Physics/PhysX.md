@@ -182,7 +182,6 @@ full PVD capture.
 |---|---|
 | `stat physics` | Physics timing divided by engine phase |
 | `stat game` | Physics cost in the context of game-thread work |
-| `p.NumPhysScenes` | Number of active physics scenes |
 | `show Collision` | Collision geometry in the viewport |
 
 Profile with representative collision geometry, body counts, sleeping behavior and event generation. Record
