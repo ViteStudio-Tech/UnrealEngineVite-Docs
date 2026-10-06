@@ -2,8 +2,11 @@
 
 <tldr>
 <p>
-<code>ViteSetup.bat</code> at the engine root runs a nine-step guided setup from environment check to a
-launched editor. <code>ViteSetup.bat menu</code> gives you the individual operations instead.
+<code>ViteSetup.bat</code> at the engine root takes a fresh clone to a launched editor in nine guided
+steps. The <b>Express</b> path is the recommended one: Win64 dependencies only, a source build, then a
+strip-down that moves everything it removes to a recovery folder. <code>ViteSetup.bat menu</code> gives you
+the individual operations instead. This page describes the
+<a href="ueVite26-SeptemberMajor.md">September Major</a> version.
 </p>
 </tldr>
 
@@ -15,49 +18,64 @@ component fails at step 1 with a clear message rather than at step 5 with a link
 
 Run `ViteSetup.bat` with no arguments.
 
-| Step | Action |
-|---|---|
-| 1 | Check the environment and enforce the toolchain |
-| 2 | Set up dependencies, with platform selection |
-| 3 | Generate Visual Studio project files |
-| 4 | Choose source or binary build |
-| 5 | Build the selected target |
-| 6 | Register the selected build |
-| 7 | Create `UEViteFork.lnk` on the desktop |
-| 8 | Optional engine debloat |
-| 9 | Finish; source builds launch the editor, binary builds do not |
+| Step | Source build (Express or Custom) | Precompiled binary build |
+|---|---|---|
+| 1 | Check the environment and enforce the toolchain | Same |
+| 2 | Choose how to build | Same |
+| 3 | Set up dependencies | Set up dependencies |
+| 4 | Generate Visual Studio project files | Generate Visual Studio project files |
+| 5 | Build the engine from source | Build the installed binary and its archive |
+| 6 | Strip the engine down | Register the build |
+| 7 | Register the build | Create the desktop shortcut |
+| 8 | Create the desktop shortcut | Finish (binary builds are not launched) |
+| 9 | Launch the editor | &mdash; |
 
 Each step pauses so you can read the output before continuing. Failures stop the assistant and report an
-error code rather than pushing on.
+error code rather than pushing on. Before setup and again at the end, the assistant reports the expected and
+actual disk use; a full Windows source tree is around 137&nbsp;GB once built, and the Express path exists to
+cut that down.
 
 ## Step 1 &mdash; environment check
 
-The assistant enforces a specific toolchain and will not proceed without it:
+The assistant accepts either of two toolchains and will not proceed without one:
 
-| Requirement | Enforced value |
+| Requirement | Accepted |
 |---|---|
-| Visual Studio | 2022 |
-| MSVC | 14.44 |
+| Visual Studio and MSVC | Visual Studio 2022 with MSVC 14.44 or higher, **or** Visual Studio 2026 with MSVC 14.50 or higher |
+| MSBuild | Required by UnrealBuildTool and the C# tools |
 | Windows SDK | 10.0.26100, subversion .7705 or higher, major pinned to 26100 |
-| .NET Framework reference assemblies | v4.6.2 and v4.5 |
+| .NET Framework targeting packs | 4.6.2 (UnrealBuildTool, AutomationTool) and 4.5 (SwarmAgent and C# tools) |
 
-<warning>
-The enforced toolchain is not the same as the toolchain Vite is currently developed against, which is
-Visual Studio 2026 with MSVC 14.50 and Windows SDK 10.0.26100. The assistant's check has not been updated.
-<p>
-If you are on the newer toolchain, the check will fail. Build through
-<a href="Build-From-Source.md">the manual path</a> or use the individual menu options rather than the
-guided flow. See <a href="Toolchain-Requirements.md">Toolchain Requirements</a>.
-</p>
-</warning>
+If both Visual Studio versions are installed, it asks which one to build with and passes `-2022` or
+`-2026` to every build. If the SDK is below the minimum or the .NET 4.5 targeting pack is missing, it offers
+to install them and re-checks the full toolchain afterwards. See
+[Toolchain Requirements](Toolchain-Requirements.md).
 
-The .NET Framework 4.5 reference assemblies are the component people most often lack, since recent Visual
-Studio installers no longer offer them by default. See
-[Build Troubleshooting](Build-Troubleshooting.md).
+The .NET Framework 4.5 targeting pack is the component people most often lack, since recent Visual Studio
+installers no longer offer it by default. See [Build Troubleshooting](Build-Troubleshooting.md).
 
-## Step 2 &mdash; dependency setup
+## Step 2 &mdash; choose how to build
 
-Rather than running `Setup.bat` with everything, the assistant offers setup profiles:
+| Option | What it does |
+|---|---|
+| **1. Source build &ndash; Express** (recommended) | Win64 only unless you tick more platforms. Downloads the smallest dependency set, compiles, then strips the engine down. |
+| 2. Source build &ndash; Custom | The same build, but you pick the platforms, optional content and strip items yourself |
+| 3. Precompiled binary build | A packaged engine with no usable engine source. Not recommended. |
+
+**Choose a source build.** It is the supported configuration: you can step into engine code in the
+debugger, apply fork patches, rebuild after every pull and change
+[compile-time switches](Compile-Time-Switches.md). A precompiled binary can do none of that, takes longer to
+produce than the source build it is made from, and bug reports made against one cannot be supported. See
+[Installed Builds](Installed-Builds.md) for when a binary still makes sense.
+
+## Step 3 &mdash; dependency setup
+
+On the Express path, Win64, the Win32 support files and templates are always downloaded, and a platform
+picker lets you add Android, Linux, iOS/tvOS or Mac. Samples, feature packs, documentation, GoogleVR,
+LeapMotion, WinRT, HTML5, consoles and every platform left unticked are never downloaded, which is where
+most of the space is saved.
+
+The Custom path offers setup profiles instead:
 
 | Profile | What it does |
 |---|---|
@@ -69,43 +87,60 @@ Rather than running `Setup.bat` with everything, the assistant offers setup prof
 | Win64 + Linux | Adds Linux and cross-compile dependencies |
 | Full setup | Passes no `-exclude` argument to `Setup.bat` |
 
-The step-by-step assistant exposes individual platform toggles for Android, iOS/tvOS, Mac, Linux, WinRT,
-HTML5 and consoles. Win32 support files are always included, since Win64 requires them.
+Dependencies are cached in `UE4_Source_Cache` and fetched with 20 threads, so re-running setup does not
+download them again.
 
-**Recommended Win64 is the right choice for most people.** Downloading dependencies you will never use
-costs bandwidth, disk space and setup time. If you later need a platform, re-run setup with it enabled.
+## Step 5 &mdash; build
 
-## Step 4 &mdash; source or binary
+A source build compiles `UE4Editor`, `ShaderCompileWorker`, `UnrealLightmass` and `UnrealInsights` for
+Win64 Development in the source tree.
 
-| Option | Result |
-|---|---|
-| Source build | Builds `UE4Editor`, `ShaderCompileWorker` and `UnrealLightmass` in the source tree, Win64 Development |
-| Binary Installed Build | Incremental BuildGraph run producing `LocalBuilds\Engine\Windows` plus `UE_ViteFork.7z` |
+A binary build runs the BuildGraph `Make Installed Build Win64` target with Development and Shipping game
+configurations, then packages the result. It archives with WinRAR into `UE_ViteFork.rar` when WinRAR is
+installed, offers to download the WinRAR trial when it is not, and falls back to 7-Zip and
+`UE_ViteFork.7z`.
 
-Choose source if you are working on the engine or want to modify
-[compile-time switches](Compile-Time-Switches.md). Choose binary if you want a redistributable engine to
-hand to people who do not need to compile it. See [Installed Builds](Installed-Builds.md).
+## Step 6 &mdash; strip the engine down
 
-## Steps 6 and 7 &mdash; registration and shortcut
+The Express path moves, after a dry-run review:
 
-Registration writes the engine path under
-`HKCU\Software\Epic Games\Unreal Engine\Builds` as `UEViteFork`, which is what makes the build selectable in
-a `.uproject` file's engine association. The engine association identifier is `UE_ViteFork`.
+- every platform folder except Win64
+- debug symbols (`.pdb`)
+- Starter Content and Mobile Starter Content
+- the NVIDIA sample projects `NGXTest` and `RTXGI_Test`
+- every template except Third Person, C++ and Blueprint
+- every plugin under `Engine\Plugins\Runtime\VitePlugins` except ACL and MotionSymphony
 
-The shortcut step creates `UEViteFork.lnk` pointing at `UE4Editor.exe`.
+<warning>
+<p>
+The last item moves FSR 4, Anti-Lag 2, XeSS, the PhysX Instanced Subsystem, KawaiiPhysics, ImGui, GPA,
+Automatron and SplashAbilities. If your project uses any of them, take the Custom path, or copy the folders
+back from <code>ViteDebloat_Moved</code>.
+</p>
+</warning>
 
-Both are also available standalone as `LocalBuilds\RegistryAdd.bat` and `LocalBuilds\MakeShortcut.bat`.
+Nothing is deleted. Everything goes to `ViteDebloat_Moved` next to the engine folder, keeping its layout,
+and the reference check confirms the remaining tree still builds. Express then offers a second, optional
+pass over the plugin exclusion list, UnrealFileServer, non-Windows tools and platform binaries. The Custom
+path opens the same picker directly. Full detail is in the [Debloat Guide](Debloat-Guide.md).
 
-## Step 8 &mdash; debloat
+## Registration and shortcut
 
-Optionally runs the debloat assistant, offering:
+Registration writes the engine path to `HKCU\Software\Epic Games\Unreal Engine\Builds` under the name
+`UE_ViteFork`, which is what makes the build selectable in a `.uproject` file's engine association. It
+first removes any auto-generated GUID entry pointing at the same folder, so the engine does not appear
+twice in the version switcher.
 
-| Option | Behaviour |
-|---|---|
-| Move to a recovery folder | Restorable later. Destination is `ViteDebloat_Moved` next to the engine folder. Recommended. |
-| Delete permanently | Smallest footprint, not reversible |
+The shortcut step creates `UEViteFork.lnk` on the desktop, pointing at `UE4Editor.exe`.
 
-Full detail in the [Debloat Guide](Debloat-Guide.md).
+<note>
+<p>
+The standalone <code>LocalBuilds\RegistryAdd.bat</code> and <code>RegistryRemove.bat</code> still use the
+older name <code>UEViteFork</code>. A project's engine association must match the registered name exactly,
+so register a given engine through one route only. The scripts that ViteSetup writes into a binary package
+use <code>UE_ViteFork</code>.
+</p>
+</note>
 
 ## Menu mode
 
@@ -113,28 +148,32 @@ Full detail in the [Debloat Guide](Debloat-Guide.md).
 
 | Option | Action |
 |---|---|
-| 1 | Check the environment |
+| 1 | Check the environment and toolchain |
 | 2 | Set up dependencies (assistant) |
 | 3 | Generate Visual Studio files |
 | 4 | Build Unreal Engine source |
-| 5 | Setup, then generate Visual Studio files |
+| 5 | Set up dependencies, then generate Visual Studio files |
 | 6 | Open `UE4.sln` |
 | 7 | Show setup profiles |
-| 8 | Build installed binary |
-| 9 | Debloat engine (assistant) |
+| 8 | Build precompiled binary (not recommended) |
+| 9 | Strip the engine down (picker) |
 | 0 | Exit |
 
 Menu mode is what you want for day-to-day work. Regenerating project files after adding a module, or
-rebuilding after a pull, does not need the whole nine-step flow.
+rebuilding after a pull, does not need the whole guided flow.
+
+`ViteSetup.bat --sync-only` runs only the dependency sync, non-interactively, with any remaining arguments
+passed through to `Setup.bat`. Use it on build machines.
 
 ## Key paths
 
-| Variable | Path |
+| Item | Path |
 |---|---|
 | Editor executable | `Engine\Binaries\Win64\UE4Editor.exe` |
 | Installed build staging | `LocalBuilds\Engine\Windows` |
-| Installed build archive | `LocalBuilds\Engine\UE_ViteFork.7z` |
-| Source cache | `UE4_Source_Cache` |
+| Installed build archive | `LocalBuilds\Engine\UE_ViteFork.rar` (or `.7z` with 7-Zip) |
+| Dependency cache | `UE4_Source_Cache` |
+| Strip recovery folder | `..\ViteDebloat_Moved` |
 | Engine association | `UE_ViteFork` |
 
 ## See also

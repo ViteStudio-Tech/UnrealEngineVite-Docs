@@ -2,7 +2,8 @@
 
 <tldr>
 <p>
-Extract <code>UE_ViteFork.7z</code>, run <code>RegistryAdd.bat</code> to register the engine, run
+Extract the build archive (<code>UE_ViteFork.rar</code>, or <code>UE_ViteFork.7z</code> when it was packed
+with 7-Zip), run <code>RegistryAdd.bat</code> to register the engine, run
 <code>MakeShortcut.bat</code> for a desktop launcher, then set
 <code>"EngineAssociation": "UE_ViteFork"</code> in your <code>.uproject</code>.
 </p>
@@ -23,7 +24,7 @@ A packaged Vite build extracts to a folder containing:
 |---|---|
 | `Engine\` | The engine itself, including `Engine\Binaries\Win64\UE4Editor.exe` |
 | `MakeShortcut.bat` | Creates `UEViteFork.lnk` pointing at the editor executable |
-| `RegistryAdd.bat` | Registers the folder as the `UEViteFork` engine association |
+| `RegistryAdd.bat` | Registers the folder as the `UE_ViteFork` engine association |
 | `RegistryRemove.bat` | Removes that registration |
 | `Templates\` | Project templates, if the build was packaged with them |
 | `FeaturePacks\` | Feature packs, if the build was packaged with them |
@@ -37,7 +38,7 @@ it over the same folder if you need those plugins.
 
 <procedure title="Install and register an installed build" id="install-binary">
     <step>
-        Extract <code>UE_ViteFork.7z</code> to a path with no spaces or non-ASCII characters, for example
+        Extract the archive to a path with no spaces or non-ASCII characters, for example
         <code>D:\Engines\UE_ViteFork</code>. Avoid <code>Program Files</code>; the editor writes to its own
         directory and the permission prompts are not worth it.
     </step>

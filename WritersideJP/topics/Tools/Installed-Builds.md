@@ -1,18 +1,18 @@
-# Installed Builds
+# インストール済みビルド
 
 <tldr>
 <p>
-An installed build is a precompiled, redistributable engine that works like an Epic Games Launcher install.
-<code>RunUAT.bat</code> produces one; the <code>LocalBuilds\</code> scripts package and register it.
+インストール済みビルドは、Epic Games Launcher でインストールしたものと同じように動作する、ビルド済みで再配布可能な
+エンジンです。<code>RunUAT.bat</code> で作成し、<code>LocalBuilds\</code> のスクリプトでパッケージ化して登録します。
 </p>
 </tldr>
 
-A source build requires a full toolchain, a long compile and a lot of disk. An installed build does not:
-artists, designers and anyone who does not modify engine C++ can use one directly.
+ソースビルドには、完全なツールチェーン、長いコンパイル、大量のディスク容量が必要です。インストール済みビルドには
+必要ありません。アーティスト、デザイナー、エンジンの C++ を変更しない人は誰でも、そのまま使えます。
 
-## Building
+## ビルド
 
-`RunUAT.bat` at the engine root drives the BuildGraph installed-build target:
+エンジンのルートにある `RunUAT.bat` が、BuildGraph のインストール済みビルドのターゲットを実行します。
 
 ```
 Engine\Build\BatchFiles\RunUAT.bat BuildGraph
@@ -32,117 +32,132 @@ Engine\Build\BatchFiles\RunUAT.bat BuildGraph
     -clean
 ```
 
-The configuration is Win64-only with Development and Shipping game configurations, matching Vite's
-[platform focus](Platforms.md). `WithDDC=false` skips derived data cache generation, which shortens the
-build considerably at the cost of first-launch shader compilation for the end user.
+構成は Win64 のみで、ゲームの構成は Development と Shipping です。これは Vite の
+[プラットフォームの方針](Platforms.md) に合わせたものです。`WithDDC=false` は Derived Data Cache の生成を省略するため、
+ビルドが大幅に短くなりますが、その代わりにエンドユーザーの初回起動時にシェーダーのコンパイルが発生します。
 
-You can also reach this through [ViteSetup](ViteSetup.md) &mdash; step 4, binary option, or menu option 8.
-The ViteSetup path is incremental; `RunUAT.bat` as shipped passes `-clean`.
+[ViteSetup](ViteSetup.md) から実行することもできます（ステップ 2 のオプション 3、またはメニューのオプション 8）。
+ViteSetup の経路はインクリメンタルで、チェックを入れれば Linux を追加し、結果のパッケージ化まで行います。同梱の
+`RunUAT.bat` は `-clean` を渡し、パッケージ化は下記のスクリプトに任せます。
 
 <note>
-This is a long build. Budget hours, not minutes, and considerable free disk space. Both the intermediate
-and final outputs are large.
+<p>
+ViteSetup は、ビルド済みの経路を推奨しないものとして示しています。ソースビルドはデバッグ、パッチの適用、再ビルドが
+でき、そこから作るバイナリより短い時間で作成できます。インストール済みビルドは、エンジンを一切コンパイルしない人が
+必要とする場合に使い、ソースビルドと同じコミットから作成してください。
+</p>
 </note>
 
-Output lands in `LocalBuilds\Engine\Windows`.
+<note>
+これは長いビルドです。数分ではなく数時間を見込み、十分な空きディスク容量を用意してください。中間出力と最終出力の
+どちらも大きくなります。
+</note>
 
-## Packaging
+出力は `LocalBuilds\Engine\Windows` に置かれます。
 
-Four scripts in `LocalBuilds\` compress the staged build with 7-Zip. All expect
-`LocalBuilds\Engine\Windows` to contain the staged build, and all look for 7-Zip at
-`C:\Program Files\7-Zip\7z.exe` unless the `SEVEN_ZIP` environment variable points elsewhere.
+## パッケージ化
 
-| Script | Debug symbols | Plugins |
+ViteSetup は、自身でビルドしたバイナリのパッケージ化も行います。WinRAR がインストールされていれば
+`LocalBuilds\Engine\UE_ViteFork.rar` を作成し、なければ WinRAR の試用版のダウンロードを提案し、それもなければ 7-Zip で
+`UE_ViteFork.7z` を作成します。パッケージのルートには、`UE_ViteFork` の関連付け用に書かれた `RegistryAdd.bat`、
+`RegistryRemove.bat`、`MakeShortcut.bat` が含まれます。
+
+`RunUAT.bat` で作成したビルドの場合は、`LocalBuilds\` にある 4 つのスクリプトが、ステージングしたビルドを 7-Zip で
+圧縮します。どれも `LocalBuilds\Engine\Windows` にステージングしたビルドがあることを前提とし、環境変数 `SEVEN_ZIP` で
+別の場所を指定しない限り、7-Zip を `C:\Program Files\7-Zip\7z.exe` から探します。
+
+| スクリプト | デバッグシンボル | プラグイン |
 |---|---|---|
-| `CompressBuild.bat` | Excluded per `ExcludedPdbs.txt` | Single archive |
-| `CompressBuildSeparate.bat` | Excluded per `ExcludedPdbs.txt` | Split into a second archive |
-| `CompressBuildSymbols.bat` | Excluded per `ExcludedPdbs.txt` | Single archive |
-| `CompressBuildSymbolsSeparate.bat` | **Included** | Split into a second archive |
+| `CompressBuild.bat` | `ExcludedPdbs.txt` に従って除外 | 1 つのアーカイブ |
+| `CompressBuildSeparate.bat` | `ExcludedPdbs.txt` に従って除外 | 2 つ目のアーカイブに分割 |
+| `CompressBuildSymbols.bat` | `ExcludedPdbs.txt` に従って除外 | 1 つのアーカイブ |
+| `CompressBuildSymbolsSeparate.bat` | **含める** | 2 つ目のアーカイブに分割 |
 
 <note>
-<code>CompressBuildSymbols.bat</code> is currently identical to <code>CompressBuild.bat</code> &mdash; both
-exclude PDBs. If you need symbols in the archive, use
-<code>CompressBuildSymbolsSeparate.bat</code>, which is the only script that does not pass
-<code>-x@ExcludedPdbs.txt</code>.
+<code>CompressBuildSymbols.bat</code> は現在 <code>CompressBuild.bat</code> と同一で、どちらも PDB を除外します。
+アーカイブにシンボルが必要な場合は、<code>-x@ExcludedPdbs.txt</code> を渡さない唯一のスクリプトである
+<code>CompressBuildSymbolsSeparate.bat</code> を使ってください。
 </note>
 
-All four exclude `FeaturePacks\`, `Samples\` and `Templates\` from the main archive.
+4 つとも、メインのアーカイブから `FeaturePacks\`、`Samples\`、`Templates\` を除外します。
 
-Outputs:
+出力:
 
-| File | Contents |
+| ファイル | 内容 |
 |---|---|
-| `LocalBuilds\Engine\UE_ViteFork.7z` | The engine |
-| `LocalBuilds\Engine\ExcludedPlugins.7z` | Plugins, in the `Separate` variants only |
+| `LocalBuilds\Engine\UE_ViteFork.7z` | エンジン |
+| `LocalBuilds\Engine\ExcludedPlugins.7z` | プラグイン（`Separate` の版のみ） |
 
-### The exclusion lists
+### 除外リスト
 
-`ExcludedPdbs.txt` lists roughly 1,100 PDB paths covering the engine modules and plugins. Debug symbols are
-a very large fraction of a source build's size, so excluding them is the single biggest packaging saving.
+`ExcludedPdbs.txt` には、エンジンのモジュールとプラグインに対応する約 1,100 の PDB のパスが並んでいます。デバッグ
+シンボルはソースビルドのサイズの非常に大きな割合を占めるため、それを除外することがパッケージ化で最も大きな節約に
+なります。
 
-`ExcludedPlugins.txt` is the same list used by the [debloat suite](Debloat-Guide.md). In the `Separate`
-variants it splits plugins into their own archive rather than removing them &mdash; users extract the base
-engine and add the plugin archive only if they need it.
+`ExcludedPlugins.txt` は、[デブロートのスイート](Debloat-Guide.md) が使うものと同じ一覧です。`Separate` の版では、
+プラグインを取り除くのではなく別のアーカイブに分割します。ユーザーは基本のエンジンを展開し、必要な場合にだけ
+プラグインのアーカイブを追加します。
 
-### Why split plugins
+### プラグインを分割する理由
 
-A team where most people need the base engine and only a few need the full plugin set can distribute a much
-smaller primary download. The split is by archive, not by deletion, so nothing is lost.
+ほとんどの人が基本のエンジンだけを必要とし、一部の人だけがプラグイン一式を必要とするチームでは、最初にダウンロード
+するものをずっと小さくできます。分割はアーカイブ単位であって削除ではないため、何も失われません。
 
-## Installing on a target machine
+## 対象のマシンにインストールする
 
-<procedure title="Install a packaged Vite build" id="install-binary">
-    <step>Extract <code>UE_ViteFork.7z</code> to its final location. Moving it later requires re-registering.</step>
-    <step>If you were given <code>ExcludedPlugins.7z</code> and need those plugins, extract it over the same folder.</step>
+<procedure title="パッケージ化した Vite のビルドをインストールする" id="install-binary">
+    <step><code>UE_ViteFork.rar</code> または <code>UE_ViteFork.7z</code> を最終的な場所に展開します。後で移動すると再登録が必要になります。</step>
+    <step><code>ExcludedPlugins.7z</code> を受け取っていて、そのプラグインが必要な場合は、同じフォルダーに上書きで展開します。</step>
     <step>
-        Run <code>RegistryAdd.bat</code> from the extracted root. This writes the engine path to
-        <code>HKCU\Software\Epic Games\Unreal Engine\Builds</code> under the name <code>UEViteFork</code>.
+        展開したルートから <code>RegistryAdd.bat</code> を実行します。これはエンジンのパスを
+        <code>HKCU\Software\Epic Games\Unreal Engine\Builds</code> に、ViteSetup のパッケージなら <code>UE_ViteFork</code>、
+        単体の <code>LocalBuilds\</code> のスクリプトなら <code>UEViteFork</code> という名前で書き込みます。
     </step>
-    <step>Run <code>MakeShortcut.bat</code> to create <code>UEViteFork.lnk</code> pointing at the editor.</step>
+    <step><code>MakeShortcut.bat</code> を実行して、エディタを指す <code>UEViteFork.lnk</code> を作成します。</step>
     <step>
-        Right-click a <code>.uproject</code>, choose <b>Switch Unreal Engine version</b>, and select
-        <b>UEViteFork</b>.
+        <code>.uproject</code> を右クリックして <b>Switch Unreal Engine version</b> を選び、登録した名前を選択します。
     </step>
 </procedure>
 
-The packaged archive root contains `MakeShortcut.bat`, `RegistryAdd.bat` and `RegistryRemove.bat` alongside
-`Engine\`, plus `FeaturePacks\`, `Templates\` and `Samples\` if they were included at build time.
+パッケージのアーカイブのルートには、`Engine\` と並んで `MakeShortcut.bat`、`RegistryAdd.bat`、`RegistryRemove.bat` が
+含まれます。ビルド時に含めた場合は、`FeaturePacks\`、`Templates\`、`Samples\` も含まれます。
 
-## Moving or removing
+## 移動と削除
 
-Registration stores an absolute path, so moving the build breaks it.
+登録には絶対パスが保存されるため、ビルドを移動すると登録が壊れます。
 
-<procedure title="Move an installed build" id="move-binary">
-    <step>Run <code>RegistryRemove.bat</code> from the current location.</step>
-    <step>Move the folder.</step>
-    <step>Run <code>RegistryAdd.bat</code> from the new location.</step>
-    <step>Run <code>MakeShortcut.bat</code> again; the old shortcut points at the old path.</step>
+<procedure title="インストール済みビルドを移動する" id="move-binary">
+    <step>現在の場所から <code>RegistryRemove.bat</code> を実行します。</step>
+    <step>フォルダーを移動します。</step>
+    <step>新しい場所から <code>RegistryAdd.bat</code> を実行します。</step>
+    <step>古いショートカットは古いパスを指しているので、<code>MakeShortcut.bat</code> をもう一度実行します。</step>
 </procedure>
 
-To remove entirely, run `RegistryRemove.bat`, delete the shortcut, and delete the folder.
+完全に削除するには、`RegistryRemove.bat` を実行し、ショートカットとフォルダーを削除します。
 
-## Running alongside a source build
+## ソースビルドと併用する
 
-Both can coexist, but they register under the same `UEViteFork` name, so only one is registered at a time.
-Whichever ran `RegistryAdd.bat` most recently is the one projects will find.
+両方を共存させることはできますが、ViteSetup とそのパッケージは同じ `UE_ViteFork` という名前で登録するため、一度に
+登録できるのは 1 つだけです。最後に登録したほうがプロジェクトから見つかります。単体の `LocalBuilds\RegistryAdd.bat` は
+古い名前 `UEViteFork` を使います。プロジェクトのエンジン関連付けは登録名と完全に一致する必要があるため、1 つのエンジンに
+2 つの経路を混在させないでください。
 
-If you regularly switch, note which is currently registered, or edit the registry key manually to give them
-distinct names.
+頻繁に切り替える場合は、どちらが現在登録されているかを控えておくか、レジストリキーを手作業で編集して別々の名前を
+付けてください。
 
-## Limitations
+## 制限事項
 
-Installed builds cannot compile engine C++. Projects using them can still have their own C++ modules, which
-compile against the installed engine's headers and libraries, but engine source changes require a source
-build.
+インストール済みビルドではエンジンの C++ をコンパイルできません。それを使うプロジェクトも独自の C++ モジュールを持つことは
+でき、インストール済みエンジンのヘッダーとライブラリに対してコンパイルされますが、エンジンのソースの変更には
+ソースビルドが必要です。
 
-This includes [compile-time switches](Compile-Time-Switches.md). If your project needs
-`VITE_RT_PSO_DEBLOAT=0` for path tracing or RTXDI, that has to be baked into the installed build at the
-time it is produced.
+これには [コンパイル時スイッチ](Compile-Time-Switches.md) も含まれます。プロジェクトでパストレーシングや RTXDI のために
+`VITE_RT_PSO_DEBLOAT=0` が必要な場合は、インストール済みビルドを作成する時点でそれを組み込んでおく必要があります。
 
-## See also
+## 関連項目
 
-- [ViteSetup Assistant](ViteSetup.md)
-- [Install a Binary Build](Install-Binary-Build.md)
-- [Build from Source](Build-From-Source.md)
-- [Debloat Guide](Debloat-Guide.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
+- [ViteSetup](ViteSetup.md)
+- [バイナリビルドのインストール](Install-Binary-Build.md)
+- [ソースからのビルド](Build-From-Source.md)
+- [デブロートガイド](Debloat-Guide.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)

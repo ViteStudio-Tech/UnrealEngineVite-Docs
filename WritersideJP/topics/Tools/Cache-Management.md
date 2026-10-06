@@ -1,121 +1,120 @@
-# Cache Management
+# キャッシュ管理
 
 <tldr>
 <p>
-<code>WipeShaderCache.bat</code> at the engine root deletes the engine's derived data cache, intermediate
-shaders and shader debug info. Reach for it when the editor's behaviour stops matching your source
-changes.
+エンジンのルートにある <code>WipeShaderCache.bat</code> は、エンジンの Derived Data Cache、中間シェーダー、シェーダーの
+デバッグ情報を削除します。エディタの挙動がソースの変更と一致しなくなったときに使ってください。
 </p>
 </tldr>
 
-Unreal caches aggressively. That is what makes iteration bearable, but it also means a stale cache can make
-a correct change appear not to work &mdash; or an incorrect one appear to.
+Unreal は積極的にキャッシュします。それが反復作業を耐えられるものにしていますが、同時に、古いキャッシュによって正しい
+変更が効いていないように見えたり、間違った変更が効いているように見えたりすることもあります。
 
-## What the script clears
+## スクリプトが消去するもの
 
-`WipeShaderCache.bat` deletes three directories relative to the engine root:
+`WipeShaderCache.bat` は、エンジンのルートを基準とした 3 つのディレクトリを削除します。
 
-| Directory | Contents |
+| ディレクトリ | 内容 |
 |---|---|
-| `Engine\DerivedDataCache` | Compiled shaders, cooked textures, built meshes and every other derived artefact |
-| `Engine\Intermediate\Shaders` | Intermediate shader compilation output |
-| `Engine\Saved\ShaderDebugInfo` | Shader debug symbols and preprocessed source dumps |
+| `Engine\DerivedDataCache` | コンパイル済みのシェーダー、クックしたテクスチャ、ビルドしたメッシュなど、あらゆる派生データ |
+| `Engine\Intermediate\Shaders` | シェーダーのコンパイルの中間出力 |
+| `Engine\Saved\ShaderDebugInfo` | シェーダーのデバッグシンボルと、プリプロセス済みのソースのダンプ |
 
-It reports each directory as deleted, not found, or failed. A failure almost always means something still
-holds a file handle.
+各ディレクトリについて、削除した、見つからない、失敗した、のいずれかを報告します。失敗はほぼ必ず、まだ何かがファイル
+ハンドルを保持していることを意味します。
 
 <warning>
-Close the editor and all <code>ShaderCompileWorker.exe</code> processes before running the script. Shader
-compile workers can outlive the editor; check Task Manager if a deletion fails.
+スクリプトを実行する前に、エディタとすべての <code>ShaderCompileWorker.exe</code> のプロセスを終了してください。
+シェーダーのコンパイルのワーカーはエディタより長く残ることがあります。削除に失敗した場合はタスクマネージャーを確認して
+ください。
 </warning>
 
-After wiping, the next editor launch recompiles everything it needs. On a large project this can be tens of
-minutes or more. Do not do it casually.
+消去した後、次にエディタを起動すると必要なものがすべて再コンパイルされます。大きなプロジェクトでは数十分以上かかる
+こともあります。気軽に行わないでください。
 
-## When to wipe
+## 消去すべきとき
 
 <deflist>
-<def title="You changed a .usf or .ush file and nothing happened">
-Shader source changes are usually picked up, but engine-level global shader changes sometimes are not.
-Try <code>recompileshaders global</code> or <code>recompileshaders changed</code> in the console first
-&mdash; it is far faster than a full wipe.
+<def title=".usf や .ush のファイルを変更したのに何も起きない">
+シェーダーのソースの変更は通常反映されますが、エンジンレベルのグローバルシェーダーの変更は反映されないことがあります。
+まずコンソールで <code>recompileshaders global</code> か <code>recompileshaders changed</code> を試してください。
+完全な消去よりはるかに速く済みます。
 </def>
-<def title="You changed a compile-time switch">
-Changing <a href="Compile-Time-Switches.md">VITE_RT_PSO_DEBLOAT</a>, <code>VITE_O_SSAO</code> or any other
-<code>VITE_*</code> switch changes which shader permutations exist. The engine rebuild handles the C++,
-but cached shaders from the old configuration can linger. Wipe after switching.
+<def title="コンパイル時スイッチを変更した">
+<a href="Compile-Time-Switches.md">VITE_RT_PSO_DEBLOAT</a>、<code>VITE_O_SSAO</code> など、<code>VITE_*</code> の
+スイッチを変更すると、存在するシェーダーのパーミュテーションが変わります。C++ はエンジンの再ビルドで処理されますが、
+古い構成のキャッシュされたシェーダーが残ることがあります。切り替えた後は消去してください。
 </def>
-<def title="You pulled engine changes that touched the renderer">
-A merge that changes shader code or the shader map keying can leave a cache the engine misreads.
+<def title="レンダラーに関わるエンジンの変更をプルした">
+シェーダーのコードやシェーダーマップのキーを変更するマージによって、エンジンが誤って読み取るキャッシュが残ることが
+あります。
 </def>
-<def title="You are getting shader compilation errors that do not match the source">
-A classic stale-cache symptom: the reported error line does not exist in the file you are looking at.
+<def title="ソースと一致しないシェーダーのコンパイルエラーが出る">
+古いキャッシュの典型的な症状です。報告されたエラーの行が、見ているファイルに存在しません。
 </def>
-<def title="The editor crashes on startup after an engine change">
-Worth trying before deeper investigation, since it is cheap to rule out.
+<def title="エンジンの変更後に起動時にエディタがクラッシュする">
+原因から除外するのが安上がりなので、詳しく調査する前に試す価値があります。
 </def>
 </deflist>
 
-## When not to wipe
+## 消去すべきでないとき
 
-Wiping the DDC is a heavy hammer and is frequently applied to problems it cannot solve.
+DDC の消去は重い手段で、それでは解決できない問題に使われることがよくあります。
 
-- **Project-level problems.** The script clears the *engine* DDC. Your project has its own
-  `DerivedDataCache` folder and its own `Intermediate` and `Saved` directories. Engine-level wiping does
-  not touch them.
-- **Runtime rendering bugs.** If an effect renders wrongly but consistently, that is a code or
-  configuration problem, not a cache problem. Check the
-  [compile-time switch availability table](Ray-Tracing.md) first &mdash; many ray tracing features are
-  compiled out by default and their console variables silently do nothing.
-- **Long shader compile times.** Wiping makes this worse, not better. See
-  [Shader Compilation and PSO](Shader-Compilation-And-PSO.md).
+- **プロジェクトレベルの問題。** このスクリプトが消去するのは *エンジン* の DDC です。プロジェクトには独自の
+  `DerivedDataCache` フォルダーと、独自の `Intermediate` と `Saved` のディレクトリがあります。エンジンレベルの消去は
+  それらに触れません。
+- **実行時の描画の不具合。** エフェクトが一貫して間違って描画されるなら、それはキャッシュではなくコードか設定の問題です。
+  まず [コンパイル時スイッチの利用可否の表](Ray-Tracing.md) を確認してください。多くのレイトレーシングの機能は既定で
+  コンパイル対象から外れており、そのコンソール変数は何も通知せずに何もしません。
+- **シェーダーのコンパイル時間が長い。** 消去すると良くなるどころか悪化します。
+  [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md) を参照してください。
 
-## Lighter-weight alternatives
+## より軽い代替手段
 
-Try these before a full wipe:
+完全な消去の前に、次を試してください。
 
-| Approach | Clears | Cost |
+| 方法 | 消去するもの | コスト |
 |---|---|---|
-| `recompileshaders changed` | Modified shaders only | Seconds |
-| `recompileshaders global` | Global shaders | Under a minute |
-| `recompileshaders material <name>` | One material | Seconds |
-| Delete the project's `Intermediate\` | Project build intermediates | Project rebuild |
-| Delete `Engine\Intermediate\Shaders` only | Intermediate shader output, keeping the DDC | Partial recompile |
+| `recompileshaders changed` | 変更したシェーダーのみ | 数秒 |
+| `recompileshaders global` | グローバルシェーダー | 1 分未満 |
+| `recompileshaders material <name>` | 1 つのマテリアル | 数秒 |
+| プロジェクトの `Intermediate\` を削除 | プロジェクトのビルドの中間ファイル | プロジェクトの再ビルド |
+| `Engine\Intermediate\Shaders` だけを削除 | DDC を残したまま、中間のシェーダー出力を消去 | 部分的な再コンパイル |
 
-The last one is worth knowing: the DDC is the expensive part to rebuild. If you only need to clear
-intermediate shader state, deleting that one directory by hand is much cheaper than running the full
-script.
+最後の方法は知っておく価値があります。再構築に高いコストがかかるのは DDC です。中間のシェーダーの状態だけを消去すれば
+よい場合は、そのディレクトリを手で削除するほうが、スクリプト全体を実行するよりずっと安上がりです。
 
-## Cache locations
+## キャッシュの場所
 
-| Cache | Path | Cleared by the script |
+| キャッシュ | パス | スクリプトで消去されるか |
 |---|---|---|
-| Engine DDC | `Engine\DerivedDataCache` | Yes |
-| Engine intermediate shaders | `Engine\Intermediate\Shaders` | Yes |
-| Shader debug info | `Engine\Saved\ShaderDebugInfo` | Yes |
-| Project DDC | `<Project>\DerivedDataCache` | No |
-| Project intermediates | `<Project>\Intermediate` | No |
-| Shared / network DDC | Per `BaseEngine.ini` DDC configuration | No |
-| Local user DDC | `%LOCALAPPDATA%\UnrealEngine\Common\DerivedDataCache` | No |
+| エンジンの DDC | `Engine\DerivedDataCache` | はい |
+| エンジンの中間シェーダー | `Engine\Intermediate\Shaders` | はい |
+| シェーダーのデバッグ情報 | `Engine\Saved\ShaderDebugInfo` | はい |
+| プロジェクトの DDC | `<Project>\DerivedDataCache` | いいえ |
+| プロジェクトの中間ファイル | `<Project>\Intermediate` | いいえ |
+| 共有／ネットワークの DDC | `BaseEngine.ini` の DDC の設定による | いいえ |
+| ローカルユーザーの DDC | `%LOCALAPPDATA%\UnrealEngine\Common\DerivedDataCache` | いいえ |
 
 <note>
-If your team uses a shared network DDC, wiping locally is usually pointless: the local cache repopulates
-from the share, including whatever stale entries prompted the wipe. Confirm the shared DDC's state before
-concluding your local cache was the problem.
+チームで共有のネットワーク DDC を使っている場合、ローカルで消去してもたいてい意味がありません。ローカルのキャッシュは、
+消去のきっかけになった古いエントリも含めて、共有のものから再び埋められます。ローカルのキャッシュが問題だったと結論づける
+前に、共有の DDC の状態を確認してください。
 </note>
 
-## Disk footprint
+## ディスク容量
 
-The engine DDC grows without bound during development. On a project that exercises many material and
-ray-tracing permutations it can reach tens of gigabytes. Periodically wiping it is a legitimate way to
-reclaim disk space, accepting the recompile cost.
+エンジンの DDC は、開発中に際限なく大きくなります。多くのマテリアルやレイトレーシングのパーミュテーションを使う
+プロジェクトでは、数十 GB に達することもあります。再コンパイルのコストを受け入れたうえで、定期的に消去するのは
+ディスク容量を取り戻す正当な方法です。
 
-If disk space is the actual concern, the [Debloat Guide](Debloat-Guide.md) covers larger and more permanent
-savings.
+ディスク容量が本当の懸念であれば、より大きく恒久的な節約については [デブロートガイド](Debloat-Guide.md) を参照して
+ください。
 
-## See also
+## 関連項目
 
-- [Shader Compilation and PSO](Shader-Compilation-And-PSO.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Build Troubleshooting](Build-Troubleshooting.md)
-- [Debloat Guide](Debloat-Guide.md)
+- [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [ビルドのトラブルシューティング](Build-Troubleshooting.md)
+- [デブロートガイド](Debloat-Guide.md)

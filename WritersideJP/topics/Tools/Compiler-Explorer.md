@@ -2,68 +2,67 @@
 
 <tldr>
 <p>
-<a href="https://gcc.godbolt.org/">Compiler Explorer</a> compiles a self-contained C++ snippet and shows
-the assembly MSVC and Clang emit. Use it to check Clang 22 compliance and codegen. It does
-<b>not</b> measure runtime. For timings use
-<a href="https://quick-bench.com/">Quick Bench</a> (GCC or Clang on Linux). MSVC versus clang-cl still
-has to be timed on your machine.
+<a href="https://gcc.godbolt.org/">Compiler Explorer</a> は、自己完結した C++ のコード片をコンパイルし、MSVC と Clang が
+出力するアセンブリを表示します。Clang 22 への準拠とコード生成の確認に使ってください。実行時間は <b>計測しません</b>。
+計測には <a href="https://quick-bench.com/">Quick Bench</a>（Linux 上の GCC または Clang）を使います。MSVC と clang-cl の
+比較は、今も自分のマシンで計測する必要があります。
 </p>
 </tldr>
 
-Vite requires code that is well-defined under both [MSVC and Clang](Coding-Guidelines.md). Compiler
-Explorer is the fastest way to put the same kernel in front of both compilers without a full engine
-build. It is not a profiler, and it is not a substitute for [stat unit](Profiling.md) on real content.
+Vite は、[MSVC と Clang](Coding-Guidelines.md) の両方で明確に定義されたコードを求めます。Compiler Explorer は、エンジンを
+フルビルドせずに同じカーネルを両方のコンパイラにかける最も早い方法です。プロファイラーではなく、実際のコンテンツでの
+[stat unit](Profiling.md) の代わりにもなりません。
 
-The public instance is [https://gcc.godbolt.org/](https://gcc.godbolt.org/) (also
-[godbolt.org](https://godbolt.org/)). They are the same site.
+公開インスタンスは [https://gcc.godbolt.org/](https://gcc.godbolt.org/)（[godbolt.org](https://godbolt.org/) でも
+同じ）です。どちらも同じサイトです。
 
-## What it is for
+## 用途
 
-| Question | Compiler Explorer |
+| 問い | Compiler Explorer |
 |---|---|
-| Does this snippet compile as C++ under MSVC and Clang 22? | Yes |
-| What assembly do they generate at `/O2` / `-O2`? | Yes |
-| Did Clang vectorise a loop that MSVC left scalar, or the reverse? | Yes |
-| How many nanoseconds does it take on MSVC versus Clang? | **No** |
+| このコード片は MSVC と Clang 22 で C++ としてコンパイルできるか | できる |
+| `/O2` / `-O2` でどんなアセンブリが生成されるか | わかる |
+| MSVC がスカラーのままにしたループを Clang はベクトル化したか、またはその逆か | わかる |
+| MSVC と Clang でそれぞれ何ナノ秒かかるか | **わからない** |
 
-Extract a kernel. Unreal headers, `FORCEINLINE`, `TArray` and the rest of the engine will not resolve on
-the site. Rewrite the hot function in standard C++ so the compilers are looking at the algorithm, not at
-missing includes.
+カーネルを切り出してください。Unreal のヘッダー、`FORCEINLINE`、`TArray` などのエンジンの要素はサイト上では解決
+できません。ホットな関数を標準の C++ に書き直し、コンパイラが見ているのがインクルードの欠落ではなくアルゴリズムである
+ようにしてください。
 
-## Open a session
+## セッションを開く
 
-<procedure title="Compare a snippet on Compiler Explorer" id="open-compiler-explorer">
+<procedure title="Compiler Explorer でコード片を比較する" id="open-compiler-explorer">
     <step>
-        Open <a href="https://gcc.godbolt.org/">https://gcc.godbolt.org/</a>. Set the language dropdown
-        to <b>C++</b>.
+        <a href="https://gcc.godbolt.org/">https://gcc.godbolt.org/</a> を開きます。言語のドロップダウンを
+        <b>C++</b> にします。
     </step>
     <step>
-        Paste a self-contained function. A <code>main</code> is only needed if you later tick
-        <b>Execute the code</b>.
+        自己完結した関数を貼り付けます。<code>main</code> は、後で <b>Execute the code</b> にチェックを入れる場合にだけ
+        必要です。
     </step>
     <step>
-        In the compiler pane, choose the newest <b>x64 msvc</b>. Set the compiler options to
-        <code>/O2 /std:c++17</code>.
+        コンパイラのペインで最新の <b>x64 msvc</b> を選びます。コンパイラのオプションを
+        <code>/O2 /std:c++17</code> にします。
     </step>
     <step>
-        Use <b>Add new&hellip;</b> &rarr; <b>Compiler</b> and add <b>clang-cl</b> 22 (or
-        <b>x86-64 clang</b> 22). For clang-cl use the same MSVC-style flags
-        (<code>/O2 /std:c++17</code>). For Linux clang use <code>-O2 -std=c++17</code>.
+        <b>Add new&hellip;</b> &rarr; <b>Compiler</b> で <b>clang-cl</b> 22（または <b>x86-64 clang</b> 22）を追加します。
+        clang-cl では同じ MSVC 形式のフラグ（<code>/O2 /std:c++17</code>）を、Linux の clang では
+        <code>-O2 -std=c++17</code> を使います。
     </step>
     <step>
-        Enable <b>Intel asm syntax</b> on the Clang pane so both sides use Intel mnemonics. MSVC already
-        does. Filter <b>Unused labels</b> and <b>Directives</b> so the noise drops out.
+        Clang のペインで <b>Intel asm syntax</b> を有効にし、両方で Intel の表記を使うようにします。MSVC は最初から
+        そうなっています。<b>Unused labels</b> と <b>Directives</b> を除外して、ノイズを取り除きます。
     </step>
     <step>
-        Share the session with the URL in the address bar once both panes have compiled. That link is the
-        artefact to paste into a review, not a screenshot of one compiler.
+        両方のペインがコンパイルできたら、アドレスバーの URL でセッションを共有します。レビューに貼るべきなのはその
+        リンクであり、片方のコンパイラのスクリーンショットではありません。
     </step>
 </procedure>
 
-clang-cl is the closer match to Vite's Windows Clang. Linux `x86-64 clang` is still useful for
-standard-conformance, but it is not the ABI or object format Unreal Build Tool uses on Windows.
+Vite の Windows の Clang により近いのは clang-cl です。Linux の `x86-64 clang` も標準への準拠の確認には役立ちますが、
+Unreal Build Tool が Windows で使う ABI やオブジェクト形式ではありません。
 
-A snippet small enough to paste:
+貼り付けられる程度の小さなコード片の例:
 
 ```c++
 float clampf(float x, float lo, float hi) {
@@ -72,104 +71,101 @@ float clampf(float x, float lo, float hi) {
 }
 ```
 
-If the function is not used, some compilers will emit nothing. Call it from another function in the same
-editor, or compile with `/O2` while keeping the symbol live (a second function that returns
-`clampf(x, 0.f, 1.f)` is enough).
+関数が使われていないと、コンパイラによっては何も出力しません。同じエディタ内の別の関数から呼ぶか、シンボルを生かした
+まま `/O2` でコンパイルしてください（`clampf(x, 0.f, 1.f)` を返す 2 つ目の関数があれば十分です）。
 
-## Matching flags
+## フラグをそろえる
 
-Compare like with like. A Release MSVC pane against an unoptimised Clang pane is not a compiler
-comparison.
+同じ条件で比較してください。Release の MSVC のペインと最適化なしの Clang のペインを比べても、コンパイラの比較には
+なりません。
 
-| | MSVC / clang-cl | Linux clang / GCC |
+| | MSVC / clang-cl | Linux の clang / GCC |
 |---|---|---|
-| Optimise | `/O2` | `-O2` |
-| Language | `/std:c++17` | `-std=c++17` |
-| Fast math / FMA (optional) | `/fp:fast` | `-ffast-math` or `-ffp-contract=on` |
+| 最適化 | `/O2` | `-O2` |
+| 言語 | `/std:c++17` | `-std=c++17` |
+| 高速な浮動小数点 / FMA（任意） | `/fp:fast` | `-ffast-math` または `-ffp-contract=on` |
 
-`/O2` on MSVC is the usual Release setting. `-O3` on Clang is more aggressive than that; if you use it,
-say so in the shared link. For FPU-bound kernels that Vite cares about on
-[PS5-class Zen 2](PS5-CPU-FPU.md), `/fp:fast` versus contracted FMA is often the difference that shows
-up in the assembly, not the C++ source.
+MSVC の `/O2` は通常の Release の設定です。Clang の `-O3` はそれより積極的です。使う場合は、共有するリンクでそのことを
+明記してください。Vite が [PS5 クラスの Zen 2](PS5-CPU-FPU.md) で重視する FPU に依存するカーネルでは、アセンブリに
+現れる違いは C++ のソースではなく、`/fp:fast` と縮約された FMA の違いであることがよくあります。
 
-## What the assembly is telling you
+## アセンブリから読み取ること
 
-Look for differences in control flow, spills and vectorisation, not line count.
+行数ではなく、制御フロー、スピル、ベクトル化の違いを見てください。
 
-- A shorter listing is not a faster function. MSVC and Clang format assembly differently.
-- `cmov` / `blend` versus a branch is a real codegen difference. Whether it is faster depends on how
-  predictable the branch is on the target CPU.
-- Auto-vectorisation (`movaps`, `vfmadd`, `ymm`) on one compiler and a scalar loop on the other is the
-  kind of result worth taking back to the engine.
-- Compile time shown in the pane is how long Godbolt's machine took to compile the snippet. It is not
-  engine build time and it is not runtime.
+- 一覧が短いからといって、関数が速いわけではありません。MSVC と Clang はアセンブリの書式が異なります。
+- `cmov` / `blend` と分岐の違いは、実際のコード生成の違いです。どちらが速いかは、対象の CPU で分岐がどれだけ予測
+  しやすいかによります。
+- 一方のコンパイラでは自動ベクトル化（`movaps`、`vfmadd`、`ymm`）され、もう一方ではスカラーのループになっている、
+  という結果は、エンジンに持ち帰る価値のあるものです。
+- ペインに表示されるコンパイル時間は、Godbolt のマシンがコード片をコンパイルするのにかかった時間です。エンジンの
+  ビルド時間でも実行時間でもありません。
 
-The **llvm-mca** tool (Add tool on a Clang/LLVM pane) estimates port pressure from the assembly. That is
-static analysis of the listing, not a measurement of the compiled binary running. It also does not run
-against MSVC's object code.
+**llvm-mca** のツール（Clang/LLVM のペインで Add tool）は、アセンブリからポートの負荷を見積もります。これは一覧の静的な
+解析であり、コンパイルしたバイナリを実行した計測ではありません。また、MSVC のオブジェクトコードに対しては実行
+されません。
 
-## Runtime performance: not here
+## 実行時の性能: ここでは測れない
 
 <warning>
-Compiler Explorer does not benchmark MSVC against Clang. <b>Execute the code</b> runs a program for its
-printed output on a shared VM. A <code>chrono</code> loop in that box is not a result: no warmup, no
-statistical framework, noisy neighbours, and often a different OS than Vite ships on.
+Compiler Explorer は MSVC と Clang のベンチマークを行いません。<b>Execute the code</b> は、共有の VM でプログラムを実行して
+その出力を表示するためのものです。その環境での <code>chrono</code> のループは結果とは言えません。ウォームアップも統計的な
+枠組みもなく、他の利用者の影響があり、多くの場合 Vite が出荷する OS とも異なります。
 </warning>
 
-Use Compiler Explorer to decide *what* to time. Time it somewhere that actually runs the binary.
+Compiler Explorer は、*何を* 計測するかを決めるために使ってください。計測は、実際にバイナリを実行する場所で行います。
 
 ## Quick Bench
 
-[Quick Bench](https://quick-bench.com/) is the site for that when the compilers are GCC or Clang on
-Linux. It wraps [Google Benchmark](https://github.com/google/benchmark), runs the registered functions
-repeatedly, and charts CPU time relative to a no-op baseline.
+コンパイラが Linux 上の GCC または Clang の場合、そのためのサイトが [Quick Bench](https://quick-bench.com/) です。
+[Google Benchmark](https://github.com/google/benchmark) を包み、登録した関数を繰り返し実行して、何もしない基準に対する
+CPU 時間をグラフにします。
 
-<procedure title="Time a kernel on Quick Bench" id="run-quick-bench">
-    <step>Open <a href="https://quick-bench.com/">https://quick-bench.com/</a>.</step>
+<procedure title="Quick Bench でカーネルを計測する" id="run-quick-bench">
+    <step><a href="https://quick-bench.com/">https://quick-bench.com/</a> を開きます。</step>
     <step>
-        Put each variant in its own <code>BENCHMARK</code> function. Keep setup outside the timed loop,
-        and use <code>benchmark::DoNotOptimize</code> so the compiler cannot delete the work.
+        それぞれの版を個別の <code>BENCHMARK</code> 関数に入れます。準備は計測するループの外に置き、
+        <code>benchmark::DoNotOptimize</code> を使ってコンパイラが処理を削除できないようにします。
     </step>
     <step>
-        Set <b>compiler</b> to a current Clang or GCC, <b>std</b> to C++17, <b>optim</b> to <code>O3</code>
-        (or <code>O2</code> if you are matching Vite flags).
+        <b>compiler</b> を最新の Clang か GCC に、<b>std</b> を C++17 に、<b>optim</b> を <code>O3</code>（Vite のフラグに
+        合わせる場合は <code>O2</code>）にします。
     </step>
-    <step>Run Benchmark. The chart compares the functions you registered under <b>that one compiler</b>.</step>
+    <step>Run Benchmark を実行します。グラフは、<b>その 1 つのコンパイラ</b> で登録した関数どうしを比較します。</step>
     <step>
-        To compare GCC against Clang, change the compiler dropdown and run again. Quick Bench does not
-        put two compilers on one chart.
+        GCC と Clang を比べるには、コンパイラのドロップダウンを変えてもう一度実行します。Quick Bench は 2 つの
+        コンパイラを 1 つのグラフに並べません。
     </step>
 </procedure>
 
-Godbolt's own UI links out to Quick Bench (the **Quick-bench** control next to CppInsights). That
-handoff is for the same snippet in Google Benchmark form; it does not add MSVC.
+Godbolt の UI 自体にも Quick Bench へのリンクがあります（CppInsights の隣の **Quick-bench** の操作）。これは同じコード片を
+Google Benchmark の形式で渡すためのもので、MSVC が加わるわけではありません。
 
 <note>
-Quick Bench has no MSVC. It runs GCC and Clang on Linux with libstdc++ or libc++. A Clang-beats-GCC
-chart is not an MSVC-versus-clang-cl chart, and it is not a PS5 or Windows result. See
-<a href="Performance-Targets.md">Performance Targets</a>.
+Quick Bench には MSVC がありません。libstdc++ または libc++ を使って、Linux 上で GCC と Clang を実行します。Clang が GCC に
+勝つグラフは MSVC と clang-cl の比較ではなく、PS5 や Windows の結果でもありません。
+<a href="Performance-Targets.md">パフォーマンス目標</a> を参照してください。
 </note>
 
-## MSVC versus clang-cl on your machine
+## 自分のマシンでの MSVC と clang-cl の比較
 
-That is the comparison Vite actually ships. Neither Godbolt nor Quick Bench will produce it.
+これこそ Vite が実際に出荷するものの比較です。Godbolt も Quick Bench もこれは出せません。
 
-1. Isolate the kernel in a small Google Benchmark (or a dedicated test binary) that both toolchains
-   can compile.
-2. Build it twice: MSVC 14.50 Release, and clang-cl 22 Release, with matching `/O2` and floating-point
-   flags.
-3. Run both binaries on the same machine, pinned, with other work idle. For FPU-bound PhysX-style
-   kernels, prefer the [4700S / PS5-class FPU](PS5-CPU-FPU.md) over a desktop Zen 2.
-4. Treat engine-level questions as [profiling](Profiling.md) problems (`stat unit`, Unreal Insights),
-   not as microbenchmarks of a ten-line snippet.
+1. 両方のツールチェーンでコンパイルできる、小さな Google Benchmark（または専用のテスト用バイナリ）にカーネルを
+   切り出します。
+2. それを 2 回ビルドします。MSVC 14.50 の Release と clang-cl 22 の Release で、`/O2` と浮動小数点のフラグをそろえます。
+3. 他の処理を止め、コアを固定して、同じマシンで両方のバイナリを実行します。PhysX のような FPU に依存するカーネルでは、
+   デスクトップの Zen 2 より [4700S / PS5 クラスの FPU](PS5-CPU-FPU.md) を優先してください。
+4. エンジンレベルの問いは、10 行のコード片のマイクロベンチマークとしてではなく、[プロファイリング](Profiling.md) の
+   問題（`stat unit`、Unreal Insights）として扱ってください。
 
-A codegen win on Godbolt that does not show up in a frame capture is not a win you should ship on.
+Godbolt でのコード生成の改善がフレームのキャプチャに現れないなら、それは出荷の根拠にすべき改善ではありません。
 
-## See also
+## 関連項目
 
-- [Coding Guidelines](Coding-Guidelines.md)
-- [Toolchain Requirements](Toolchain-Requirements.md)
-- [Profiling](Profiling.md)
-- [PS5 CPU FPU](PS5-CPU-FPU.md)
-- [Performance Targets](Performance-Targets.md)
-- [Contributing](Contributing.md)
+- [コーディングガイドライン](Coding-Guidelines.md)
+- [ツールチェーン要件](Toolchain-Requirements.md)
+- [プロファイリング](Profiling.md)
+- [PS5 CPU の FPU](PS5-CPU-FPU.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [コントリビュート](Contributing.md)

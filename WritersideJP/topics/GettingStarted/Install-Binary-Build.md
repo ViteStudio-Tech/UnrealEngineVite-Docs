@@ -2,7 +2,7 @@
 
 <tldr>
 <p>
-<code>UE_ViteFork.7z</code> を展開し、<code>RegistryAdd.bat</code> でエンジンを登録し、
+ビルドのアーカイブ（<code>UE_ViteFork.rar</code>、7-Zip で圧縮した場合は <code>UE_ViteFork.7z</code>）を展開し、<code>RegistryAdd.bat</code> でエンジンを登録し、
 <code>MakeShortcut.bat</code> でデスクトップ用のランチャーを作成してから、<code>.uproject</code> に
 <code>"EngineAssociation": "UE_ViteFork"</code> を設定します。
 </p>
@@ -23,7 +23,7 @@
 |---|---|
 | `Engine\` | エンジン本体（`Engine\Binaries\Win64\UE4Editor.exe` を含む） |
 | `MakeShortcut.bat` | エディタの実行ファイルを指す `UEViteFork.lnk` を作成 |
-| `RegistryAdd.bat` | フォルダーを `UEViteFork` のエンジン関連付けとして登録 |
+| `RegistryAdd.bat` | フォルダーを `UE_ViteFork` のエンジン関連付けとして登録 |
 | `RegistryRemove.bat` | その登録を削除 |
 | `Templates\` | プロジェクトテンプレート（ビルドに含めた場合） |
 | `FeaturePacks\` | フィーチャーパック（ビルドに含めた場合） |
@@ -37,7 +37,7 @@
 
 <procedure title="インストール済みビルドをインストールして登録する" id="install-binary">
     <step>
-        <code>UE_ViteFork.7z</code> を、スペースや非 ASCII 文字を含まないパス（例:
+        アーカイブを、スペースや非 ASCII 文字を含まないパス（例:
         <code>D:\Engines\UE_ViteFork</code>）に展開します。<code>Program Files</code> は避けてください。
         エディタは自身のディレクトリに書き込むため、権限の確認ダイアログに悩まされます。
     </step>

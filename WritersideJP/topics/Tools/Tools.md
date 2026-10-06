@@ -1,70 +1,72 @@
-# Tools and Automation
+# ツールと自動化
 
 <tldr>
 <p>
-Vite ships batch tooling for the whole engine lifecycle: <code>ViteSetup.bat</code> for setup and building,
-<code>RunUAT.bat</code> for installed builds, the <code>LocalBuilds\</code> scripts for packaging and
-registration, and <code>WipeShaderCache.bat</code> for when caches go stale.
+Vite は、エンジンのライフサイクル全体をカバーするバッチツールを同梱しています。セットアップとビルドには
+<code>ViteSetup.bat</code>、インストール済みビルドには <code>RunUAT.bat</code>、パッケージ化と登録には
+<code>LocalBuilds\</code> のスクリプト、キャッシュが古くなったときには <code>WipeShaderCache.bat</code> を使います。
 </p>
 </tldr>
 
-Building Unreal from source involves a long sequence of steps, each with its own failure modes. Vite wraps
-that sequence in tooling so the common paths do not require remembering the exact command lines.
+Unreal をソースからビルドするには長い一連の手順が必要で、それぞれに固有の失敗のしかたがあります。Vite はその手順を
+ツールで包み、よく使う経路では正確なコマンドラインを覚えておかなくて済むようにしています。
 
-## In this section
+## このセクションの内容
 
-| Topic | Covers |
+| トピック | 内容 |
 |---|---|
-| [ViteSetup Assistant](ViteSetup.md) | The guided setup and build assistant, and its menu mode |
-| [Installed Builds](Installed-Builds.md) | Producing and packaging a redistributable binary engine |
-| [Cache Management](Cache-Management.md) | Wiping shader and DDC caches when things go wrong |
-| [Compiler Explorer](Compiler-Explorer.md) | MSVC vs Clang assembly on Godbolt; timings go to Quick Bench or a local bench |
+| [ViteSetup](ViteSetup.md) | ガイド付きのセットアップとビルドのアシスタント、そのメニューモード |
+| [インストール済みビルド](Installed-Builds.md) | 再配布可能なバイナリのエンジンの作成とパッケージ化 |
+| [キャッシュ管理](Cache-Management.md) | 問題が起きたときのシェーダーと DDC のキャッシュの消去 |
+| [Compiler Explorer](Compiler-Explorer.md) | Godbolt での MSVC と Clang のアセンブリの比較。計測は Quick Bench かローカルのベンチマークで |
 
-## The tools at a glance
+## ツールの一覧
 
-| Tool | Location | Purpose |
+| ツール | 場所 | 用途 |
 |---|---|---|
-| `ViteSetup.bat` | Engine root | Guided nine-step setup, or a menu of individual operations |
-| `RunUAT.bat` | Engine root | Installed engine build via BuildGraph |
-| `WipeShaderCache.bat` | Engine root | Clears engine-level shader and DDC caches |
-| `LocalBuilds\CompressBuild*.bat` | `LocalBuilds\` | Packages a staged installed build into a 7z archive |
-| `LocalBuilds\RegistryAdd.bat` | `LocalBuilds\` | Registers the build as `UEViteFork` |
-| `LocalBuilds\RegistryRemove.bat` | `LocalBuilds\` | Unregisters it |
-| `LocalBuilds\MakeShortcut.bat` | `LocalBuilds\` | Creates `UEViteFork.lnk` |
-| `devops\ueVite-debloat-*.bat` | `devops\` | Engine debloat suite &mdash; see [Debloat Guide](Debloat-Guide.md) |
+| `ViteSetup.bat` | エンジンのルート | Express の経路を備えた 9 ステップのガイド付きセットアップ、または個々の操作のメニュー |
+| `ViteDefaults.bat` | エンジンのルート | オーバーラップとスケルタルメッシュの既定値を Vite と標準の 4.27 の間で切り替える。[エンジンの既定値の変更](Engine-Defaults.md) を参照 |
+| `RunUAT.bat` | エンジンのルート | BuildGraph によるインストール済みエンジンのビルド |
+| `WipeShaderCache.bat` | エンジンのルート | エンジンレベルのシェーダーと DDC のキャッシュを消去 |
+| `LocalBuilds\CompressBuild*.bat` | `LocalBuilds\` | ステージングしたインストール済みビルドを 7z のアーカイブにパッケージ化 |
+| `LocalBuilds\RegistryAdd.bat` | `LocalBuilds\` | ビルドを `UEViteFork` として登録（ViteSetup は `UE_ViteFork` を使用） |
+| `LocalBuilds\RegistryRemove.bat` | `LocalBuilds\` | 登録を解除 |
+| `LocalBuilds\MakeShortcut.bat` | `LocalBuilds\` | `UEViteFork.lnk` を作成 |
+| `devops\ueVite-debloat-*.bat` | `devops\` | エンジンのデブロートのスイート。[デブロートガイド](Debloat-Guide.md) を参照 |
+| `devops\ueVite-ApplyVitePluginDefaults.bat` | `devops\` | Vite のエンジンのプラグインプロファイルを適用または元に戻す。[エンジンの既定値の変更](Engine-Defaults.md#disabled-plugins) を参照 |
 
-## Which one you want
+## 目的別の選び方
 
 <deflist>
-<def title="I just cloned the repository">
-Run <code>ViteSetup.bat</code>. It walks the whole sequence from environment check to a launched editor.
-See <a href="ViteSetup.md">ViteSetup Assistant</a>.
+<def title="リポジトリをクローンしたばかり">
+<code>ViteSetup.bat</code> を実行し、Express の経路を選んでください。環境のチェックからエディタの起動まで、一連の手順を
+すべて案内します。<a href="ViteSetup.md">ViteSetup</a> を参照してください。
 </def>
-<def title="I want a binary engine to hand to artists">
-Run <code>ViteSetup.bat</code> and choose the binary build option at step 4, or drive
-<code>RunUAT.bat</code> and the <code>LocalBuilds\</code> scripts directly. See
-<a href="Installed-Builds.md">Installed Builds</a>.
+<def title="アーティストに渡すバイナリのエンジンが欲しい">
+<code>ViteSetup.bat</code> を実行してステップ 2 でビルド済みバイナリのオプションを選ぶか、<code>RunUAT.bat</code> と
+<code>LocalBuilds\</code> のスクリプトを直接使ってください。<a href="Installed-Builds.md">インストール済みビルド</a>
+を参照してください。
 </def>
-<def title="Shaders are behaving strangely after a change">
-Run <code>WipeShaderCache.bat</code>. See <a href="Cache-Management.md">Cache Management</a>.
+<def title="変更後にシェーダーの挙動がおかしい">
+<code>WipeShaderCache.bat</code> を実行してください。<a href="Cache-Management.md">キャッシュ管理</a> を参照してください。
 </def>
-<def title="The engine is taking too much disk space">
-Run the <code>devops\</code> debloat suite. See <a href="Debloat-Guide.md">Debloat Guide</a>.
+<def title="エンジンがディスクを使いすぎている">
+<code>ViteSetup.bat menu</code> でオプション 9 を選ぶか、<code>devops\</code> のデブロートのスイートを直接実行して
+ください。<a href="Debloat-Guide.md">デブロートガイド</a> を参照してください。
 </def>
-<def title="I only need to regenerate project files">
-<code>ViteSetup.bat menu</code> and choose option 3, or run <code>GenerateProjectFiles.bat</code>
-directly.
+<def title="プロジェクトファイルを再生成したいだけ">
+<code>ViteSetup.bat menu</code> でオプション 3 を選ぶか、<code>GenerateProjectFiles.bat</code> を直接実行してください。
 </def>
-<def title="I want to compare MSVC and Clang codegen">
-Open <a href="https://gcc.godbolt.org/">Compiler Explorer</a>. It shows assembly, not timings. See
-<a href="Compiler-Explorer.md">Compiler Explorer</a>.
+<def title="MSVC と Clang のコード生成を比べたい">
+<a href="https://gcc.godbolt.org/">Compiler Explorer</a> を開いてください。表示されるのはアセンブリであり、実行時間では
+ありません。<a href="Compiler-Explorer.md">Compiler Explorer</a> を参照してください。
 </def>
 </deflist>
 
-## See also
+## 関連項目
 
-- [Build from Source](Build-From-Source.md)
-- [Toolchain Requirements](Toolchain-Requirements.md)
-- [Build Troubleshooting](Build-Troubleshooting.md)
-- [Debloat Guide](Debloat-Guide.md)
+- [ソースからのビルド](Build-From-Source.md)
+- [ツールチェーン要件](Toolchain-Requirements.md)
+- [ビルドのトラブルシューティング](Build-Troubleshooting.md)
+- [デブロートガイド](Debloat-Guide.md)
 - [Compiler Explorer](Compiler-Explorer.md)

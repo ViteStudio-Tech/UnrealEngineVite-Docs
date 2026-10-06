@@ -36,8 +36,17 @@ The configuration is Win64-only with Development and Shipping game configuration
 [platform focus](Platforms.md). `WithDDC=false` skips derived data cache generation, which shortens the
 build considerably at the cost of first-launch shader compilation for the end user.
 
-You can also reach this through [ViteSetup](ViteSetup.md) &mdash; step 4, binary option, or menu option 8.
-The ViteSetup path is incremental; `RunUAT.bat` as shipped passes `-clean`.
+You can also reach this through [ViteSetup](ViteSetup.md) &mdash; option 3 at step 2, or menu option 8.
+The ViteSetup path is incremental, adds Linux when you tick it, and packages the result for you;
+`RunUAT.bat` as shipped passes `-clean` and leaves packaging to the scripts below.
+
+<note>
+<p>
+ViteSetup marks the precompiled path as not recommended. A source build can be debugged, patched and
+rebuilt, and it is faster to produce than the binary made from it. Use an installed build when people who
+never compile the engine need one, and produce it from the same commit as your source build.
+</p>
+</note>
 
 <note>
 This is a long build. Budget hours, not minutes, and considerable free disk space. Both the intermediate
@@ -48,7 +57,12 @@ Output lands in `LocalBuilds\Engine\Windows`.
 
 ## Packaging
 
-Four scripts in `LocalBuilds\` compress the staged build with 7-Zip. All expect
+ViteSetup packages the binary it builds itself: it uses WinRAR when installed, producing
+`LocalBuilds\Engine\UE_ViteFork.rar`, offers to download the WinRAR trial when it is not, and otherwise
+falls back to 7-Zip and `UE_ViteFork.7z`. Its package root carries `RegistryAdd.bat`,
+`RegistryRemove.bat` and `MakeShortcut.bat` written for the `UE_ViteFork` association.
+
+For a build produced with `RunUAT.bat`, four scripts in `LocalBuilds\` compress the staged build with 7-Zip. All expect
 `LocalBuilds\Engine\Windows` to contain the staged build, and all look for 7-Zip at
 `C:\Program Files\7-Zip\7z.exe` unless the `SEVEN_ZIP` environment variable points elsewhere.
 
@@ -92,16 +106,17 @@ smaller primary download. The split is by archive, not by deletion, so nothing i
 ## Installing on a target machine
 
 <procedure title="Install a packaged Vite build" id="install-binary">
-    <step>Extract <code>UE_ViteFork.7z</code> to its final location. Moving it later requires re-registering.</step>
+    <step>Extract <code>UE_ViteFork.rar</code> or <code>UE_ViteFork.7z</code> to its final location. Moving it later requires re-registering.</step>
     <step>If you were given <code>ExcludedPlugins.7z</code> and need those plugins, extract it over the same folder.</step>
     <step>
         Run <code>RegistryAdd.bat</code> from the extracted root. This writes the engine path to
-        <code>HKCU\Software\Epic Games\Unreal Engine\Builds</code> under the name <code>UEViteFork</code>.
+        <code>HKCU\Software\Epic Games\Unreal Engine\Builds</code> under the name <code>UE_ViteFork</code>
+        for a ViteSetup package, or <code>UEViteFork</code> for the standalone <code>LocalBuilds\</code> script.
     </step>
     <step>Run <code>MakeShortcut.bat</code> to create <code>UEViteFork.lnk</code> pointing at the editor.</step>
     <step>
-        Right-click a <code>.uproject</code>, choose <b>Switch Unreal Engine version</b>, and select
-        <b>UEViteFork</b>.
+        Right-click a <code>.uproject</code>, choose <b>Switch Unreal Engine version</b>, and select the
+        registered name.
     </step>
 </procedure>
 
@@ -123,8 +138,10 @@ To remove entirely, run `RegistryRemove.bat`, delete the shortcut, and delete th
 
 ## Running alongside a source build
 
-Both can coexist, but they register under the same `UEViteFork` name, so only one is registered at a time.
-Whichever ran `RegistryAdd.bat` most recently is the one projects will find.
+Both can coexist, but ViteSetup and its packages register under the same `UE_ViteFork` name, so only one
+is registered at a time. Whichever registered most recently is the one projects will find. The standalone
+`LocalBuilds\RegistryAdd.bat` uses the older name `UEViteFork`; a project's engine association must match
+the registered name exactly, so do not mix the two routes for one engine.
 
 If you regularly switch, note which is currently registered, or edit the registry key manually to give them
 distinct names.

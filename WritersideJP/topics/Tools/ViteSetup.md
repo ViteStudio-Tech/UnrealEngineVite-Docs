@@ -1,146 +1,179 @@
-# ViteSetup Assistant
+# ViteSetup
 
 <tldr>
 <p>
-<code>ViteSetup.bat</code> at the engine root runs a nine-step guided setup from environment check to a
-launched editor. <code>ViteSetup.bat menu</code> gives you the individual operations instead.
+エンジンのルートにある <code>ViteSetup.bat</code> は、クローンしたばかりのツリーから、エディタの起動までを 9 つの
+ガイド付きのステップで進めます。推奨は <b>Express</b> の経路です。Win64 の依存関係だけを取得してソースからビルドし、
+取り除いたものをすべて回復用のフォルダーに移動する軽量化を行います。<code>ViteSetup.bat menu</code> では、個々の操作を
+選べます。このページは <a href="ueVite26-SeptemberMajor.md">September Major</a> の版について説明します。
 </p>
 </tldr>
 
-The assistant exists because setting up an Unreal source build has many steps, each with failure modes that
-produce unhelpful errors when you get them wrong. It checks the environment first, so a missing toolchain
-component fails at step 1 with a clear message rather than at step 5 with a linker error.
+このアシスタントが存在するのは、Unreal のソースビルドのセットアップには多くの手順があり、どれも間違えると分かりにくい
+エラーになるからです。最初に環境を確認するため、ツールチェーンの部品が欠けていれば、ステップ 5 のリンカーエラーではなく、
+ステップ 1 で明確なメッセージとともに失敗します。
 
-## Guided mode
+## ガイドモード
 
-Run `ViteSetup.bat` with no arguments.
+`ViteSetup.bat` を引数なしで実行します。
 
-| Step | Action |
+| ステップ | ソースビルド（Express または Custom） | ビルド済みバイナリのビルド |
+|---|---|---|
+| 1 | 環境を確認し、ツールチェーンを強制 | 同じ |
+| 2 | ビルド方法を選ぶ | 同じ |
+| 3 | 依存関係をセットアップ | 依存関係をセットアップ |
+| 4 | Visual Studio のプロジェクトファイルを生成 | Visual Studio のプロジェクトファイルを生成 |
+| 5 | ソースからエンジンをビルド | インストール済みバイナリとそのアーカイブをビルド |
+| 6 | エンジンを軽量化 | ビルドを登録 |
+| 7 | ビルドを登録 | デスクトップのショートカットを作成 |
+| 8 | デスクトップのショートカットを作成 | 完了（バイナリビルドは起動しない） |
+| 9 | エディタを起動 | &mdash; |
+
+各ステップは一時停止するので、続ける前に出力を読めます。失敗するとアシスタントはそこで止まり、先に進まずにエラー
+コードを報告します。セットアップの前と最後に、予想と実際のディスク使用量を報告します。Windows 向けのソースツリー全体は
+ビルド後に約 137&nbsp;GB になり、Express の経路はそれを減らすためにあります。
+
+## ステップ 1 &mdash; 環境の確認
+
+アシスタントは 2 つのツールチェーンのどちらかを受け付け、どちらもなければ先に進みません。
+
+| 要件 | 受け付けるもの |
 |---|---|
-| 1 | Check the environment and enforce the toolchain |
-| 2 | Set up dependencies, with platform selection |
-| 3 | Generate Visual Studio project files |
-| 4 | Choose source or binary build |
-| 5 | Build the selected target |
-| 6 | Register the selected build |
-| 7 | Create `UEViteFork.lnk` on the desktop |
-| 8 | Optional engine debloat |
-| 9 | Finish; source builds launch the editor, binary builds do not |
+| Visual Studio と MSVC | Visual Studio 2022 と MSVC 14.44 以上、**または** Visual Studio 2026 と MSVC 14.50 以上 |
+| MSBuild | UnrealBuildTool と C# のツールが必要とします |
+| Windows SDK | 10.0.26100、サブバージョン .7705 以上、メジャーは 26100 に固定 |
+| .NET Framework のターゲットパック | 4.6.2（UnrealBuildTool、AutomationTool）と 4.5（SwarmAgent と C# のツール） |
 
-Each step pauses so you can read the output before continuing. Failures stop the assistant and report an
-error code rather than pushing on.
+両方の Visual Studio がインストールされている場合は、どちらでビルドするかを尋ね、すべてのビルドに `-2022` または `-2026` を
+渡します。SDK が最低バージョンに満たない場合や .NET 4.5 のターゲットパックがない場合は、インストールを提案し、その後
+ツールチェーン全体を再確認します。[ツールチェーン要件](Toolchain-Requirements.md) を参照してください。
 
-## Step 1 &mdash; environment check
+最近の Visual Studio のインストーラーは既定で提供しなくなったため、最もよく欠けているのは .NET Framework 4.5 の
+ターゲットパックです。[ビルドのトラブルシューティング](Build-Troubleshooting.md) を参照してください。
 
-The assistant enforces a specific toolchain and will not proceed without it:
+## ステップ 2 &mdash; ビルド方法を選ぶ
 
-| Requirement | Enforced value |
+| オプション | 内容 |
 |---|---|
-| Visual Studio | 2022 |
-| MSVC | 14.44 |
-| Windows SDK | 10.0.26100, subversion .7705 or higher, major pinned to 26100 |
-| .NET Framework reference assemblies | v4.6.2 and v4.5 |
+| **1. ソースビルド &ndash; Express**（推奨） | 他のプラットフォームにチェックを入れない限り Win64 のみ。最小の依存関係をダウンロードしてコンパイルし、エンジンを軽量化します。 |
+| 2. ソースビルド &ndash; Custom | 同じビルドですが、プラットフォーム、任意のコンテンツ、取り除く項目を自分で選びます |
+| 3. ビルド済みバイナリのビルド | 使えるエンジンのソースを含まない、パッケージ化されたエンジン。推奨しません。 |
+
+**ソースビルドを選んでください。** それがサポートされる構成です。デバッガーでエンジンのコードにステップインでき、
+フォークのパッチを適用でき、プルのたびに再ビルドでき、[コンパイル時スイッチ](Compile-Time-Switches.md) を変更できます。
+ビルド済みバイナリではそのどれもできず、元になるソースビルドより作成に時間がかかり、それに対する不具合報告はサポート
+できません。それでもバイナリが適している場面は [インストール済みビルド](Installed-Builds.md) を参照してください。
+
+## ステップ 3 &mdash; 依存関係のセットアップ
+
+Express の経路では、Win64、Win32 のサポートファイル、テンプレートは常にダウンロードされ、プラットフォームの選択画面で
+Android、Linux、iOS/tvOS、Mac を追加できます。サンプル、フィーチャーパック、ドキュメント、GoogleVR、LeapMotion、WinRT、
+HTML5、コンソール、そしてチェックを入れなかったすべてのプラットフォームはダウンロードされません。容量の大部分はここで
+節約されます。
+
+Custom の経路では、代わりにセットアッププロファイルを選べます。
+
+| プロファイル | 内容 |
+|---|---|
+| Step-by-step assistant | プラットフォームと任意のコンテンツを個別に選び、確認する |
+| Recommended Win64 | Win64 のみ。Windows 以外のプラットフォーム、サンプル、テンプレート、フィーチャーパック、ドキュメント、XR、コンソールを除外 |
+| Win64 ultra compact | Recommended と同様で、任意のコンテンツを最小にしたもの |
+| Win64 + templates / feature packs | プロジェクトのテンプレートとスターターコンテンツを残す |
+| Win64 + Android | Android の依存関係を追加 |
+| Win64 + Linux | Linux とクロスコンパイルの依存関係を追加 |
+| Full setup | `Setup.bat` に `-exclude` 引数を渡さない |
+
+依存関係は `UE4_Source_Cache` にキャッシュされ、20 スレッドで取得されるため、セットアップを再実行しても再びダウンロード
+されることはありません。
+
+## ステップ 5 &mdash; ビルド
+
+ソースビルドは、ソースツリー内で `UE4Editor`、`ShaderCompileWorker`、`UnrealLightmass`、`UnrealInsights` を Win64 の
+Development でコンパイルします。
+
+バイナリビルドは、Development と Shipping のゲーム構成で BuildGraph の `Make Installed Build Win64` ターゲットを実行し、
+その結果をパッケージ化します。WinRAR がインストールされていれば `UE_ViteFork.rar` にアーカイブし、なければ WinRAR の
+試用版のダウンロードを提案し、それもなければ 7-Zip で `UE_ViteFork.7z` を作成します。
+
+## ステップ 6 &mdash; エンジンの軽量化
+
+Express の経路は、ドライランの確認の後で次のものを移動します。
+
+- Win64 以外のすべてのプラットフォームのフォルダー
+- デバッグシンボル（`.pdb`）
+- Starter Content と Mobile Starter Content
+- NVIDIA のサンプルプロジェクト `NGXTest` と `RTXGI_Test`
+- Third Person（C++ と Blueprint）以外のすべてのテンプレート
+- `Engine\Plugins\Runtime\VitePlugins` 以下の、ACL と MotionSymphony を除くすべてのプラグイン
 
 <warning>
-The enforced toolchain is not the same as the toolchain Vite is currently developed against, which is
-Visual Studio 2026 with MSVC 14.50 and Windows SDK 10.0.26100. The assistant's check has not been updated.
 <p>
-If you are on the newer toolchain, the check will fail. Build through
-<a href="Build-From-Source.md">the manual path</a> or use the individual menu options rather than the
-guided flow. See <a href="Toolchain-Requirements.md">Toolchain Requirements</a>.
+最後の項目は、FSR 4、Anti-Lag 2、XeSS、PhysX Instanced Subsystem、KawaiiPhysics、ImGui、GPA、Automatron、
+SplashAbilities を移動します。プロジェクトでいずれかを使う場合は、Custom の経路を選ぶか、
+<code>ViteDebloat_Moved</code> からフォルダーを戻してください。
 </p>
 </warning>
 
-The .NET Framework 4.5 reference assemblies are the component people most often lack, since recent Visual
-Studio installers no longer offer them by default. See
-[Build Troubleshooting](Build-Troubleshooting.md).
+何も削除はされません。すべてがエンジンのフォルダーの隣の `ViteDebloat_Moved` に配置を保ったまま移動され、参照チェックで
+残ったツリーが引き続きビルドできることを確認します。その後 Express は、プラグインの除外リスト、UnrealFileServer、
+Windows 以外のツール、プラットフォームのバイナリを対象とした、任意の 2 回目のパスを提案します。Custom の経路では、
+同じ選択画面が直接開きます。詳しくは [デブロートガイド](Debloat-Guide.md) を参照してください。
 
-## Step 2 &mdash; dependency setup
+## 登録とショートカット
 
-Rather than running `Setup.bat` with everything, the assistant offers setup profiles:
+登録では、エンジンのパスを `HKCU\Software\Epic Games\Unreal Engine\Builds` に `UE_ViteFork` という名前で書き込みます。
+これにより、`.uproject` ファイルのエンジン関連付けでこのビルドを選べるようになります。その前に、同じフォルダーを指す
+自動生成の GUID のエントリを削除するため、バージョンの切り替え画面にエンジンが二重に表示されることはありません。
 
-| Profile | What it does |
+ショートカットのステップでは、`UE4Editor.exe` を指す `UEViteFork.lnk` をデスクトップに作成します。
+
+<note>
+<p>
+単体の <code>LocalBuilds\RegistryAdd.bat</code> と <code>RegistryRemove.bat</code> は、今も古い名前
+<code>UEViteFork</code> を使います。プロジェクトのエンジン関連付けは登録名と完全に一致する必要があるため、1 つのエンジンは
+1 つの経路だけで登録してください。ViteSetup がバイナリのパッケージに書き出すスクリプトは <code>UE_ViteFork</code>
+を使います。
+</p>
+</note>
+
+## メニューモード
+
+`ViteSetup.bat menu` はガイド付きの流れを飛ばし、操作を個別に表示します。
+
+| オプション | 操作 |
 |---|---|
-| Step-by-step assistant | Choose platforms and optional content individually, then review |
-| Recommended Win64 | Win64 only. Excludes non-Windows platforms, samples, templates, feature packs, docs, XR and consoles. |
-| Win64 ultra compact | As recommended, with the smallest optional content set |
-| Win64 + templates / feature packs | Keeps project templates and starter content |
-| Win64 + Android | Adds Android dependencies |
-| Win64 + Linux | Adds Linux and cross-compile dependencies |
-| Full setup | Passes no `-exclude` argument to `Setup.bat` |
+| 1 | 環境とツールチェーンを確認 |
+| 2 | 依存関係をセットアップ（アシスタント） |
+| 3 | Visual Studio のファイルを生成 |
+| 4 | Unreal Engine のソースをビルド |
+| 5 | 依存関係をセットアップしてから Visual Studio のファイルを生成 |
+| 6 | `UE4.sln` を開く |
+| 7 | セットアッププロファイルを表示 |
+| 8 | ビルド済みバイナリをビルド（推奨しません） |
+| 9 | エンジンを軽量化（選択画面） |
+| 0 | 終了 |
 
-The step-by-step assistant exposes individual platform toggles for Android, iOS/tvOS, Mac, Linux, WinRT,
-HTML5 and consoles. Win32 support files are always included, since Win64 requires them.
+日々の作業にはメニューモードが適しています。モジュールを追加した後のプロジェクトファイルの再生成や、プル後の再ビルドに、
+ガイド付きの流れ全体は必要ありません。
 
-**Recommended Win64 is the right choice for most people.** Downloading dependencies you will never use
-costs bandwidth, disk space and setup time. If you later need a platform, re-run setup with it enabled.
+`ViteSetup.bat --sync-only` は、依存関係の同期だけを非対話式に実行し、残りの引数は `Setup.bat` にそのまま渡します。
+ビルドマシンで使ってください。
 
-## Step 4 &mdash; source or binary
+## 主なパス
 
-| Option | Result |
+| 項目 | パス |
 |---|---|
-| Source build | Builds `UE4Editor`, `ShaderCompileWorker` and `UnrealLightmass` in the source tree, Win64 Development |
-| Binary Installed Build | Incremental BuildGraph run producing `LocalBuilds\Engine\Windows` plus `UE_ViteFork.7z` |
+| エディタの実行ファイル | `Engine\Binaries\Win64\UE4Editor.exe` |
+| インストール済みビルドのステージング | `LocalBuilds\Engine\Windows` |
+| インストール済みビルドのアーカイブ | `LocalBuilds\Engine\UE_ViteFork.rar`（7-Zip の場合は `.7z`） |
+| 依存関係のキャッシュ | `UE4_Source_Cache` |
+| 軽量化の回復用フォルダー | `..\ViteDebloat_Moved` |
+| エンジン関連付け | `UE_ViteFork` |
 
-Choose source if you are working on the engine or want to modify
-[compile-time switches](Compile-Time-Switches.md). Choose binary if you want a redistributable engine to
-hand to people who do not need to compile it. See [Installed Builds](Installed-Builds.md).
+## 関連項目
 
-## Steps 6 and 7 &mdash; registration and shortcut
-
-Registration writes the engine path under
-`HKCU\Software\Epic Games\Unreal Engine\Builds` as `UEViteFork`, which is what makes the build selectable in
-a `.uproject` file's engine association. The engine association identifier is `UE_ViteFork`.
-
-The shortcut step creates `UEViteFork.lnk` pointing at `UE4Editor.exe`.
-
-Both are also available standalone as `LocalBuilds\RegistryAdd.bat` and `LocalBuilds\MakeShortcut.bat`.
-
-## Step 8 &mdash; debloat
-
-Optionally runs the debloat assistant, offering:
-
-| Option | Behaviour |
-|---|---|
-| Move to a recovery folder | Restorable later. Destination is `ViteDebloat_Moved` next to the engine folder. Recommended. |
-| Delete permanently | Smallest footprint, not reversible |
-
-Full detail in the [Debloat Guide](Debloat-Guide.md).
-
-## Menu mode
-
-`ViteSetup.bat menu` skips the guided flow and presents the operations individually:
-
-| Option | Action |
-|---|---|
-| 1 | Check the environment |
-| 2 | Set up dependencies (assistant) |
-| 3 | Generate Visual Studio files |
-| 4 | Build Unreal Engine source |
-| 5 | Setup, then generate Visual Studio files |
-| 6 | Open `UE4.sln` |
-| 7 | Show setup profiles |
-| 8 | Build installed binary |
-| 9 | Debloat engine (assistant) |
-| 0 | Exit |
-
-Menu mode is what you want for day-to-day work. Regenerating project files after adding a module, or
-rebuilding after a pull, does not need the whole nine-step flow.
-
-## Key paths
-
-| Variable | Path |
-|---|---|
-| Editor executable | `Engine\Binaries\Win64\UE4Editor.exe` |
-| Installed build staging | `LocalBuilds\Engine\Windows` |
-| Installed build archive | `LocalBuilds\Engine\UE_ViteFork.7z` |
-| Source cache | `UE4_Source_Cache` |
-| Engine association | `UE_ViteFork` |
-
-## See also
-
-- [Build from Source](Build-From-Source.md)
-- [Toolchain Requirements](Toolchain-Requirements.md)
-- [Installed Builds](Installed-Builds.md)
-- [Build Troubleshooting](Build-Troubleshooting.md)
-- [Debloat Guide](Debloat-Guide.md)
+- [ソースからのビルド](Build-From-Source.md)
+- [ツールチェーン要件](Toolchain-Requirements.md)
+- [インストール済みビルド](Installed-Builds.md)
+- [ビルドのトラブルシューティング](Build-Troubleshooting.md)
+- [デブロートガイド](Debloat-Guide.md)
