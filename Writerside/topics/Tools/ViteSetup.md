@@ -162,8 +162,10 @@ use <code>UE_ViteFork</code>.
 Menu mode is what you want for day-to-day work. Regenerating project files after adding a module, or
 rebuilding after a pull, does not need the whole guided flow.
 
-`ViteSetup.bat --sync-only` runs only the dependency sync, non-interactively, with any remaining arguments
-passed through to `Setup.bat`. Use it on build machines.
+`ViteSetup.bat --sync-only` skips the menus and does what `Setup.bat` does: syncs dependencies, registers
+the Git hooks, installs the prerequisites quietly and registers the engine. Remaining arguments go to
+GitDependencies; add `--force` to overwrite locally modified files without a prompt, which is what a build
+machine needs.
 
 ## Key paths
 
