@@ -12,8 +12,9 @@ permissions:
 env:
   DOCKER_VERSION: 'latest'
 
-# The English manual (Writerside/hi) publishes at the site root and the
-# Japanese manual (WritersideJP/jp) publishes under /jp, so existing English
+# The English manual (Writerside/hi) publishes at the site root, the
+# Japanese manual (WritersideJP/jp) under /jp, and the Vite Technology product
+# site (ViteTech/) under /tech, so existing English
 # URLs are unchanged and every page has a counterpart at the same path with a
 # /jp/ segment inserted. Writerside has no localisation support and requires
 # unique topic file names per module, which is why Japanese is its own module.
@@ -72,6 +73,9 @@ jobs:
     if: ${{ always() && !cancelled() }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
@@ -98,6 +102,16 @@ jobs:
           else
             echo "Japanese artifact missing; deploying English only"
           fi
+
+      # The Vite Technology site is plain HTML generated from ViteTech/src.
+      # Rebuilding here keeps the published pages in step with their sources
+      # even if public/ was not regenerated before the commit.
+      - name: Build and add the Vite Technology site under /tech
+        run: |
+          python3 ViteTech/build.py
+          mkdir -p dir/tech
+          cp -R ViteTech/public/. dir/tech/
+          echo "Published Vite Technology site under /tech"
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

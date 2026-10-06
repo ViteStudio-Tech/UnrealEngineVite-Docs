@@ -1,0 +1,103 @@
+<!--
+title: Vite Hair FX
+description: Strand-based hair rendering built on AMD TressFX, reworked for a lower frame cost and given a new hair BRDF, so hero characters get real strands instead of cards.
+nav: hairfx
+product: hairfx
+image: assets/img/hairfx-strands.svg
+-->
+<section class="hero hero--compact">
+    <div class="hero__media">
+        <img src="{{assets}}img/hairfx-strands.svg" alt="" width="1600" height="900" fetchpriority="high" style="object-position:70% center">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite Hair FX &middot; Hair</p>
+        <h1 class="display">Real strands, at a cost a game can afford.</h1>
+        <p class="lede">
+            Vite Hair FX is strand-based hair built on AMD TressFX, reworked for performance and given a new hair
+            BRDF. Simulation, shading and shadowing run as one system, so hero characters get individual strands
+            instead of cards.
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#features">What is new</a>
+            <a class="btn btn--ghost" href="index.html#contact">Talk to the team</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>Strands</em></span><span class="stat__label">Simulated and rendered per fibre, not as cards</span></div>
+            <div><span class="stat__value">New <em>BRDF</em></span><span class="stat__label">Hair-specific highlights and light transmission</span></div>
+            <div><span class="stat__value">Opt-<em>in</em></span><span class="stat__label">Compiled only into projects that use strand hair</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">Why strands</p>
+            <h2 class="h2">Cards are cheap and predictable. They never quite read as hair.</h2>
+            <div class="prose">
+                <p>
+                    Card-based hair breaks down under motion and at grazing angles, which is exactly where a
+                    character is most often seen. Strand hair simulates and renders individual fibres and looks
+                    dramatically better &mdash; and traditionally costs dramatically more, split across simulation,
+                    transparency-heavy rendering and shadowing.
+                </p>
+                <p>
+                    <strong>Vite Hair FX exists to close that cost gap</strong>, so strand hair fits a real frame
+                    budget for hero characters, with cards reserved for crowds and distance.
+                </p>
+            </div>
+        </div>
+        <div class="reveal">
+            <table class="spec">
+                <tbody>
+                    <tr><th scope="row">Based on</th><td>AMD TressFX 5.0, integrated into the Unreal Engine Vite renderer</td></tr>
+                    <tr><th scope="row">Modules</th><td>Runtime simulation and rendering, asset import, editor tooling</td></tr>
+                    <tr><th scope="row">Simulation</th><td>Responds to head movement, wind and collision</td></tr>
+                    <tr><th scope="row">Rendering</th><td>Order-independent transparency, self-shadowing and anisotropic hair highlights</td></tr>
+                    <tr><th scope="row">Platforms</th><td>Desktop; excluded automatically from mobile and ES 3.1 shader platforms</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised" id="features">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">What Hair FX adds</p>
+            <h2 class="h2">Faster passes, better shading, safer integration.</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:gauge}}</div><h3 class="h3">Lower frame cost</h3><p>Simulation and rendering passes reworked for performance, aimed at fitting strand hair for hero characters into a 60 FPS budget.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:spark}}</div><h3 class="h3">New hair BRDF</h3><p>A hair-specific shading model for more natural primary and secondary highlights and light transmitted through strands.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:wind}}</div><h3 class="h3">Stable simulation</h3><p>Strands follow fast character motion without lagging, and damping settles the solver instead of leaving hair jittering.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:strand}}</div><h3 class="h3">Debug views</h3><p>Visualise simulation strands, guide influence, root UVs and strand dimensions to find authoring problems in seconds.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">Compile-time gating</h3><p>Hair FX compiles in only when a project enables it, so titles without strand hair carry none of its shaders.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:layers}}</div><h3 class="h3">Works with Vite's stack</h3><p>Integrated with Vite's lighting and SSGI, with manual guidance on the anti-aliasing modes that suit thin geometry.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <div class="callout reveal">
+            <strong>Availability.</strong> TressFX 5.0 strand hair ships today in Unreal Engine Vite: build with
+            <code>VITE_TRESSFX=1</code> and enable the plugin. The Hair FX performance work and new hair BRDF are in
+            development on top of it.
+        </div>
+        <div class="links reveal" style="margin-top:28px">
+            <a class="link-card" href="{{docs}}hair-rendering.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Hair Rendering</span></a>
+            <a class="link-card" href="{{docs}}compile-time-switches.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Compile-Time Switches</span></a>
+            <a class="link-card" href="{{docs}}anti-aliasing.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Anti-Aliasing</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="Technologies">
+            <a href="vertis.html"><span class="pager__dir">&larr; Previous</span><span class="pager__name">Vite Vertis</span></a>
+            <a href="index.html#technology"><span class="pager__dir">All technologies &rarr;</span><span class="pager__name">Vite Technology</span></a>
+        </nav>
+    </div>
+</section>

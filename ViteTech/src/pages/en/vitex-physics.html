@@ -1,0 +1,157 @@
+<!--
+title: ViteX Physics
+description: A physics SDK fully compatible with Unreal Engine 4, with game-tuned solver advances from PhysX 4 and 5 and GPU-accelerated fluids, cloth and smoke through NVIDIA Flex and Flow.
+nav: vitex
+product: vitex
+image: assets/img/physics-3000.jpg
+-->
+<section class="hero hero--plain">
+    <div class="wrap">
+        <div class="split split--wide-media">
+            <div>
+                <p class="eyebrow">ViteX Physics &middot; Physics SDK</p>
+                <h1 class="display">Game physics that keeps up with the frame.</h1>
+                <p class="lede">
+                    ViteX Physics is a custom physics SDK, fully compatible with Unreal Engine 4. It takes the
+                    solver advances of PhysX 4 and 5, tunes them for game workloads, and adds GPU-accelerated
+                    fluids, cloth, ropes, smoke and fire through NVIDIA Flex and Flow.
+                </p>
+                <div class="actions">
+                    <a class="btn btn--primary" href="#results">See the numbers</a>
+                    <a class="btn btn--ghost" href="index.html#contact">Talk to the team</a>
+                </div>
+            </div>
+            <figure class="figure">
+                <div class="figure__frame"><img src="{{assets}}img/physics-native.jpg" alt="1,425 cubes simulated as native PhysX actors inside Unreal Engine, running at 374 FPS" width="1105" height="615" fetchpriority="high"></div>
+                <figcaption>1,425 bodies as native PhysX actors in engine: 374 FPS, 2.67 ms per frame.</figcaption>
+            </figure>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>4.75&times;</em></span><span class="stat__label">In-engine frame rate versus Chaos, 3,000 simulated bodies</span></div>
+            <div><span class="stat__value"><em>67&times;</em></span><span class="stat__label">Solver throughput versus Chaos, 10,005 bodies on 6 threads</span></div>
+            <div><span class="stat__value"><em>1.15&ndash;1.44&times;</em></span><span class="stat__label">Faster than stock PhysX 5.6.1 on CPU, at every thread count from 1 to 6</span></div>
+            <div><span class="stat__value"><em>1.34&ndash;1.39&times;</em></span><span class="stat__label">Faster than stock PhysX 3.4, the base it started from</span></div>
+        </div>
+        <p class="bars__note" style="margin-top:18px">Measured on Vite's PhysX build, which ViteX extends. Methodology in the <a href="{{docs}}physics.html">engine manual</a>.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split split--wide-media">
+        <div class="reveal">
+            <p class="eyebrow">Compatibility</p>
+            <h2 class="h2">A drop-in physics layer for Unreal Engine 4 content.</h2>
+            <div class="prose">
+                <p>
+                    ViteX keeps Unreal Engine 4's physics API: body instances, physical materials, physics
+                    assets, collision profiles, constraints, scene queries, ragdolls and vehicles. Existing
+                    gameplay code, Blueprints and content run on it without a physics-specific port.
+                </p>
+                <p>
+                    <strong>That is the opposite of the UE5 path,</strong> where moving to Chaos means
+                    re-validating every physics interaction in a project and accepting a slower solver.
+                </p>
+            </div>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/physics-3000.jpg" alt="Two side-by-side captures of 3,000 falling cubes: Unreal 5.7 Chaos at 33 FPS and Unreal Vite PhysX at 158 FPS" loading="lazy" width="1280" height="373"></div>
+            <figcaption>3,000 engine-managed cubes. Unreal Engine 5.7 with Chaos: 33.26 FPS. Unreal Engine Vite with PhysX 3.4: 157.88 FPS.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised" id="results">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">Measured</p>
+            <h2 class="h2">Faster than Chaos, faster than stock PhysX.</h2>
+            <div class="prose">
+                <p>
+                    The Box Container Pile benchmark runs 10,005 awake rigid bodies headless, so it measures the
+                    solver rather than the renderer. Every SDK uses four solver iterations, a 60 Hz step and 300
+                    measured steps after 30 warm-up steps on the same Intel Core i7-13700K host.
+                </p>
+                <p>
+                    Vite's PhysX build enters the 16.67 ms budget for 60 Hz at three threads. Stock PhysX 3.4
+                    needs six. Chaos never enters it, even at 24 threads.
+                </p>
+            </div>
+            <h3 class="h3" style="margin-top:32px">Solver throughput, steps per second</h3>
+            <div class="bars" role="list">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Vite PhysX 3.4</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">85.0</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">NVIDIA PhysX 5.6.1</span><span class="bar__track"><span class="bar__fill" style="--w:86.9%"></span></span><span class="bar__value">73.9</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">NVIDIA PhysX 3.4</span><span class="bar__track"><span class="bar__fill" style="--w:74.3%"></span></span><span class="bar__value">63.2</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Unreal Chaos</span><span class="bar__track"><span class="bar__fill" style="--w:1.5%"></span></span><span class="bar__value">1.3</span></div>
+            </div>
+            <p class="bars__note">10,005 bodies, 6 threads; median physics time converted to steps per second. Higher is better. Chaos measured through a Win64 Shipping target because it cannot be built standalone.</p>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/physics-boxpile.jpg" alt="Benchmark report comparing nine physics engines on the Box Container Pile 10K workload from one to six threads" loading="lazy" width="1280" height="1475"></div>
+            <figcaption>The full Box Container Pile 10K report, including BEPUphysics, Rapier, Box3D, Jolt and Unity DOTS Physics.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">Capabilities</p>
+            <h2 class="h2">CPU rigid bodies for gameplay. GPU simulation for effects.</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:cube}}</div><h3 class="h3">Game-tuned solver</h3><p>Solver and collision advances from PhysX 4 and 5, selected and tuned for game workloads rather than offline accuracy.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:plug}}</div><h3 class="h3">UE4-compatible API</h3><p>Body instances, physics assets, constraints, vehicles and scene queries behave as Unreal Engine 4 content expects.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:drop}}</div><h3 class="h3">Flex on the GPU</h3><p>Unified particle simulation for fluids, tearable cloth and ropes, with fluid-surface rendering integrated into the 4.27 renderer.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:flame}}</div><h3 class="h3">Flow on the GPU</h3><p>Sparse-grid volumetric simulation for fire and smoke that reacts to the scene.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:layers}}</div><h3 class="h3">Destruction</h3><p>APEX Destruction for existing assets and NVIDIA Blast for large, bond-graph-based fracture.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:clock}}</div><h3 class="h3">Fixed timestep</h3><p>Consistent simulation steps independent of render frame rate, with render interpolation, for stable and reproducible play.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:grid}}</div><h3 class="h3">Scale</h3><p>An instanced subsystem and a native-actor path for thousands of bodies; 1,425 native actors run at 374 FPS in engine.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:cpu}}</div><h3 class="h3">Console-tuned kernels</h3><p>Hot loops are FMA-fused and structure-of-arrays, and timed on PS5-class Zen 2 with its single 256-bit FMA pipe.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap split">
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/physics-destruction.jpg" alt="A destructible wall breaking apart into debris under weapon fire in a physics test level" loading="lazy" width="1443" height="956"></div>
+            <figcaption>APEX Destruction running in a Vite physics test level.</figcaption>
+        </figure>
+        <div class="reveal">
+            <p class="eyebrow">Availability</p>
+            <h2 class="h2">Most of the foundation already ships.</h2>
+            <table class="spec">
+                <tbody>
+                    <tr><th scope="row">Shipping in Vite</th><td>Vite PhysX 3.4, APEX Destruction and Cloth, NVIDIA Blast, fixed-timestep simulation, the instanced physics subsystem and native-actor path</td></tr>
+                    <tr><th scope="row">In integration</th><td>NVIDIA Flex fluids, tearable cloth and ropes; NVIDIA Flow fire and smoke</td></tr>
+                    <tr><th scope="row">In development</th><td>ViteX solver with PhysX 4 and 5 upgrades</td></tr>
+                    <tr><th scope="row">Platforms</th><td>Windows and Linux today; PhysX libraries also build for Android with NDK Clang</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <div class="section__head reveal" style="margin-bottom:28px">
+            <p class="eyebrow">Read more</p>
+            <h2 class="h2">Related documentation</h2>
+        </div>
+        <div class="links reveal">
+            <a class="link-card" href="{{docs}}physics.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Physics benchmarks and architecture</span></a>
+            <a class="link-card" href="{{docs}}physx.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">PhysX features</span></a>
+            <a class="link-card" href="{{docs}}destruction-and-cloth.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Destruction and Cloth</span></a>
+            <a class="link-card" href="{{docs}}ps5-cpu-fpu.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">PS5 CPU FPU</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="Technologies">
+            <a href="restir.html"><span class="pager__dir">&larr; Previous</span><span class="pager__name">Vite ReSTIR</span></a>
+            <a href="brdf.html"><span class="pager__dir">Next &rarr;</span><span class="pager__name">Vite BRDF</span></a>
+        </nav>
+    </div>
+</section>

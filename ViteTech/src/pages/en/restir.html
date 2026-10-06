@@ -1,0 +1,173 @@
+<!--
+title: Vite ReSTIR
+description: Real-time global illumination and a real-time path tracer on one reservoir-resampling pipeline, engineered to deliver path-traced lighting faster than Lumen at Epic quality.
+nav: restir
+product: restir
+image: assets/img/restir-attic.jpg
+-->
+<section class="hero hero--compact">
+    <div class="hero__media">
+        <img src="{{assets}}img/restir-attic.jpg" alt="Attic interior lit by sun shafts through a window, with soft bounce light across the wooden floor" width="1321" height="743" fetchpriority="high">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite ReSTIR &middot; Global illumination and path tracing</p>
+        <h1 class="display">Path-traced lighting, at a cost below Lumen.</h1>
+        <p class="lede">
+            Vite ReSTIR is real-time global illumination built on reservoir-based spatiotemporal resampling,
+            with a real-time path tracer on the same pipeline. It is engineered to be the fastest GI solution
+            available: path-traced lighting faster than Lumen at Epic quality.
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#how">How it works</a>
+            <a class="btn btn--ghost" href="index.html#contact">Talk to the team</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>1</em> pipeline</span><span class="stat__label">Real-time GI and path tracing share the same reservoirs</span></div>
+            <div><span class="stat__value">Temporal <em>+</em> spatial</span><span class="stat__label">Samples reused across frames and neighbouring pixels</span></div>
+            <div><span class="stat__value">&lt; Lumen <em>Epic</em></span><span class="stat__label">Design target for path-traced quality</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split split--wide-media">
+        <div class="reveal">
+            <p class="eyebrow">The problem</p>
+            <h2 class="h2">Ground truth needs thousands of samples. A frame has room for one or two.</h2>
+            <div class="prose">
+                <p>
+                    Path tracing produces the reference image every real-time technique is judged against, but
+                    it converges over thousands of samples per pixel. Production GI systems close that gap with
+                    caches, probes and heavy temporal accumulation &mdash; and pay for it in light leaking,
+                    lag and the noise, ghosting and blur that make modern renderers look soft.
+                </p>
+                <p>
+                    <strong>ReSTIR attacks the sampling problem directly.</strong> Instead of tracing more rays,
+                    it reuses the good ones: every pixel keeps a small reservoir of light-path candidates and
+                    shares it with its neighbours and with the next frame, so a handful of rays per pixel
+                    behaves like a far larger sample count.
+                </p>
+            </div>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/restir-office.jpg" alt="Office scene with volumetric light, translucent spheres and ray-traced reflections and refractions" loading="lazy" width="1539" height="851"></div>
+            <figcaption>Complex light transport &mdash; volumetrics, glossy reflections and refraction &mdash; rendered with Vite's ray-tracing stack.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised" id="how">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">How it works</p>
+            <h2 class="h2">Resample, reuse, then shade.</h2>
+            <p class="lede">
+                Vite ReSTIR follows the reservoir-resampling family of techniques introduced for direct lighting
+                in 2020 and extended to full paths for global illumination in 2021, engineered for Vite's
+                renderer and frame budgets.
+            </p>
+        </div>
+        <ol class="pipeline reveal">
+            <li><strong>Initial candidates</strong><span>Each pixel traces a small number of rays and keeps the most important light-path candidates in a weighted reservoir.</span></li>
+            <li><strong>Temporal reuse</strong><span>Reservoirs are reprojected from the previous frame and merged, so lighting quality accumulates while staying responsive to motion.</span></li>
+            <li><strong>Spatial reuse</strong><span>Neighbouring pixels exchange reservoirs, multiplying the effective sample count at the cost of a few extra visibility tests.</span></li>
+            <li><strong>Shade and resolve</strong><span>The surviving samples are shaded and passed through a light denoise that preserves contact detail.</span></li>
+            <li><strong>Path-tracer mode</strong><span>The same machinery runs along complete multi-bounce paths for path-traced lighting in real time.</span></li>
+        </ol>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">Capabilities</p>
+            <h2 class="h2">One system, from GI to full path tracing</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:rays}}</div><h3 class="h3">Real-time global illumination</h3><p>Fully dynamic multi-bounce diffuse and glossy indirect lighting with no baking and no probe placement.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:path}}</div><h3 class="h3">Real-time path tracer</h3><p>The same reservoirs drive a real-time path tracer for reference-quality lighting at interactive frame rates.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:stack}}</div><h3 class="h3">Reservoir reuse</h3><p>Temporal and spatial reuse turn a ray or two per pixel into the quality of a far larger sample count.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:spark}}</div><h3 class="h3">Many lights and emissives</h3><p>Builds on the many-light sampling already shipping in Vite through RTXDI, so emissive geometry and dense light rigs light the scene.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:layers}}</div><h3 class="h3">Upscaler-ready</h3><p>Designed to pair with the upscalers and denoisers already integrated in Vite, including DLSS Ray Reconstruction, FSR 4 and XeSS.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:gauge}}</div><h3 class="h3">Scalable</h3><p>From a GI-only mode for 60 FPS titles to full path tracing for high-end PCs and captures, on one code path.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">The foundation</p>
+            <h2 class="h2">Built on a ray-tracing stack that already beats Lumen.</h2>
+            <div class="prose">
+                <p>
+                    Vite ReSTIR extends the ray-traced GI pipeline that ships in Unreal Engine Vite today. In a
+                    like-for-like scene, Vite's shipping Dynamic DDGI runs at <strong>2.5&times; the frame rate of
+                    Lumen in UE 5.7</strong> &mdash; noise-free by construction, with no denoiser in the path.
+                </p>
+                <p>
+                    ReSTIR is the next step on that stack: path-traced quality where DDGI's probe resolution
+                    stops, at a cost designed to stay below Lumen's.
+                </p>
+            </div>
+            <div class="bars" role="list" style="margin-top:28px">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Vite Dynamic DDGI</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">811 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Lumen, UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:39.95%"></span></span><span class="bar__value">324 FPS</span></div>
+            </div>
+            <p class="bars__note">Shipping Dynamic DDGI, not ReSTIR. RTX 4080 Super, 1440p native, same scene. Higher is better.</p>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/gi-stylized.jpg" alt="Stylized desert level lit by dynamic ray-traced global illumination, frame counter reading 811 FPS" loading="lazy" width="1600" height="900"></div>
+            <figcaption>The stylized demo under Dynamic DDGI: 811 FPS at 1440p native on an RTX 4080 Super.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">Where it fits</p>
+            <h2 class="h2">Global illumination options in Vite</h2>
+        </div>
+        <div class="table-scroll reveal">
+            <table class="matrix">
+                <thead><tr><th scope="col">Mode</th><th scope="col">Lighting</th><th scope="col">Best for</th><th scope="col">Status</th></tr></thead>
+                <tbody>
+                    <tr><td>Static DDGI</td><td>Baked probes, near-instant bakes</td><td>Hardware without ray tracing</td><td><span class="pill pill--live">Shipping</span></td></tr>
+                    <tr><td>Dynamic DDGI + SSGI</td><td>Ray-traced probes plus screen-space contact detail</td><td>60&ndash;120 FPS titles on console-class GPUs</td><td><span class="pill pill--live">Shipping</span></td></tr>
+                    <tr><td>Vite ReSTIR GI</td><td>Per-pixel resampled multi-bounce GI</td><td>High-fidelity titles and high-end PCs</td><td><span class="pill pill--dev">In development</span></td></tr>
+                    <tr><td>Vite ReSTIR path tracer</td><td>Real-time path-traced lighting</td><td>Ultra settings, cinematics and captures</td><td><span class="pill pill--dev">In development</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight section--raised">
+    <div class="wrap">
+        <div class="section__head reveal" style="margin-bottom:28px">
+            <p class="eyebrow">Read more</p>
+            <h2 class="h2">Related documentation</h2>
+        </div>
+        <div class="links reveal">
+            <a class="link-card" href="{{docs}}global-illumination.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Global Illumination</span></a>
+            <a class="link-card" href="{{docs}}ddgi-dynamic.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Dynamic DDGI</span></a>
+            <a class="link-card" href="{{docs}}rtxdi.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">RTXDI</span></a>
+            <a class="link-card" href="{{docs}}path-tracing.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Path Tracing</span></a>
+        </div>
+        <p class="muted" style="margin:28px 0 0;font-size:14px">
+            Background: B. Bitterli et al., <i>Spatiotemporal reservoir resampling for real-time ray tracing with
+            dynamic direct lighting</i>, SIGGRAPH 2020; Y. Ouyang et al., <i>ReSTIR GI: Path resampling for
+            real-time path tracing</i>, HPG 2021.
+        </p>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="Technologies">
+            <a href="index.html#technology"><span class="pager__dir">&larr; All technologies</span><span class="pager__name">Vite Technology</span></a>
+            <a href="vitex-physics.html"><span class="pager__dir">Next &rarr;</span><span class="pager__name">ViteX Physics</span></a>
+        </nav>
+    </div>
+</section>

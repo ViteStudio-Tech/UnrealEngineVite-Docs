@@ -1,0 +1,106 @@
+<!--
+title: Vite Vertis
+description: Continuous, pop-free level of detail on the standard mesh pipeline. Vite's geometry system is built to beat Nanite on the hardware games actually ship on.
+nav: vertis
+product: vertis
+image: assets/img/vertis-lod.svg
+-->
+<section class="hero hero--plain">
+    <div class="wrap split split--wide-media">
+        <div>
+            <p class="eyebrow">Vite Vertis &middot; Geometry</p>
+            <h1 class="display">Dense geometry without a virtualised pipeline.</h1>
+            <p class="lede">
+                Vite Vertis is Vite's geometry system: high-quality level-of-detail chains generated at import,
+                with continuous, pop-free transitions between them, rendered through the standard mesh
+                pipeline. It is built to beat Nanite on the hardware games actually ship on.
+            </p>
+            <div class="actions">
+                <a class="btn btn--primary" href="#approach">The approach</a>
+                <a class="btn btn--ghost" href="index.html#contact">Talk to the team</a>
+            </div>
+        </div>
+        <figure class="figure">
+            <div class="figure__frame"><img src="{{assets}}img/vertis-lod.svg" alt="One surface at three levels of detail, from dense to coarse, connected by arrows indicating continuous transitions" width="1600" height="900"></div>
+        </figure>
+    </div>
+</section>
+
+<section class="section" id="approach">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">The problem</p>
+            <h2 class="h2">Virtualised geometry has a base cost every frame.</h2>
+            <div class="prose">
+                <p>
+                    Nanite moves geometry onto its own pipeline &mdash; streaming, a visibility buffer and a
+                    dedicated rasteriser &mdash; and a project pays for that machinery before it draws anything.
+                    On high-end PCs the trade can pay off. On console-class and handheld hardware, with native
+                    resolution and 60 or 120 FPS targets, that base cost is budget a game cannot spare.
+                </p>
+                <p>
+                    Classic discrete LODs avoid the base cost but pop visibly as they switch, which is why
+                    teams either over-spend on LOD 0 or accept the artefact.
+                </p>
+            </div>
+        </div>
+        <div class="reveal">
+            <p class="eyebrow">The approach</p>
+            <h2 class="h2">Do the hard work at import. Keep the runtime simple.</h2>
+            <div class="prose">
+                <p>
+                    Vertis generates each mesh's level-of-detail chain at import with a high-quality,
+                    attribute-aware simplifier, and bakes the data needed to blend smoothly from one level to the
+                    next. At runtime, transitions are continuous rather than discrete, so detail falls away
+                    without popping.
+                </p>
+                <p>
+                    <strong>Rendering stays on the standard static-mesh path,</strong> so Vertis meshes keep
+                    working with everything static meshes already support in Vite.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">Design goals</p>
+            <h2 class="h2">What Vertis is built to deliver</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:morph}}</div><h3 class="h3">Pop-free transitions</h3><p>Continuous blending between levels of detail, so reducing detail never shows up as a visible switch.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:mesh}}</div><h3 class="h3">High-quality simplification</h3><p>Attribute-aware simplification at import keeps silhouettes, UVs and normals intact down the LOD chain.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:gauge}}</div><h3 class="h3">No fixed base cost</h3><p>No visibility buffer, no separate rasteriser and no streaming system to run every frame. Cost follows what is drawn.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:plug}}</div><h3 class="h3">Standard pipeline</h3><p>Instancing, shadows, ray tracing and existing materials keep working, because the mesh is still a static mesh.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:chip}}</div><h3 class="h3">Platform reach</h3><p>Runs wherever Unreal Engine 4 static meshes run, without requiring newer GPU features to light up.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:clock}}</div><h3 class="h3">Editor-time bake</h3><p>Generation happens when assets are built, so artists keep the familiar LOD workflow and runtime pays nothing to build it.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <div class="callout reveal">
+            <strong>Status: in development.</strong> Vertis builds on Vite's existing static-mesh LOD pipeline
+            and on the distance- and displacement-driven <a href="{{docs}}tessellation.html">tessellation</a>
+            that ships today. Performance comparisons will be published with the first release, measured with the
+            same methodology as Vite's other benchmarks.
+        </div>
+        <div class="links reveal" style="margin-top:28px">
+            <a class="link-card" href="{{docs}}tessellation.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Tessellation</span></a>
+            <a class="link-card" href="{{docs}}ue4-versus-ue5-cost-analysis.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">UE4 versus UE5 cost analysis</span></a>
+            <a class="link-card" href="{{docs}}performance-targets.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Performance targets</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="Technologies">
+            <a href="brdf.html"><span class="pager__dir">&larr; Previous</span><span class="pager__name">Vite BRDF</span></a>
+            <a href="hair-fx.html"><span class="pager__dir">Next &rarr;</span><span class="pager__name">Vite Hair FX</span></a>
+        </nav>
+    </div>
+</section>

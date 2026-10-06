@@ -1,0 +1,119 @@
+<!--
+title: Vite BRDF
+description: A character-grade BRDF based on Callisto, with dual-lobe specular, a smooth terminator, retroreflection and diffuse Fresnel for skin, fabric and other surfaces that brighten at grazing angles.
+nav: brdf
+product: brdf
+image: assets/img/brdf-portrait.jpg
+-->
+<section class="hero hero--compact">
+    <div class="hero__media">
+        <img src="{{assets}}img/brdf-portrait.jpg" alt="Portrait of a character with soft skin shading and a smooth light terminator across the face" width="847" height="1030" fetchpriority="high" style="object-position:82% 28%">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite BRDF &middot; Shading</p>
+        <h1 class="display">Skin and cloth that hold up at grazing light.</h1>
+        <p class="lede">
+            Vite BRDF is a character-grade surface model based on the Callisto BRDF. It replaces the single
+            specular lobe and hard light terminator of the default lit model with the terms that decide whether
+            a face reads as real: dual-lobe specular, a smooth terminator, retroreflection and diffuse Fresnel.
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#terms">The shading terms</a>
+            <a class="btn btn--ghost" href="{{docs}}callisto-brdf-demos.html">Download the demos</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>2</em> lobes</span><span class="stat__label">Single- or dual-lobe GGX specular</span></div>
+            <div><span class="stat__value"><em>5</em> controls</span><span class="stat__label">Beyond the standard PBR inputs</span></div>
+            <div><span class="stat__value"><em>0</em> new pins</span><span class="stat__label">Repurposes existing material inputs</span></div>
+            <div><span class="stat__value">Opt-<em>in</em></span><span class="stat__label">Compiled only into projects that use it</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">Why it exists</p>
+            <h2 class="h2">The default lit model is a good general BRDF and a mediocre skin BRDF.</h2>
+            <p class="lede">
+                Two artefacts give real-time characters away: a shadow terminator that cuts across curved surfaces
+                too sharply, and surfaces that stay flat where real skin and fibres brighten toward grazing angles.
+                Vite BRDF gives artists direct control over both.
+            </p>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/brdf-female.jpg" alt="Two renders of the same female character in the Callisto BRDF showcase" loading="lazy" width="1600" height="1031"></div>
+            <figcaption>The Callisto BRDF showcase. Smooth terminator softens the shadow line across the face and neck while specular stays crisp.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised" id="terms">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">The shading terms</p>
+            <h2 class="h2">Five controls, each aimed at a specific tell.</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:spark}}</div><h3 class="h3">Dual-lobe specular</h3><p>Single- or dual-lobe GGX, so skin can carry both a tight oily highlight and a broad sheen, with a specular Fresnel falloff control.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:face}}</div><h3 class="h3">Smooth terminator</h3><p>Softens the light terminator across the shadow boundary on curved surfaces, without flattening the overall shading.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:target}}</div><h3 class="h3">Retroreflection</h3><p>Light returned toward its source, with its own falloff curve, for the back-scatter of skin, dust and fine fibres.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:eye}}</div><h3 class="h3">Diffuse Fresnel</h3><p>Diffuse brightening toward grazing angles, with a falloff control, for skin and fabric without a full subsurface model.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">Pay only if used</h3><p>Behind a compile-time switch. Gating Vite's extra shading models raised a reference scene by 12.3%, so projects that skip it lose nothing.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">Production-friendly</p>
+            <h2 class="h2">Selected per material. No new pins to learn.</h2>
+            <div class="prose">
+                <p>
+                    Vite BRDF is a shading model, selected per material like any other. Instead of adding inputs,
+                    it repurposes existing material pins, which the material editor relabels automatically once the
+                    model is selected.
+                </p>
+            </div>
+            <table class="spec" style="margin-top:20px">
+                <tbody>
+                    <tr><th scope="row">Opacity</th><td>Retroreflection</td></tr>
+                    <tr><th scope="row">Ambient Occlusion</th><td>Retroreflection falloff</td></tr>
+                    <tr><th scope="row">Anisotropy</th><td>Diffuse Fresnel</td></tr>
+                    <tr><th scope="row">Custom Data 0</th><td>Smooth terminator</td></tr>
+                    <tr><th scope="row">Custom Data 1</th><td>Diffuse Fresnel falloff</td></tr>
+                    <tr><th scope="row">Advanced Params node</th><td>Specular Fresnel falloff</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/brdf-male.jpg" alt="A male character under hard side light, with soft terminator and sheen across the face" loading="lazy" width="1345" height="757"></div>
+            <figcaption>Hard side light is where the terminator and retroreflection controls matter most.</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised section--tight">
+    <div class="wrap">
+        <div class="callout reveal">
+            <strong>Availability.</strong> Vite BRDF ships today in Unreal Engine Vite as the experimental
+            <em>Callisto BRDF</em> shading model. Build the engine with <code>VITE_SHADINGMODEL_CALLISTO=1</code>
+            to enable it. Two character demo projects are available to download.
+        </div>
+        <div class="links reveal" style="margin-top:28px">
+            <a class="link-card" href="{{docs}}shading-models.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Shading Models</span></a>
+            <a class="link-card" href="{{docs}}callisto-brdf-demos.html"><span class="link-card__kicker">Demos</span><span class="link-card__title">Callisto BRDF demo projects</span></a>
+            <a class="link-card" href="{{docs}}compile-time-switches.html"><span class="link-card__kicker">Manual</span><span class="link-card__title">Compile-Time Switches</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="Technologies">
+            <a href="vitex-physics.html"><span class="pager__dir">&larr; Previous</span><span class="pager__name">ViteX Physics</span></a>
+            <a href="vertis.html"><span class="pager__dir">Next &rarr;</span><span class="pager__name">Vite Vertis</span></a>
+        </nav>
+    </div>
+</section>

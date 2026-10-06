@@ -1,0 +1,181 @@
+<!--
+title: Vite Technology — Real-time rendering and physics for Unreal Engine
+description: Global illumination and path tracing, a game-tuned physics SDK, character shading, geometry and hair — the technology behind Unreal Engine Vite, built for native resolution and fixed frame budgets.
+image: assets/img/hero-apartment.jpg
+-->
+<section class="hero">
+    <div class="hero__media">
+        <img src="{{assets}}img/hero-apartment.jpg" alt="An overgrown, abandoned apartment lit by sunlight through a collapsed ceiling, rendered in Unreal Engine Vite" width="1920" height="1080" fetchpriority="high">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite Technology</p>
+        <h1 class="display">Real-time rendering and physics, engineered for frame budgets.</h1>
+        <p class="lede">
+            The research and engineering behind Unreal Engine Vite: global illumination and path tracing, a
+            game-tuned physics SDK, character shading, geometry and hair &mdash; built to run at native
+            resolution on the hardware games actually ship on.
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#technology">Explore the technology</a>
+            <a class="btn btn--ghost" href="#contact">Partner with Vite</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>2.5&times;</em></span><span class="stat__label">Frame rate of Lumen in UE 5.7 on the same scene, with ray-traced GI</span></div>
+            <div><span class="stat__value"><em>4.75&times;</em></span><span class="stat__label">In-engine physics frame rate versus Chaos, 3,000 bodies</span></div>
+            <div><span class="stat__value"><em>1.39&times;</em></span><span class="stat__label">Peak speed-up over stock NVIDIA PhysX 3.4 on a 10,005-body solver benchmark (1.34&times; at worst)</span></div>
+            <div><span class="stat__value">4K<em>60</em></span><span class="stat__label">Native-resolution target on PS5-class GPUs, ray tracing included</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="technology">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">The suite</p>
+            <h2 class="h2">Five technologies. One rule: it has to ship.</h2>
+            <p class="lede">
+                Each technology is developed inside a production engine, against fixed frame budgets and
+                console-class CPUs, and measured before it is claimed.
+            </p>
+        </div>
+        <div class="products">
+            <a class="product product--wide reveal" href="restir.html" data-product="restir">
+                <div class="product__media"><img src="{{assets}}img/restir-attic.jpg" alt="Attic interior lit by sun shafts and soft bounce light from ray-traced global illumination" loading="lazy" width="1321" height="743"></div>
+                <div class="product__body">
+                    <p class="product__tag">Global illumination &middot; Path tracing</p>
+                    <h3 class="product__name">Vite ReSTIR</h3>
+                    <p class="product__text">Reservoir-based spatiotemporal resampling for real-time global illumination, with a real-time path tracer on the same pipeline. Path-traced lighting designed to cost less than Lumen at Epic quality.</p>
+                    <span class="product__more">Vite ReSTIR</span>
+                </div>
+            </a>
+            <a class="product product--wide reveal" href="vitex-physics.html" data-product="vitex">
+                <div class="product__media"><img src="{{assets}}img/physics-destruction.jpg" alt="A wall shattering into debris under weapon fire in a physics test level" loading="lazy" width="1443" height="956"></div>
+                <div class="product__body">
+                    <p class="product__tag">Physics SDK &middot; CPU and GPU</p>
+                    <h3 class="product__name">ViteX Physics</h3>
+                    <p class="product__text">A physics SDK fully compatible with Unreal Engine 4, combining solver advances from PhysX 4 and 5 tuned for games with GPU-accelerated fluids, cloth and smoke through Flex and Flow.</p>
+                    <span class="product__more">ViteX Physics</span>
+                </div>
+            </a>
+            <a class="product reveal" href="brdf.html" data-product="brdf">
+                <div class="product__media"><img src="{{assets}}img/brdf-portrait.jpg" alt="Close-up of a character's face shaded with the Callisto-based BRDF" loading="lazy" width="847" height="1030" style="object-position:center 30%"></div>
+                <div class="product__body">
+                    <p class="product__tag">Shading</p>
+                    <h3 class="product__name">Vite BRDF</h3>
+                    <p class="product__text">A character-grade BRDF based on Callisto: dual-lobe specular, smooth terminator, retroreflection and diffuse Fresnel.</p>
+                    <span class="product__more">Vite BRDF</span>
+                </div>
+            </a>
+            <a class="product reveal" href="vertis.html" data-product="vertis">
+                <div class="product__media"><img src="{{assets}}img/vertis-lod.svg" alt="A surface shown at three levels of detail with arrows indicating continuous transitions" loading="lazy" width="1600" height="900"></div>
+                <div class="product__body">
+                    <p class="product__tag">Geometry</p>
+                    <h3 class="product__name">Vite Vertis</h3>
+                    <p class="product__text">Continuous, pop-free level of detail on the standard mesh pipeline. Built to beat Nanite on the hardware games ship on.</p>
+                    <span class="product__more">Vite Vertis</span>
+                </div>
+            </a>
+            <a class="product reveal" href="hair-fx.html" data-product="hairfx">
+                <div class="product__media"><img src="{{assets}}img/hairfx-strands.svg" alt="Flowing hair strands with bright and warm highlight bands" loading="lazy" width="1600" height="900"></div>
+                <div class="product__body">
+                    <p class="product__tag">Hair</p>
+                    <h3 class="product__name">Vite Hair FX</h3>
+                    <p class="product__text">Strand-based hair built on TressFX, with a new hair BRDF and a substantially lower frame cost.</p>
+                    <span class="product__more">Vite Hair FX</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised" id="results">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">Measured, not promised</p>
+            <h2 class="h2">The engine already beats the stack it replaces.</h2>
+            <div class="prose">
+                <p>
+                    Vite Technology grows out of Unreal Engine Vite, a performance-first engine already in use.
+                    These are like-for-like captures from the same scenes, with methodology published in the
+                    <a href="{{docs}}physics.html">engine manual</a>.
+                </p>
+                <p>
+                    <strong>The comparison is deliberate:</strong> Vite with ray-traced lighting against UE 5.7's
+                    intended feature set, and Vite's PhysX against Chaos and against stock NVIDIA PhysX.
+                </p>
+            </div>
+        </div>
+        <div class="reveal">
+            <h3 class="h3">Ray-traced GI scene, frames per second</h3>
+            <div class="bars" role="list">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Unreal Engine Vite</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">811 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Lumen, UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:39.95%"></span></span><span class="bar__value">324 FPS</span></div>
+            </div>
+            <p class="bars__note">RTX 4080 Super, 1440p native. Higher is better.</p>
+
+            <h3 class="h3" style="margin-top:36px">3,000 simulated bodies in engine, frames per second</h3>
+            <div class="bars" role="list">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Vite, PhysX 3.4</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">157.9 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Chaos, UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:21.07%"></span></span><span class="bar__value">33.3 FPS</span></div>
+            </div>
+            <p class="bars__note">Same scene, 3,016 rendered primitives on both sides. Higher is better.</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">How we build</p>
+            <h2 class="h2">Engineering principles</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:target}}</div><h3 class="h3">Native resolution first</h3><p>Image clarity degrades first and is hardest to win back. Budgets go to holding native resolution, not to reconstructing it.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:gauge}}</div><h3 class="h3">Fixed frame budgets</h3><p>Every feature is costed in milliseconds against 60 and 120 FPS targets before it is enabled by default.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:cpu}}</div><h3 class="h3">Console-class CPUs</h3><p>Physics and animation kernels are timed on PS5-class silicon, with one 256-bit FMA pipe, not on desktop parts.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">Pay only for what you use</h3><p>Optional systems compile out by default. Gating extra shading models alone raised a reference scene by 12.3%.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:shield}}</div><h3 class="h3">Production-proven</h3><p>Features must survive cooking, packaging and shipping on real hardware. Demos are a by-product, not the goal.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:eye}}</div><h3 class="h3">Reproducible numbers</h3><p>Results are published with host, build, workload and thread counts, so they can be checked rather than taken on trust.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">Availability</p>
+            <h2 class="h2">What ships today, and what is next</h2>
+            <p class="lede">Every technology builds on systems that already ship in Unreal Engine Vite.</p>
+        </div>
+        <div class="table-scroll reveal">
+            <table class="matrix">
+                <thead><tr><th scope="col">Technology</th><th scope="col">Shipping in Unreal Engine Vite today</th><th scope="col">Status</th></tr></thead>
+                <tbody>
+                    <tr><td>Vite ReSTIR</td><td>Dynamic DDGI, RTXDI, ray-traced reflections, editor path tracer</td><td><span class="pill pill--dev">In development</span></td></tr>
+                    <tr><td>ViteX Physics</td><td>Vite PhysX 3.4, APEX, Blast, fixed timestep, instanced bodies; Flex and Flow in integration</td><td><span class="pill pill--dev">In development</span></td></tr>
+                    <tr><td>Vite BRDF</td><td>Callisto BRDF shading model</td><td><span class="pill pill--live">Available, experimental</span></td></tr>
+                    <tr><td>Vite Vertis</td><td>Standard static-mesh LOD pipeline and tessellation</td><td><span class="pill pill--dev">In development</span></td></tr>
+                    <tr><td>Vite Hair FX</td><td>TressFX 5.0 strand hair</td><td><span class="pill pill--dev">In development</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="contact">
+    <div class="wrap">
+        <div class="cta reveal">
+            <p class="eyebrow">Work with Vite</p>
+            <h2 class="h2">Licensing, integration and investment.</h2>
+            <p class="lede">
+                Studios evaluating the technology for a title, and partners interested in the roadmap, can reach
+                the team directly. The engine manual covers everything that already ships.
+            </p>
+            <div class="actions">
+                <a class="btn btn--primary" href="https://discord.gg/n9zQrYFhMb" rel="noopener">Talk to the team on Discord</a>
+                <a class="btn btn--ghost" href="{{docs}}">Read the engine manual</a>
+                <a class="btn btn--ghost" href="https://x.com/theredpix" rel="noopener">Follow updates</a>
+            </div>
+        </div>
+    </div>
+</section>
