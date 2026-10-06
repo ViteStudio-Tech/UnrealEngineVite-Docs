@@ -2,9 +2,10 @@
 
 <tldr>
 <p>
-Vite routinely backports engine work from UE 5.0 through UE 5.8. The public release history since the
-LTS contains more than 100 backport commits, many of them bundling several upstream changes. This page
-covers how to do one without breaking licensing, ABI or performance. 
+Vite routinely backports engine work from UE 5.0 through UE 5.8. The release records since the LTS contain
+more than 500 backport commits: about 400 upstream Unreal Engine 5 changes cherry-picked with their original
+authorship, and more than 100 Vite commits that adapt or bundle further backports. This page covers how to
+do one without breaking licensing, ABI or performance. 
 </p>
 </tldr>
 
