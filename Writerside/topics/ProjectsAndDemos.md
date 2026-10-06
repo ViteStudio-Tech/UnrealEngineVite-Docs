@@ -1,4 +1,4 @@
-﻿# Projects and Demos
+# Projects and Demos
 
 <tldr>
 <p>
@@ -36,6 +36,9 @@ deciding whether Vite fits your project.
 The benchmarks are more informative than a frame rate number suggests. Run them with `stat unit` visible
 and note which thread is the limit &mdash; that tells you what a similar workload will cost you, and which
 of Vite's optimisations apply. See [Profiling](Profiling.md).
+
+Standalone and packaged builds are capped at 120&nbsp;FPS by default, so run `t.MaxFPS 0` before measuring
+anything faster. See [Engine Default Changes](Engine-Defaults.md).
 
 <note>
 Numbers from these projects reflect the hardware they were captured on. Vite's
