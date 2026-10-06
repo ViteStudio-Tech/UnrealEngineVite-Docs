@@ -32,7 +32,7 @@ equivalent such as Nanite geometry. Features that do not exist in 4.27 cannot be
 
 ### What platforms does Vite support?
 
-Windows 64-bit, primarily on DirectX 12. Android and Linux (servers) receive toolchain and build fixes;
+Windows 64-bit, primarily on DirectX 12. Android, Linux (servers) and macOS receive toolchain and build work;
 other platforms inherit stock 4.27 support but are neither tested nor tuned. Console work is private. See
 [Platforms](Platforms.md).
 

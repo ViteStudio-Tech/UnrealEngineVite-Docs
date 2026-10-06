@@ -2,8 +2,8 @@
 
 <tldr>
 <p>
-Vite's primary target is 64-bit Windows on DirectX 12, where every feature is built and measured. Android
-and Linux receive targeted fixes; other platforms inherit stock 4.27 support. Console work is private.
+Vite's primary target is 64-bit Windows on DirectX 12, where every feature is built and measured. Android,
+Linux and macOS receive targeted build work; other platforms inherit stock 4.27 support. Console work is private.
 </p>
 </tldr>
 
