@@ -15,7 +15,7 @@ GPU 機能です。Windows 以外のプラットフォームの作業は、そ�
 |---|---|---|
 | Windows 64 ビット | **主要** | すべてのビルドと計測の基準 |
 | Windows 32 ビット | サポートファイルのみ | Win64 のツールが必要とするもので、出荷の対象ではない |
-| Android | 保守対象 | C++20 の修正を伴う Android NDK 29、arm32 の修正、エディタでの Android Vulkan のプレビュー（[March Major](ueVite26-MarchMajor.md)）。Meta Quest のデバイスプロファイルとパッケージ化の修正（[LTS](ueVite25-LTS.md)）。NEON の演算の改良（[June Major](ueVite26-JuneMajor.md)） |
+| Android | 保守対象 | C++20 の修正を伴う Android NDK 29、arm32 の修正、エディタでの Android Vulkan のプレビュー（[March Major](ueVite26-MarchMajor.md)）。Meta Quest、Quest 2、Quest Pro、Quest 3、Quest 3S のデバイスプロファイルとパッケージ化の修正（[LTS](ueVite25-LTS.md)）。NEON の演算の改良（[June Major](ueVite26-JuneMajor.md)） |
 | Linux | サーバー向けに保守 | サーバーのツールチェーンの修正（March）、専用サーバーのプラグインの更新（[August Major](ueVite26-AugustMajor.md)）、Unix のファイル層のロックの修正（[September Major](ueVite26-SeptemberMajor.md)）。レイトレーシング一式は未テスト |
 | Mac | ビルド可能 | Windows のツールチェーンとは分けた macOS / Xcode 26 のビルドの移植（[August Major](ueVite26-AugustMajor.md)、September にも含まれる）。DXR がないため、レイトレーシング一式は対象外 |
 | iOS / tvOS | 継承 | 標準の 4.27 の対応と、共通のフォワードレンダラーの変更 |

@@ -18,7 +18,7 @@ projects shipping there: toolchains, compile fixes and the forward (mobile) rend
 |---|---|---|
 | Windows 64-bit | **Primary** | What everything is built and measured against |
 | Windows 32-bit | Support files only | Required by Win64 tooling; not a shipping target |
-| Android | Maintained | Android NDK 29 with C++20 fixes, arm32 fixes and Android Vulkan preview in the editor ([March Major](ueVite26-MarchMajor.md)); Meta Quest device profiles and packaging fixes ([LTS](ueVite25-LTS.md)); NEON math upgrades ([June Major](ueVite26-JuneMajor.md)) |
+| Android | Maintained | Android NDK 29 with C++20 fixes, arm32 fixes and Android Vulkan preview in the editor ([March Major](ueVite26-MarchMajor.md)); device profiles for Meta Quest, Quest 2, Quest Pro, Quest 3 and Quest 3S, and packaging fixes ([LTS](ueVite25-LTS.md)); NEON math upgrades ([June Major](ueVite26-JuneMajor.md)) |
 | Linux | Maintained for servers | Server toolchain fix (March), dedicated-server plugin updates ([August Major](ueVite26-AugustMajor.md)), Unix file-layer locking fix ([September Major](ueVite26-SeptemberMajor.md)). The ray tracing suite is untested. |
 | Mac | Builds | macOS / Xcode 26 build port, kept separate from the Windows toolchain ([August Major](ueVite26-AugustMajor.md), carried into September). No DXR, so the ray tracing suite does not apply. |
 | iOS / tvOS | Inherited | Stock 4.27 support, plus the shared forward-renderer changes |
