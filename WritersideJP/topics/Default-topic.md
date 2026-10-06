@@ -99,7 +99,7 @@ PS5 クラスの GPU で 4K ネイティブ 60 FPS を実現できます。DDGI 
 SSGI は UE5 で Lumen に統合された際に品質と性能が低下し、別の GI ソリューションと併用できなくなりました。Vite では DDGI ときれいに組み合わせられます。詳しくは <a href="SSGI.md">SSGI</a> を参照してください。
 </def>
 <def title="PhysX 3.4">
-新しい Clang 向けにライブラリを再ビルドし、Blast に対応し、ベンダーを問わず動作する GPU パーティクルを備えています。同じワークロードで Chaos より測定可能なほど高速です。詳しくは <a href="PhysX.md">PhysX</a> を参照してください。
+clang-cl 22 と最新のツールチェーンでライブラリを再ビルドし、NVIDIA Blast を追加しています。エンジン内の 3,000 ボディで Chaos の 4.75 倍のフレームレート、ソルバーのベンチマークで標準の PhysX 3.4 より 1.34&ndash;1.39 倍高速です。詳しくは <a href="PhysX.md">PhysX</a> を参照してください。
 </def>
 <def title="Apex Destruction と Cloth">
 どちらも UE5 で非推奨となった後に削除され、既存アセットの移行手段はありませんでした。Vite では引き続き動作します。詳しくは <a href="Destruction-And-Cloth.md">破壊とクロス</a> を参照してください。

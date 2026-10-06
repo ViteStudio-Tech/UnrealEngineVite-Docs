@@ -113,8 +113,9 @@ SSGI regressed in quality and performance when UE5 folded it into Lumen, and can
 separate GI solution. In Vite it composes cleanly with DDGI. See <a href="SSGI.md">SSGI</a>.
 </def>
 <def title="PhysX 3.4">
-Libraries rebuilt for newer Clang versions, Blast support added, and GPU-accelerated particles that run
-across vendors. Measurably faster than Chaos on the same workload. See <a href="PhysX.md">PhysX</a>.
+Libraries rebuilt with clang-cl 22 and modern toolchains, with NVIDIA Blast added. 4.75&times; Chaos's
+frame rate with 3,000 bodies in engine, and 1.34&ndash;1.39&times; faster than stock PhysX 3.4 on the solver
+benchmark. See <a href="PhysX.md">PhysX</a>.
 </def>
 <def title="Apex Destruction and Cloth">
 Both were deprecated and then removed in UE5 with no migration path for existing assets. In Vite they keep
