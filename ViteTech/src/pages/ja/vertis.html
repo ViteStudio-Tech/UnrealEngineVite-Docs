@@ -1,0 +1,94 @@
+<!--
+title: Vite Vertis
+description: 標準のメッシュのパイプライン上での、連続的でポップのない LOD。Vite のジオメトリシステムは、ゲームが実際に出荷されるハードウェアで Nanite を超えるために作られています。nav: vertis
+product: vertis
+image: assets/img/vertis-lod.svg
+-->
+<section class="hero hero--plain">
+    <div class="wrap split split--wide-media">
+        <div>
+            <p class="eyebrow">Vite Vertis &middot; ジオメトリ</p>
+            <h1 class="display">仮想化したパイプラインなしで、高密度のジオメトリを。</h1>
+            <p class="lede">
+                Vite Vertis は Vite のジオメトリシステムです。インポート時に高品質な LOD のチェーンを生成し、その間を連続的でポップのない遷移でつなぎ、標準のメッシュのパイプラインで描画します。ゲームが実際に出荷されるハードウェアで
+                Nanite を超えるために作っています。
+            </p>
+            <div class="actions">
+                <a class="btn btn--primary" href="#approach">アプローチを見る</a>
+                <a class="btn btn--ghost" href="index.html#contact">チームに相談する</a>
+            </div>
+        </div>
+        <figure class="figure">
+            <div class="figure__frame"><img src="{{assets}}img/vertis-lod.svg" alt="1 つのサーフェスを高密度から粗いものまで 3 段階の詳細度で示し、連続的な遷移を表す矢印でつないだ図" width="1600" height="900"></div>
+        </figure>
+    </div>
+</section>
+
+<section class="section" id="approach">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">課題</p>
+            <h2 class="h2">仮想化したジオメトリには、毎フレームの基本コストがある。</h2>
+            <div class="prose">
+                <p>
+                    Nanite はジオメトリを独自のパイプライン（ストリーミング、ビジビリティバッファ、専用のラスタライザー）に移し、プロジェクトは何かを描く前からその仕組みのコストを払います。ハイエンドの PC では、その取引が見合うこともあります。ネイティブ解像度と 60 FPS や 120 FPS を目標とするコンソールクラスや携帯機のハードウェアでは、その基本コストはゲームが割けない予算です。
+                </p>
+                <p>
+                    従来の離散的な LOD は基本コストを避けられますが、切り替わるときに目に見えてポップします。そのため、チームは
+                    LOD 0 に予算を使いすぎるか、アーティファクトを受け入れるかのどちらかになります。
+                </p>
+            </div>
+        </div>
+        <div class="reveal">
+            <p class="eyebrow">アプローチ</p>
+            <h2 class="h2">難しい処理はインポート時に。実行時は単純に。</h2>
+            <div class="prose">
+                <p>
+                    Vertis は、属性を考慮した高品質な簡略化によって、インポート時に各メッシュの LOD のチェーンを生成し、ある段階から次の段階へ滑らかにブレンドするためのデータをベイクします。実行時の遷移は離散的ではなく連続的なため、ディテールはポップせずに減っていきます。
+                </p>
+                <p>
+                    <strong>描画は標準のスタティックメッシュの経路のまま</strong>なので、Vertis のメッシュは、Vite のスタティックメッシュがすでに対応しているすべてのものと引き続き動作します。
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">設計目標</p>
+            <h2 class="h2">Vertis が実現を目指すもの</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:morph}}</div><h3 class="h3">ポップのない遷移</h3><p>詳細度の間を連続的にブレンドするため、ディテールを減らしても目に見える切り替えとして現れません。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:mesh}}</div><h3 class="h3">高品質な簡略化</h3><p>インポート時の属性を考慮した簡略化で、LOD のチェーンを下っても輪郭、UV、法線を保ちます。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:gauge}}</div><h3 class="h3">固定の基本コストなし</h3><p>毎フレーム動かすビジビリティバッファも、別のラスタライザーも、ストリーミングのシステムもありません。コストは描くものに比例します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:plug}}</div><h3 class="h3">標準のパイプライン</h3><p>メッシュは引き続きスタティックメッシュなので、インスタンシング、シャドウ、レイトレーシング、既存のマテリアルがそのまま動作します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:chip}}</div><h3 class="h3">幅広いプラットフォーム</h3><p>新しい GPU の機能を必要とせず、Unreal Engine 4 のスタティックメッシュが動く場所ならどこでも動作します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:clock}}</div><h3 class="h3">エディタでのベイク</h3><p>生成はアセットのビルド時に行うため、アーティストは慣れた LOD のワークフローを保ち、実行時にその構築のコストはかかりません。</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <div class="callout reveal">
+            <strong>状況: 開発中。</strong> Vertis は、Vite の既存のスタティックメッシュの LOD のパイプラインと、現在出荷している距離とディスプレイスメントに基づく <a href="{{docs}}tessellation.html">テッセレーション</a> の上に築かれています。性能の比較は、Vite の他のベンチマークと同じ方法で計測し、最初のリリースとともに公開します。
+        </div>
+        <div class="links reveal" style="margin-top:28px">
+            <a class="link-card" href="{{docs}}tessellation.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">テッセレーション</span></a>
+            <a class="link-card" href="{{docs}}ue4-versus-ue5-cost-analysis.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">UE4 と UE5 のコスト分析</span></a>
+            <a class="link-card" href="{{docs}}performance-targets.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">パフォーマンス目標</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="技術">
+            <a href="brdf.html"><span class="pager__dir">&larr; 前へ</span><span class="pager__name">Vite BRDF</span></a>
+            <a href="hair-fx.html"><span class="pager__dir">次へ &rarr;</span><span class="pager__name">Vite Hair FX</span></a>
+        </nav>
+    </div>
+</section>

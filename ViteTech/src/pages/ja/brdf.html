@@ -1,0 +1,111 @@
+<!--
+title: Vite BRDF
+description: Callisto をベースにした、キャラクター向けの品質の BRDF。2 ローブのスペキュラー、スムーズターミネーター、再帰反射、ディフューズのフレネルで、かすめる角度で明るくなる肌や布などのサーフェスを表現します。nav: brdf
+product: brdf
+image: assets/img/brdf-portrait.jpg
+-->
+<section class="hero hero--compact">
+    <div class="hero__media">
+        <img src="{{assets}}img/brdf-portrait.jpg" alt="柔らかな肌のシェーディングと、顔にかかる滑らかな光のターミネーターを持つキャラクターのポートレート" width="847" height="1030" fetchpriority="high" style="object-position:82% 28%">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite BRDF &middot; シェーディング</p>
+        <h1 class="display">かすめる光の下でも破綻しない、肌と布。</h1>
+        <p class="lede">
+            Vite BRDF は、Callisto BRDF をベースにしたキャラクター向けの品質のサーフェスモデルです。既定の Lit モデルの単一のスペキュラーローブと硬い光のターミネーターを、顔が本物に見えるかどうかを決める項に置き換えます。2 ローブのスペキュラー、スムーズターミネーター、再帰反射、ディフューズのフレネルです。
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#terms">シェーディングの項</a>
+            <a class="btn btn--ghost" href="{{docs}}callisto-brdf-demos.html">デモをダウンロード</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>2</em>&nbsp;ローブ</span><span class="stat__label">単一または 2 ローブの GGX スペキュラー</span></div>
+            <div><span class="stat__value"><em>5</em>&nbsp;つの制御</span><span class="stat__label">標準の PBR の入力に加えて</span></div>
+            <div><span class="stat__value"><em>0</em>&nbsp;個の新しいピン</span><span class="stat__label">既存のマテリアルの入力を流用</span></div>
+            <div><span class="stat__value">任意で<em>有効</em></span><span class="stat__label">使うプロジェクトにだけコンパイル</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">存在する理由</p>
+            <h2 class="h2">既定の Lit モデルは、汎用の BRDF としては優秀で、肌の BRDF としては平凡です。</h2>
+            <p class="lede">
+                リアルタイムのキャラクターだと分かってしまう 2 つのアーティファクトがあります。曲面を鋭く横切りすぎるシャドウのターミネーターと、本物の肌や繊維ならかすめる角度に向かって明るくなるのに平板なままのサーフェスです。Vite BRDF は、アーティストがその両方を直接制御できるようにします。
+            </p>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/brdf-female.jpg" alt="Callisto BRDF のショーケースでの、同じ女性キャラクターの 2 つの描画" loading="lazy" width="1600" height="1031"></div>
+            <figcaption>Callisto BRDF のショーケース。スムーズターミネーターが顔と首にかかる影の境界を和らげ、スペキュラーは鮮明なままです。</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised" id="terms">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">シェーディングの項</p>
+            <h2 class="h2">5&nbsp;つの制御。それぞれが特定の破綻を狙います。</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:spark}}</div><h3 class="h3">2&nbsp;ローブのスペキュラー</h3><p>単一または 2 ローブの GGX で、肌に鋭い脂のハイライトと広い艶の両方を持たせられます。スペキュラーのフレネルの減衰も制御できます。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:face}}</div><h3 class="h3">スムーズターミネーター</h3><p>全体のシェーディングを平坦にすることなく、曲面上の影の境界をまたぐ光のターミネーターを和らげます。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:target}}</div><h3 class="h3">再帰反射</h3><p>光源の方向へ返る光を、独自の減衰カーブとともに。肌、ほこり、細かな繊維の後方散乱を表現します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:eye}}</div><h3 class="h3">ディフューズのフレネル</h3><p>かすめる角度に向かうディフューズの明るさを、減衰の制御とともに。完全なサブサーフェスのモデルなしで肌と布を表現します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">使うときだけ払う</h3><p>コンパイル時のスイッチの背後にあります。Vite の追加のシェーディングモデルをゲートしたことで基準シーンが 12.3% 向上したため、使わないプロジェクトは何も失いません。</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">制作に優しい</p>
+            <h2 class="h2">マテリアルごとに選ぶだけ。覚える新しいピンはありません。</h2>
+            <div class="prose">
+                <p>
+                    Vite BRDF はシェーディングモデルで、他のモデルと同じようにマテリアルごとに選びます。入力を追加するのではなく既存のマテリアルのピンを流用し、モデルを選ぶとマテリアルエディタがラベルを自動で付け替えます。
+                </p>
+            </div>
+            <table class="spec" style="margin-top:20px">
+                <tbody>
+                    <tr><th scope="row">Opacity</th><td>再帰反射</td></tr>
+                    <tr><th scope="row">Ambient Occlusion</th><td>再帰反射の減衰</td></tr>
+                    <tr><th scope="row">Anisotropy</th><td>ディフューズのフレネル</td></tr>
+                    <tr><th scope="row">Custom Data 0</th><td>スムーズターミネーター</td></tr>
+                    <tr><th scope="row">Custom Data 1</th><td>ディフューズのフレネルの減衰</td></tr>
+                    <tr><th scope="row">Advanced Params ノード</th><td>スペキュラーのフレネルの減衰</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/brdf-male.jpg" alt="硬い横からの光の下の男性キャラクター。顔に柔らかなターミネーターと艶がある" loading="lazy" width="1345" height="757"></div>
+            <figcaption>ターミネーターと再帰反射の制御が最も効くのは、硬い横からの光の下です。</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised section--tight">
+    <div class="wrap">
+        <div class="callout reveal">
+            <strong>提供状況。</strong> Vite BRDF は現在、実験的な <em>Callisto BRDF</em> のシェーディングモデルとして
+            Unreal Engine Vite で出荷しています。有効にするには、エンジンを <code>VITE_SHADINGMODEL_CALLISTO=1</code> でビルドしてください。キャラクターのデモプロジェクトを 2 つダウンロードできます。
+        </div>
+        <div class="links reveal" style="margin-top:28px">
+            <a class="link-card" href="{{docs}}shading-models.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">シェーディングモデル</span></a>
+            <a class="link-card" href="{{docs}}callisto-brdf-demos.html"><span class="link-card__kicker">デモ</span><span class="link-card__title">Callisto BRDF のデモプロジェクト</span></a>
+            <a class="link-card" href="{{docs}}compile-time-switches.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">コンパイル時スイッチ</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="技術">
+            <a href="vitex-physics.html"><span class="pager__dir">&larr; 前へ</span><span class="pager__name">ViteX Physics</span></a>
+            <a href="vertis.html"><span class="pager__dir">次へ &rarr;</span><span class="pager__name">Vite Vertis</span></a>
+        </nav>
+    </div>
+</section>

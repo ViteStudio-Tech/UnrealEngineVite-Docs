@@ -2,13 +2,11 @@
 
 <tldr>
 <p>
-すべてのコミットの件名の先頭に、1 つ以上のカテゴリーのタグを付けます。広いものから具体的なものの順に重ねます。
-バックポートとプラグインの追加では、元のコミットやリポジトリへのリンクが必須です。
+すべてのコミットの件名の先頭に、1 つ以上のカテゴリーのタグを付けます。広いものから具体的なものの順に重ねます。バックポートとプラグインの追加では、元のコミットやリポジトリへのリンクが必須です。
 </p>
 </tldr>
 
-上流のエンジンを追うフォークには、さまざまな出所からの長い変更の履歴が蓄積します。その履歴を眺めて、最適化、
-レンダリングの機能、バックポートを区別できることが、将来のマージを扱えるものにします。
+上流のエンジンを追うフォークには、さまざまな出所からの長い変更の履歴が蓄積します。その履歴を眺めて、最適化、レンダリングの機能、バックポートを区別できることが、将来のマージを扱えるものにします。
 
 ## プレフィックス
 
@@ -40,8 +38,7 @@
 
 ### プレフィックスを重ねる
 
-自明でない変更の多くは、複数のタグを持ちます。広いものから具体的なものの順に並べ、変更の出所が最後に読めるように
-バックポートの印は最後に置きます。
+自明でない変更の多くは、複数のタグを持ちます。広いものから具体的なものの順に並べ、変更の出所が最後に読めるようにバックポートの印は最後に置きます。
 
 ```
 [Rendering][RT][Optimization][Adapted Backport 5.3] Exclude raygen shaders from RTPSOs
@@ -50,9 +47,7 @@ unless the corresponding feature is enabled
 [Rendering][Shading Models] Remove unnecessary branch for the Toon shading model
 ```
 
-`Backport` ではなく `Adapted Backport` とするのは、上流の変更がそのままでは適用できず、Vite のコードベースに合わせて
-書き直したことを示すためです。後で、元のコミットに対する上流の修正がここにも当てはまるかを調べるときに、この区別が
-重要になります。
+`Backport` ではなく `Adapted Backport` とするのは、上流の変更がそのままでは適用できず、Vite のコードベースに合わせて書き直したことを示すためです。後で、元のコミットに対する上流の修正がここにも当てはまるかを調べるときに、この区別が重要になります。
 
 変更が本当に 1 つのことなら、タグが 1 つのコミットでも問題ありません。
 
@@ -71,8 +66,7 @@ unless the corresponding feature is enabled
 バックポートやプラグインの追加では、コミットの本文に元のコミットやリポジトリへの正しいリンクを含めてください。
 </warning>
 
-これは礼儀ではなく、実際上の要件です。リンクがなければ、どのバージョンを統合したのか、その後上流で不具合が修正されたか、
-ライセンスが再配布を認めているかを、誰も判断できません。
+これは礼儀ではなく、実際上の要件です。リンクがなければ、どのバージョンを統合したのか、その後上流で不具合が修正されたか、ライセンスが再配布を認めているかを、誰も判断できません。
 
 ```
 [Plugin] Add Kawaii Physics 1.18.0, backported from UE5
@@ -83,8 +77,7 @@ Changes: UE5 API calls replaced with 4.27 equivalents in
 KawaiiPhysicsEditMode.cpp and AnimNode_KawaiiPhysics.cpp
 ```
 
-上流の個々のコミットのバックポートでは、リポジトリだけでなくコミットそのものにリンクしてください。
-[バックポート](Backporting.md) を参照してください。
+上流の個々のコミットのバックポートでは、リポジトリだけでなくコミットそのものにリンクしてください。[バックポート](Backporting.md) を参照してください。
 
 ## コミットの本文
 
@@ -95,8 +88,7 @@ KawaiiPhysicsEditMode.cpp and AnimNode_KawaiiPhysics.cpp
 - 追加したコンソール変数や [コンパイル時スイッチ](Compile-Time-Switches.md) と、その既定値
 - 意図的にやり残したこと
 
-計測した効果は重要です。数値のない `[Optimization]` のコミットは、結果ではなく主張にすぎません。説得力のある変更前と
-変更後の比較の作り方は [プロファイリング](Profiling.md) を参照してください。
+計測した効果は重要です。数値のない `[Optimization]` のコミットは、結果ではなく主張にすぎません。説得力のある変更前と変更後の比較の作り方は [プロファイリング](Profiling.md) を参照してください。
 
 ## ブランチ
 
@@ -116,8 +108,7 @@ KawaiiPhysicsEditMode.cpp and AnimNode_KawaiiPhysics.cpp
 | `r.Vite.SSAO` | レンダラー |
 | `p.VitePhysXFixedTimestep.Enabled` | 物理 |
 
-コンパイル時スイッチには `VITE_` のプレフィックスを使い、`Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h` で既定値と
-ともに定義しなければなりません。
+コンパイル時スイッチには `VITE_` のプレフィックスを使い、`Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h` で既定値とともに定義しなければなりません。
 
 ```c++
 #ifndef VITE_MY_FEATURE
@@ -125,9 +116,7 @@ KawaiiPhysicsEditMode.cpp and AnimNode_KawaiiPhysics.cpp
 #endif
 ```
 
-新しいスイッチは、同じ変更の中で [コンパイル時スイッチ](Compile-Time-Switches.md) に記載してください。記載されていない
-スイッチは、何も通知せずに何もしないコンソール変数をデバッグしている誰かによって発見されることになります。それこそが、
-記載される前の `VITE_RT_PSO_DEBLOAT` が引き起こした問題です。
+新しいスイッチは、同じ変更の中で [コンパイル時スイッチ](Compile-Time-Switches.md) に記載してください。記載されていないスイッチは、何も通知せずに何もしないコンソール変数をデバッグしている誰かによって発見されることになります。それこそが、記載される前の `VITE_RT_PSO_DEBLOAT` が引き起こした問題です。
 
 ## 関連項目
 

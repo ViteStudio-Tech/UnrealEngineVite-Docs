@@ -1,0 +1,95 @@
+<!--
+title: Vite Hair FX
+description: AMD TressFX をベースにしたストランドのヘアの描画。フレームのコストを下げるよう作り直し、新しいヘアの BRDF を加えて、主要キャラクターにカードではなく本物のストランドを与えます。nav: hairfx
+product: hairfx
+image: assets/img/hairfx-strands.svg
+-->
+<section class="hero hero--compact">
+    <div class="hero__media">
+        <img src="{{assets}}img/hairfx-strands.svg" alt="" width="1600" height="900" fetchpriority="high" style="object-position:70% center">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite Hair FX &middot; ヘア</p>
+        <h1 class="display">本物のストランドを、ゲームが払えるコストで。</h1>
+        <p class="lede">
+            Vite Hair FX は、AMD TressFX をベースに性能のために作り直し、新しいヘアの BRDF を加えたストランドのヘアです。シミュレーション、シェーディング、シャドウを 1 つのシステムとして動かし、主要キャラクターにカードではなく 1 本ずつのストランドを与えます。
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#features">新しい点を見る</a>
+            <a class="btn btn--ghost" href="index.html#contact">チームに相談する</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>ストランド</em></span><span class="stat__label">カードではなく、繊維ごとにシミュレーションして描画</span></div>
+            <div><span class="stat__value">新しい <em>BRDF</em></span><span class="stat__label">髪に特化したハイライトと光の透過</span></div>
+            <div><span class="stat__value">任意で<em>有効</em></span><span class="stat__label">ストランドのヘアを使うプロジェクトにだけコンパイル</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">なぜストランドなのか</p>
+            <h2 class="h2">カードは安価で予測しやすい。それでも、髪には見えきらない。</h2>
+            <div class="prose">
+                <p>
+                    カードによる髪は、動きの中やかすめる角度で破綻します。それはまさに、キャラクターが最もよく見られる場面です。ストランドの髪は個々の繊維をシミュレーションして描画するため、見た目は劇的に良くなりますが、従来はコストも劇的に高く、シミュレーション、半透明の多い描画、シャドウに分散していました。
+                </p>
+                <p>
+                    <strong>Vite Hair FX はそのコストの差を埋めるために存在します。</strong> 主要キャラクターではストランドの髪が実際のフレームの予算に収まるようにし、カードは群衆や遠景に使います。
+                </p>
+            </div>
+        </div>
+        <div class="reveal">
+            <table class="spec">
+                <tbody>
+                    <tr><th scope="row">ベース</th><td>Unreal Engine Vite のレンダラーに統合した AMD TressFX 5.0</td></tr>
+                    <tr><th scope="row">モジュール</th><td>実行時のシミュレーションと描画、アセットのインポート、エディタのツール</td></tr>
+                    <tr><th scope="row">シミュレーション</th><td>頭の動き、風、コリジョンに反応</td></tr>
+                    <tr><th scope="row">描画</th><td>順序に依存しない透明度、自己シャドウ、異方性の髪のハイライト</td></tr>
+                    <tr><th scope="row">プラットフォーム</th><td>デスクトップ。モバイルと ES 3.1 のシェーダープラットフォームからは自動で除外</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised" id="features">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">Hair FX が加えるもの</p>
+            <h2 class="h2">より速いパス、より良いシェーディング、より安全な統合。</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:gauge}}</div><h3 class="h3">低いフレームのコスト</h3><p>シミュレーションと描画のパスを性能のために作り直し、主要キャラクターのストランドの髪を 60 FPS の予算に収めることを目指します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:spark}}</div><h3 class="h3">新しいヘアの BRDF</h3><p>より自然な一次と二次のハイライト、そしてストランドを透過する光のための、髪に特化したシェーディングモデル。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:wind}}</div><h3 class="h3">安定したシミュレーション</h3><p>ストランドは速いキャラクターの動きに遅れずに追従し、減衰によってソルバーが落ち着き、髪が震え続けることがありません。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:strand}}</div><h3 class="h3">デバッグ表示</h3><p>シミュレーション用ストランド、ガイドの影響、根元の UV、ストランドの寸法を可視化し、作成の問題を数秒で見つけます。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">コンパイル時のゲート</h3><p>Hair FX はプロジェクトが有効にしたときにだけコンパイルされるため、ストランドの髪を使わないタイトルはそのシェーダーを一切持ちません。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:layers}}</div><h3 class="h3">Vite の技術と連携</h3><p>Vite のライティングと SSGI に統合し、細いジオメトリに適したアンチエイリアシングのモードについてはマニュアルで案内しています。</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <div class="callout reveal">
+            <strong>提供状況。</strong> TressFX 5.0 のストランドのヘアは、現在 Unreal Engine Vite で出荷しています。
+            <code>VITE_TRESSFX=1</code> でビルドし、プラグインを有効にしてください。Hair FX の性能の改良と新しいヘアの BRDF は、その上で開発中です。
+        </div>
+        <div class="links reveal" style="margin-top:28px">
+            <a class="link-card" href="{{docs}}hair-rendering.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">ヘアレンダリング</span></a>
+            <a class="link-card" href="{{docs}}compile-time-switches.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">コンパイル時スイッチ</span></a>
+            <a class="link-card" href="{{docs}}anti-aliasing.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">アンチエイリアシング</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="技術">
+            <a href="vertis.html"><span class="pager__dir">&larr; 前へ</span><span class="pager__name">Vite Vertis</span></a>
+            <a href="index.html#technology"><span class="pager__dir">すべての技術 &rarr;</span><span class="pager__name">Vite Technology</span></a>
+        </nav>
+    </div>
+</section>

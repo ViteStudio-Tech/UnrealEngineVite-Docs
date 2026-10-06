@@ -4,14 +4,11 @@
 <p>
 このドキュメントは JetBrains Writerside のプロジェクトで、英語の <code>Writerside\</code> と日本語の
 <code>WritersideJP\</code> の 2 つのモジュールがあります。Markdown のファイルを両方に追加し、両方のツリーに登録して
-<code>main</code> にプッシュすると、GitHub Actions が両言語と Vite Technology のサイトをビルドし、GitHub Pages に
-デプロイします。
+<code>main</code> にプッシュすると、GitHub Actions が両言語と Vite Technology のサイトをビルドし、GitHub Pages にデプロイします。
 </p>
 </tldr>
 
-エンジンに遅れたドキュメントは、ドキュメントがないより悪いものです。人はそれを信頼するからです。既定値を変える、
-コンソール変数を追加する、機能をコンパイル対象から外す、といった変更をしたら、それを説明するページも同じ作業の中で変える
-必要があります。
+エンジンに遅れたドキュメントは、ドキュメントがないより悪いものです。人はそれを信頼するからです。既定値を変える、コンソール変数を追加する、機能をコンパイル対象から外す、といった変更をしたら、それを説明するページも同じ作業の中で変える必要があります。
 
 ## リポジトリの構成
 
@@ -42,22 +39,22 @@
         相互にリンクします。親のセクションのページのトピックの表と、関連するページの <b>関連項目</b> の一覧に追加します。
     </step>
     <step>
-        <code>WritersideJP\topics\</code> の同じパスに日本語のページを作成し、<code>WritersideJP\jp.tree</code> の同じ
-        位置に日本語の <code>toc-title</code> とともに追加します。まだ翻訳できない場合は、2 つのツリーが一致するように
-        英語のページをコピーしておきます。
+        <code>WritersideJP\topics\</code> の同じパスに日本語のページを作成し、<code>WritersideJP\jp.tree</code> の同じ位置に日本語の <code>toc-title</code> とともに追加します。まだ翻訳できない場合は、2 つのツリーが一致するように英語のページをコピーしておきます。
     </step>
     <step><code>main</code> にプッシュします。ワークフローが自動でビルドしてデプロイします。</step>
 </procedure>
 
 <note>
-画像と <code>vite-theme.html</code> は英語のモジュールにだけ置きます。ワークフローは日本語のビルドの前にそれらを
-<code>WritersideJP</code> にコピーし、そのコピーは Git で無視されます。<code>WritersideJP\images\</code> に画像を
-コミットしないでください。
+ブラウザーは、日本語の文字どうしの間の改行を空白として表示します。日本語の段落は 1 行で書くか、コミットの前に <code>python Tools/join_cjk_lines.py</code> を実行してください。両側が日本語の折り返しを結合し、コードブロックには手を触れません。ワークフローでも実行されます。
 </note>
 
 <note>
-Writerside はトピックのリンクをパスではなくファイル名で解決するため、<code>[Ray Tracing](Ray-Tracing.md)</code> は
-どちらのファイルがどのフォルダーにあっても機能します。そのため、ファイル名はモジュール全体で一意でなければなりません。
+画像と <code>vite-theme.html</code> は英語のモジュールにだけ置きます。ワークフローは日本語のビルドの前にそれらを
+<code>WritersideJP</code> にコピーし、そのコピーは Git で無視されます。<code>WritersideJP\images\</code> に画像をコミットしないでください。
+</note>
+
+<note>
+Writerside はトピックのリンクをパスではなくファイル名で解決するため、<code>[Ray Tracing](Ray-Tracing.md)</code> はどちらのファイルがどのフォルダーにあっても機能します。そのため、ファイル名はモジュール全体で一意でなければなりません。
 </note>
 
 ## 執筆の決まり

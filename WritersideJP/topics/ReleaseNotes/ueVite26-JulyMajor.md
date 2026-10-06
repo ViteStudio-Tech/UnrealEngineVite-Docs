@@ -2,10 +2,8 @@
 
 <tldr>
 <p>
-July はパフォーマンスのゲーティングと製品化への備えに重点を置いたリリースです。オプションのシェーダーモデルを既定で
-コンパイル対象から外して <b>12.3% のフレームレート向上</b> を得たほか、TressFX をオプトインにし、<b>NVIDIA Blast</b>
-の SDK を更新し、9 つのエンジンプラグインを UE5 からバックポートし、<b>ViteSetup</b> アシスタントをガイド付きの
-インストール手順を中心に作り直しました。
+July はパフォーマンスのゲーティングと製品化への備えに重点を置いたリリースです。オプションのシェーダーモデルを既定でコンパイル対象から外して <b>12.3% のフレームレート向上</b> を得たほか、TressFX をオプトインにし、<b>NVIDIA Blast</b>
+の SDK を更新し、9 つのエンジンプラグインを UE5 からバックポートし、<b>ViteSetup</b> アシスタントをガイド付きのインストール手順を中心に作り直しました。
 </p>
 <p>
 ブランチ <code>ueVite26-JulyMajor-release</code> &middot; ベース:
@@ -21,22 +19,17 @@ July はパフォーマンスのゲーティングと製品化への備えに重
 
 <deflist>
 <def title="既定で 12.3% 高速化">
-Toon、Callisto、FSR 2 のリアクティブのシェーディングパスは、プロジェクトが有効にしない限りゲーティングで無効に
-なりました。RTX 4080 Super、1440p の Unreal Tournament Vite シーンでは、フレームレートが 235.56 FPS から
+Toon、Callisto、FSR 2 のリアクティブのシェーディングパスは、プロジェクトが有効にしない限りゲーティングで無効になりました。RTX 4080 Super、1440p の Unreal Tournament Vite シーンでは、フレームレートが 235.56 FPS から
 264.44 FPS に向上します。<a href="Shading-Models.md">シェーディングモデル</a> を参照してください。
 </def>
 <def title="NVIDIA Blast の更新">
-Blast の SDK を更新し、スキンキャッシュの再構築に対応し、破砕エディタが DDC のデータを正しく無効化してボーンの
-インデックスを検証するようになりました。<a href="Destruction-And-Cloth.md">破壊とクロス</a> を参照してください。
+Blast の SDK を更新し、スキンキャッシュの再構築に対応し、破砕エディタが DDC のデータを正しく無効化してボーンのインデックスを検証するようになりました。<a href="Destruction-And-Cloth.md">破壊とクロス</a> を参照してください。
 </def>
 <def title="UE5 プラグインのバックポート">
-Cable Component（レンダリングのオーバーヘッドを避ける UE 5.8 のパスを含む）、RenderDoc、Visual Studio Code、
-Platform Crypto、Animation Budget Allocator、Chunk Downloader、Significance Manager、Sun Position を 4.27 向けに
-適応させました。
+Cable Component（レンダリングのオーバーヘッドを避ける UE 5.8 のパスを含む）、RenderDoc、Visual Studio Code、Platform Crypto、Animation Budget Allocator、Chunk Downloader、Significance Manager、Sun Position を 4.27 向けに適応させました。
 </def>
 <def title="ViteSetup の刷新">
-2 つの主要な手順からなるガイド付きフロー、Visual Studio 2022 と 2026 のプロファイル、全プラットフォームの
-デブロート、サンプルの整理、ストリップ後のモジュール参照の検証、そして標準の 4.27 に合わせたプラグインの既定値です。
+2 つの主要な手順からなるガイド付きフロー、Visual Studio 2022 と 2026 のプロファイル、全プラットフォームのデブロート、サンプルの整理、ストリップ後のモジュール参照の検証、そして標準の 4.27 に合わせたプラグインの既定値です。
 <a href="ViteSetup.md">ViteSetup</a> を参照してください。
 </def>
 </deflist>
@@ -46,15 +39,11 @@ Platform Crypto、Animation Budget Allocator、Chunk Downloader、Significance M
 ### レンダリングとゲーティング
 
 - 追加のシェーディングモデル（Toon、Callisto、FSR 2 リアクティブ）を既定で無効化: 基準シーンで FPS が 12.3% 向上。
-- **TressFX** を `VITE_TRESSFX` によるオプトインに変更し、モバイルと ES 3.1 のシェーダープラットフォームから除外。
-  デバッグとフォワードライティングのパスに null チェックを追加。
+- **TressFX** を `VITE_TRESSFX` によるオプトインに変更し、モバイルと ES 3.1 のシェーダープラットフォームから除外。デバッグとフォワードライティングのパスに null チェックを追加。
 - DLSS とレイトレーシングの半透明をコンパイル時にゲーティング。
-- **プロジェクト設定 &gt; レンダリング** にレイトレーシング機能の切り替えを追加（レイトレーシングが実際に利用可能な
-  場合のみ表示）。
-- レイトレーシングのシェーダーをコンパイルする際は、常にパストレーシングのスカイライトシェーダーもコンパイル。
-  セパレートトランスルーセンシーのロードアクションを修正。ローカライズド IBL をインスタンスステレオ（VR）に対応。
-- *Max Shadow Draw Distance* によって生じたローカルライトのシャドウのカリングの不具合と、フォワードシェーディングで
-  ローカルライトの影が欠ける問題を修正。
+- **プロジェクト設定 &gt; レンダリング** にレイトレーシング機能の切り替えを追加（レイトレーシングが実際に利用可能な場合のみ表示）。
+- レイトレーシングのシェーダーをコンパイルする際は、常にパストレーシングのスカイライトシェーダーもコンパイル。セパレートトランスルーセンシーのロードアクションを修正。ローカライズド IBL をインスタンスステレオ（VR）に対応。
+- *Max Shadow Draw Distance* によって生じたローカルライトのシャドウのカリングの不具合と、フォワードシェーディングでローカルライトの影が欠ける問題を修正。
 
 ### 物理
 
@@ -62,8 +51,7 @@ Platform Crypto、Animation Budget Allocator、Chunk Downloader、Significance M
 
 ### プラグイン
 
-- UE 5.2/5.3/5.8 からの適応済みバックポート: Cable Component、RenderDoc、Visual Studio Code、Platform Crypto、
-  Animation Budget Allocator、Chunk Downloader、Significance Manager、Sun Position。
+- UE 5.2/5.3/5.8 からの適応済みバックポート: Cable Component、RenderDoc、Visual Studio Code、Platform Crypto、Animation Budget Allocator、Chunk Downloader、Significance Manager、Sun Position。
 - ImGui のベンチマークユーティリティが Shipping ビルドでもスレッドのレポートを出力。
 
 ### 既定値
@@ -72,26 +60,19 @@ Platform Crypto、Animation Budget Allocator、Chunk Downloader、Significance M
 - 関数経由で呼び出した場合の `SetGenerateOverlapEvents` の既定値を `false` に変更。
 - 新しいアニメーションの既定の圧縮を ACL に変更。
 - DDGI（RTXGI）プラグインを既定で有効化。
-- リリース時点では、その他のプラグインの既定値は標準の 4.27 と同じです。Vite のデブロート済みプラグイン構成を
-  適用するには `ueVite-ApplyVitePluginDefaults.bat` を実行してください。
+- リリース時点では、その他のプラグインの既定値は標準の 4.27 と同じです。Vite のデブロート済みプラグイン構成を適用するには `ueVite-ApplyVitePluginDefaults.bat` を実行してください。
 
 ### セットアップとツールチェーン
 
-- ViteSetup: 2 つのガイド付き手順、VS 2022 / VS 2026 のプロファイル、全プラットフォームのデブロート、サンプルの整理
-  （Third Person と Vehicle は残す）、重要度の低い Vite プラグインの任意削除、MSBuild のチェック、対話式の依存関係の
-  同期、ソースターゲットと一緒に Unreal Insights をビルド、デブロートのストリップ後のモジュール参照の検証。
+- ViteSetup: 2 つのガイド付き手順、VS 2022 / VS 2026 のプロファイル、全プラットフォームのデブロート、サンプルの整理（Third Person と Vehicle は残す）、重要度の低い Vite プラグインの任意削除、MSBuild のチェック、対話式の依存関係の同期、ソースターゲットと一緒に Unreal Insights をビルド、デブロートのストリップ後のモジュール参照の検証。
 - `ueVite-ApplyVitePluginDefaults.bat` が Vite のデブロート済みプラグインの既定値を適用。
 - Visual Studio 2026 18.8.2（MSVC 14.50、`_MSC_VER` 1950）と Windows SDK 10.0.26100 で検証。
 
 ## アップグレード時の注意点
 
-- **TressFX** はビルド時に `VITE_TRESSFX=1` が必要になりました。ストランドヘアを使うプロジェクトは有効にしてください。
-  [コンパイル時スイッチ](Compile-Time-Switches.md) と [ヘアレンダリング](Hair-Rendering.md) を参照してください。
-- **シェーディングモデル:** Toon、Callisto BRDF、FSR 2 のリアクティブマスクは、既定で無効のコンパイル時スイッチに
-  なりました。これらを使うプロジェクトは、`VITE_SHADINGMODEL_TOON=1`、`VITE_SHADINGMODEL_CALLISTO=1`、
-  `VITE_FSR2_REACTIVE_MASK=1` を指定してビルドする必要があります。
-- **フレームレートの上限:** パッケージ化したビルドとスタンドアロンのビルドは、既定で 120 FPS が上限です。
-  ベンチマークを取る際は上限を引き上げるか解除してください。
+- **TressFX** はビルド時に `VITE_TRESSFX=1` が必要になりました。ストランドヘアを使うプロジェクトは有効にしてください。[コンパイル時スイッチ](Compile-Time-Switches.md) と [ヘアレンダリング](Hair-Rendering.md) を参照してください。
+- **シェーディングモデル:** Toon、Callisto BRDF、FSR 2 のリアクティブマスクは、既定で無効のコンパイル時スイッチになりました。これらを使うプロジェクトは、`VITE_SHADINGMODEL_TOON=1`、`VITE_SHADINGMODEL_CALLISTO=1`、`VITE_FSR2_REACTIVE_MASK=1` を指定してビルドする必要があります。
+- **フレームレートの上限:** パッケージ化したビルドとスタンドアロンのビルドは、既定で 120 FPS が上限です。ベンチマークを取る際は上限を引き上げるか解除してください。
 
 <!-- BEGIN GENERATED COMMIT RECORD -->
 

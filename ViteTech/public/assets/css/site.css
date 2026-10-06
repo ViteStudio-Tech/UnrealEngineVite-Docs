@@ -318,6 +318,16 @@ html[lang="ja"] .h2 {
     line-height: 1.3;
 }
 
+/* Break Japanese headings at phrase boundaries instead of mid-word (Chromium
+   119+). Other browsers ignore the value and keep normal CJK breaking. */
+html[lang="ja"] .display,
+html[lang="ja"] .h2,
+html[lang="ja"] .h3,
+html[lang="ja"] .product__name,
+html[lang="ja"] .stat__label {
+    word-break: auto-phrase;
+}
+
 .h3 {
     margin: 0 0 10px;
     font-size: 20px;

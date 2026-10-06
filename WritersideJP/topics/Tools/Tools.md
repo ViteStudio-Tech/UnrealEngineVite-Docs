@@ -8,8 +8,7 @@ Vite は、エンジンのライフサイクル全体をカバーするバッチ
 </p>
 </tldr>
 
-Unreal をソースからビルドするには長い一連の手順が必要で、それぞれに固有の失敗のしかたがあります。Vite はその手順を
-ツールで包み、よく使う経路では正確なコマンドラインを覚えておかなくて済むようにしています。
+Unreal をソースからビルドするには長い一連の手順が必要で、それぞれに固有の失敗のしかたがあります。Vite はその手順をツールで包み、よく使う経路では正確なコマンドラインを覚えておかなくて済むようにしています。
 
 ## このセクションの内容
 
@@ -39,8 +38,7 @@ Unreal をソースからビルドするには長い一連の手順が必要で�
 
 <deflist>
 <def title="リポジトリをクローンしたばかり">
-<code>ViteSetup.bat</code> を実行し、Express の経路を選んでください。環境のチェックからエディタの起動まで、一連の手順を
-すべて案内します。<a href="ViteSetup.md">ViteSetup</a> を参照してください。
+<code>ViteSetup.bat</code> を実行し、Express の経路を選んでください。環境のチェックからエディタの起動まで、一連の手順をすべて案内します。<a href="ViteSetup.md">ViteSetup</a> を参照してください。
 </def>
 <def title="アーティストに渡すバイナリのエンジンが欲しい">
 <code>ViteSetup.bat</code> を実行してステップ 2 でビルド済みバイナリのオプションを選ぶか、<code>RunUAT.bat</code> と
@@ -51,15 +49,13 @@ Unreal をソースからビルドするには長い一連の手順が必要で�
 <code>WipeShaderCache.bat</code> を実行してください。<a href="Cache-Management.md">キャッシュ管理</a> を参照してください。
 </def>
 <def title="エンジンがディスクを使いすぎている">
-<code>ViteSetup.bat menu</code> でオプション 9 を選ぶか、<code>devops\</code> のデブロートのスイートを直接実行して
-ください。<a href="Debloat-Guide.md">デブロートガイド</a> を参照してください。
+<code>ViteSetup.bat menu</code> でオプション 9 を選ぶか、<code>devops\</code> のデブロートのスイートを直接実行してください。<a href="Debloat-Guide.md">デブロートガイド</a> を参照してください。
 </def>
 <def title="プロジェクトファイルを再生成したいだけ">
 <code>ViteSetup.bat menu</code> でオプション 3 を選ぶか、<code>GenerateProjectFiles.bat</code> を直接実行してください。
 </def>
 <def title="MSVC と Clang のコード生成を比べたい">
-<a href="https://gcc.godbolt.org/">Compiler Explorer</a> を開いてください。表示されるのはアセンブリであり、実行時間では
-ありません。<a href="Compiler-Explorer.md">Compiler Explorer</a> を参照してください。
+<a href="https://gcc.godbolt.org/">Compiler Explorer</a> を開いてください。表示されるのはアセンブリであり、実行時間ではありません。<a href="Compiler-Explorer.md">Compiler Explorer</a> を参照してください。
 </def>
 </deflist>
 

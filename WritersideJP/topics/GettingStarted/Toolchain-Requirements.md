@@ -3,15 +3,11 @@
 <tldr>
 <p>
 現在の Vite のツールチェーンは、<b>Visual Studio 2026</b>、<b>MSVC 14.51</b>（14.50 以降を許容）、
-<b>Windows SDK 10.0.26100</b> です。Visual Studio 2022 と MSVC 14.44 の組み合わせも引き続きサポートしています。
-それ以外の MSVC ツールセットはすべてアンインストールするか選択を外してください。ツールチェーンが合っていないと
-明確なエラーにはならず、<code>C4668: '__has_feature' is not defined</code> のような分かりにくいエラーが出ます。
+<b>Windows SDK 10.0.26100</b> です。Visual Studio 2022 と MSVC 14.44 の組み合わせも引き続きサポートしています。それ以外の MSVC ツールセットはすべてアンインストールするか選択を外してください。ツールチェーンが合っていないと明確なエラーにはならず、<code>C4668: '__has_feature' is not defined</code> のような分かりにくいエラーが出ます。
 </p>
 </tldr>
 
-Unreal Engine Vite をソースからコンパイルするには、バージョンを固定した特定のビルドツール一式が必要です。
-Unreal Build Tool はインストール済みのものを走査してツールチェーンを選ぶため、複数の MSVC が共存していることが
-ビルド失敗の最も一般的な原因です。このページに記載したものだけをインストールし、それ以外は削除してください。
+Unreal Engine Vite をソースからコンパイルするには、バージョンを固定した特定のビルドツール一式が必要です。Unreal Build Tool はインストール済みのものを走査してツールチェーンを選ぶため、複数の MSVC が共存していることがビルド失敗の最も一般的な原因です。このページに記載したものだけをインストールし、それ以外は削除してください。
 
 ## サポートされるツールチェーン
 
@@ -41,9 +37,7 @@ Visual Studio Installer の **個別のコンポーネント** から、以下�
 - .NET Framework 4.6.2 Targeting Pack &mdash; UnrealBuildTool と AutomationTool に必要
 - .NET Framework 4.5 Targeting Pack &mdash; SwarmAgent、SwarmCoordinator、NetworkProfiler、UnrealControls に必要
 
-コンポーネントを手作業で選ぶ代わりに、
-[Vite VSConfig](https://drive.google.com/file/d/1NwpPUiM_7yVI_kjhW94kYxvVP42ViV3Q/view?usp=sharing) ファイルを
-ダウンロードし、Visual Studio 26 Installer の **構成のインポート** から読み込むこともできます。
+コンポーネントを手作業で選ぶ代わりに、[Vite VSConfig](https://drive.google.com/file/d/1NwpPUiM_7yVI_kjhW94kYxvVP42ViV3Q/view?usp=sharing) ファイルをダウンロードし、Visual Studio 26 Installer の **構成のインポート** から読み込むこともできます。
 
 ### 競合するツールセットの削除
 
@@ -56,18 +50,14 @@ Visual Studio Installer の **個別のコンポーネント** から、以下�
     <step><b>変更</b> をクリックし、インストーラーが完了してからプロジェクトファイルを再生成します。</step>
 </procedure>
 
-Windows SDK が複数インストールされていても致命的ではありませんが、リンク時の予期しない問題の原因になりがちです。
-1 つに絞れるなら絞ってください。
+Windows SDK が複数インストールされていても致命的ではありませんが、リンク時の予期しない問題の原因になりがちです。1 つに絞れるなら絞ってください。
 
 ### .NET Framework 4.5 Targeting Pack
 
-Visual Studio 2022 と 2026 のインストーラーには 4.5 の Targeting Pack が含まれなくなりましたが、エンジンの C# ツールは
-今も必要とします。`C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5` に XML
-ファイルしかないフォルダーがある場合、それは .NET ランタイムが残したスタブであり、本物の Targeting Pack では
-ありません。`v4.5\RedistList\FrameworkList.xml` の有無で見分けられます。
+Visual Studio 2022 と 2026 のインストーラーには 4.5 の Targeting Pack が含まれなくなりましたが、エンジンの C# ツールは今も必要とします。`C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5` に XML
+ファイルしかないフォルダーがある場合、それは .NET ランタイムが残したスタブであり、本物の Targeting Pack ではありません。`v4.5\RedistList\FrameworkList.xml` の有無で見分けられます。
 
-`ViteSetup.bat` は、Microsoft 公式の NuGet パッケージから自動的にインストールすることを提案します。手作業で行う
-場合は次のとおりです。
+`ViteSetup.bat` は、Microsoft 公式の NuGet パッケージから自動的にインストールすることを提案します。手作業で行う場合は次のとおりです。
 
 <procedure title=".NET Framework 4.5 Targeting Pack を手動でインストールする" id="install-net45">
     <step><a href="https://www.nuget.org/api/v2/package/Microsoft.NETFramework.ReferenceAssemblies.net45/1.0.3">Microsoft.NETFramework.ReferenceAssemblies.net45 1.0.3</a> をダウンロードします。</step>
@@ -78,8 +68,7 @@ Visual Studio 2022 と 2026 のインストーラーには 4.5 の Targeting Pac
 
 ## BuildConfiguration.xml による SDK の固定
 
-Unreal Build Tool は、ツールチェーンの自動検出を上書きするユーザーごとの設定ファイルを読み込みます。複数の
-コンパイラや Windows SDK が存在する場合に、特定のものを確実に使わせる方法です。
+Unreal Build Tool は、ツールチェーンの自動検出を上書きするユーザーごとの設定ファイルを読み込みます。複数のコンパイラや Windows SDK が存在する場合に、特定のものを確実に使わせる方法です。
 
 編集するファイル（VS26）:
 
@@ -110,9 +99,7 @@ Unreal Build Tool は、ツールチェーンの自動検出を上書きする�
 
 ## C++ の言語規格
 
-エンジン本体は C++17 でビルドされます。UnrealBuildTool の `CppStandardVersion` は LTS から `Cpp20` を提供しており、
-[September Major](ueVite26-SeptemberMajor.md) の C++20 アップグレードによって実用的になりました。UE 5.0 が導入した
-方式に従い、エンジンのヘッダーは C++20 の翻訳単位からも正しく解析できるよう保たれているため、エンジンのモジュールを
+エンジン本体は C++17 でビルドされます。UnrealBuildTool の `CppStandardVersion` は LTS から `Cpp20` を提供しており、[September Major](ueVite26-SeptemberMajor.md) の C++20 アップグレードによって実用的になりました。UE 5.0 が導入した方式に従い、エンジンのヘッダーは C++20 の翻訳単位からも正しく解析できるよう保たれているため、エンジンのモジュールを
 C++17 のままにしつつ、ゲームのモジュールで C++20 を採用できます。
 
 ```c#
@@ -120,21 +107,17 @@ C++17 のままにしつつ、ゲームのモジュールで C++20 を採用で�
 CppStandard = CppStandardVersion.Cpp20;
 ```
 
-`.Target.cs` でターゲット全体に `CppStandard` を設定する（または `-CppStd=Cpp20` を指定する）には独自の
-ビルド環境が必要なため、ソースビルドでのみ有効です。インストール済みエンジンビルドでは、モジュール単位で
-設定してください。
+`.Target.cs` でターゲット全体に `CppStandard` を設定する（または `-CppStd=Cpp20` を指定する）には独自のビルド環境が必要なため、ソースビルドでのみ有効です。インストール済みエンジンビルドでは、モジュール単位で設定してください。
 
 ## ツールチェーンの確認
 
-長時間のビルドを始める前に、実際に何がインストールされているかを確認してください。`ViteSetup.bat` はこの確認を
-自動で行い、要件ごとに `[OK]` または `[FAIL]` を表示します。手作業で確認する場合は、次の場所を調べます。
+長時間のビルドを始める前に、実際に何がインストールされているかを確認してください。`ViteSetup.bat` はこの確認を自動で行い、要件ごとに `[OK]` または `[FAIL]` を表示します。手作業で確認する場合は、次の場所を調べます。
 
 - `C:\Program Files\Microsoft Visual Studio\<year>\<edition>\VC\Tools\MSVC\<version>\bin\Hostx64\x64\cl.exe`
   &mdash; インストール済みの MSVC ツールセットは、`VC\Tools\MSVC` の下のフォルダー名で分かります。
 - `C:\Program Files (x86)\Windows Kits\10\Include\<version>` &mdash; インストール済みの Windows SDK です。
 
-もう 1 つの有効な確認ポイントは、リンク段階が始まる直前のビルド出力を見て、UBT がどのツールチェーンを使っていると
-報告しているかを確かめることです。不一致をそこで見つけるほうが、リンク時に見つけるよりはるかに安く済みます。
+もう 1 つの有効な確認ポイントは、リンク段階が始まる直前のビルド出力を見て、UBT がどのツールチェーンを使っていると報告しているかを確かめることです。不一致をそこで見つけるほうが、リンク時に見つけるよりはるかに安く済みます。
 
 ## 関連項目
 

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vite ReSTIR — Vite Technology</title>
+<meta name="description" content="リザーバーの再サンプリングによる 1 つのパイプライン上で、リアルタイムのグローバルイルミネーションとリアルタイム・パストレーサーを実現。Epic 品質の Lumen より速いパストレースのライティングを目指して設計しています。nav: restir">
+<meta name="theme-color" content="#050607">
+<link rel="canonical" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/restir.html">
+<link rel="alternate" hreflang="en" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/restir.html">
+<link rel="alternate" hreflang="ja" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/restir.html">
+<link rel="alternate" hreflang="x-default" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/restir.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Vite Technology">
+<meta property="og:title" content="Vite ReSTIR — Vite Technology">
+<meta property="og:description" content="リザーバーの再サンプリングによる 1 つのパイプライン上で、リアルタイムのグローバルイルミネーションとリアルタイム・パストレーサーを実現。Epic 品質の Lumen より速いパストレースのライティングを目指して設計しています。nav: restir">
+<meta property="og:url" content="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/restir.html">
+<meta property="og:image" content="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/assets/img/restir-attic.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/img/favicon-64.png">
+<link rel="apple-touch-icon" href="../assets/img/touch-icon-180.png">
+<link rel="preload" href="../assets/fonts/ViteVector-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/site.css?v=289dc5b919">
+</head>
+<body data-product="restir">
+<a class="skip-link" href="#main">本文へスキップ</a>
+<header class="site-header">
+    <div class="wrap">
+        <a class="brand" href="index.html" aria-label="Vite Technology">
+            <span class="brand__mark">VITE</span><span class="brand__family">Technology</span>
+        </a>
+        <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="メニュー">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <nav class="nav" id="site-nav" aria-label="メインメニュー">
+            <a class="nav__link" href="restir.html">ReSTIR</a>
+            <a class="nav__link" href="vitex-physics.html">ViteX Physics</a>
+            <a class="nav__link" href="brdf.html">BRDF</a>
+            <a class="nav__link" href="vertis.html">Vertis</a>
+            <a class="nav__link" href="hair-fx.html">Hair FX</a>
+            <a class="nav__link" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/">ドキュメント</a>
+            <a class="nav__lang" href="../restir.html" lang="en" hreflang="en" title="View in English">English</a>
+        </nav>
+    </div>
+</header>
+<main id="main">
+<section class="hero hero--compact">
+    <div class="hero__media">
+        <img src="../assets/img/restir-attic.jpg" alt="窓から差し込む光の筋と、木の床に広がる柔らかなバウンス光に照らされた屋根裏" width="1321" height="743" fetchpriority="high">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite ReSTIR &middot; グローバルイルミネーションとパストレーシング</p>
+        <h1 class="display">Lumen を下回るコストで、パストレースのライティングを。</h1>
+        <p class="lede">
+            Vite ReSTIR は、リザーバーによる時空間の再サンプリングの上に築いたリアルタイムのグローバルイルミネーションで、同じパイプライン上にリアルタイム・パストレーサーを備えます。利用できる中で最速の GI、つまり Epic 品質の Lumen より速いパストレースのライティングを目指して設計しています。
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#how">仕組みを見る</a>
+            <a class="btn btn--ghost" href="index.html#contact">チームに相談する</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>1</em>&nbsp;つのパイプライン</span><span class="stat__label">リアルタイム GI とパストレーシングが同じリザーバーを共有</span></div>
+            <div><span class="stat__value">時間 <em>+</em> 空間</span><span class="stat__label">サンプルをフレーム間と隣接するピクセル間で再利用</span></div>
+            <div><span class="stat__value">&lt; Lumen <em>Epic</em></span><span class="stat__label">パストレース品質での設計上の目標</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split split--wide-media">
+        <div class="reveal">
+            <p class="eyebrow">課題</p>
+            <h2 class="h2">正解には数千のサンプルが要る。1&nbsp;フレームに入るのは 1、2&nbsp;個。</h2>
+            <div class="prose">
+                <p>
+                    パストレーシングは、あらゆるリアルタイムの手法の評価の基準となる画像を生みますが、ピクセルあたり数千のサンプルを経て収束します。製品の GI システムは、キャッシュ、プローブ、強い時間方向の蓄積でその差を埋め、その代償を光漏れ、遅れ、そして現代のレンダラーをぼやけて見せるノイズ、ゴースト、ブラーで払っています。
+                </p>
+                <p>
+                    <strong>ReSTIR はサンプリングの問題に正面から取り組みます。</strong> より多くのレイを飛ばすのではなく、良いレイを再利用します。各ピクセルは光の経路の候補を小さなリザーバーに保持し、それを隣のピクセルや次のフレームと共有するため、ピクセルあたりわずかなレイが、はるかに多いサンプル数のように振る舞います。
+                </p>
+            </div>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="../assets/img/restir-office.jpg" alt="ボリュメトリックな光、半透明の球、レイトレーシングの反射と屈折のあるオフィスのシーン" loading="lazy" width="1539" height="851"></div>
+            <figcaption>ボリュメトリクス、光沢のある反射、屈折といった複雑な光の伝搬を、Vite のレイトレーシングの技術で描画。</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised" id="how">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">仕組み</p>
+            <h2 class="h2">再サンプリングし、再利用し、そしてシェーディングする。</h2>
+            <p class="lede">
+                Vite ReSTIR は、2020 年に直接光のために提案され、2021 年にグローバルイルミネーションのための完全な経路に拡張されたリザーバーの再サンプリングの系統の手法に基づき、Vite のレンダラーとフレーム予算に合わせて設計しています。
+            </p>
+        </div>
+        <ol class="pipeline reveal">
+            <li><strong>最初の候補</strong><span>各ピクセルが少数のレイを飛ばし、最も重要な光の経路の候補を重み付きのリザーバーに保持します。</span></li>
+            <li><strong>時間方向の再利用</strong><span>前のフレームのリザーバーを再投影して統合し、動きへの応答性を保ちながらライティングの品質を蓄積します。</span></li>
+            <li><strong>空間方向の再利用</strong><span>隣接するピクセルがリザーバーを交換し、わずかな可視性のテストの追加で実質的なサンプル数を何倍にも増やします。</span></li>
+            <li><strong>シェーディングと解決</strong><span>残ったサンプルをシェーディングし、接触部のディテールを保つ軽いデノイズを通します。</span></li>
+            <li><strong>パストレーサーモード</strong><span>同じ仕組みを、完全なマルチバウンスの経路に沿って動かし、リアルタイムでパストレースのライティングを得ます。</span></li>
+        </ol>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">機能</p>
+            <h2 class="h2">GI から完全なパストレーシングまで、1&nbsp;つのシステムで</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></div><h3 class="h3">リアルタイムのグローバルイルミネーション</h3><p>ベイクもプローブの配置も不要な、完全に動的なマルチバウンスのディフューズと光沢の間接光。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 20 9 9l5 6 7-11"/><circle cx="9" cy="9" r="1.6"/><circle cx="14" cy="15" r="1.6"/></svg></div><h3 class="h3">リアルタイム・パストレーサー</h3><p>同じリザーバーがリアルタイム・パストレーサーを駆動し、対話的なフレームレートでリファレンス品質のライティングを得ます。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><ellipse cx="12" cy="6" rx="7" ry="2.6"/><path d="M5 6v6c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6V6M5 12v6c0 1.4 3.1 2.6 7 2.6s7-1.2 7-2.6v-6"/></svg></div><h3 class="h3">リザーバーの再利用</h3><p>時間と空間の再利用によって、ピクセルあたり 1、2 本のレイを、はるかに多いサンプル数の品質に変えます。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></svg></div><h3 class="h3">多数のライトとエミッシブ</h3><p>Vite が RTXDI としてすでに持つ多数のライトのサンプリングの上に築くため、エミッシブなジオメトリや密なライトの配置がシーンを照らします。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 21 8l-9 5-9-5zM3 12.5l9 5 9-5M3 17l9 5 9-5"/></svg></div><h3 class="h3">アップスケーラーとの組み合わせ</h3><p>DLSS Ray Reconstruction、FSR 4、XeSS など、Vite にすでに統合されているアップスケーラーとデノイザーと組み合わせるよう設計しています。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13.5 16 8.5"/><circle cx="12" cy="14" r="1.3"/></svg></div><h3 class="h3">スケーラブル</h3><p>60 FPS のタイトル向けの GI のみのモードから、ハイエンド PC やキャプチャ向けの完全なパストレーシングまで、1 つのコードパスで。</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">基盤</p>
+            <h2 class="h2">すでに Lumen を上回るレイトレーシングの技術の上に。</h2>
+            <div class="prose">
+                <p>
+                    Vite ReSTIR は、現在 Unreal Engine Vite で出荷しているレイトレーシング GI のパイプラインを拡張するものです。同じ条件のシーンで、Vite が出荷している動的 DDGI は <strong>UE 5.7 の Lumen の 2.5 倍のフレームレート</strong>
+                    で動作し、その経路にデノイザーを持たないため、構造的にノイズがありません。
+                </p>
+                <p>
+                    エンジンにはすでに、ReSTIR 方式のリザーバーの再サンプリングによるファイナルギャザーを備えた、ピクセルごとのレイトレーシング GI の経路もあります。NvRTX から受け継いだもので、既定ではコンパイル対象から外れています。Vite ReSTIR は、その経路を製品のシステムへと発展させます。DDGI のプローブの解像度が尽きるところでパストレース品質を、Lumen を下回るよう設計したコストで提供します。
+                </p>
+            </div>
+            <div class="bars" role="list" style="margin-top:28px">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Vite の動的 DDGI</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">811 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Lumen、UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:39.95%"></span></span><span class="bar__value">324 FPS</span></div>
+            </div>
+            <p class="bars__note">ReSTIR ではなく、出荷している動的 DDGI。RTX 4080 Super、1440p ネイティブ、同じシーン。高いほど良い。</p>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="../assets/img/gi-stylized.jpg" alt="動的なレイトレーシングのグローバルイルミネーションで照らされたスタイライズドな砂漠のレベル。フレームカウンターは 811 FPS" loading="lazy" width="1600" height="900"></div>
+            <figcaption>動的 DDGI で描画したスタイライズドのデモ。RTX 4080 Super、1440p ネイティブで 811 FPS。</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">位置付け</p>
+            <h2 class="h2">Vite のグローバルイルミネーションの選択肢</h2>
+        </div>
+        <div class="table-scroll reveal">
+            <table class="matrix">
+                <thead><tr><th scope="col">モード</th><th scope="col">ライティング</th><th scope="col">適した用途</th><th scope="col">状況</th></tr></thead>
+                <tbody>
+                    <tr><td>静的 DDGI</td><td>ベイクしたプローブ。ベイクはほぼ一瞬</td><td>レイトレーシングのないハードウェア</td><td><span class="pill pill--live">出荷中</span></td></tr>
+                    <tr><td>動的 DDGI + SSGI</td><td>レイトレーシングのプローブと、スクリーンスペースの接触のディテール</td><td>コンソールクラスの GPU での 60&ndash;120 FPS のタイトル</td><td><span class="pill pill--live">出荷中</span></td></tr>
+                    <tr><td>ピクセルごとの RT GI、ReSTIR のファイナルギャザー</td><td>SVGF のデノイザーを伴う、リザーバーで再サンプリングしたピクセルごとの GI</td><td>リファレンスの画像。ハードウェア Lumen より高い忠実度</td><td><span class="pill pill--live">出荷中（任意のビルド）</span></td></tr>
+                    <tr><td>Vite ReSTIR GI</td><td>製品向けに調整した、ピクセルごとに再サンプリングするマルチバウンスの GI</td><td>高忠実度のタイトルとハイエンド PC</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                    <tr><td>Vite ReSTIR パストレーサー</td><td>リアルタイムのパストレースのライティング</td><td>ウルトラ設定、シネマティック、キャプチャ</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight section--raised">
+    <div class="wrap">
+        <div class="section__head reveal" style="margin-bottom:28px">
+            <p class="eyebrow">さらに読む</p>
+            <h2 class="h2">関連するドキュメント</h2>
+        </div>
+        <div class="links reveal">
+            <a class="link-card" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/global-illumination.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">グローバルイルミネーション</span></a>
+            <a class="link-card" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/ddgi-dynamic.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">動的 DDGI</span></a>
+            <a class="link-card" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/rtxdi.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">RTXDI</span></a>
+            <a class="link-card" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/path-tracing.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">パストレーシング</span></a>
+        </div>
+        <p class="muted" style="margin:28px 0 0;font-size:14px">
+            背景: B. Bitterli ほか、<i>Spatiotemporal reservoir resampling for real-time ray tracing with dynamic direct
+            lighting</i>、SIGGRAPH 2020。Y. Ouyang ほか、<i>ReSTIR GI: Path resampling for real-time path tracing</i>、HPG 2021。
+        </p>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="技術">
+            <a href="index.html#technology"><span class="pager__dir">&larr; すべての技術</span><span class="pager__name">Vite Technology</span></a>
+            <a href="vitex-physics.html"><span class="pager__dir">次へ &rarr;</span><span class="pager__name">ViteX Physics</span></a>
+        </nav>
+    </div>
+</section>
+</main>
+<footer class="site-footer">
+    <div class="wrap">
+        <div class="footer-grid">
+            <div>
+                <a class="brand" href="index.html" aria-label="Vite Technology"><span class="brand__mark">VITE</span><span class="brand__family">Technology</span></a>
+                <p style="margin:16px 0 0;max-width:36ch">Unreal Engine Vite の開発チームによる、レンダリング・物理・ジオメトリ技術。</p>
+            </div>
+            <div><h2>テクノロジー</h2><ul><li><a href="restir.html">Vite ReSTIR</a></li>
+<li><a href="vitex-physics.html">ViteX Physics</a></li>
+<li><a href="brdf.html">Vite BRDF</a></li>
+<li><a href="vertis.html">Vite Vertis</a></li>
+<li><a href="hair-fx.html">Vite Hair FX</a></li></ul></div>
+            <div><h2>エンジン</h2><ul><li><a href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/">Unreal Engine Vite マニュアル</a></li>
+<li><a href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/release-notes.html">リリースノート</a></li>
+<li><a href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/projectsanddemos.html">プロジェクトとデモ</a></li>
+<li><a href="https://github.com/GapingPixel/UnrealEngineVite-PhysX">GitHub のエンジンリポジトリ</a></li></ul></div>
+            <div><h2>スタジオ</h2><ul><li><a href="https://discord.gg/n9zQrYFhMb" rel="noopener">Discord</a></li>
+<li><a href="https://x.com/theredpix" rel="noopener">X での最新情報</a></li>
+<li><a href="https://github.com/orgs/ViteStudio-Tech/repositories" rel="noopener">サンプルプロジェクト</a></li>
+<li><a href="https://ko-fi.com/vitestudio" rel="noopener">開発を支援する</a></li></ul></div>
+        </div>
+        <div class="footer-legal">
+            <span>&copy; <span data-year>2026</span> Vite Studio</span>
+            <span style="max-width:80ch">Unreal Engine は Epic Games, Inc. の商標です。NVIDIA、PhysX、Flex、Flow、Blast は NVIDIA Corporation の商標です。AMD および TressFX は Advanced Micro Devices, Inc. の商標です。その他の商標はそれぞれの所有者に帰属します。</span>
+        </div>
+    </div>
+</footer>
+<script src="../assets/js/site.js?v=e7387b766c" defer></script>
+</body>
+</html>

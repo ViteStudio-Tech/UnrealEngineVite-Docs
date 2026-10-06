@@ -51,6 +51,12 @@ same pass.
 </procedure>
 
 <note>
+Browsers show a line break between two Japanese characters as a space. Write Japanese paragraphs on one
+line, or run <code>python Tools/join_cjk_lines.py</code> before committing; it joins wrapped lines where
+both sides are Japanese and leaves code blocks alone. The workflow runs it too.
+</note>
+
+<note>
 Images and <code>vite-theme.html</code> live only in the English module. The workflow copies them into
 <code>WritersideJP</code> before the Japanese build, and those copies are ignored by Git, so never commit
 images under <code>WritersideJP\images\</code>.

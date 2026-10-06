@@ -1,0 +1,148 @@
+<!--
+title: ViteX Physics
+description: Unreal Engine 4 と完全に互換の物理 SDK。ゲーム向けに調整した PhysX 4 と 5 のソルバーの進歩と、NVIDIA Flex と Flow による GPU で高速化した流体、布、煙を備えます。nav: vitex
+product: vitex
+image: assets/img/physics-3000.jpg
+-->
+<section class="hero hero--plain">
+    <div class="wrap">
+        <div class="split split--wide-media">
+            <div>
+                <p class="eyebrow">ViteX Physics &middot; 物理 SDK</p>
+                <h1 class="display">フレームに遅れない、ゲームのための物理。</h1>
+                <p class="lede">
+                    ViteX Physics は、Unreal Engine 4 と完全に互換の独自の物理 SDK です。PhysX 4 と 5 のソルバーの進歩を取り入れてゲームの負荷向けに調整し、NVIDIA Flex と Flow による GPU で高速化した流体、布、ロープ、煙、炎を加えます。
+                </p>
+                <div class="actions">
+                    <a class="btn btn--primary" href="#results">数値を見る</a>
+                    <a class="btn btn--ghost" href="index.html#contact">チームに相談する</a>
+                </div>
+            </div>
+            <figure class="figure">
+                <div class="figure__frame"><img src="{{assets}}img/physics-native.jpg" alt="Unreal Engine の中でネイティブの PhysX アクターとしてシミュレーションした 1,425 個のキューブ。374 FPS で動作" width="1105" height="615" fetchpriority="high"></div>
+                <figcaption>エンジン内でネイティブの PhysX アクターとして動く 1,425 ボディ。374 FPS、1 フレーム 2.67 ms。</figcaption>
+            </figure>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>4.75&times;</em></span><span class="stat__label">3,000 ボディでの Chaos に対するエンジン内のフレームレート</span></div>
+            <div><span class="stat__value"><em>67&times;</em></span><span class="stat__label">10,005 ボディ、6 スレッドでの Chaos に対するソルバーのスループット</span></div>
+            <div><span class="stat__value"><em>1.15&ndash;1.44&times;</em></span><span class="stat__label">CPU で標準の PhysX 5.6.1 より高速。1 から 6 までのすべてのスレッド数で</span></div>
+            <div><span class="stat__value"><em>1.34&ndash;1.39&times;</em></span><span class="stat__label">出発点である標準の PhysX 3.4 より高速</span></div>
+        </div>
+        <p class="bars__note" style="margin-top:18px">ViteX が拡張する、Vite の PhysX のビルドで計測。計測の方法は <a href="{{docs}}physics.html">エンジンのマニュアル</a> にあります。</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split split--wide-media">
+        <div class="reveal">
+            <p class="eyebrow">互換性</p>
+            <h2 class="h2">Unreal Engine 4 のコンテンツにそのまま使える物理の層。</h2>
+            <div class="prose">
+                <p>
+                    ViteX は Unreal Engine 4 の物理の API を維持します。ボディのインスタンス、物理マテリアル、物理アセット、コリジョンのプロファイル、コンストレイント、シーンのクエリ、ラグドール、車両です。既存のゲームプレイのコード、ブループリント、コンテンツは、物理のための移植なしにその上で動きます。
+                </p>
+                <p>
+                    <strong>これは UE5 の道とは正反対です。</strong> UE5 で Chaos に移るということは、プロジェクトのあらゆる物理のやり取りを検証し直し、より遅いソルバーを受け入れることを意味します。
+                </p>
+            </div>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/physics-3000.jpg" alt="落下する 3,000 個のキューブを並べた 2 つのキャプチャ。Unreal 5.7 の Chaos は 33 FPS、Unreal Vite の PhysX は 158 FPS" loading="lazy" width="1280" height="373"></div>
+            <figcaption>エンジンが管理する 3,000 個のキューブ。Unreal Engine 5.7 と Chaos: 33.26 FPS。Unreal Engine Vite と PhysX 3.4: 157.88 FPS。</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised" id="results">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">計測結果</p>
+            <h2 class="h2">Chaos より速く、標準の PhysX より速い。</h2>
+            <div class="prose">
+                <p>
+                    Box Container Pile のベンチマークは、起きている 10,005 個の剛体を描画なしで動かすため、レンダラーではなくソルバーを計測します。どの SDK も、同じ Intel Core i7-13700K のホストで、ソルバーの反復 4 回、60 Hz のステップ、30 ステップのウォームアップの後の 300 ステップを計測します。
+                </p>
+                <p>
+                    Vite の PhysX のビルドは、3 スレッドで 60 Hz の予算 16.67 ms に収まります。標準の PhysX 3.4 は 6 スレッドが必要です。Chaos は 24 スレッドでも収まりません。
+                </p>
+            </div>
+            <h3 class="h3" style="margin-top:32px">ソルバーのスループット（ステップ/秒）</h3>
+            <div class="bars" role="list">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Vite PhysX 3.4</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">85.0</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">NVIDIA PhysX 5.6.1</span><span class="bar__track"><span class="bar__fill" style="--w:86.9%"></span></span><span class="bar__value">73.9</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">NVIDIA PhysX 3.4</span><span class="bar__track"><span class="bar__fill" style="--w:74.3%"></span></span><span class="bar__value">63.2</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Unreal Chaos</span><span class="bar__track"><span class="bar__fill" style="--w:1.5%"></span></span><span class="bar__value">1.3</span></div>
+            </div>
+            <p class="bars__note">10,005 ボディ、6 スレッド。物理の時間の中央値をステップ/秒に換算。高いほど良い。Chaos は単体ではビルドできないため、Win64 の Shipping ターゲットを通じて計測。</p>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/physics-boxpile.jpg" alt="Box Container Pile 10K の負荷で、1 から 6 スレッドまで 9 つの物理エンジンを比較したベンチマークのレポート" loading="lazy" width="1280" height="1475"></div>
+            <figcaption>BEPUphysics、Rapier、Box3D、Jolt、Unity DOTS Physics を含む、Box Container Pile 10K のレポートの全体。</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">機能</p>
+            <h2 class="h2">ゲームプレイには CPU の剛体。エフェクトには GPU のシミュレーション。</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:cube}}</div><h3 class="h3">ゲーム向けに調整したソルバー</h3><p>PhysX 4 と 5 のソルバーとコリジョンの進歩を、オフラインの正確さではなくゲームの負荷に合わせて選び、調整しています。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:plug}}</div><h3 class="h3">UE4 互換の API</h3><p>ボディのインスタンス、物理アセット、コンストレイント、車両、シーンのクエリが、Unreal Engine 4 のコンテンツが期待するとおりに振る舞います。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:drop}}</div><h3 class="h3">GPU の Flex</h3><p>流体、破れる布、ロープのための統一されたパーティクルシミュレーション。流体の表面の描画は 4.27 のレンダラーに統合します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:flame}}</div><h3 class="h3">GPU の Flow</h3><p>シーンに反応する炎と煙のための、疎なグリッドによるボリュメトリックなシミュレーション。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:layers}}</div><h3 class="h3">破壊</h3><p>既存のアセットには APEX Destruction を、大規模な結合グラフによる破砕には NVIDIA Blast を。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:clock}}</div><h3 class="h3">固定タイムステップ</h3><p>描画のフレームレートに依存しない一定のシミュレーションのステップと描画の補間で、安定し再現できるプレイを実現します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:grid}}</div><h3 class="h3">規模</h3><p>数千のボディのための、インスタンス化サブシステムとネイティブのアクターの経路。1,425 個のネイティブのアクターがエンジン内で 374 FPS で動作します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:cpu}}</div><h3 class="h3">コンソール向けに調整したカーネル</h3><p>ホットなループは FMA で融合した SoA で、256 ビットの FMA パイプが 1 本の PS5 クラスの Zen 2 で計測しています。</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap split">
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/physics-destruction.jpg" alt="物理のテストレベルで、射撃を受けて破片に砕ける破壊可能な壁" loading="lazy" width="1443" height="956"></div>
+            <figcaption>Vite の物理のテストレベルで動く APEX Destruction。</figcaption>
+        </figure>
+        <div class="reveal">
+            <p class="eyebrow">提供状況</p>
+            <h2 class="h2">基盤の大部分はすでに出荷しています。</h2>
+            <table class="spec">
+                <tbody>
+                    <tr><th scope="row">Vite で出荷中</th><td>Vite の PhysX 3.4、APEX Destruction と Cloth、NVIDIA Blast、固定タイムステップのシミュレーション、インスタンス化物理のサブシステムとネイティブのアクターの経路</td></tr>
+                    <tr><th scope="row">統合中</th><td>NVIDIA Flex の流体、破れる布、ロープ。NVIDIA Flow の炎と煙</td></tr>
+                    <tr><th scope="row">開発中</th><td>PhysX 4 と 5 の改良を取り入れた ViteX のソルバー</td></tr>
+                    <tr><th scope="row">プラットフォーム</th><td>現在は Windows と Linux。PhysX のライブラリは NDK の Clang で Android 向けにもビルドできます</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <div class="section__head reveal" style="margin-bottom:28px">
+            <p class="eyebrow">さらに読む</p>
+            <h2 class="h2">関連するドキュメント</h2>
+        </div>
+        <div class="links reveal">
+            <a class="link-card" href="{{docs}}physics.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">物理のベンチマークとアーキテクチャ</span></a>
+            <a class="link-card" href="{{docs}}physx.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">PhysX の機能</span></a>
+            <a class="link-card" href="{{docs}}destruction-and-cloth.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">破壊とクロス</span></a>
+            <a class="link-card" href="{{docs}}ps5-cpu-fpu.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">PS5 CPU の FPU</span></a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="技術">
+            <a href="restir.html"><span class="pager__dir">&larr; 前へ</span><span class="pager__name">Vite ReSTIR</span></a>
+            <a href="brdf.html"><span class="pager__dir">次へ &rarr;</span><span class="pager__name">Vite BRDF</span></a>
+        </nav>
+    </div>
+</section>

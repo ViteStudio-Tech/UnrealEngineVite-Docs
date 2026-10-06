@@ -1,0 +1,160 @@
+<!--
+title: Vite ReSTIR
+description: リザーバーの再サンプリングによる 1 つのパイプライン上で、リアルタイムのグローバルイルミネーションとリアルタイム・パストレーサーを実現。Epic 品質の Lumen より速いパストレースのライティングを目指して設計しています。nav: restir
+product: restir
+image: assets/img/restir-attic.jpg
+-->
+<section class="hero hero--compact">
+    <div class="hero__media">
+        <img src="{{assets}}img/restir-attic.jpg" alt="窓から差し込む光の筋と、木の床に広がる柔らかなバウンス光に照らされた屋根裏" width="1321" height="743" fetchpriority="high">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite ReSTIR &middot; グローバルイルミネーションとパストレーシング</p>
+        <h1 class="display">Lumen を下回るコストで、パストレースのライティングを。</h1>
+        <p class="lede">
+            Vite ReSTIR は、リザーバーによる時空間の再サンプリングの上に築いたリアルタイムのグローバルイルミネーションで、同じパイプライン上にリアルタイム・パストレーサーを備えます。利用できる中で最速の GI、つまり Epic 品質の Lumen より速いパストレースのライティングを目指して設計しています。
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#how">仕組みを見る</a>
+            <a class="btn btn--ghost" href="index.html#contact">チームに相談する</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>1</em>&nbsp;つのパイプライン</span><span class="stat__label">リアルタイム GI とパストレーシングが同じリザーバーを共有</span></div>
+            <div><span class="stat__value">時間 <em>+</em> 空間</span><span class="stat__label">サンプルをフレーム間と隣接するピクセル間で再利用</span></div>
+            <div><span class="stat__value">&lt; Lumen <em>Epic</em></span><span class="stat__label">パストレース品質での設計上の目標</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap split split--wide-media">
+        <div class="reveal">
+            <p class="eyebrow">課題</p>
+            <h2 class="h2">正解には数千のサンプルが要る。1&nbsp;フレームに入るのは 1、2&nbsp;個。</h2>
+            <div class="prose">
+                <p>
+                    パストレーシングは、あらゆるリアルタイムの手法の評価の基準となる画像を生みますが、ピクセルあたり数千のサンプルを経て収束します。製品の GI システムは、キャッシュ、プローブ、強い時間方向の蓄積でその差を埋め、その代償を光漏れ、遅れ、そして現代のレンダラーをぼやけて見せるノイズ、ゴースト、ブラーで払っています。
+                </p>
+                <p>
+                    <strong>ReSTIR はサンプリングの問題に正面から取り組みます。</strong> より多くのレイを飛ばすのではなく、良いレイを再利用します。各ピクセルは光の経路の候補を小さなリザーバーに保持し、それを隣のピクセルや次のフレームと共有するため、ピクセルあたりわずかなレイが、はるかに多いサンプル数のように振る舞います。
+                </p>
+            </div>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/restir-office.jpg" alt="ボリュメトリックな光、半透明の球、レイトレーシングの反射と屈折のあるオフィスのシーン" loading="lazy" width="1539" height="851"></div>
+            <figcaption>ボリュメトリクス、光沢のある反射、屈折といった複雑な光の伝搬を、Vite のレイトレーシングの技術で描画。</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section section--raised" id="how">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">仕組み</p>
+            <h2 class="h2">再サンプリングし、再利用し、そしてシェーディングする。</h2>
+            <p class="lede">
+                Vite ReSTIR は、2020 年に直接光のために提案され、2021 年にグローバルイルミネーションのための完全な経路に拡張されたリザーバーの再サンプリングの系統の手法に基づき、Vite のレンダラーとフレーム予算に合わせて設計しています。
+            </p>
+        </div>
+        <ol class="pipeline reveal">
+            <li><strong>最初の候補</strong><span>各ピクセルが少数のレイを飛ばし、最も重要な光の経路の候補を重み付きのリザーバーに保持します。</span></li>
+            <li><strong>時間方向の再利用</strong><span>前のフレームのリザーバーを再投影して統合し、動きへの応答性を保ちながらライティングの品質を蓄積します。</span></li>
+            <li><strong>空間方向の再利用</strong><span>隣接するピクセルがリザーバーを交換し、わずかな可視性のテストの追加で実質的なサンプル数を何倍にも増やします。</span></li>
+            <li><strong>シェーディングと解決</strong><span>残ったサンプルをシェーディングし、接触部のディテールを保つ軽いデノイズを通します。</span></li>
+            <li><strong>パストレーサーモード</strong><span>同じ仕組みを、完全なマルチバウンスの経路に沿って動かし、リアルタイムでパストレースのライティングを得ます。</span></li>
+        </ol>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">機能</p>
+            <h2 class="h2">GI から完全なパストレーシングまで、1&nbsp;つのシステムで</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:rays}}</div><h3 class="h3">リアルタイムのグローバルイルミネーション</h3><p>ベイクもプローブの配置も不要な、完全に動的なマルチバウンスのディフューズと光沢の間接光。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:path}}</div><h3 class="h3">リアルタイム・パストレーサー</h3><p>同じリザーバーがリアルタイム・パストレーサーを駆動し、対話的なフレームレートでリファレンス品質のライティングを得ます。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:stack}}</div><h3 class="h3">リザーバーの再利用</h3><p>時間と空間の再利用によって、ピクセルあたり 1、2 本のレイを、はるかに多いサンプル数の品質に変えます。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:spark}}</div><h3 class="h3">多数のライトとエミッシブ</h3><p>Vite が RTXDI としてすでに持つ多数のライトのサンプリングの上に築くため、エミッシブなジオメトリや密なライトの配置がシーンを照らします。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:layers}}</div><h3 class="h3">アップスケーラーとの組み合わせ</h3><p>DLSS Ray Reconstruction、FSR 4、XeSS など、Vite にすでに統合されているアップスケーラーとデノイザーと組み合わせるよう設計しています。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:gauge}}</div><h3 class="h3">スケーラブル</h3><p>60 FPS のタイトル向けの GI のみのモードから、ハイエンド PC やキャプチャ向けの完全なパストレーシングまで、1 つのコードパスで。</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">基盤</p>
+            <h2 class="h2">すでに Lumen を上回るレイトレーシングの技術の上に。</h2>
+            <div class="prose">
+                <p>
+                    Vite ReSTIR は、現在 Unreal Engine Vite で出荷しているレイトレーシング GI のパイプラインを拡張するものです。同じ条件のシーンで、Vite が出荷している動的 DDGI は <strong>UE 5.7 の Lumen の 2.5 倍のフレームレート</strong>
+                    で動作し、その経路にデノイザーを持たないため、構造的にノイズがありません。
+                </p>
+                <p>
+                    エンジンにはすでに、ReSTIR 方式のリザーバーの再サンプリングによるファイナルギャザーを備えた、ピクセルごとのレイトレーシング GI の経路もあります。NvRTX から受け継いだもので、既定ではコンパイル対象から外れています。Vite ReSTIR は、その経路を製品のシステムへと発展させます。DDGI のプローブの解像度が尽きるところでパストレース品質を、Lumen を下回るよう設計したコストで提供します。
+                </p>
+            </div>
+            <div class="bars" role="list" style="margin-top:28px">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Vite の動的 DDGI</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">811 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Lumen、UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:39.95%"></span></span><span class="bar__value">324 FPS</span></div>
+            </div>
+            <p class="bars__note">ReSTIR ではなく、出荷している動的 DDGI。RTX 4080 Super、1440p ネイティブ、同じシーン。高いほど良い。</p>
+        </div>
+        <figure class="figure reveal">
+            <div class="figure__frame"><img src="{{assets}}img/gi-stylized.jpg" alt="動的なレイトレーシングのグローバルイルミネーションで照らされたスタイライズドな砂漠のレベル。フレームカウンターは 811 FPS" loading="lazy" width="1600" height="900"></div>
+            <figcaption>動的 DDGI で描画したスタイライズドのデモ。RTX 4080 Super、1440p ネイティブで 811 FPS。</figcaption>
+        </figure>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">位置付け</p>
+            <h2 class="h2">Vite のグローバルイルミネーションの選択肢</h2>
+        </div>
+        <div class="table-scroll reveal">
+            <table class="matrix">
+                <thead><tr><th scope="col">モード</th><th scope="col">ライティング</th><th scope="col">適した用途</th><th scope="col">状況</th></tr></thead>
+                <tbody>
+                    <tr><td>静的 DDGI</td><td>ベイクしたプローブ。ベイクはほぼ一瞬</td><td>レイトレーシングのないハードウェア</td><td><span class="pill pill--live">出荷中</span></td></tr>
+                    <tr><td>動的 DDGI + SSGI</td><td>レイトレーシングのプローブと、スクリーンスペースの接触のディテール</td><td>コンソールクラスの GPU での 60&ndash;120 FPS のタイトル</td><td><span class="pill pill--live">出荷中</span></td></tr>
+                    <tr><td>ピクセルごとの RT GI、ReSTIR のファイナルギャザー</td><td>SVGF のデノイザーを伴う、リザーバーで再サンプリングしたピクセルごとの GI</td><td>リファレンスの画像。ハードウェア Lumen より高い忠実度</td><td><span class="pill pill--live">出荷中（任意のビルド）</span></td></tr>
+                    <tr><td>Vite ReSTIR GI</td><td>製品向けに調整した、ピクセルごとに再サンプリングするマルチバウンスの GI</td><td>高忠実度のタイトルとハイエンド PC</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                    <tr><td>Vite ReSTIR パストレーサー</td><td>リアルタイムのパストレースのライティング</td><td>ウルトラ設定、シネマティック、キャプチャ</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section section--tight section--raised">
+    <div class="wrap">
+        <div class="section__head reveal" style="margin-bottom:28px">
+            <p class="eyebrow">さらに読む</p>
+            <h2 class="h2">関連するドキュメント</h2>
+        </div>
+        <div class="links reveal">
+            <a class="link-card" href="{{docs}}global-illumination.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">グローバルイルミネーション</span></a>
+            <a class="link-card" href="{{docs}}ddgi-dynamic.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">動的 DDGI</span></a>
+            <a class="link-card" href="{{docs}}rtxdi.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">RTXDI</span></a>
+            <a class="link-card" href="{{docs}}path-tracing.html"><span class="link-card__kicker">マニュアル</span><span class="link-card__title">パストレーシング</span></a>
+        </div>
+        <p class="muted" style="margin:28px 0 0;font-size:14px">
+            背景: B. Bitterli ほか、<i>Spatiotemporal reservoir resampling for real-time ray tracing with dynamic direct
+            lighting</i>、SIGGRAPH 2020。Y. Ouyang ほか、<i>ReSTIR GI: Path resampling for real-time path tracing</i>、HPG 2021。
+        </p>
+    </div>
+</section>
+
+<section class="section section--tight">
+    <div class="wrap">
+        <nav class="pager" aria-label="技術">
+            <a href="index.html#technology"><span class="pager__dir">&larr; すべての技術</span><span class="pager__name">Vite Technology</span></a>
+            <a href="vitex-physics.html"><span class="pager__dir">次へ &rarr;</span><span class="pager__name">ViteX Physics</span></a>
+        </nav>
+    </div>
+</section>

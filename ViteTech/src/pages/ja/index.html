@@ -1,0 +1,174 @@
+<!--
+title: Vite Technology — Unreal Engine のためのリアルタイム・レンダリングと物理
+description: グローバルイルミネーションとパストレーシング、ゲームに最適化した物理 SDK、キャラクターのシェーディング、ジオメトリ、ヘア。ネイティブ解像度と固定のフレーム予算のために作られた、Unreal Engine Vite を支える技術です。image: assets/img/hero-apartment.jpg
+-->
+<section class="hero">
+    <div class="hero__media">
+        <img src="{{assets}}img/hero-apartment.jpg" alt="崩れた天井から日が差し込む、植物に覆われた廃アパートメント。Unreal Engine Vite で描画" width="1920" height="1080" fetchpriority="high">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite Technology</p>
+        <h1 class="display">フレーム予算のために設計された、リアルタイムのレンダリングと物理。</h1>
+        <p class="lede">
+            Unreal Engine Vite を支える研究と開発。グローバルイルミネーションとパストレーシング、ゲームに最適化した物理 SDK、キャラクターのシェーディング、ジオメトリ、ヘアを、ゲームが実際に出荷されるハードウェアでネイティブ解像度のまま動かすために作っています。
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#technology">技術を見る</a>
+            <a class="btn btn--ghost" href="#contact">Vite と提携する</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>2.5&times;</em></span><span class="stat__label">同じシーンでの UE 5.7 の Lumen に対するフレームレート（レイトレーシング GI）</span></div>
+            <div><span class="stat__value"><em>4.75&times;</em></span><span class="stat__label">3,000 ボディでの Chaos に対するエンジン内の物理のフレームレート</span></div>
+            <div><span class="stat__value"><em>1.39&times;</em></span><span class="stat__label">10,005 ボディのソルバーベンチマークでの、標準の NVIDIA PhysX 3.4 に対する最大の高速化（最小でも 1.34&times;）</span></div>
+            <div><span class="stat__value">4K<em>60</em></span><span class="stat__label">PS5 クラスの GPU でのネイティブ解像度の目標。レイトレーシングを含む</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="technology">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">技術群</p>
+            <h2 class="h2">5&nbsp;つの技術。ルールは 1&nbsp;つ、出荷できること。</h2>
+            <p class="lede">
+                どの技術も、実際の製品のエンジンの中で、固定のフレーム予算とコンソールクラスの CPU を前提に開発し、主張する前に計測しています。
+            </p>
+        </div>
+        <div class="products">
+            <a class="product product--wide reveal" href="restir.html" data-product="restir">
+                <div class="product__media"><img src="{{assets}}img/restir-attic.jpg" alt="レイトレーシングのグローバルイルミネーションによる光の筋と柔らかなバウンス光に照らされた屋根裏" loading="lazy" width="1321" height="743"></div>
+                <div class="product__body">
+                    <p class="product__tag">グローバルイルミネーション &middot; パストレーシング</p>
+                    <h3 class="product__name">Vite ReSTIR</h3>
+                    <p class="product__text">リザーバーによる時空間の再サンプリングを用いたリアルタイムのグローバルイルミネーションと、同じパイプライン上のリアルタイム・パストレーサー。Epic 品質の Lumen より低いコストでのパストレースのライティングを目指して設計しています。</p>
+                    <span class="product__more">Vite ReSTIR</span>
+                </div>
+            </a>
+            <a class="product product--wide reveal" href="vitex-physics.html" data-product="vitex">
+                <div class="product__media"><img src="{{assets}}img/physics-destruction.jpg" alt="物理のテストレベルで、射撃を受けて破片に砕ける壁" loading="lazy" width="1443" height="956"></div>
+                <div class="product__body">
+                    <p class="product__tag">物理 SDK &middot; CPU と GPU</p>
+                    <h3 class="product__name">ViteX Physics</h3>
+                    <p class="product__text">Unreal Engine 4 と完全に互換の物理 SDK。ゲーム向けに調整した PhysX 4 と 5 のソルバーの進歩に、Flex と Flow による GPU で高速化した流体、布、煙を組み合わせます。</p>
+                    <span class="product__more">ViteX Physics</span>
+                </div>
+            </a>
+            <a class="product reveal" href="brdf.html" data-product="brdf">
+                <div class="product__media"><img src="{{assets}}img/brdf-portrait.jpg" alt="Callisto をベースにした BRDF でシェーディングしたキャラクターの顔のクローズアップ" loading="lazy" width="847" height="1030" style="object-position:center 30%"></div>
+                <div class="product__body">
+                    <p class="product__tag">シェーディング</p>
+                    <h3 class="product__name">Vite BRDF</h3>
+                    <p class="product__text">Callisto をベースにした、キャラクター向けの品質の BRDF。2 ローブのスペキュラー、スムーズターミネーター、再帰反射、ディフューズのフレネルを備えます。</p>
+                    <span class="product__more">Vite BRDF</span>
+                </div>
+            </a>
+            <a class="product reveal" href="vertis.html" data-product="vertis">
+                <div class="product__media"><img src="{{assets}}img/vertis-lod.svg" alt="3 段階の詳細度で示したサーフェスと、連続的な遷移を示す矢印" loading="lazy" width="1600" height="900"></div>
+                <div class="product__body">
+                    <p class="product__tag">ジオメトリ</p>
+                    <h3 class="product__name">Vite Vertis</h3>
+                    <p class="product__text">標準のメッシュのパイプライン上での、連続的でポップのない LOD。ゲームが出荷されるハードウェアで Nanite を超えるために作っています。</p>
+                    <span class="product__more">Vite Vertis</span>
+                </div>
+            </a>
+            <a class="product reveal" href="hair-fx.html" data-product="hairfx">
+                <div class="product__media"><img src="{{assets}}img/hairfx-strands.svg" alt="明るいハイライトと暖色のハイライトの帯を持つ、流れるような髪のストランド" loading="lazy" width="1600" height="900"></div>
+                <div class="product__body">
+                    <p class="product__tag">ヘア</p>
+                    <h3 class="product__name">Vite Hair FX</h3>
+                    <p class="product__text">TressFX をベースにしたストランドのヘア。新しいヘアの BRDF を備え、フレームのコストを大幅に削減します。</p>
+                    <span class="product__more">Vite Hair FX</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised" id="results">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">約束ではなく、計測</p>
+            <h2 class="h2">エンジンはすでに、置き換える対象を上回っています。</h2>
+            <div class="prose">
+                <p>
+                    Vite Technology は、すでに使われている性能重視のエンジン、Unreal Engine Vite から生まれました。以下は同じシーンを同じ条件でキャプチャしたもので、計測の方法は <a href="{{docs}}physics.html">エンジンのマニュアル</a>
+                    で公開しています。
+                </p>
+                <p>
+                    <strong>比較の相手は意図して選んでいます。</strong> レイトレーシングのライティングを使う Vite と、UE 5.7 が想定する機能構成との比較。そして Vite の PhysX と、Chaos および標準の NVIDIA PhysX との比較です。
+                </p>
+            </div>
+        </div>
+        <div class="reveal">
+            <h3 class="h3">レイトレーシング GI のシーン（フレーム/秒）</h3>
+            <div class="bars" role="list">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Unreal Engine Vite</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">811 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Lumen、UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:39.95%"></span></span><span class="bar__value">324 FPS</span></div>
+            </div>
+            <p class="bars__note">RTX 4080 Super、1440p ネイティブ。高いほど良い。</p>
+
+            <h3 class="h3" style="margin-top:36px">エンジン内で 3,000 ボディをシミュレーション（フレーム/秒）</h3>
+            <div class="bars" role="list">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Vite、PhysX 3.4</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">157.9 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Chaos、UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:21.07%"></span></span><span class="bar__value">33.3 FPS</span></div>
+            </div>
+            <p class="bars__note">同じシーンで、描画するプリミティブは両方とも 3,016。高いほど良い。</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">開発の方針</p>
+            <h2 class="h2">エンジニアリングの原則</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon">{{icon:target}}</div><h3 class="h3">ネイティブ解像度を最優先</h3><p>画像の鮮明さは真っ先に失われ、最も取り戻しにくいものです。予算は再構築ではなく、ネイティブ解像度を保つことに使います。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:gauge}}</div><h3 class="h3">固定のフレーム予算</h3><p>あらゆる機能は、既定で有効にする前に、60 FPS と 120 FPS の目標に対してミリ秒単位でコストを見積もります。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:cpu}}</div><h3 class="h3">コンソールクラスの CPU</h3><p>物理とアニメーションのカーネルは、デスクトップの部品ではなく、256 ビットの FMA パイプが 1 本の PS5 クラスのシリコンで計測します。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">使う分だけ払う</h3><p>任意のシステムは既定でコンパイル対象から外します。追加のシェーディングモデルをゲートしただけで、基準シーンは 12.3% 向上しました。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:shield}}</div><h3 class="h3">製品で実証済み</h3><p>機能は、実際のハードウェアでのクック、パッケージ化、出荷を経て残らなければなりません。デモは副産物であり、目的ではありません。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:eye}}</div><h3 class="h3">再現できる数値</h3><p>結果はホスト、ビルド、負荷、スレッド数とともに公開し、鵜呑みにするのではなく検証できるようにしています。</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">提供状況</p>
+            <h2 class="h2">現在出荷しているもの、そして次に来るもの</h2>
+            <p class="lede">どの技術も、Unreal Engine Vite ですでに出荷しているシステムの上に築かれています。</p>
+        </div>
+        <div class="table-scroll reveal">
+            <table class="matrix">
+                <thead><tr><th scope="col">技術</th><th scope="col">Unreal Engine Vite で現在出荷しているもの</th><th scope="col">状況</th></tr></thead>
+                <tbody>
+                    <tr><td>Vite ReSTIR</td><td>動的 DDGI。ReSTIR のファイナルギャザーを伴うピクセルごとの RT GI、RTXDI、エディタのパストレーサー（任意のビルド）</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                    <tr><td>ViteX Physics</td><td>Vite の PhysX 3.4、APEX、Blast、固定タイムステップ、インスタンス化ボディ。Flex と Flow は統合中</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                    <tr><td>Vite BRDF</td><td>Callisto BRDF のシェーディングモデル</td><td><span class="pill pill--live">提供中（実験的）</span></td></tr>
+                    <tr><td>Vite Vertis</td><td>標準のスタティックメッシュの LOD のパイプラインとテッセレーション</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                    <tr><td>Vite Hair FX</td><td>TressFX 5.0 のストランドのヘア</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="contact">
+    <div class="wrap">
+        <div class="cta reveal">
+            <p class="eyebrow">Vite と協業する</p>
+            <h2 class="h2">ライセンス、統合、そして投資。</h2>
+            <p class="lede">
+                タイトルへの採用を検討しているスタジオや、ロードマップに関心のあるパートナーは、チームに直接ご連絡ください。すでに出荷しているものはすべて、エンジンのマニュアルで説明しています。
+            </p>
+            <div class="actions">
+                <a class="btn btn--primary" href="https://discord.gg/n9zQrYFhMb" rel="noopener">Discord でチームと話す</a>
+                <a class="btn btn--ghost" href="{{docs}}">エンジンのマニュアルを読む</a>
+                <a class="btn btn--ghost" href="https://x.com/theredpix" rel="noopener">最新情報をフォローする</a>
+            </div>
+        </div>
+    </div>
+</section>

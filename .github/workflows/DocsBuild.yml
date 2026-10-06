@@ -49,6 +49,13 @@ jobs:
           cp -R Writerside/images/. WritersideJP/images/
           cp Writerside/cfg/vite-theme.html WritersideJP/cfg/vite-theme.html
 
+      # Browsers render a source line break between two Japanese characters as
+      # a visible space. The sources are committed already joined; this keeps a
+      # missed edit from reaching the site.
+      - name: Join wrapped Japanese lines
+        if: matrix.locale == 'ja'
+        run: python3 Tools/join_cjk_lines.py
+
       - name: Build docs using Writerside Docker builder
         uses: JetBrains/writerside-github-action@v4
         with:
@@ -108,6 +115,7 @@ jobs:
       # even if public/ was not regenerated before the commit.
       - name: Build and add the Vite Technology site under /tech
         run: |
+          python3 Tools/join_cjk_lines.py
           python3 ViteTech/build.py
           mkdir -p dir/tech
           cp -R ViteTech/public/. dir/tech/

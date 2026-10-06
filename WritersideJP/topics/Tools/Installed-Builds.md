@@ -2,13 +2,11 @@
 
 <tldr>
 <p>
-インストール済みビルドは、Epic Games Launcher でインストールしたものと同じように動作する、ビルド済みで再配布可能な
-エンジンです。<code>RunUAT.bat</code> で作成し、<code>LocalBuilds\</code> のスクリプトでパッケージ化して登録します。
+インストール済みビルドは、Epic Games Launcher でインストールしたものと同じように動作する、ビルド済みで再配布可能なエンジンです。<code>RunUAT.bat</code> で作成し、<code>LocalBuilds\</code> のスクリプトでパッケージ化して登録します。
 </p>
 </tldr>
 
-ソースビルドには、完全なツールチェーン、長いコンパイル、大量のディスク容量が必要です。インストール済みビルドには
-必要ありません。アーティスト、デザイナー、エンジンの C++ を変更しない人は誰でも、そのまま使えます。
+ソースビルドには、完全なツールチェーン、長いコンパイル、大量のディスク容量が必要です。インストール済みビルドには必要ありません。アーティスト、デザイナー、エンジンの C++ を変更しない人は誰でも、そのまま使えます。
 
 ## ビルド
 
@@ -33,24 +31,19 @@ Engine\Build\BatchFiles\RunUAT.bat BuildGraph
 ```
 
 構成は Win64 のみで、ゲームの構成は Development と Shipping です。これは Vite の
-[プラットフォームの方針](Platforms.md) に合わせたものです。`WithDDC=false` は Derived Data Cache の生成を省略するため、
-ビルドが大幅に短くなりますが、その代わりにエンドユーザーの初回起動時にシェーダーのコンパイルが発生します。
+[プラットフォームの方針](Platforms.md) に合わせたものです。`WithDDC=false` は Derived Data Cache の生成を省略するため、ビルドが大幅に短くなりますが、その代わりにエンドユーザーの初回起動時にシェーダーのコンパイルが発生します。
 
-[ViteSetup](ViteSetup.md) から実行することもできます（ステップ 2 のオプション 3、またはメニューのオプション 8）。
-ViteSetup の経路はインクリメンタルで、チェックを入れれば Linux を追加し、結果のパッケージ化まで行います。同梱の
+[ViteSetup](ViteSetup.md) から実行することもできます（ステップ 2 のオプション 3、またはメニューのオプション 8）。ViteSetup の経路はインクリメンタルで、チェックを入れれば Linux を追加し、結果のパッケージ化まで行います。同梱の
 `RunUAT.bat` は `-clean` を渡し、パッケージ化は下記のスクリプトに任せます。
 
 <note>
 <p>
-ViteSetup は、ビルド済みの経路を推奨しないものとして示しています。ソースビルドはデバッグ、パッチの適用、再ビルドが
-でき、そこから作るバイナリより短い時間で作成できます。インストール済みビルドは、エンジンを一切コンパイルしない人が
-必要とする場合に使い、ソースビルドと同じコミットから作成してください。
+ViteSetup は、ビルド済みの経路を推奨しないものとして示しています。ソースビルドはデバッグ、パッチの適用、再ビルドができ、そこから作るバイナリより短い時間で作成できます。インストール済みビルドは、エンジンを一切コンパイルしない人が必要とする場合に使い、ソースビルドと同じコミットから作成してください。
 </p>
 </note>
 
 <note>
-これは長いビルドです。数分ではなく数時間を見込み、十分な空きディスク容量を用意してください。中間出力と最終出力の
-どちらも大きくなります。
+これは長いビルドです。数分ではなく数時間を見込み、十分な空きディスク容量を用意してください。中間出力と最終出力のどちらも大きくなります。
 </note>
 
 出力は `LocalBuilds\Engine\Windows` に置かれます。
@@ -59,12 +52,9 @@ ViteSetup は、ビルド済みの経路を推奨しないものとして示し�
 
 ViteSetup は、自身でビルドしたバイナリのパッケージ化も行います。WinRAR がインストールされていれば
 `LocalBuilds\Engine\UE_ViteFork.rar` を作成し、なければ WinRAR の試用版のダウンロードを提案し、それもなければ 7-Zip で
-`UE_ViteFork.7z` を作成します。パッケージのルートには、`UE_ViteFork` の関連付け用に書かれた `RegistryAdd.bat`、
-`RegistryRemove.bat`、`MakeShortcut.bat` が含まれます。
+`UE_ViteFork.7z` を作成します。パッケージのルートには、`UE_ViteFork` の関連付け用に書かれた `RegistryAdd.bat`、`RegistryRemove.bat`、`MakeShortcut.bat` が含まれます。
 
-`RunUAT.bat` で作成したビルドの場合は、`LocalBuilds\` にある 4 つのスクリプトが、ステージングしたビルドを 7-Zip で
-圧縮します。どれも `LocalBuilds\Engine\Windows` にステージングしたビルドがあることを前提とし、環境変数 `SEVEN_ZIP` で
-別の場所を指定しない限り、7-Zip を `C:\Program Files\7-Zip\7z.exe` から探します。
+`RunUAT.bat` で作成したビルドの場合は、`LocalBuilds\` にある 4 つのスクリプトが、ステージングしたビルドを 7-Zip で圧縮します。どれも `LocalBuilds\Engine\Windows` にステージングしたビルドがあることを前提とし、環境変数 `SEVEN_ZIP` で別の場所を指定しない限り、7-Zip を `C:\Program Files\7-Zip\7z.exe` から探します。
 
 | スクリプト | デバッグシンボル | プラグイン |
 |---|---|---|
@@ -74,8 +64,7 @@ ViteSetup は、自身でビルドしたバイナリのパッケージ化も行�
 | `CompressBuildSymbolsSeparate.bat` | **含める** | 2 つ目のアーカイブに分割 |
 
 <note>
-<code>CompressBuildSymbols.bat</code> は現在 <code>CompressBuild.bat</code> と同一で、どちらも PDB を除外します。
-アーカイブにシンボルが必要な場合は、<code>-x@ExcludedPdbs.txt</code> を渡さない唯一のスクリプトである
+<code>CompressBuildSymbols.bat</code> は現在 <code>CompressBuild.bat</code> と同一で、どちらも PDB を除外します。アーカイブにシンボルが必要な場合は、<code>-x@ExcludedPdbs.txt</code> を渡さない唯一のスクリプトである
 <code>CompressBuildSymbolsSeparate.bat</code> を使ってください。
 </note>
 
@@ -90,18 +79,13 @@ ViteSetup は、自身でビルドしたバイナリのパッケージ化も行�
 
 ### 除外リスト
 
-`ExcludedPdbs.txt` には、エンジンのモジュールとプラグインに対応する約 1,100 の PDB のパスが並んでいます。デバッグ
-シンボルはソースビルドのサイズの非常に大きな割合を占めるため、それを除外することがパッケージ化で最も大きな節約に
-なります。
+`ExcludedPdbs.txt` には、エンジンのモジュールとプラグインに対応する約 1,100 の PDB のパスが並んでいます。デバッグシンボルはソースビルドのサイズの非常に大きな割合を占めるため、それを除外することがパッケージ化で最も大きな節約になります。
 
-`ExcludedPlugins.txt` は、[デブロートのスイート](Debloat-Guide.md) が使うものと同じ一覧です。`Separate` の版では、
-プラグインを取り除くのではなく別のアーカイブに分割します。ユーザーは基本のエンジンを展開し、必要な場合にだけ
-プラグインのアーカイブを追加します。
+`ExcludedPlugins.txt` は、[デブロートのスイート](Debloat-Guide.md) が使うものと同じ一覧です。`Separate` の版では、プラグインを取り除くのではなく別のアーカイブに分割します。ユーザーは基本のエンジンを展開し、必要な場合にだけプラグインのアーカイブを追加します。
 
 ### プラグインを分割する理由
 
-ほとんどの人が基本のエンジンだけを必要とし、一部の人だけがプラグイン一式を必要とするチームでは、最初にダウンロード
-するものをずっと小さくできます。分割はアーカイブ単位であって削除ではないため、何も失われません。
+ほとんどの人が基本のエンジンだけを必要とし、一部の人だけがプラグイン一式を必要とするチームでは、最初にダウンロードするものをずっと小さくできます。分割はアーカイブ単位であって削除ではないため、何も失われません。
 
 ## 対象のマシンにインストールする
 
@@ -110,8 +94,7 @@ ViteSetup は、自身でビルドしたバイナリのパッケージ化も行�
     <step><code>ExcludedPlugins.7z</code> を受け取っていて、そのプラグインが必要な場合は、同じフォルダーに上書きで展開します。</step>
     <step>
         展開したルートから <code>RegistryAdd.bat</code> を実行します。これはエンジンのパスを
-        <code>HKCU\Software\Epic Games\Unreal Engine\Builds</code> に、ViteSetup のパッケージなら <code>UE_ViteFork</code>、
-        単体の <code>LocalBuilds\</code> のスクリプトなら <code>UEViteFork</code> という名前で書き込みます。
+        <code>HKCU\Software\Epic Games\Unreal Engine\Builds</code> に、ViteSetup のパッケージなら <code>UE_ViteFork</code>、単体の <code>LocalBuilds\</code> のスクリプトなら <code>UEViteFork</code> という名前で書き込みます。
     </step>
     <step><code>MakeShortcut.bat</code> を実行して、エディタを指す <code>UEViteFork.lnk</code> を作成します。</step>
     <step>
@@ -119,8 +102,7 @@ ViteSetup は、自身でビルドしたバイナリのパッケージ化も行�
     </step>
 </procedure>
 
-パッケージのアーカイブのルートには、`Engine\` と並んで `MakeShortcut.bat`、`RegistryAdd.bat`、`RegistryRemove.bat` が
-含まれます。ビルド時に含めた場合は、`FeaturePacks\`、`Templates\`、`Samples\` も含まれます。
+パッケージのアーカイブのルートには、`Engine\` と並んで `MakeShortcut.bat`、`RegistryAdd.bat`、`RegistryRemove.bat` が含まれます。ビルド時に含めた場合は、`FeaturePacks\`、`Templates\`、`Samples\` も含まれます。
 
 ## 移動と削除
 
@@ -137,19 +119,14 @@ ViteSetup は、自身でビルドしたバイナリのパッケージ化も行�
 
 ## ソースビルドと併用する
 
-両方を共存させることはできますが、ViteSetup とそのパッケージは同じ `UE_ViteFork` という名前で登録するため、一度に
-登録できるのは 1 つだけです。最後に登録したほうがプロジェクトから見つかります。単体の `LocalBuilds\RegistryAdd.bat` は
-古い名前 `UEViteFork` を使います。プロジェクトのエンジン関連付けは登録名と完全に一致する必要があるため、1 つのエンジンに
+両方を共存させることはできますが、ViteSetup とそのパッケージは同じ `UE_ViteFork` という名前で登録するため、一度に登録できるのは 1 つだけです。最後に登録したほうがプロジェクトから見つかります。単体の `LocalBuilds\RegistryAdd.bat` は古い名前 `UEViteFork` を使います。プロジェクトのエンジン関連付けは登録名と完全に一致する必要があるため、1 つのエンジンに
 2 つの経路を混在させないでください。
 
-頻繁に切り替える場合は、どちらが現在登録されているかを控えておくか、レジストリキーを手作業で編集して別々の名前を
-付けてください。
+頻繁に切り替える場合は、どちらが現在登録されているかを控えておくか、レジストリキーを手作業で編集して別々の名前を付けてください。
 
 ## 制限事項
 
-インストール済みビルドではエンジンの C++ をコンパイルできません。それを使うプロジェクトも独自の C++ モジュールを持つことは
-でき、インストール済みエンジンのヘッダーとライブラリに対してコンパイルされますが、エンジンのソースの変更には
-ソースビルドが必要です。
+インストール済みビルドではエンジンの C++ をコンパイルできません。それを使うプロジェクトも独自の C++ モジュールを持つことはでき、インストール済みエンジンのヘッダーとライブラリに対してコンパイルされますが、エンジンのソースの変更にはソースビルドが必要です。
 
 これには [コンパイル時スイッチ](Compile-Time-Switches.md) も含まれます。プロジェクトでパストレーシングや RTXDI のために
 `VITE_RT_PSO_DEBLOAT=0` が必要な場合は、インストール済みビルドを作成する時点でそれを組み込んでおく必要があります。

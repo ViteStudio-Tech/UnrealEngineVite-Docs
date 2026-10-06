@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vite Technology — Unreal Engine のためのリアルタイム・レンダリングと物理</title>
+<meta name="description" content="グローバルイルミネーションとパストレーシング、ゲームに最適化した物理 SDK、キャラクターのシェーディング、ジオメトリ、ヘア。ネイティブ解像度と固定のフレーム予算のために作られた、Unreal Engine Vite を支える技術です。image: assets/img/hero-apartment.jpg">
+<meta name="theme-color" content="#050607">
+<link rel="canonical" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/index.html">
+<link rel="alternate" hreflang="en" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/index.html">
+<link rel="alternate" hreflang="ja" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/index.html">
+<link rel="alternate" hreflang="x-default" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/index.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Vite Technology">
+<meta property="og:title" content="Vite Technology — Unreal Engine のためのリアルタイム・レンダリングと物理">
+<meta property="og:description" content="グローバルイルミネーションとパストレーシング、ゲームに最適化した物理 SDK、キャラクターのシェーディング、ジオメトリ、ヘア。ネイティブ解像度と固定のフレーム予算のために作られた、Unreal Engine Vite を支える技術です。image: assets/img/hero-apartment.jpg">
+<meta property="og:url" content="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/index.html">
+<meta property="og:image" content="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/assets/img/hero-apartment.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" sizes="64x64" href="../assets/img/favicon-64.png">
+<link rel="apple-touch-icon" href="../assets/img/touch-icon-180.png">
+<link rel="preload" href="../assets/fonts/ViteVector-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/css/site.css?v=289dc5b919">
+</head>
+<body>
+<a class="skip-link" href="#main">本文へスキップ</a>
+<header class="site-header">
+    <div class="wrap">
+        <a class="brand" href="index.html" aria-label="Vite Technology">
+            <span class="brand__mark">VITE</span><span class="brand__family">Technology</span>
+        </a>
+        <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="メニュー">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <nav class="nav" id="site-nav" aria-label="メインメニュー">
+            <a class="nav__link" href="restir.html">ReSTIR</a>
+            <a class="nav__link" href="vitex-physics.html">ViteX Physics</a>
+            <a class="nav__link" href="brdf.html">BRDF</a>
+            <a class="nav__link" href="vertis.html">Vertis</a>
+            <a class="nav__link" href="hair-fx.html">Hair FX</a>
+            <a class="nav__link" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/">ドキュメント</a>
+            <a class="nav__lang" href="../index.html" lang="en" hreflang="en" title="View in English">English</a>
+        </nav>
+    </div>
+</header>
+<main id="main">
+<section class="hero">
+    <div class="hero__media">
+        <img src="../assets/img/hero-apartment.jpg" alt="崩れた天井から日が差し込む、植物に覆われた廃アパートメント。Unreal Engine Vite で描画" width="1920" height="1080" fetchpriority="high">
+    </div>
+    <div class="wrap">
+        <p class="eyebrow">Vite Technology</p>
+        <h1 class="display">フレーム予算のために設計された、リアルタイムのレンダリングと物理。</h1>
+        <p class="lede">
+            Unreal Engine Vite を支える研究と開発。グローバルイルミネーションとパストレーシング、ゲームに最適化した物理 SDK、キャラクターのシェーディング、ジオメトリ、ヘアを、ゲームが実際に出荷されるハードウェアでネイティブ解像度のまま動かすために作っています。
+        </p>
+        <div class="actions">
+            <a class="btn btn--primary" href="#technology">技術を見る</a>
+            <a class="btn btn--ghost" href="#contact">Vite と提携する</a>
+        </div>
+        <div class="stats">
+            <div><span class="stat__value"><em>2.5&times;</em></span><span class="stat__label">同じシーンでの UE 5.7 の Lumen に対するフレームレート（レイトレーシング GI）</span></div>
+            <div><span class="stat__value"><em>4.75&times;</em></span><span class="stat__label">3,000 ボディでの Chaos に対するエンジン内の物理のフレームレート</span></div>
+            <div><span class="stat__value"><em>1.39&times;</em></span><span class="stat__label">10,005 ボディのソルバーベンチマークでの、標準の NVIDIA PhysX 3.4 に対する最大の高速化（最小でも 1.34&times;）</span></div>
+            <div><span class="stat__value">4K<em>60</em></span><span class="stat__label">PS5 クラスの GPU でのネイティブ解像度の目標。レイトレーシングを含む</span></div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="technology">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">技術群</p>
+            <h2 class="h2">5&nbsp;つの技術。ルールは 1&nbsp;つ、出荷できること。</h2>
+            <p class="lede">
+                どの技術も、実際の製品のエンジンの中で、固定のフレーム予算とコンソールクラスの CPU を前提に開発し、主張する前に計測しています。
+            </p>
+        </div>
+        <div class="products">
+            <a class="product product--wide reveal" href="restir.html" data-product="restir">
+                <div class="product__media"><img src="../assets/img/restir-attic.jpg" alt="レイトレーシングのグローバルイルミネーションによる光の筋と柔らかなバウンス光に照らされた屋根裏" loading="lazy" width="1321" height="743"></div>
+                <div class="product__body">
+                    <p class="product__tag">グローバルイルミネーション &middot; パストレーシング</p>
+                    <h3 class="product__name">Vite ReSTIR</h3>
+                    <p class="product__text">リザーバーによる時空間の再サンプリングを用いたリアルタイムのグローバルイルミネーションと、同じパイプライン上のリアルタイム・パストレーサー。Epic 品質の Lumen より低いコストでのパストレースのライティングを目指して設計しています。</p>
+                    <span class="product__more">Vite ReSTIR</span>
+                </div>
+            </a>
+            <a class="product product--wide reveal" href="vitex-physics.html" data-product="vitex">
+                <div class="product__media"><img src="../assets/img/physics-destruction.jpg" alt="物理のテストレベルで、射撃を受けて破片に砕ける壁" loading="lazy" width="1443" height="956"></div>
+                <div class="product__body">
+                    <p class="product__tag">物理 SDK &middot; CPU と GPU</p>
+                    <h3 class="product__name">ViteX Physics</h3>
+                    <p class="product__text">Unreal Engine 4 と完全に互換の物理 SDK。ゲーム向けに調整した PhysX 4 と 5 のソルバーの進歩に、Flex と Flow による GPU で高速化した流体、布、煙を組み合わせます。</p>
+                    <span class="product__more">ViteX Physics</span>
+                </div>
+            </a>
+            <a class="product reveal" href="brdf.html" data-product="brdf">
+                <div class="product__media"><img src="../assets/img/brdf-portrait.jpg" alt="Callisto をベースにした BRDF でシェーディングしたキャラクターの顔のクローズアップ" loading="lazy" width="847" height="1030" style="object-position:center 30%"></div>
+                <div class="product__body">
+                    <p class="product__tag">シェーディング</p>
+                    <h3 class="product__name">Vite BRDF</h3>
+                    <p class="product__text">Callisto をベースにした、キャラクター向けの品質の BRDF。2 ローブのスペキュラー、スムーズターミネーター、再帰反射、ディフューズのフレネルを備えます。</p>
+                    <span class="product__more">Vite BRDF</span>
+                </div>
+            </a>
+            <a class="product reveal" href="vertis.html" data-product="vertis">
+                <div class="product__media"><img src="../assets/img/vertis-lod.svg" alt="3 段階の詳細度で示したサーフェスと、連続的な遷移を示す矢印" loading="lazy" width="1600" height="900"></div>
+                <div class="product__body">
+                    <p class="product__tag">ジオメトリ</p>
+                    <h3 class="product__name">Vite Vertis</h3>
+                    <p class="product__text">標準のメッシュのパイプライン上での、連続的でポップのない LOD。ゲームが出荷されるハードウェアで Nanite を超えるために作っています。</p>
+                    <span class="product__more">Vite Vertis</span>
+                </div>
+            </a>
+            <a class="product reveal" href="hair-fx.html" data-product="hairfx">
+                <div class="product__media"><img src="../assets/img/hairfx-strands.svg" alt="明るいハイライトと暖色のハイライトの帯を持つ、流れるような髪のストランド" loading="lazy" width="1600" height="900"></div>
+                <div class="product__body">
+                    <p class="product__tag">ヘア</p>
+                    <h3 class="product__name">Vite Hair FX</h3>
+                    <p class="product__text">TressFX をベースにしたストランドのヘア。新しいヘアの BRDF を備え、フレームのコストを大幅に削減します。</p>
+                    <span class="product__more">Vite Hair FX</span>
+                </div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised" id="results">
+    <div class="wrap split">
+        <div class="reveal">
+            <p class="eyebrow">約束ではなく、計測</p>
+            <h2 class="h2">エンジンはすでに、置き換える対象を上回っています。</h2>
+            <div class="prose">
+                <p>
+                    Vite Technology は、すでに使われている性能重視のエンジン、Unreal Engine Vite から生まれました。以下は同じシーンを同じ条件でキャプチャしたもので、計測の方法は <a href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/physics.html">エンジンのマニュアル</a>
+                    で公開しています。
+                </p>
+                <p>
+                    <strong>比較の相手は意図して選んでいます。</strong> レイトレーシングのライティングを使う Vite と、UE 5.7 が想定する機能構成との比較。そして Vite の PhysX と、Chaos および標準の NVIDIA PhysX との比較です。
+                </p>
+            </div>
+        </div>
+        <div class="reveal">
+            <h3 class="h3">レイトレーシング GI のシーン（フレーム/秒）</h3>
+            <div class="bars" role="list">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Unreal Engine Vite</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">811 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Lumen、UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:39.95%"></span></span><span class="bar__value">324 FPS</span></div>
+            </div>
+            <p class="bars__note">RTX 4080 Super、1440p ネイティブ。高いほど良い。</p>
+
+            <h3 class="h3" style="margin-top:36px">エンジン内で 3,000 ボディをシミュレーション（フレーム/秒）</h3>
+            <div class="bars" role="list">
+                <div class="bar bar--vite" role="listitem"><span class="bar__label">Vite、PhysX 3.4</span><span class="bar__track"><span class="bar__fill" style="--w:100%"></span></span><span class="bar__value">157.9 FPS</span></div>
+                <div class="bar" role="listitem"><span class="bar__label">Chaos、UE 5.7</span><span class="bar__track"><span class="bar__fill" style="--w:21.07%"></span></span><span class="bar__value">33.3 FPS</span></div>
+            </div>
+            <p class="bars__note">同じシーンで、描画するプリミティブは両方とも 3,016。高いほど良い。</p>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">開発の方針</p>
+            <h2 class="h2">エンジニアリングの原則</h2>
+        </div>
+        <div class="features reveal">
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></div><h3 class="h3">ネイティブ解像度を最優先</h3><p>画像の鮮明さは真っ先に失われ、最も取り戻しにくいものです。予算は再構築ではなく、ネイティブ解像度を保つことに使います。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4.5 17a8.5 8.5 0 1 1 15 0"/><path d="M12 13.5 16 8.5"/><circle cx="12" cy="14" r="1.3"/></svg></div><h3 class="h3">固定のフレーム予算</h3><p>あらゆる機能は、既定で有効にする前に、60 FPS と 120 FPS の目標に対してミリ秒単位でコストを見積もります。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 8h8v8H8z"/></svg></div><h3 class="h3">コンソールクラスの CPU</h3><p>物理とアニメーションのカーネルは、デスクトップの部品ではなく、256 ビットの FMA パイプが 1 本の PS5 クラスのシリコンで計測します。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2.5" y="7" width="19" height="10" rx="5"/><circle cx="16.5" cy="12" r="3"/></svg></div><h3 class="h3">使う分だけ払う</h3><p>任意のシステムは既定でコンパイル対象から外します。追加のシェーディングモデルをゲートしただけで、基準シーンは 12.3% 向上しました。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 19.5 6v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="m8.8 12 2.2 2.2 4.2-4.4"/></svg></div><h3 class="h3">製品で実証済み</h3><p>機能は、実際のハードウェアでのクック、パッケージ化、出荷を経て残らなければなりません。デモは副産物であり、目的ではありません。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></div><h3 class="h3">再現できる数値</h3><p>結果はホスト、ビルド、負荷、スレッド数とともに公開し、鵜呑みにするのではなく検証できるようにしています。</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="section section--raised">
+    <div class="wrap">
+        <div class="section__head reveal">
+            <p class="eyebrow">提供状況</p>
+            <h2 class="h2">現在出荷しているもの、そして次に来るもの</h2>
+            <p class="lede">どの技術も、Unreal Engine Vite ですでに出荷しているシステムの上に築かれています。</p>
+        </div>
+        <div class="table-scroll reveal">
+            <table class="matrix">
+                <thead><tr><th scope="col">技術</th><th scope="col">Unreal Engine Vite で現在出荷しているもの</th><th scope="col">状況</th></tr></thead>
+                <tbody>
+                    <tr><td>Vite ReSTIR</td><td>動的 DDGI。ReSTIR のファイナルギャザーを伴うピクセルごとの RT GI、RTXDI、エディタのパストレーサー（任意のビルド）</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                    <tr><td>ViteX Physics</td><td>Vite の PhysX 3.4、APEX、Blast、固定タイムステップ、インスタンス化ボディ。Flex と Flow は統合中</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                    <tr><td>Vite BRDF</td><td>Callisto BRDF のシェーディングモデル</td><td><span class="pill pill--live">提供中（実験的）</span></td></tr>
+                    <tr><td>Vite Vertis</td><td>標準のスタティックメッシュの LOD のパイプラインとテッセレーション</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                    <tr><td>Vite Hair FX</td><td>TressFX 5.0 のストランドのヘア</td><td><span class="pill pill--dev">開発中</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="contact">
+    <div class="wrap">
+        <div class="cta reveal">
+            <p class="eyebrow">Vite と協業する</p>
+            <h2 class="h2">ライセンス、統合、そして投資。</h2>
+            <p class="lede">
+                タイトルへの採用を検討しているスタジオや、ロードマップに関心のあるパートナーは、チームに直接ご連絡ください。すでに出荷しているものはすべて、エンジンのマニュアルで説明しています。
+            </p>
+            <div class="actions">
+                <a class="btn btn--primary" href="https://discord.gg/n9zQrYFhMb" rel="noopener">Discord でチームと話す</a>
+                <a class="btn btn--ghost" href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/">エンジンのマニュアルを読む</a>
+                <a class="btn btn--ghost" href="https://x.com/theredpix" rel="noopener">最新情報をフォローする</a>
+            </div>
+        </div>
+    </div>
+</section>
+</main>
+<footer class="site-footer">
+    <div class="wrap">
+        <div class="footer-grid">
+            <div>
+                <a class="brand" href="index.html" aria-label="Vite Technology"><span class="brand__mark">VITE</span><span class="brand__family">Technology</span></a>
+                <p style="margin:16px 0 0;max-width:36ch">Unreal Engine Vite の開発チームによる、レンダリング・物理・ジオメトリ技術。</p>
+            </div>
+            <div><h2>テクノロジー</h2><ul><li><a href="restir.html">Vite ReSTIR</a></li>
+<li><a href="vitex-physics.html">ViteX Physics</a></li>
+<li><a href="brdf.html">Vite BRDF</a></li>
+<li><a href="vertis.html">Vite Vertis</a></li>
+<li><a href="hair-fx.html">Vite Hair FX</a></li></ul></div>
+            <div><h2>エンジン</h2><ul><li><a href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/">Unreal Engine Vite マニュアル</a></li>
+<li><a href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/release-notes.html">リリースノート</a></li>
+<li><a href="https://vitestudio-tech.github.io/UnrealEngineVite-Docs/jp/projectsanddemos.html">プロジェクトとデモ</a></li>
+<li><a href="https://github.com/GapingPixel/UnrealEngineVite-PhysX">GitHub のエンジンリポジトリ</a></li></ul></div>
+            <div><h2>スタジオ</h2><ul><li><a href="https://discord.gg/n9zQrYFhMb" rel="noopener">Discord</a></li>
+<li><a href="https://x.com/theredpix" rel="noopener">X での最新情報</a></li>
+<li><a href="https://github.com/orgs/ViteStudio-Tech/repositories" rel="noopener">サンプルプロジェクト</a></li>
+<li><a href="https://ko-fi.com/vitestudio" rel="noopener">開発を支援する</a></li></ul></div>
+        </div>
+        <div class="footer-legal">
+            <span>&copy; <span data-year>2026</span> Vite Studio</span>
+            <span style="max-width:80ch">Unreal Engine は Epic Games, Inc. の商標です。NVIDIA、PhysX、Flex、Flow、Blast は NVIDIA Corporation の商標です。AMD および TressFX は Advanced Micro Devices, Inc. の商標です。その他の商標はそれぞれの所有者に帰属します。</span>
+        </div>
+    </div>
+</footer>
+<script src="../assets/js/site.js?v=e7387b766c" defer></script>
+</body>
+</html>

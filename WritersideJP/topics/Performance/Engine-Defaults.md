@@ -2,14 +2,11 @@
 
 <tldr>
 <p>
-Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいくつか変更しています。これらの変更はプロジェクトに直接
-影響し、一部はコストだけでなく実行時の挙動も変えます。何かが壊れていると判断する前に、このページを読んでください。
+Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいくつか変更しています。これらの変更はプロジェクトに直接影響し、一部はコストだけでなく実行時の挙動も変えます。何かが壊れていると判断する前に、このページを読んでください。
 </p>
 </tldr>
 
-標準の Unreal の既定値は、すべてがそのまま動くように選ばれており、ほとんどのプロジェクトが使わない機能まで有効に
-なっています。Vite は、必要な機能は「オフにし忘れるもの」ではなく「オンにするもの」であるべきだという原則に基づき、
-その一部を性能重視に変更しています。
+標準の Unreal の既定値は、すべてがそのまま動くように選ばれており、ほとんどのプロジェクトが使わない機能まで有効になっています。Vite は、必要な機能は「オフにし忘れるもの」ではなく「オンにするもの」であるべきだという原則に基づき、その一部を性能重視に変更しています。
 
 その代わり、標準の 4.27 から Vite に移したプロジェクトは挙動が変わることがあります。このページはその一覧です。
 
@@ -23,13 +20,9 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 プリミティブコンポーネントは、明示的に有効にしない限りオーバーラップイベントを生成しなくなりました。
 
-オーバーラップイベントの生成は、イベントに何かがバインドされているかどうかに関係なく、それを持つすべての
-コンポーネントでコストがかかります。標準のプロジェクトでは、大半のプリミティブが誰も受け取らないオーバーラップ
-イベントを生成しています。
+オーバーラップイベントの生成は、イベントに何かがバインドされているかどうかに関係なく、それを持つすべてのコンポーネントでコストがかかります。標準のプロジェクトでは、大半のプリミティブが誰も受け取らないオーバーラップイベントを生成しています。
 
-**影響:** オーバーラップイベントが必要なコンポーネントは、**Generate Overlap Events** を明示的に設定する必要が
-あります。トリガーボリューム、ピックアップの検出、`OnComponentBeginOverlap` で動くものはすべて、このフラグを設定して
-ください。プロジェクトを移行した後に「トリガーが動かなくなった」という問題の最も可能性の高い原因です。
+**影響:** オーバーラップイベントが必要なコンポーネントは、**Generate Overlap Events** を明示的に設定する必要があります。トリガーボリューム、ピックアップの検出、`OnComponentBeginOverlap` で動くものはすべて、このフラグを設定してください。プロジェクトを移行した後に「トリガーが動かなくなった」という問題の最も可能性の高い原因です。
 
 <img src="OverlapEventsDisabled.png" alt="PrimitiveComponent.cpp で SetGenerateOverlapEvents(true) を bGenerateOverlapEvents = false に置き換えるコミットの差分" border-effect="line"/>
 
@@ -39,8 +32,7 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 ### 最適化されたアクターのランタイム
 
-アクターのランタイムの既定値は、`AActor::InitializeDefaults` でのアクターごとのオーバーヘッドを減らすように変更されて
-います。
+アクターのランタイムの既定値は、`AActor::InitializeDefaults` でのアクターごとのオーバーヘッドを減らすように変更されています。
 
 | 既定値 | 標準の 4.27 | Vite | 理由 |
 |---|---|---|---|
@@ -57,10 +49,7 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 ### スケルタルメッシュの最適化された構成
 
-スケルタルメッシュは、ほとんどのプロジェクトで CPU の主要な負荷要因の 1 つです。そのため `USkeletalMeshComponent` は、
-Epic の全機能を有効にした既定値ではなく、性能重視の既定値で出荷されます。ワールド内のアセットには多くのスケルタル
-メッシュが含まれることが多く、コンポーネントごとに最適化した設定を有効にするのは現実的ではありません。安価な経路を
-既定にし、必要な箇所でだけ高価なオプションを有効にするほうが、実際に運用できる順序です。
+スケルタルメッシュは、ほとんどのプロジェクトで CPU の主要な負荷要因の 1 つです。そのため `USkeletalMeshComponent` は、Epic の全機能を有効にした既定値ではなく、性能重視の既定値で出荷されます。ワールド内のアセットには多くのスケルタルメッシュが含まれることが多く、コンポーネントごとに最適化した設定を有効にするのは現実的ではありません。安価な経路を既定にし、必要な箇所でだけ高価なオプションを有効にするほうが、実際に運用できる順序です。
 
 | 既定値 | 標準の 4.27 | Vite |
 |---|---|---|
@@ -74,13 +63,10 @@ Epic の全機能を有効にした既定値ではなく、性能重視の既定
 
 *変更した各行には Epic の元の値が末尾のコメントとして残されているため、上流を参照しなくても標準の挙動に戻せます。*
 
-注意すべきは `VisibilityBasedAnimTickOption` です。`OnlyTickPoseWhenRendered` では、画面外のキャラクターはポーズの評価を
-完全に止めます。描画されていないキャラクターのボーンのトランスフォームやソケットを読むゲームプレイ（武器の銃口の位置、
-IK のターゲット、遠くのアクターのアタッチポイントなど）では、コンポーネントを `AlwaysTickPose` または
+注意すべきは `VisibilityBasedAnimTickOption` です。`OnlyTickPoseWhenRendered` では、画面外のキャラクターはポーズの評価を完全に止めます。描画されていないキャラクターのボーンのトランスフォームやソケットを読むゲームプレイ（武器の銃口の位置、IK のターゲット、遠くのアクターのアタッチポイントなど）では、コンポーネントを `AlwaysTickPose` または
 `AlwaysTickPoseAndRefreshBones` に戻す必要があります。
 
-2 つ目は `bDisablePostProcessBlueprint = true` です。IK やボーンの補正によく使われるポストプロセスのアニメーション
-ブループリントは、コンポーネントごとに再び有効にしない限り実行されなくなります。
+2 つ目は `bDisablePostProcessBlueprint = true` です。IK やボーンの補正によく使われるポストプロセスのアニメーションブループリントは、コンポーネントごとに再び有効にしない限り実行されなくなります。
 
 <img src="SkeletalMeshDefault.png" alt="既定値のブロック全体を示す SkeletalMeshComponent.cpp のコンストラクター" border-effect="line"/>
 
@@ -92,17 +78,13 @@ IK のターゲット、遠くのアクターのアタッチポイントなど�
 
 スタティックメッシュのインポートで、既定ではライトマップ UV を生成しなくなりました。
 
-ほとんどの Vite のプロジェクトはベイクしたライティングではなく [DDGI](DDGI-Dynamic.md) を使うため、インポートする
-すべてのメッシュにライトマップ UV を生成するのは、インポート時間と UV チャンネルの無駄です。プロジェクトでライティングを
-ベイクする場合は、スタティックメッシュのインポートオプションでこの設定を有効にしてください。
+ほとんどの Vite のプロジェクトはベイクしたライティングではなく [DDGI](DDGI-Dynamic.md) を使うため、インポートするすべてのメッシュにライトマップ UV を生成するのは、インポート時間と UV チャンネルの無駄です。プロジェクトでライティングをベイクする場合は、スタティックメッシュのインポートオプションでこの設定を有効にしてください。
 
 [コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
 
 ## スケーラビリティ
 
-Vite は `Engine/Config/BaseScalability.ini` のシャドウのスケーラビリティグループを調整し直しています。標準の 4.27 は、
-Low でほぼシャドウなし、Epic と Cinematic で非常に高価なシャドウという幅の広い構成です。Vite はその幅を狭め、Low で
-実用的なシャドウを出し、High と Epic を安価にし、Medium は変更していません。
+Vite は `Engine/Config/BaseScalability.ini` のシャドウのスケーラビリティグループを調整し直しています。標準の 4.27 は、Low でほぼシャドウなし、Epic と Cinematic で非常に高価なシャドウという幅の広い構成です。Vite はその幅を狭め、Low で実用的なシャドウを出し、High と Epic を安価にし、Medium は変更していません。
 
 | グループ | `r.ShadowQuality`（標準 &rarr; Vite） | 標準からのその他の変更 |
 |---|---|---|
@@ -112,14 +94,11 @@ Low でほぼシャドウなし、Epic と Cinematic で非常に高価なシャ
 | Epic（`@3`） | 5 &rarr; 5 | カスケードの上限を 10 から 8 に、半径のしきい値 0.01 &rarr; 0.02、距離スケール 1.0 &rarr; 0.85、ボリュメトリックフォグのグリッドを 8&nbsp;px &times; 128 スライスから 16&nbsp;px &times; 64 スライスに |
 | Cinematic | 5 &rarr; 5 | 最大シャドウ解像度 4096 &rarr; 2048、ボリュメトリックフォグのグリッドを 4&nbsp;px から 8&nbsp;px に、履歴ミス時のスーパーサンプルを 16 から 4 に |
 
-トレーラーやオフラインのキャプチャで標準の Epic や Cinematic のシャドウの予算に頼っている場合は、エンジンのファイルを
-編集するのではなく、プロジェクトの `DefaultScalability.ini` でそれらの値を上書きしてください。
+トレーラーやオフラインのキャプチャで標準の Epic や Cinematic のシャドウの予算に頼っている場合は、エンジンのファイルを編集するのではなく、プロジェクトの `DefaultScalability.ini` でそれらの値を上書きしてください。
 
 ## ゲームプレイの既定値を元に戻す
 
-上記のオーバーラップとスケルタルメッシュの既定値は、移行したプロジェクトを最も壊しやすいものです。
-[August Major](ueVite26-AugustMajor.md) 以降、エンジンのルートにある `ViteDefaults.bat` で、エンジンのソースを手で編集せずに
-それぞれを Vite と標準の UE 4.27 の間で切り替えられます。
+上記のオーバーラップとスケルタルメッシュの既定値は、移行したプロジェクトを最も壊しやすいものです。[August Major](ueVite26-AugustMajor.md) 以降、エンジンのルートにある `ViteDefaults.bat` で、エンジンのソースを手で編集せずにそれぞれを Vite と標準の UE 4.27 の間で切り替えられます。
 
 ```
 ViteDefaults.bat                                  :: 現在の状態を表示する対話式メニュー
@@ -127,28 +106,21 @@ ViteDefaults.bat -DetectOnly                      :: 現在の状態を報告す
 ViteDefaults.bat -SetOverlap ue427 -SetSkm vite   :: オーバーラップは標準、スケルタルメッシュは Vite の既定値
 ```
 
-このツールは `PrimitiveComponent.cpp` と `SkeletalMeshComponent.cpp` の既定値を書き換えるため、実行後にエディタを再ビルド
-してください。可能であれば、影響を受けるコンポーネントをプロジェクト側で修正するほうを優先してください。エンジンの既定値を
-元に戻すと、そのコストがすべてのレベルのすべてのプリミティブやスケルタルメッシュに戻ってきます。
+このツールは `PrimitiveComponent.cpp` と `SkeletalMeshComponent.cpp` の既定値を書き換えるため、実行後にエディタを再ビルドしてください。可能であれば、影響を受けるコンポーネントをプロジェクト側で修正するほうを優先してください。エンジンの既定値を元に戻すと、そのコストがすべてのレベルのすべてのプリミティブやスケルタルメッシュに戻ってきます。
 
 ## 無効化されたプラグイン {id="disabled-plugins"}
 
-Vite のプラグインプロファイルは、ほとんどの Win64 のプロジェクトが読み込まないエンジンのプラグインをオフにし、エディタの
-起動時間、読み込むモジュールの数、パッケージ化したビルドのサイズを減らします。プロファイルがツリーに適用される方法は
-リリースによって異なります。
+Vite のプラグインプロファイルは、ほとんどの Win64 のプロジェクトが読み込まないエンジンのプラグインをオフにし、エディタの起動時間、読み込むモジュールの数、パッケージ化したビルドのサイズを減らします。プロファイルがツリーに適用される方法はリリースによって異なります。
 
 | リリース | プロファイルの適用方法 |
 |---|---|
 | [LTS](ueVite25-LTS.md) から [June Major](ueVite26-JuneMajor.md) | ソースツリーに組み込み済み。プラグインは `EnabledByDefault` が `false` の状態で出荷 |
 | [July Major](ueVite26-JulyMajor.md) 以降 | 互換性のため、ツリーは標準の 4.27 の値で出荷。`devops\ueVite-ApplyVitePluginDefaults.bat` を実行してプロファイルを適用 |
 
-プロファイルの内容は `devops\ViteEnginePluginDefaults.txt` の一覧です。39 のエンジンのプラグインを無効にし、1 つを有効に
-します。
+プロファイルの内容は `devops\ViteEnginePluginDefaults.txt` の一覧です。39 のエンジンのプラグインを無効にし、1 つを有効にします。
 
 - **無効:** Paper2D、CLion・CodeLite・KDevelop のソースコードアクセス、Plastic SCM と Subversion のソース管理、Chaos Cloth・
-  Chaos Editor・Chaos Niagara と Chaos のソルバーのプラグイン、Alembic のインポーター、Facial Animation、Crypto Keys、
-  Android・Apple・WMF のメディア再生、OpenXR・Oculus VR・SteamVR、そして Google Cloud Messaging、Google PAD、
-  Chunk Downloader、Mobile Patching Utils などのモバイル向けサービス。
+  Chaos Editor・Chaos Niagara と Chaos のソルバーのプラグイン、Alembic のインポーター、Facial Animation、Crypto Keys、Android・Apple・WMF のメディア再生、OpenXR・Oculus VR・SteamVR、そして Google Cloud Messaging、Google PAD、Chunk Downloader、Mobile Patching Utils などのモバイル向けサービス。
 - **有効:** Vite の [破壊](Destruction-And-Cloth.md) の経路である Blast。
 
 ```
@@ -157,11 +129,9 @@ devops\ueVite-ApplyVitePluginDefaults.bat --dryrun   :: 変更内容を報告す
 devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: 標準の 4.27 の値に戻す
 ```
 
-`--yes` を付けると確認のプロンプトを省略します。このスクリプトは `.uplugin` ファイルだけを編集するため、`.uproject` で
-明示的に指定したプラグインは、どちらの場合もそのまま残ります。
+`--yes` を付けると確認のプロンプトを省略します。このスクリプトは `.uplugin` ファイルだけを編集するため、`.uproject` で明示的に指定したプラグインは、どちらの場合もそのまま残ります。
 
-**特に VR のプラグインは、必要な場合は再び有効にする必要があります。** Windows で Media Framework を通じて動画を再生する
-プロジェクトでは、WMF Media も同様です。
+**特に VR のプラグインは、必要な場合は再び有効にする必要があります。** Windows で Media Framework を通じて動画を再生するプロジェクトでは、WMF Media も同様です。
 
 [コミット 1](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e9aebc2ef9f8acb7326a7e989f288ef68969342f) &middot;
 [コミット 2](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
@@ -170,8 +140,7 @@ devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: 標準の 4.27 の値に
 
 ### SpeedTree のティック
 
-`LevelTick.cpp` の SpeedTree のティックが最適化されています。SpeedTree のティックはプロジェクトが SpeedTree の
-アセットを使っているかどうかに関係なく実行されるため、これはすべてのプロジェクトが得られる節約です。
+`LevelTick.cpp` の SpeedTree のティックが最適化されています。SpeedTree のティックはプロジェクトが SpeedTree のアセットを使っているかどうかに関係なく実行されるため、これはすべてのプロジェクトが得られる節約です。
 
 <img src="SpeedTreeTick.png" alt="ワールドのティック内の UpdateSpeedTreeWind の呼び出しを示す LevelTick.cpp" border-effect="line"/>
 
@@ -181,14 +150,11 @@ devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: 標準の 4.27 の値に
 
 ### Niagara のティック
 
-Niagara はプラグインが有効であれば常にティックします。使わない場合はプロジェクトレベルで Niagara のプラグインを
-無効にしてください。4.27 では Cascade も引き続き利用できます。
+Niagara はプラグインが有効であれば常にティックします。使わない場合はプロジェクトレベルで Niagara のプラグインを無効にしてください。4.27 では Cascade も引き続き利用できます。
 
 ## レイトレーシングのカリング: 変更なし、有効にする価値あり {id="ray-tracing-culling"}
 
-ここで Vite は標準の 4.27 の挙動を維持しています。`r.RayTracing.Culling` の既定値は `0` で、レイトレーシングの対象の
-プリミティブは、カメラとの位置関係に関係なくすべてアクセラレーション構造に残ります。大きなシーンでは、これを有効に
-することが最も安価なレイトレーシングの節約の 1 つです。
+ここで Vite は標準の 4.27 の挙動を維持しています。`r.RayTracing.Culling` の既定値は `0` で、レイトレーシングの対象のプリミティブは、カメラとの位置関係に関係なくすべてアクセラレーション構造に残ります。大きなシーンでは、これを有効にすることが最も安価なレイトレーシングの節約の 1 つです。
 
 ```ini
 ; Config/DefaultEngine.ini
@@ -198,10 +164,7 @@ r.RayTracing.Culling.Radius=10000
 r.RayTracing.Culling.Angle=1
 ```
 
-カリングを有効にすると、**カメラの後ろ** にあるオブジェクトのうち、`r.RayTracing.Culling.Radius`（既定 10000、
-100&nbsp;m）より遠いもの、または投影された角度が `r.RayTracing.Culling.Angle` より小さいものが除外されます。カメラの前に
-あるものは決してカリングされないため直接見える画面は変わりませんが、カリングされたオブジェクトは反射とレイトレーシングの
-シャドウから消えます。有効にした後は、プレイヤーの後ろにある鏡や大きなシャドウの投影元を確認してください。
+カリングを有効にすると、**カメラの後ろ** にあるオブジェクトのうち、`r.RayTracing.Culling.Radius`（既定 10000、100&nbsp;m）より遠いもの、または投影された角度が `r.RayTracing.Culling.Angle` より小さいものが除外されます。カメラの前にあるものは決してカリングされないため直接見える画面は変わりませんが、カリングされたオブジェクトは反射とレイトレーシングのシャドウから消えます。有効にした後は、プレイヤーの後ろにある鏡や大きなシャドウの投影元を確認してください。
 
 <note>
 UE5 の <code>r.RayTracing.Culling.UseMinDrawDistance</code> は、4.27 にも Vite にも存在しません。
@@ -211,23 +174,17 @@ UE5 の <code>r.RayTracing.Culling.UseMinDrawDistance</code> は、4.27 にも V
 
 これらは実行時の性能には影響しませんが、エディタの挙動を変えます。
 
-- アニメーションのアセットは常に新しいタブで開きます
-  （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/8bdae919e6eae61a27ef8d09d38027592a473d8c)）
-- 新しいプラグインのポップアップを無効にする設定変数
-  （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/9af0349c1832b7094ceae7f47ba8ca5d261e0e69)）
+- アニメーションのアセットは常に新しいタブで開きます（[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/8bdae919e6eae61a27ef8d09d38027592a473d8c)）
+- 新しいプラグインのポップアップを無効にする設定変数（[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/9af0349c1832b7094ceae7f47ba8ca5d261e0e69)）
 - `bDisableAllTutorialAlerts=True`
   （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/d9fd593e11581fd93d0ff60b2933794f150b4780)）
-- 後のエンジンバージョンからの安全なバックポートをいくつか
-  （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/fe7a6f4d7c54d8725d6308820d5b4fd546b9ff49)）
+- 後のエンジンバージョンからの安全なバックポートをいくつか（[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/fe7a6f4d7c54d8725d6308820d5b4fd546b9ff49)）
 
 ## 自分で行える任意のデブロート
 
 これらは互換性のためにフォークのリリースブランチでは無効にできませんが、個々のプロジェクトでは利用できます。
 
-**Vite のプラグインの削除。** 追加された Vite のプラグインを取り除くと、コンパイル時間が短くなります。Houdini Engine が
-まだ同梱されていた時期の Ryzen 9 9950X3D での計測では、リポジトリ全体で 15 分、Vite のプラグインなしで 12 分で、単一で
-最も大きな要因は Houdini でした。[June Major](ueVite26-JuneMajor.md) で Houdini が外されたため、現在のリリースでは差は
-より小さくなっています。
+**Vite のプラグインの削除。** 追加された Vite のプラグインを取り除くと、コンパイル時間が短くなります。Houdini Engine がまだ同梱されていた時期の Ryzen 9 9950X3D での計測では、リポジトリ全体で 15 分、Vite のプラグインなしで 12 分で、単一で最も大きな要因は Houdini でした。[June Major](ueVite26-JuneMajor.md) で Houdini が外されたため、現在のリリースでは差はより小さくなっています。
 
 ツールについては [デブロートガイド](Debloat-Guide.md) を参照してください。
 
@@ -235,15 +192,13 @@ UE5 の <code>r.RayTracing.Culling.UseMinDrawDistance</code> は、4.27 にも V
 
 <procedure title="移行したプロジェクトを Vite の既定値と照らし合わせて確認する" id="check-defaults">
     <step>
-        すべてのトリガーボリュームとオーバーラップで動くインタラクションをテストします。オーバーラップイベントは
-        最もよくある不具合の原因です。
+        すべてのトリガーボリュームとオーバーラップで動くインタラクションをテストします。オーバーラップイベントは最もよくある不具合の原因です。
     </step>
     <step>
         リーダー／フォロワーのスケルタルメッシュ構成を使うキャラクターで、カーブの伝播が欠けていないかを確認します。
     </step>
     <step>
-        プロジェクトでライティングをベイクする場合は、ライトマップ UV の生成を再び有効にし、既存のメッシュに有効な
-        ライトマップ UV があることを確認します。
+        プロジェクトでライティングをベイクする場合は、ライトマップ UV の生成を再び有効にし、既存のメッシュに有効なライトマップ UV があることを確認します。
     </step>
     <step>プロジェクトに必要なプラグイン、特に VR と WMF Media を再び有効にします。</step>
     <step>Low、High、Epic、Cinematic のシャドウが標準と異なるため、スケーラビリティの設定を見直します。</step>
