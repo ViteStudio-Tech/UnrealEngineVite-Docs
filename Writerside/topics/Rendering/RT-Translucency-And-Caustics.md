@@ -43,7 +43,8 @@ interacts unintuitively with content authored for rasterisation. Hybrid transluc
 
 | `r.RayTracing.Translucency` | Mode |
 |---|---|
-| `0` | Stock UE4 ray-traced translucency off |
+| `-1` | Use the post process volume setting |
+| `0` | Stock UE4 ray-traced translucency off (default) |
 | `1` | Stock UE4 ray-traced translucency on |
 | `2` | Hybrid Translucency 1 &mdash; ray-traced translucent reflection only |
 | `3` | Hybrid Translucency 2 &mdash; ray-traced translucent reflection and refraction |
@@ -62,7 +63,7 @@ shading.
 | Console variable | Purpose |
 |---|---|
 | `r.RayTracing.Translucency.HybridLayers` | How many overlapping ray-traced translucency levels are tracked |
-| `r.RayTracing.Translucency.HybridDepthThreshold` | World-space separation at which geometry counts as a different translucency layer. Too small and hybrid translucency will not appear, or z-fighting artefacts occur; too large and stacked layers incorrectly merge. |
+| `r.RayTracing.Translucency.HybridDepthThreshold` | Separation, as a ratio of distance from the camera, at which samples count as different translucency layers. Default 0.0005, about 5&nbsp;cm on a surface 100&nbsp;m away. Too small and hybrid translucency will not appear, or z-fighting artefacts occur; too large and stacked layers incorrectly merge. |
 | `r.RayTracing.Translucency.HalfRes` | 0 full, 1 half vertically (interleaved), 2 half checkerboard (4-tap), 3 half checkerboard (2-tap vertical) |
 
 ### Mode 3 &mdash; reflection and refraction
