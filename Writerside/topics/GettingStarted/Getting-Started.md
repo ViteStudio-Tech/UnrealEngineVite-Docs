@@ -58,7 +58,8 @@ Translucency, caustics, RTXDI and path tracing are also compiled out unless the 
 `VITE_RT_PSO_DEBLOAT=0`. See [Ray Tracing](Ray-Tracing.md).
 
 **Several engine defaults are changed for performance.** Overlap events, skeletal mesh settings, lightmap
-UV generation and a number of plugins differ from stock. These changes affect gameplay behaviour, not just
+UV generation, ACL animation compression, a 120&nbsp;FPS cap in standalone and packaged builds, and a
+number of plugins differ from stock. These changes affect gameplay behaviour, not just
 frame time, so read [Engine Default Changes](Engine-Defaults.md) before you ship.
 
 ## Unreal Engine fundamentals

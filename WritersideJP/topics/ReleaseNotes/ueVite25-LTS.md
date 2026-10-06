@@ -324,4 +324,4 @@ Callisto BRDF（実験的）、ACES 1.3.1 のガマット圧縮、ライトご�
 - [すべてのリリースノート](Release-Notes.md)
 - [ueVite26 March Major](ueVite26-MarchMajor.md)
 - [初代 Vite](Original-Vite.md)
-- [エンジン既定値の変更](Engine-Defaults.md)
+- [エンジンの既定値の変更](Engine-Defaults.md)
