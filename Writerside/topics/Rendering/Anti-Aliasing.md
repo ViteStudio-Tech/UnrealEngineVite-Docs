@@ -46,7 +46,8 @@ has none of those failure modes. What it gives up is subpixel detail reconstruct
 recover information that was never rendered &mdash; which matters much less when you are rendering at native
 4K in the first place.
 
-Vite's SMAA measured 32% faster than CMAA2 in Unreal Engine, which is why CMAA2 was deemed redundant.
+Vite's first SMAA implementation measured 32% faster than CMAA2 in Unreal Engine, which is why CMAA2 was deemed
+redundant.
 Other morphological solutions were evaluated, and none offered an objective reason to be implemented in
 Vite. The implementation has gone through two generations:
 
