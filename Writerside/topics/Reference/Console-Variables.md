@@ -99,7 +99,7 @@ Compiled out by default.
 ### RTXDI (sampled lighting)
 
 Compiled out by default. `r.RayTracing.SampledDirectLighting` is the master switch; the
-`r.RayTracing.SampledLighting.*` family &mdash; over sixty variables covering reservoir counts, spatial and
+`r.RayTracing.SampledLighting.*` family &mdash; sixty variables covering reservoir counts, spatial and
 temporal resampling, ReGIR cell configuration and per-light-type toggles &mdash; tunes it.
 
 The ones worth knowing first:
