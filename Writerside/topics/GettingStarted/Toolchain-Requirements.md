@@ -2,9 +2,10 @@
 
 <tldr>
 <p>
-Current Vite toolchain: <b>Visual Studio 2026</b> with <b>MSVC 14.50</b> and <b>Windows SDK 10.0.26100</b>.
-Uninstall or deselect every other MSVC toolset. A mismatched toolchain does not produce a clear error &mdash;
-it produces <code>C4668: '__has_feature' is not defined</code> and similar noise.
+Current Vite toolchain: <b>Visual Studio 2026</b> with <b>MSVC 14.51</b> (14.50 or newer is accepted) and
+<b>Windows SDK 10.0.26100</b>. Visual Studio 2022 with MSVC 14.44 remains supported. Uninstall or deselect
+every other MSVC toolset. A mismatched toolchain does not produce a clear error &mdash; it produces
+<code>C4668: '__has_feature' is not defined</code> and similar noise.
 </p>
 </tldr>
 
@@ -16,25 +17,26 @@ most common cause of build failure. Install exactly what this page lists and rem
 
 Vite is validated against the following combinations. The first row is the current recommendation.
 
-| Toolchain                    | MSVC | Windows SDK | Status                                                                                              |
-|------------------------------|---|---|-----------------------------------------------------------------------------------------------------|
-| Visual Studio 2026 (latest)  | 14.50 | 10.0.26100 | **Current.** Highest compiler performance and the toolchain Vite development targets.               |
-| Visual Studio 2022 (latest)  | 14.44 | 10.0.26100 | Supported. Matches the last toolchain update verified by Epic's UE 4.27 Plus branch.                |
-| Visual Studio 2019 / 2022    | 14.29 | 10.0.18362 | Maximum stability. Oldest supported combination; use if your project needs the original toolchains. |
+| Toolchain | MSVC | Windows SDK | Status |
+|---|---|---|---|
+| Visual Studio 2026 (18.9 or later) | 14.51 | 10.0.26100 | **Current.** Validated for the [August](ueVite26-AugustMajor.md) and [September](ueVite26-SeptemberMajor.md) Majors. Highest compiler performance. |
+| Visual Studio 2026 (18.8) | 14.50 | 10.0.26100 | Supported. Validated for the [July Major](ueVite26-JulyMajor.md); the minimum ViteSetup accepts for VS 2026. |
+| Visual Studio 2022 (latest) | 14.44 | 10.0.26100 | Supported. Matches the last toolchain update verified by Epic's UE 4.27 Plus branch. |
+| Visual Studio 2019 / 2022 | 14.29 | 10.0.18362 | Maximum stability. Oldest supported combination; use if your project needs the original toolchains. |
 
-> The `ViteSetup.bat` assistant currently hard-pins Visual Studio 2022, MSVC 14.44 and Windows SDK
-> 10.0.26100 subversion 7705 or higher, and refuses to continue otherwise. If you are on the VS 2026 /
-> MSVC 14.50 toolchain, run the build steps manually rather than through the assistant, or update the
-> `REQUIRED_*` variables at the top of the script. See [ViteSetup Assistant](ViteSetup.md).
+> `ViteSetup.bat` recognises two toolchains: Visual Studio 2022 with MSVC 14.44 or newer, and Visual
+> Studio 2026 with MSVC 14.50 or newer. If both are installed it asks which one to build with; if only one
+> is, it selects it automatically. In both cases it requires Windows SDK 10.0.26100 at subversion .7705 or
+> higher. See [ViteSetup Assistant](ViteSetup.md).
 >
-{style="warning"}
+{style="note"}
 
 ## Required components
 
 Install these through the Visual Studio Installer, under **Individual components**.
 
 - Desktop development with C++ workload
-- MSVC v14.50 &ndash; VS 2026 C++ x64/x86 build tools (or the version matching your chosen row above)
+- MSVC v14.51 &ndash; VS 2026 C++ x64/x86 build tools (or the version matching your chosen row above)
 - Windows 11 SDK (10.0.26100)
 - .NET Framework 4.6.2 targeting pack &mdash; required by UnrealBuildTool and AutomationTool
 - .NET Framework 4.5 targeting pack &mdash; required by SwarmAgent, SwarmCoordinator, NetworkProfiler and
@@ -91,7 +93,8 @@ Edit (VS26):
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration xmlns="https://www.unrealengine.com/BuildConfiguration">
   <WindowsPlatform>
-    <CompilerVersion>14.50</CompilerVersion> <!--Vite has been tested with MSVC 14.50 for about 9 months to this date -->
+    <CompilerVersion>14.51</CompilerVersion> <!-- Current: VS 2026, validated for the August and September Majors -->
+    <!--<CompilerVersion>14.50</CompilerVersion> VS 2026 18.8, validated for the July Major -->
     <!--<CompilerVersion>14.44</CompilerVersion> VS22 Option: Latest Epic's 4.27 compliance -->
     <!--<CompilerVersion>14.29</CompilerVersion> Original 4.27 Toolchain VS 2019 + W10 SDK 10.0.18362 / Clang 11.0.0 -->
     <!--<WindowsSdkVersion>10.0.18362.0</WindowsSdkVersion> -->
@@ -107,6 +110,21 @@ Edit (VS26):
 > files after editing it so that the IDE and UBT agree.
 >
 {style="note"}
+
+## C++ language standard
+
+The engine itself builds as C++17. UnrealBuildTool's `CppStandardVersion` has offered `Cpp20` since the
+LTS, and the [September Major](ueVite26-SeptemberMajor.md) C++20 upgrade makes it practical: engine headers
+are kept parseable from C++20 translation units, following the model UE 5.0 introduced, so game modules can
+adopt C++20 while engine modules stay on C++17.
+
+```c#
+// In a module's .Build.cs
+CppStandard = CppStandardVersion.Cpp20;
+```
+
+Setting `CppStandard` on a whole target in `.Target.cs` (or with `-CppStd=Cpp20`) requires a unique build
+environment, so it applies to source builds. With an installed engine build, set it per module instead.
 
 ## Verifying your toolchain
 

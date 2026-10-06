@@ -93,8 +93,9 @@ The console variables still exist and still set. Nothing renders. Rebuild the en
 
 ### Which ray tracing features work out of the box?
 
-Reflections, shadows, ambient occlusion and sky light. Those four are available in a default build; the
-rest are compiled out. Full table in [Ray Tracing](Ray-Tracing.md).
+Dynamic DDGI is enabled by default. Reflections, shadows, ambient occlusion and sky light are compiled
+into a default build and can be switched on with their console variables, but start disabled. The rest are
+compiled out. Full table in [Ray Tracing](Ray-Tracing.md).
 
 ### Which GI should I use?
 

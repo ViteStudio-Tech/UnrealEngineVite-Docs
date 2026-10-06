@@ -36,7 +36,7 @@ out what transfers cleanly, what needs replacing, and in what order to do it.
 ## Downgrading assets
 
 The UE Downgrader plugin converts assets from UE 5.8 and below back to 4.27 and 4.26. It works by first
-upgrading assets to its source version(usually latest UE5), then applying patches to the `.uasset` files so they are readable by
+upgrading assets to its source version (usually the latest UE5), then applying patches to the `.uasset` files so they are readable by
 the target version, minus the data the older format cannot represent. Nanite data, for instance, is stripped
 during a 4.27 downgrade.
 
@@ -106,12 +106,12 @@ You do not have to move everyone at once. A common arrangement is for programmer
 artists and content creators continue in a stock Epic Games Launcher install of 4.27, with content flowing
 one way. For that to work, the launcher-side users need the standalone
 [DDGI 1.1.5 plugin](https://github.com/GapingPixel/UE4-RTXGI-1.1.5-Latest-Official) so that lighting looks
-approximately right on their end. This is exactly what we do at Vite Studio, and has work so far with no issues
-for modeling, animation and sound design work.
+approximately right on their end. This is exactly what we do at Vite Studio, and it has worked without issues
+so far for modelling, animation and sound design.
 
-> Do not use the launcher DDGI plugin into a Vite project. Vite already ships DDGI as part of the
-> engine, and the two will conflict. *DDGI in Vite is handled better than DDGI plugin for Launcher Version.
-> (Due to both Engine side/DDGI plugin Side changes)
+> Do not install the launcher DDGI plugin into a Vite project. Vite already ships DDGI as part of the
+> engine, and the two will conflict. Vite's integrated DDGI also behaves better than the launcher plugin,
+> because of changes on both the engine side and the plugin side.
 >
 {style="warning"}
 

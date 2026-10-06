@@ -23,11 +23,11 @@ enabled independently.
 That is the opposite of the UE 5.1+ arrangement, where ray tracing scene construction is coupled to Lumen,
 Nanite and GPU Scene. See [Why NvRTX 4.27](Why-NvRTX-427.md).
 
-> Vite enables Ray Tracing effects by default in new projects. This is intentional for
-> discoverability but means you should consciously decide what to turn off. See
-> [Ray Tracing](Ray-Tracing.md).
+> New projects start with ray tracing support and Dynamic DDGI enabled. Ray-traced reflections, shadows
+> and ambient occlusion are opt-in, and translucency, caustics, RTXDI and path tracing are compiled out by
+> default. Decide consciously which effects to turn on. See [Ray Tracing](Ray-Tracing.md).
 >
-{style="warning"}
+{style="note"}
 
 ## Section contents
 

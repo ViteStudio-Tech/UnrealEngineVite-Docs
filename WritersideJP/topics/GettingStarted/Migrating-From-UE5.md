@@ -1,124 +1,120 @@
-# Migrating from Unreal Engine 5
+# UE5 からの移行
 
 <tldr>
 <p>
-Assets move down with the <a href="Proposed-Plugins.md">UE Downgrader</a> plugin, which supports UE 5.8 and
-below back to 4.27. Code moves more easily than on stock 4.27, because Vite backports many UE5 container,
-game framework and GAS APIs. Features that do not exist in 4.27 &mdash; Nanite, Lumen, VSM, World Partition
-&mdash; have no equivalent and need design decisions, not conversion.
+アセットは <a href="Proposed-Plugins.md">UE Downgrader</a> プラグインでダウングレードします。このプラグインは
+UE 5.8 以前から 4.27 への変換に対応しています。Vite は UE5 のコンテナ、ゲームフレームワーク、GAS の API を多数
+バックポートしているため、コードの移行は標準の 4.27 よりも容易です。Nanite、Lumen、VSM、World Partition など
+4.27 に存在しない機能には対応するものがなく、変換ではなく設計上の判断が必要です。
 </p>
 </tldr>
 
-Moving a project from Unreal Engine 5 down to Vite is a real migration, not a version bump. This page sets
-out what transfers cleanly, what needs replacing, and in what order to do it.
+Unreal Engine 5 から Vite へのプロジェクトの移行は、単なるバージョン変更ではなく本格的な移行作業です。このページでは、
+そのまま移せるもの、置き換えが必要なもの、そして作業の順序を説明します。
 
-## What transfers, what does not
+## 移行できるものとできないもの
 
-| UE5 feature | Status on Vite | What to do |
-|---|----------------|---|
-| Static meshes, textures, materials, animations | Transfers      | Downgrade with the UE Downgrader plugin |
-| Blueprints | Transfers      | Downgrade; re-test node-for-node, some UE5-only nodes have no target |
-| C++ gameplay code | Transfers      | Vite backports many UE5 APIs; see below |
-| Gameplay Ability System | Transfers      | Vite includes GAS updates backported from UE5 |
-| Nanite | No equivalent  | Author conventional LODs; use [Tessellation](Tessellation.md) for surface detail |
-| Lumen | Replaced       | Use [DDGI](DDGI-Dynamic.md), optionally with [SSGI](SSGI.md) |
-| Virtual Shadow Maps | No equivalent  | Cascaded shadow maps, or [ray-traced shadows](RT-Shadows-And-Ambient-Occlusion.md) |
-| TSR | Replaced       | [DLSS, FSR, XeSS](Upscalers.md), or native with [SMAA](Anti-Aliasing.md) |
-| MegaLights | Replaced       | [RTXDI](RTXDI.md) |
-| Chaos physics | Replaced       | [PhysX](PhysX.md) |
-| Chaos Destruction | Replaced       | [Apex Destruction](Destruction-And-Cloth.md) and [Blast](Destruction-And-Cloth.md) |
-| Chaos Cloth | Replaced       | [Apex Cloth](Destruction-And-Cloth.md) |
-| Substrate | No equivalent  | Standard material model, plus [Callisto BRDF](Shading-Models.md) |
-| World Partition | Replaced       | World Composition and level streaming |
-| Niagara | Transfers      | Available; [PopcornFX](Proposed-Plugins.md) is a faster alternative |
-| MetaSounds | No equivalent  | Sound Cues, or [Wwise](Proposed-Plugins.md) |
+| UE5 の機能 | Vite での状況 | 対応方法 |
+|---|---|---|
+| スタティックメッシュ、テクスチャ、マテリアル、アニメーション | 移行可能 | UE Downgrader プラグインでダウングレード |
+| ブループリント | 移行可能 | ダウングレード後、ノード単位で再テスト。UE5 専用ノードの一部は対応先がない |
+| C++ のゲームプレイコード | 移行可能 | Vite は多くの UE5 API をバックポート済み。後述 |
+| Gameplay Ability System | 移行可能 | Vite には UE5 からバックポートした GAS の更新が含まれる |
+| Nanite | 対応なし | 従来の LOD を作成し、表面のディテールには [テッセレーション](Tessellation.md) を使用 |
+| Lumen | 置き換え | [DDGI](DDGI-Dynamic.md) を使用し、必要に応じて [SSGI](SSGI.md) と併用 |
+| 仮想シャドウマップ | 対応なし | カスケードシャドウマップ、または [レイトレーシングシャドウ](RT-Shadows-And-Ambient-Occlusion.md) |
+| TSR | 置き換え | [DLSS、FSR、XeSS](Upscalers.md)、またはネイティブ解像度と [SMAA](Anti-Aliasing.md) |
+| MegaLights | 置き換え | [RTXDI](RTXDI.md) |
+| Chaos 物理 | 置き換え | [PhysX](PhysX.md) |
+| Chaos Destruction | 置き換え | [Apex Destruction](Destruction-And-Cloth.md) と [Blast](Destruction-And-Cloth.md) |
+| Chaos Cloth | 置き換え | [Apex Cloth](Destruction-And-Cloth.md) |
+| Substrate | 対応なし | 標準のマテリアルモデルと [Callisto BRDF](Shading-Models.md) |
+| World Partition | 置き換え | World Composition とレベルストリーミング |
+| Niagara | 移行可能 | 利用可能。より高速な代替として [PopcornFX](Proposed-Plugins.md) がある |
+| MetaSounds | 対応なし | Sound Cue、または [Wwise](Proposed-Plugins.md) |
 
-## Downgrading assets
+## アセットのダウングレード
 
-The UE Downgrader plugin converts assets from UE 5.8 and below back to 4.27 and 4.26. It works by first
-upgrading assets to its source version(usually latest UE5), then applying patches to the `.uasset` files so they are readable by
-the target version, minus the data the older format cannot represent. Nanite data, for instance, is stripped
-during a 4.27 downgrade.
+UE Downgrader プラグインは、UE 5.8 以前のアセットを 4.27 や 4.26 に変換します。まずアセットをプラグインのソース
+バージョン（通常は最新の UE5）にアップグレードし、その後 `.uasset` ファイルにパッチを当てて、古い形式で表現できない
+データを除いたうえで対象バージョンから読めるようにします。たとえば、4.27 へのダウングレードでは Nanite のデータが
+取り除かれます。
 
-What the plugin cannot do is invent 4.27 equivalents for features that do not exist there. Nanite on masked
-materials, new material nodes and new Niagara modules will not survive the trip. Budget for reauthoring
-those.
+このプラグインにできないのは、4.27 に存在しない機能の代わりを作り出すことです。マスクマテリアルでの Nanite、
+新しいマテリアルノード、新しい Niagara モジュールは移行できません。それらの作り直しを予算に組み込んでください。
 
-The plugin is commercial. Its author, Ciprian Stanciu, is active on the
-[Vite Discord](https://discord.gg/n9zQrYFhMb) and has provided direct support for several Vite projects.
-There is a [video walkthrough](https://youtu.be/yXvJfDNfrSQ) of the workflow.
+このプラグインは有償です。作者の Ciprian Stanciu 氏は [Vite の Discord](https://discord.gg/n9zQrYFhMb) で活動しており、
+複数の Vite プロジェクトを直接サポートしてきました。作業の流れは
+[解説動画](https://youtu.be/yXvJfDNfrSQ) で確認できます。
 
-## Migrating code
+## コードの移行
 
-This is the part that is easier on Vite than on stock 4.27. The fork deliberately backports UE5 API surface
-so that UE5-era code compiles with fewer changes: updated container classes, game framework updates, and
-Gameplay Ability System functionality are all present.
+ここは標準の 4.27 より Vite のほうが楽な部分です。このフォークは UE5 の API を意図的にバックポートしており、
+UE5 世代のコードを少ない変更でコンパイルできます。更新されたコンテナクラス、ゲームフレームワークの更新、
+Gameplay Ability System の機能がすべて含まれています。
 
-You will still hit differences. Work through them in this order:
+それでも違いには遭遇します。次の順序で対処してください。
 
-1. **Physics.** Anything touching `Chaos` namespaces, `FChaosScene`, geometry collections or Chaos vehicles
-   needs to move to PhysX equivalents. This is usually the largest single chunk of work. See
-   [PhysX Overview](PhysX.md).
-2. **Rendering.** Code that queries or drives Lumen, Nanite or VSM console variables has no target. Replace
-   with the Vite equivalents in [Rendering](Rendering.md).
-3. **Core API drift.** `FVector` is double-precision in UE5 (`FVector3d`) and single-precision in 4.27.
-   Large-world-coordinate assumptions do not hold. Audit any code doing precision-sensitive maths at large
-   world offsets.
-4. **Module and build rules.** `.Build.cs` files referencing UE5-only modules need those dependencies
-   removed or replaced.
+1. **物理。** `Chaos` 名前空間、`FChaosScene`、ジオメトリコレクション、Chaos のビークルに関わるものは、PhysX の
+   相当機能に移す必要があります。通常、これが最大の作業になります。[PhysX](PhysX.md) を参照してください。
+2. **レンダリング。** Lumen、Nanite、VSM のコンソール変数を参照・操作するコードには移行先がありません。
+   [レンダリング](Rendering.md) にある Vite の相当機能に置き換えてください。
+3. **コア API の差異。** UE5 の `FVector` は倍精度（`FVector3d`）ですが、4.27 では単精度です。ラージワールド
+   座標の前提は成り立ちません。大きなワールドオフセットで精度に敏感な計算を行っているコードを点検してください。
+4. **モジュールとビルドルール。** UE5 専用モジュールを参照している `.Build.cs` は、その依存関係を削除するか
+   置き換える必要があります。
 
-## Recommended migration order
+## 推奨する移行手順
 
-<procedure title="Migrate a UE5 project to Vite" id="migration-order">
+<procedure title="UE5 プロジェクトを Vite に移行する" id="migration-order">
     <step>
-        Stand up an empty Vite project first and confirm your toolchain and engine build are healthy.
-        Do not debug two problems at once.
+        まず空の Vite プロジェクトを立ち上げ、ツールチェーンとエンジンのビルドが正常であることを確認します。
+        2 つの問題を同時にデバッグしないでください。
     </step>
     <step>
-        Port the C++ modules with no content. Get them compiling against Vite before any assets move.
-        Check physics and rendering API breakage here.
+        コンテンツを含まない状態で C++ のモジュールを移植します。アセットを移す前に、Vite に対してコンパイルが
+        通るようにします。物理とレンダリングの API の不整合はここで確認します。
     </step>
     <step>
-        Downgrade and import a small, representative slice of content &mdash; one character, one
-        environment, a handful of materials. Validate that it looks and behaves correctly.
+        小規模で代表的なコンテンツの一部（キャラクター 1 体、環境 1 つ、数個のマテリアル）をダウングレードして
+        インポートし、見た目と挙動が正しいことを検証します。
     </step>
     <step>
-        Replace the lighting setup. Lumen has no direct translation; set up
-        <a href="DDGI-Dynamic.md">DDGI</a> volumes and tune them against the slice you just imported.
+        ライティングの構成を置き換えます。Lumen には直接の変換先がありません。
+        <a href="DDGI-Dynamic.md">DDGI</a> のボリュームを配置し、インポートしたコンテンツに合わせて調整します。
     </step>
     <step>
-        Rebuild the physics setup. Re-author destruction with
-        <a href="Destruction-And-Cloth.md">Apex Destruction</a> and cloth with
-        <a href="Destruction-And-Cloth.md">Apex Cloth</a>.
+        物理の構成を作り直します。破壊は <a href="Destruction-And-Cloth.md">Apex Destruction</a>、クロスは
+        <a href="Destruction-And-Cloth.md">Apex Cloth</a> で再作成します。
     </step>
     <step>
-        Bulk-migrate the remaining content once the slice is proven.
+        一部で問題がないことを確認できたら、残りのコンテンツを一括で移行します。
     </step>
     <step>
-        Profile against your target hardware and set scalability. See
-        <a href="Profiling.md">Profiling and Benchmarking</a>.
+        対象ハードウェアでプロファイリングし、スケーラビリティを設定します。
+        <a href="Profiling.md">プロファイリング</a> を参照してください。
     </step>
 </procedure>
 
-## A mixed-version workflow
+## バージョンを混在させるワークフロー
 
-You do not have to move everyone at once. A common arrangement is for programmers to work in Vite while
-artists and content creators continue in a stock Epic Games Launcher install of 4.27, with content flowing
-one way. For that to work, the launcher-side users need the standalone
-[DDGI 1.1.5 plugin](https://github.com/GapingPixel/UE4-RTXGI-1.1.5-Latest-Official) so that lighting looks
-approximately right on their end. This is exactly what we do at Vite Studio, and has work so far with no issues
-for modeling, animation and sound design work.
+全員を一度に移行する必要はありません。よくある構成は、プログラマーは Vite で作業し、アーティストやコンテンツ
+制作者は Epic Games Launcher でインストールした標準の 4.27 で作業を続け、コンテンツを一方向に流すというものです。
+これを機能させるには、ランチャー側のユーザーがスタンドアロンの
+[DDGI 1.1.5 プラグイン](https://github.com/GapingPixel/UE4-RTXGI-1.1.5-Latest-Official) を使い、手元でもライティングが
+おおむね正しく見えるようにする必要があります。これは Vite Studio で実際に採用している方法で、これまでモデリング、
+アニメーション、サウンドデザインの作業で問題なく運用できています。
 
-> Do not use the launcher DDGI plugin into a Vite project. Vite already ships DDGI as part of the
-> engine, and the two will conflict. *DDGI in Vite is handled better than DDGI plugin for Launcher Version.
-> (Due to both Engine side/DDGI plugin Side changes)
+> ランチャー用の DDGI プラグインを Vite のプロジェクトにインストールしないでください。Vite にはエンジンの一部として
+> DDGI がすでに含まれており、両者は競合します。また、エンジン側とプラグイン側の両方に変更を加えているため、Vite に
+> 統合された DDGI のほうがランチャー用プラグインより良好に動作します。
 >
 {style="warning"}
 
-## See also
+## 関連項目
 
-- [Introduction to Vite](Introduction-to-Vite.md)
-- [PhysX Overview](PhysX.md)
-- [Global Illumination](Global-Illumination.md)
-- [Proposed Plugins](Proposed-Plugins.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
+- [Vite の概要](Introduction-to-Vite.md)
+- [PhysX](PhysX.md)
+- [グローバルイルミネーション](Global-Illumination.md)
+- [提案中のプラグイン](Proposed-Plugins.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)

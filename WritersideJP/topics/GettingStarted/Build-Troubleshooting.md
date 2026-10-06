@@ -1,31 +1,32 @@
-# Build Troubleshooting
+# ビルドのトラブルシューティング
 
 <tldr>
 <p>
-Most build failures on Vite are toolchain failures wearing a disguise. Before investigating anything else,
-confirm you have exactly one MSVC toolset and one Windows SDK installed, matching
-<a href="Toolchain-Requirements.md">Toolchain Requirements</a>.
+Vite でのビルド失敗の大半は、別の姿をしたツールチェーンの問題です。ほかの調査を始める前に、
+<a href="Toolchain-Requirements.md">ツールチェーン要件</a> に一致する MSVC ツールセットと Windows SDK が、
+それぞれ 1 つだけインストールされていることを確認してください。
 </p>
 </tldr>
 
-This page collects the errors that come up most often, what they actually mean, and how to clear them.
+このページでは、よく発生するエラーについて、それが実際に何を意味し、どう解消するかをまとめています。
 
-## Toolchain errors
+## ツールチェーンのエラー
 
 ### `error C4668: '__has_feature' is not defined as a preprocessor macro`
 
-This is the signature error of a toolchain mismatch. Unreal Engine 4.27 predates the MSVC version you have
-installed, and UBT has selected a toolset whose preprocessor behaviour the engine's headers do not expect.
+ツールチェーンの不一致を示す典型的なエラーです。Unreal Engine 4.27 はインストールされている MSVC より古く、
+UBT がエンジンのヘッダーの想定と異なるプリプロセッサ挙動のツールセットを選んでいます。
 
-**Fix.** Install a supported MSVC version, remove the others, and pin the SDK in `BuildConfiguration.xml`.
-See [Toolchain Requirements](Toolchain-Requirements.md). Regenerate project files after changing anything.
+**対処法。** サポート対象の MSVC をインストールして他のバージョンを削除し、`BuildConfiguration.xml` で SDK を固定します。
+[ツールチェーン要件](Toolchain-Requirements.md) を参照してください。何かを変更したら、プロジェクトファイルを
+再生成します。
 
-### UnrealBuildTool picks the wrong compiler or SDK
+### UnrealBuildTool が誤ったコンパイラや SDK を選ぶ
 
-UBT autodetects by scanning installed toolsets and generally prefers the newest. When you have several
-installed, that is often not the one you want.
+UBT はインストール済みのツールセットを走査して自動検出し、基本的に最新のものを優先します。複数インストール
+されている場合、それが意図したものとは限りません。
 
-**Fix.** Pin both explicitly in `%APPDATA%\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml`:
+**対処法。** `%APPDATA%\Unreal Engine\UnrealBuildTool\BuildConfiguration.xml` で両方を明示的に固定します。
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
@@ -37,56 +38,57 @@ installed, that is often not the one you want.
 </Configuration>
 ```
 
-Then run `GenerateProjectFiles.bat` again. Watch the build log just before linking to confirm the toolchain
-UBT reports is the one you intended.
+その後、`GenerateProjectFiles.bat` を再実行します。リンク直前のビルドログを確認し、UBT が報告するツールチェーンが
+意図したものであることを確かめてください。
 
-### `ViteSetup.bat` refuses to continue with a `[FAIL]` line
+### `ViteSetup.bat` が `[FAIL]` の行を出して続行を拒否する
 
-The assistant enforces its toolchain requirements deliberately and offers no bypass. The failing line names
-the missing component. Note that the assistant currently pins Visual Studio 2022, MSVC 14.44 and Windows SDK
-10.0.26100.7705 or higher; if you are on the newer VS 2026 / MSVC 14.50 toolchain, either build manually as
-described in [Building from Source](Build-From-Source.md), or update the `REQUIRED_*` variables at the top
-of the script.
+アシスタントはツールチェーンの要件を意図的に検証し、回避手段を用意していません。失敗した行に、不足している
+コンポーネントの名前が表示されます。受け付けるのは、MSVC 14.44 以降の Visual Studio 2022、または MSVC 14.50 以降の
+Visual Studio 2026 で、どちらの場合も Windows SDK 10.0.26100 のサブバージョン .7705 以降が必要です。原因はたいてい
+MSVC ツールセットか SDK のサブバージョンが古いことなので、Visual Studio Installer で更新してください。
+[ツールチェーン要件](Toolchain-Requirements.md) を参照してください。
 
-### C# tool projects fail to build (SwarmAgent, NetworkProfiler, UnrealControls)
+### C# ツールのプロジェクトがビルドできない（SwarmAgent、NetworkProfiler、UnrealControls）
 
-These target .NET Framework 4.5, whose targeting pack modern Visual Studio installers no longer ship.
+これらは .NET Framework 4.5 を対象としていますが、最近の Visual Studio インストーラーにはその Targeting Pack が
+含まれていません。
 
-**Fix.** Install it, as described in [Toolchain Requirements](Toolchain-Requirements.md). A `v4.5` folder
-containing only XML files is a runtime stub, not a targeting pack &mdash; check for
-`v4.5\RedistList\FrameworkList.xml`.
+**対処法。** [ツールチェーン要件](Toolchain-Requirements.md) の説明に従ってインストールします。XML ファイルしかない
+`v4.5` フォルダーはランタイムのスタブであり、Targeting Pack ではありません。`v4.5\RedistList\FrameworkList.xml` の
+有無を確認してください。
 
-## Dependency and setup errors
+## 依存関係とセットアップのエラー
 
-### `Setup.bat` fails to download dependencies
+### `Setup.bat` が依存関係のダウンロードに失敗する
 
-In stock Unreal Engine 4.27 this happens because the GitDeps endpoints have moved. **Vite already ships the
-fix**, so if you are seeing download failures on this fork, the cause is environmental: a proxy, a firewall,
-or an interrupted earlier run leaving a corrupt cache.
+標準の Unreal Engine 4.27 では、GitDeps のエンドポイントが移転したためにこれが起こります。**Vite には修正が含まれて
+いる** ので、このフォークでダウンロードに失敗する場合の原因は環境にあります。プロキシ、ファイアウォール、または
+以前の実行が中断されてキャッシュが壊れていることが考えられます。
 
-**Fix.** Delete the `UE4_Source_Cache` folder in the repository root and run `Setup.bat` again.
-`ViteSetup.bat` removes this cache automatically after a successful setup.
+**対処法。** リポジトリのルートにある `UE4_Source_Cache` フォルダーを削除し、`Setup.bat` を再実行します。
+`ViteSetup.bat` はセットアップが成功するとこのキャッシュを自動的に削除します。
 
-### `Setup.bat` asks to overwrite local changes
+### `Setup.bat` がローカルの変更を上書きするか尋ねてくる
 
-Answer `N`. Answering `Y` reverts fork-specific files to their upstream state and will break the build.
+`N` と答えてください。`Y` と答えるとフォーク固有のファイルが上流の状態に戻り、ビルドが壊れます。
 
-### Missing `astcenc.exe` or other third-party tools in a Win64 build
+### Win64 ビルドで `astcenc.exe` などのサードパーティ製ツールが見つからない
 
-You excluded the Win32 folders during setup. Win64 installed builds depend on tools that live under Win32,
-including `ARM\Win32\astcenc.exe`.
+セットアップ時に Win32 のフォルダーを除外しています。Win64 のインストール済みビルドは、`ARM\Win32\astcenc.exe`
+など、Win32 の下にあるツールに依存しています。
 
-**Fix.** Re-run `Setup.bat` without any `-exclude=Win32` argument. The `ViteSetup.bat` presets never exclude
-Win32 for this reason.
+**対処法。** `-exclude=Win32` 引数を付けずに `Setup.bat` を再実行します。`ViteSetup.bat` のプリセットは、この理由から
+Win32 を除外しません。
 
-## Compile and link errors
+## コンパイルとリンクのエラー
 
-### Out of memory or heap exhaustion during compilation
+### コンパイル中のメモリ不足またはヒープの枯渇
 
-Unreal's unity build system compiles very large translation units and parallelises aggressively. On machines
-with high core counts and modest RAM, the default parallelism can exhaust memory.
+Unreal のユニティビルドは非常に大きな翻訳単位をコンパイルし、積極的に並列化します。コア数が多く RAM が控えめな
+マシンでは、既定の並列度でメモリを使い切ることがあります。
 
-**Fix.** Limit parallel actions in `BuildConfiguration.xml`:
+**対処法。** `BuildConfiguration.xml` で並列実行数を制限します。
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
@@ -97,54 +99,56 @@ with high core counts and modest RAM, the default parallelism can exhaust memory
 </Configuration>
 ```
 
-### The editor builds but fails to launch
+### エディタはビルドできたが起動しない
 
-Confirm all three targets were built: `UE4Editor`, `ShaderCompileWorker` and `UnrealLightmass`. Building
-only the editor target produces a binary that starts and then fails as soon as it needs to compile a shader.
+`UE4Editor`、`ShaderCompileWorker`、`UnrealLightmass` の 3 つのターゲットすべてをビルドしたか確認してください。
+エディタのターゲットだけをビルドすると、起動はするものの、シェーダーのコンパイルが必要になった時点で失敗する
+バイナリになります。
 
-### Stale shaders or derived data after pulling engine changes
+### エンジンの変更を取り込んだ後にシェーダーや派生データが古くなる
 
-Rendering changes invalidate the shader cache. If you see shader compilation errors, missing materials or
-visual corruption after a pull, wipe the engine-level caches:
+レンダリングの変更はシェーダーキャッシュを無効にします。プル後にシェーダーのコンパイルエラー、マテリアルの欠落、
+表示の乱れが起きた場合は、エンジンレベルのキャッシュを消去します。
 
 ```batch
 WipeShaderCache.bat
 ```
 
-This removes `Engine\DerivedDataCache`, `Engine\Intermediate\Shaders` and `Engine\Saved\ShaderDebugInfo`.
-The engine rebuilds them on the next launch, which will take a while. Close the editor and any
-`ShaderCompileWorker` processes first, or the deletion will fail. See
-[Cache Management](Cache-Management.md).
+これにより `Engine\DerivedDataCache`、`Engine\Intermediate\Shaders`、`Engine\Saved\ShaderDebugInfo` が削除されます。
+エンジンは次回起動時にこれらを再構築するため、時間がかかります。先にエディタと `ShaderCompileWorker` の
+プロセスを終了しておかないと、削除に失敗します。[キャッシュ管理](Cache-Management.md) を参照してください。
 
-## Runtime issues after a successful build
+## ビルド成功後の実行時の問題
 
-### A new project runs much slower than expected
+### 新規プロジェクトが想定よりかなり遅い
 
-Ray tracing is enabled by default in Vite, including shadows, reflections, translucency and ambient
-occlusion. This is intentional so that the features are discoverable, but it means an empty project is
-heavier than a stock 4.27 one.
+新規プロジェクトではレイトレーシングのサポートと動的 DDGI が既定で有効なため、空のプロジェクトでも毎フレーム
+レイを飛ばしています。ハードウェアレイトレーシング非対応の GPU やローエンドのハードウェアでは、まず DDGI を
+確認してください。レイトレーシングの反射、シャドウ、アンビエントオクルージョンは既定で無効です。それらが動いて
+いる場合は、プロジェクト設定かポストプロセスボリュームで有効にされています。
 
-**Fix.** Disable the effects you do not need. See [Ray Tracing](Ray-Tracing.md) for the console variables.
+**対処法。** `stat gpu` でプロファイリングしてから、不要なものを無効にします。DDGI は
+`r.GlobalIllumination.ExperimentalPlugin 0`、それ以外は個別の `r.RayTracing.*` 変数で無効にできます。
+[レイトレーシング](Ray-Tracing.md) と [動的 DDGI](DDGI-Dynamic.md) を参照してください。
 
-### Gameplay behaves differently from stock 4.27
+### ゲームプレイの挙動が標準の 4.27 と異なる
 
-Vite changes several engine defaults for performance, and some of them affect behaviour rather than just
-frame time &mdash; overlap events are disabled by default on primitive components, for instance.
+Vite はパフォーマンスのためにいくつかのエンジン既定値を変更しており、その一部はフレームタイムだけでなく挙動にも
+影響します。たとえば、プリミティブコンポーネントのオーバーラップイベントは既定で無効です。
 
-**Fix.** Read [Engine Default Changes](Engine-Defaults.md) in full. Every changed default is listed there
-with a link to the commit that changed it.
+**対処法。** [エンジン既定値の変更](Engine-Defaults.md) を全体に目を通してください。変更されたすべての既定値が、
+それを変更したコミットへのリンクとともに記載されています。
 
-## Getting help
+## サポートを受ける
 
-If none of the above applies, the `#support` channels on the
-[community Discord](https://discord.gg/n9zQrYFhMb) are the fastest route. Include your Visual Studio
-version, MSVC toolset version, Windows SDK version, the branch you are building, and the first error in the
-log rather than the last &mdash; Unreal's build output cascades, and the final error is rarely the useful
-one.
+上記のどれにも当てはまらない場合は、[コミュニティ Discord](https://discord.gg/n9zQrYFhMb) の `#support`
+チャンネルが最も早い解決手段です。Visual Studio のバージョン、MSVC ツールセットのバージョン、Windows SDK の
+バージョン、ビルドしているブランチ、そしてログの最後ではなく最初のエラーを添えてください。Unreal のビルド出力は
+エラーが連鎖するため、最後のエラーが役に立つことはほとんどありません。
 
-## See also
+## 関連項目
 
-- [Toolchain Requirements](Toolchain-Requirements.md)
-- [Building from Source](Build-From-Source.md)
-- [Cache Management](Cache-Management.md)
-- [Engine Default Changes](Engine-Defaults.md)
+- [ツールチェーン要件](Toolchain-Requirements.md)
+- [ソースからのビルド](Build-From-Source.md)
+- [キャッシュ管理](Cache-Management.md)
+- [エンジン既定値の変更](Engine-Defaults.md)

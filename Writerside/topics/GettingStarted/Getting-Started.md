@@ -51,10 +51,11 @@ If you have built Unreal Engine from source before, three things will surprise y
 moved. Vite ships the fix, so `Setup.bat` works with no manual edits. When `Setup.bat` asks whether to
 overwrite local changes, answer `N`.
 
-**Ray tracing is on by default.** New projects enable ray-traced shadows, reflections, translucency and
-ambient occlusion out of the box. This is deliberate, so that the features are discoverable, but it means
-a new empty project is heavier than a stock 4.27 one. See [Ray Tracing](Ray-Tracing.md) for how to turn
-individual effects off.
+**Ray-traced GI is on; individual RT effects are opt-in.** Ray tracing support and Dynamic DDGI are
+enabled by default, so a new project gets ray-traced global illumination immediately. Ray-traced
+reflections, shadows, ambient occlusion and translucency start disabled and are switched on per project.
+Translucency, caustics, RTXDI and path tracing are also compiled out unless the engine is rebuilt with
+`VITE_RT_PSO_DEBLOAT=0`. See [Ray Tracing](Ray-Tracing.md).
 
 **Several engine defaults are changed for performance.** Overlap events, skeletal mesh settings, lightmap
 UV generation and a number of plugins differ from stock. These changes affect gameplay behaviour, not just

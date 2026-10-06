@@ -1,86 +1,87 @@
-# System Requirements
+# 動作環境
 
 <tldr>
 <p>
-Windows 10 or 11 x64. A ray-tracing capable GPU is recommended but not required &mdash;
-<a href="DDGI-Static.md">Static DDGI</a> and the raster paths run on hardware with no DXR support at all.
-Dynamic DDGI is designed to scale down to GTX 1060 6&nbsp;GB class GPUs.
+Windows 10 または 11（x64）。レイトレーシング対応 GPU を推奨しますが必須ではありません。
+<a href="DDGI-Static.md">静的 DDGI</a> とラスタライズのパスは、DXR に一切対応していないハードウェアでも動作します。
+動的 DDGI は GTX 1060 6&nbsp;GB クラスの GPU まで性能を落として動作するよう設計されています。
 </p>
 </tldr>
 
-Vite has two distinct sets of requirements: what it takes to *run* content built on the engine, and what it
-takes to *build the engine itself*. They are very different, and the second one is much heavier.
+Vite の要件は 2 種類あります。エンジンで作ったコンテンツを *実行する* ための要件と、*エンジン自体をビルドする*
+ための要件です。両者は大きく異なり、後者のほうがはるかに重い要件です。
 
-## Running Vite content
+## Vite のコンテンツを実行する
 
-Vite is explicitly designed to scale across a wide hardware range, which is the point of choosing DDGI over
-Lumen in the first place.
+Vite は幅広いハードウェアに対応できるよう明確に設計されています。そもそも Lumen ではなく DDGI を選んだ理由が
+そこにあります。
 
-| | Minimum                         | Recommended |
-|---|---------------------------------|---|
-| OS | Windows 10 x64                  | Windows 11 x64 |
-| GPU (no ray tracing) | Any DirectX 11 capable GPU      | &mdash; |
-| GPU (Dynamic DDGI) | GTX 1060 6&nbsp;GB or any RDNA2 | RTX 2060 / RX 6600 or better |
-| GPU (full RT suite) | RTX 2060 / RX 6600              | RTX 3070 / RX 6700 XT or better |
-| VRAM | 6&nbsp;GB                       | 8&nbsp;GB or more |
+| | 最小 | 推奨 |
+|---|---|---|
+| OS | Windows 10 x64 | Windows 11 x64 |
+| GPU（レイトレーシングなし） | DirectX 11 対応の任意の GPU | &mdash; |
+| GPU（動的 DDGI） | GTX 1060 6&nbsp;GB または任意の RDNA2 | RTX 2060 / RX 6600 以上 |
+| GPU（レイトレーシング一式） | RTX 2060 / RX 6600 | RTX 3070 / RX 6700 XT 以上 |
+| VRAM | 6&nbsp;GB | 8&nbsp;GB 以上 |
 
-Dynamic DDGI works from GTX 1060 6&nbsp;GB class GPUs upward. Below that, or on any GPU with no ray tracing
-support, use [Static DDGI](DDGI-Static.md), which bakes irradiance into probe volumes and has no runtime
-ray tracing cost.
+動的 DDGI は GTX 1060 6&nbsp;GB クラス以上の GPU で動作します。それ未満、またはレイトレーシング非対応の GPU では、
+[静的 DDGI](DDGI-Static.md) を使用してください。静的 DDGI はイラディアンスをプローブボリュームにベイクするため、
+実行時のレイトレーシングコストがかかりません。
 
-### Test Hardware
+### テスト用ハードウェア
 
-These are the configurations Vite is actively benchmarked and tuned against. The following Test Hardware is owned by main Devs of this fork.
+Vite が継続的にベンチマークとチューニングを行っている構成です。以下のテスト用ハードウェアは、このフォークの
+主要開発者が所有しています。
 
+CPU の FPU 関連の作業と GPU コンパイラ関連の作業は、別々のマシンで行います。4700S は Series X と比べて（主に FPU が）
+さらに削減された Zen 2 で、PhysX 3.4 などの FPU カーネルを PS5 の CPU 上と同じ条件で計測するために使います。
+RX 6700 は PC 向け RDNA2 のコンパイラ代替機であり、PS5 の RDNA2 とは依然として差があります。4700S/4800S の GPU は
+無効化されています。BC-250 の GPU は動作しますが、Windows 上では動きません。詳細は [PS5 CPU の FPU](PS5-CPU-FPU.md)
+を参照してください。
 
+| ベンダー | ハードウェア | 意義 |
+|---|---|---|
+| AMD | 4700S（Zen 2、iGPU 無効） | PS5 CPU の FPU の代替（FMA パイプ 1 本）。PhysX 3.4 |
+| AMD | RX 6700（RDNA2） | PS5 向けの PC RDNA2 コンパイラ・スループットの代替 |
+| AMD | Steam Deck LCD Van Gogh（RDNA2） | 携帯機クラス |
+| AMD | RX 9600XT（RDNA4） | ミドルクラス GPU |
+| NVIDIA | RTX 2060（Turing） | ハードウェア RT と DLSS の下限 |
+| NVIDIA | RTX 3060（Ampere） | Steam で最も多い GPU に相当 |
+| NVIDIA | RTX 4080 Super（Ada Lovelace） | 4K ネイティブキャプチャの上限リファレンス |
 
-CPU FPU work and GPU compiler work are different boxes. The 4700S is further-cut Zen 2 versus Series X
-(mainly the FPU) and exists to time PhysX 3.4 and other FPU kernels as they will on the PS5 CPU. The RX
-6700 is a PC RDNA2 compiler proxy; PS5 RDNA2 still differs. 4700S/4800S GPUs are fused off. The BC-250
-GPU works but not under Windows. Detail is in [PS5 CPU FPU](PS5-CPU-FPU.md).
+テストは 4K ネイティブのモニターまたはテレビ（RX 6700 / RTX 4060 以上）で行うのが最も有意義です。Vite の主張の
+核心は、低い内部解像度からのアップスケーリングではなく、ネイティブ解像度を維持することにあるからです。
 
-| Vendor | Hardware                        | Why it matters                               |
-|---|---------------------------------|----------------------------------------------|
-| AMD | 4700S (Zen 2, iGPU fused off)   | PS5 CPU FPU proxy (one FMA pipe). PhysX 3.4  |
-| AMD | RX 6700 (RDNA2)                 | PC RDNA2 compiler/throughput proxy for PS5   |
-| AMD | Steam Deck LCD Van Gogh (RDNA2) | Handheld Class                               |
-| AMD | RX 9600XT (RDNA4)               | Mid Tier GPU                                 |
-| NVIDIA | RTX 2060 (Turing)               | Lower Bound for HW RT & DLSS                 |
-| NVIDIA | RTX 3060 (Ampere)               | Matches Steam most common GPU                |
-| NVIDIA | RTX 4080 Super (Ada Lovelace)   | Upper-bound reference for 4K native captures |
+自分のハードウェアでの結果（デモなど）を紹介したい場合は、Discord の `#showcase` チャンネルでテストの調整を
+行っています。
 
-Testing is most useful on a 4K native monitor or TV(from 6700/RTX 4060), because Vite's whole argument is about holding native
-resolution rather than upscaling from a lower internal one.
+## ソースからエンジンをビルドする
 
-If you want to showcase results in your hardware (as in from the Demos), the `#showcase` channel on Discord is where testing is coordinated.
+ビルドは CPU、RAM、ディスクに大きく依存します。以下は厳密な下限ではなく、実用上の目安です。
 
-## Building the engine from source
+| | 実用上の最小 | 快適な構成 |
+|---|---|---|
+| CPU | 6 コア / 12 スレッド | 16 コア / 32 スレッド以上 |
+| RAM | 24&nbsp;GB | 32&nbsp;GB |
+| ストレージ | 空き容量 50 GB の SATA SSD | 空き容量 157 GB の NVMe SSD（フルサイズ） |
+| OS | Windows 10 x64 | Windows 11 x64 |
 
-Building is CPU-, RAM- and disk-bound. Treat these as practical guidance rather than hard cutoffs.
+依存関係、中間ファイル、ビルド済みエディタを含む Unreal Engine 4.27 のソースツリーは非常に大きくなります。
+100 GB を大きく超える容量を見込んでください。インストール済みビルドも作成する場合は
+`LocalBuilds\Engine\Windows\` に 2 つ目のコピーが書き込まれるため、さらに容量が必要です。HDD でも動作しますが
+すべての手順が苦痛になるため、SSD を使用してください。
 
-| | Practical minimum           | Comfortable                         |
-|---|-----------------------------|-------------------------------------|
-| CPU | 6 cores / 12 threads        | 16 cores / 32 threads or more       |
-| RAM | 24&nbsp;GB                  | 32&nbsp;GB                          |
-| Storage | SATA SSD with 50gb of Space | NVMe SSD 157GB of space (Full Size) |
-| OS | Windows 10 x64              | Windows 11 x64                      |
+コンパイル時間はコア数にほぼ比例して短縮されます。Ryzen 9 9950X3D でのフルビルドはおよそ 14 分です。対象としない
+プラットフォームを除外し、オプションのコンテンツを削ることで、時間とディスク容量の両方を大きく節約できます。
+[デブロートガイド](Debloat-Guide.md) と [ソースからのビルド](Build-From-Source.md) で説明しているセットアップの
+プリセットを参照してください。
 
-An Unreal Engine 4.27 source tree with dependencies, intermediates and a built editor is very large &mdash;
-budget well over a hundred gigabytes, and more again if you produce an installed build alongside it, since
-that writes a second copy into `LocalBuilds\Engine\Windows\`. A mechanical hard drive will work but makes
-every step painful; use an SSD.
+特定のコンパイラと SDK も必要です。これは任意ではなく、[ツールチェーン要件](Toolchain-Requirements.md) で
+別途説明しています。
 
-Compile time scales almost linearly with core count. A full build on a Ryzen 9 9950X3D takes roughly
-14 minutes. You can reclaim a meaningful amount of both time and disk space by excluding platforms you do
-not target and stripping optional content &mdash; see [Debloat Guide](Debloat-Guide.md) and the setup
-presets described in [Building from Source](Build-From-Source.md).
+## 関連項目
 
-You also need a specific compiler and SDK. This is not optional and is covered separately in
-[Toolchain Requirements](Toolchain-Requirements.md).
-
-## See also
-
-- [Toolchain Requirements](Toolchain-Requirements.md)
-- [Building from Source](Build-From-Source.md)
-- [Platform Support](Platforms.md)
-- [Performance Targets](Performance-Targets.md)
+- [ツールチェーン要件](Toolchain-Requirements.md)
+- [ソースからのビルド](Build-From-Source.md)
+- [対応プラットフォーム](Platforms.md)
+- [パフォーマンス目標](Performance-Targets.md)

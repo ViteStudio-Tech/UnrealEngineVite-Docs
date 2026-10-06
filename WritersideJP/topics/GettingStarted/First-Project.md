@@ -1,79 +1,80 @@
-# Creating Your First Project
+# 最初のプロジェクト
 
 <tldr>
 <p>
-Create a project as you normally would, then decide which ray tracing effects you actually want &mdash;
-Vite enables most of them by default. Enable <a href="DDGI-Dynamic.md">DDGI</a> with
-<code>r.GlobalIllumination.ExperimentalPlugin 1</code> and pair it with
-<code>r.SSGI.Enable 1</code>.
+通常どおりプロジェクトを作成します。<a href="DDGI-Dynamic.md">動的 DDGI</a> はすでに有効です
+（<code>r.GlobalIllumination.ExperimentalPlugin 1</code>）。<code>r.SSGI.Enable 1</code> と組み合わせ、
+パフォーマンス目標に必要なレイトレーシングエフェクトだけを有効にしてください。これらは無効の状態で始まります。
 </p>
 </tldr>
 
-Project creation in Vite works exactly as it does in stock Unreal Engine 4.27. What differs is the default
-rendering configuration, so this page focuses on what to do immediately after the project opens.
+Vite でのプロジェクト作成は、標準の Unreal Engine 4.27 とまったく同じです。異なるのは既定のレンダリング設定なので、
+このページではプロジェクトを開いた直後に行うべきことに焦点を当てます。
 
 <note>
-This manual documents what Vite changes, not Unreal Engine itself. For the parts that are unchanged
-&mdash; project structure, templates, content browser, Blueprints, materials, packaging &mdash; Epic's
-4.27 documentation applies directly and remains the reference:
-<a href="https://dev.epicgames.com/documentation/unreal-engine/working-with-unreal-projects-and-templates?application_version=4.27">Working with Unreal Projects and Templates (4.27)</a>.
+このマニュアルが扱うのは Vite が変更した部分であり、Unreal Engine そのものではありません。変更していない部分、
+つまりプロジェクト構成、テンプレート、コンテンツブラウザ、ブループリント、マテリアル、パッケージングについては、
+Epic の 4.27 ドキュメントがそのまま適用され、引き続き参照先となります。
+<a href="https://dev.epicgames.com/documentation/unreal-engine/working-with-unreal-projects-and-templates?application_version=4.27">Working with Unreal Projects and Templates (4.27)</a>
 </note>
 
-## Create the project
+## プロジェクトを作成する
 
-<procedure title="Create a new Vite project" id="create-project">
-    <step>Launch the editor from your desktop shortcut or <code>Engine\Binaries\Win64\UE4Editor.exe</code>.</step>
-    <step>Choose a template. The Third Person template is the one kept by the debloat presets and is the safest starting point.</step>
-    <step>Pick C++ rather than Blueprint if you intend to drive rendering features from code, which most of the examples in this manual assume.</step>
-    <step>Create the project and wait for the initial shader compile. On a first run this takes a while, because the engine is building its shader cache from scratch.</step>
+<procedure title="新しい Vite プロジェクトを作成する" id="create-project">
+    <step>デスクトップのショートカットまたは <code>Engine\Binaries\Win64\UE4Editor.exe</code> からエディタを起動します。</step>
+    <step>テンプレートを選びます。Third Person テンプレートはデブロートのプリセットでも残されるもので、最も安全な出発点です。</step>
+    <step>レンダリング機能をコードから制御するつもりなら、ブループリントではなく C++ を選んでください。このマニュアルの例の多くはそれを前提としています。</step>
+    <step>プロジェクトを作成し、最初のシェーダーコンパイルが終わるのを待ちます。初回はエンジンがシェーダーキャッシュを一から構築するため、時間がかかります。</step>
 </procedure>
 
-If you are opening an existing project instead, right-click the `.uproject`, choose
-**Switch Unreal Engine version**, and select `UE_ViteFork`.
+既存のプロジェクトを開く場合は、`.uproject` を右クリックして **Switch Unreal Engine version** を選び、
+`UE_ViteFork` を選択します。
 
-## Understand the defaults before you build content
+## コンテンツを作る前に既定値を理解する
 
-> Vite ships with the full ray tracing suite enabled by default &mdash; shadows, reflections, translucency
-> and ambient occlusion. This is deliberate, so that new users discover the features immediately, but it
-> means an empty project costs more than a stock 4.27 one.
+> 新規プロジェクトはレイトレーシングのサポートと動的 DDGI が有効な状態で始まります。レイトレーシングの反射、
+> シャドウ、アンビエントオクルージョン、半透明は既定で無効で、プロジェクト単位またはポストプロセスボリューム単位で
+> 有効にします。そのため、各エフェクトにフレームのどれだけを割くかを自分で決められます。
 >
-{style="warning"}
+{style="note"}
 
-Decide early which effects your project actually needs, because the answer shapes your entire art and
-performance budget. A stylised competitive title targeting 4K120 will typically run DDGI alone. A fidelity
-title targeting 4K60 might add ray-traced reflections and tessellation. See
-[Performance Targets](Performance-Targets.md) for the four reference configurations Vite is tuned around.
+プロジェクトに本当に必要なエフェクトを早めに決めてください。その答えが、アートとパフォーマンスの予算全体を
+左右します。4K120 を目標とするスタイライズドな対戦タイトルなら、通常は DDGI だけを使います。4K60 を目標とする
+品質重視のタイトルなら、レイトレーシング反射とテッセレーションを加えるかもしれません。Vite がチューニングの
+基準としている 4 つの構成は [パフォーマンス目標](Performance-Targets.md) を参照してください。
 
-The other set of defaults worth reading before you build much content is
-[Engine Default Changes](Engine-Defaults.md). Several of them change behaviour rather than just cost &mdash;
-most notably, overlap events are disabled by default on primitive components, and lightmap UV generation is
-off by default on import.
+コンテンツを本格的に作り始める前に読んでおくべきもう 1 つの既定値群が、[エンジン既定値の変更](Engine-Defaults.md)
+です。その中にはコストだけでなく挙動を変えるものがいくつかあります。特に、プリミティブコンポーネントの
+オーバーラップイベントは既定で無効で、インポート時のライトマップ UV の生成も既定で無効になっています。
 
-## Turning features on from code
+## コードから機能を有効にする
 
-The conventional place to set these up in a sample project is the character class constructor or
-`BeginPlay`. This is what the Vite sample projects do.
+サンプルプロジェクトでこれらを設定する一般的な場所は、キャラクタークラスのコンストラクタか `BeginPlay` です。
+Vite のサンプルプロジェクトもそうしています。
 
 ```c++
 // Global illumination
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.GlobalIllumination.ExperimentalPlugin"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.SSGI.Enable"))->Set(1);
 
-// Ray tracing effects
+// Ray tracing effects available in a default build (they start disabled)
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.AmbientOcclusion"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.Reflections"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.Shadows"))->Set(1);
+
+// Compiled out unless the engine is rebuilt with VITE_RT_PSO_DEBLOAT=0
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.Translucency"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.SampledDirectLighting"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.MeshCaustics.Enable"))->Set(1);
 ```
 
-`r.GlobalIllumination.ExperimentalPlugin 1` enables DDGI. Running SSGI alongside it is recommended rather
-than optional: DDGI resolves world-scale bounce, SSGI fills in high-frequency contact detail that probe
-volumes are too coarse to capture. See [DDGI and SSGI Together](SSGI.md).
+`r.GlobalIllumination.ExperimentalPlugin 1` は DDGI を有効にします。`BaseEngine.ini` ですでに設定されているため、
+この行が必要なのはプロジェクトで無効にした場合だけです。SSGI の併用は任意ではなく推奨です。DDGI はワールド規模の
+バウンスを解決し、SSGI はプローブボリュームでは粗すぎて捉えられない高周波の接触ディテールを補います。
+[DDGI と SSGI の併用](SSGI.md) を参照してください。
 
-For production, prefer setting these in configuration files rather than code, so they participate in
-scalability and can be overridden per platform:
+製品版では、コードではなく設定ファイルで指定することをお勧めします。そうすればスケーラビリティの仕組みに組み込まれ、
+プラットフォームごとに上書きできます。
 
 ```ini
 ; Config/DefaultEngine.ini
@@ -83,39 +84,38 @@ r.SSGI.Enable=1
 r.RayTracing.Reflections=1
 ```
 
-`r.RayTracing.ForceAllRayTracingEffects 1` turns everything on at once. It is useful for a quick look at
-what the engine can do, and a poor idea in a shipping configuration.
+`r.RayTracing.ForceAllRayTracingEffects 1` はすべてを一度に有効にします。エンジンの能力をざっと確認するには
+便利ですが、出荷用の設定としては不適切です。
 
-## Verify it is working
+## 動作を確認する
 
-Open the console with the tilde key and check a few things:
+チルダキーでコンソールを開き、いくつかの項目を確認します。
 
-- `stat unit` &mdash; frame, game, draw and GPU times. If GPU time dominates after enabling RT effects, that
-  is expected; start turning effects off from there.
-- `stat gpu` &mdash; per-pass GPU cost, which is how you find out whether reflections or GI is the expensive
-  one.
-- `r.RayTracing.Reflections 0` &mdash; toggle an effect at runtime and watch the delta.
+- `stat unit` &mdash; フレーム、ゲーム、描画、GPU の各時間です。RT エフェクトを有効にした後に GPU 時間が支配的に
+  なるのは想定どおりなので、そこから順にエフェクトを無効にしていきます。
+- `stat gpu` &mdash; パスごとの GPU コストです。反射と GI のどちらが重いかはこれで分かります。
+- `r.RayTracing.Reflections 0` &mdash; 実行中にエフェクトを切り替えて差分を確認します。
 
-Vite also bundles ImGui-based benchmarking tools for in-editor and in-game profiling. See
-[Profiling and Benchmarking](Profiling.md).
+Vite には、エディタ内とゲーム内でプロファイリングを行う ImGui ベースのベンチマークツールも同梱されています。
+[プロファイリング](Profiling.md) を参照してください。
 
-## Sample projects worth opening
+## 開いてみる価値のあるサンプルプロジェクト
 
-Rather than building a test scene from scratch, start from one that already demonstrates the features:
+テストシーンを一から作るより、すでに機能を実演しているシーンから始めるほうが効率的です。
 
-- [Tech Demo Project](Tech-Demo-Project.md) &mdash; DDGI Cornell Box, Apex Destruction test bed, Apex Cloth
-  sample and a high-end DDGI plus SSGI cave scene.
-- [Abandoned Apartment](Abandone-Apartment.md) and [Attic Scene](Attic-Scene.md) &mdash; NVIDIA's original
-  RTGI showcase scenes.
-- [Physics Cube Bench](Physics-Cube-Bench.md) and [400 Characters CMC Bench](400-Characters-CMC-Bench.md)
-  &mdash; the benchmark scenes behind the numbers quoted in this manual.
+- [テックデモプロジェクト](Tech-Demo-Project.md) &mdash; DDGI のコーネルボックス、Apex Destruction のテスト環境、
+  Apex Cloth のサンプル、DDGI と SSGI を組み合わせたハイエンドの洞窟シーン。
+- [廃アパートメント](Abandone-Apartment.md) と [屋根裏シーン](Attic-Scene.md) &mdash; NVIDIA のオリジナルの
+  RTGI ショーケースシーン。
+- [物理キューブベンチマーク](Physics-Cube-Bench.md) と [400 キャラクター CMC ベンチマーク](400-Characters-CMC-Bench.md)
+  &mdash; このマニュアルで引用している数値の元になったベンチマークシーン。
 
-The full list is in [Projects and Demos](ProjectsAndDemos.md).
+全一覧は [プロジェクトとデモ](ProjectsAndDemos.md) を参照してください。
 
-## See also
+## 関連項目
 
-- [Global Illumination](Global-Illumination.md)
-- [Ray Tracing](Ray-Tracing.md)
-- [Engine Default Changes](Engine-Defaults.md)
-- [Console Variable Reference](Console-Variables.md)
-- [Migrating from Unreal Engine 5](Migrating-From-UE5.md)
+- [グローバルイルミネーション](Global-Illumination.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [エンジン既定値の変更](Engine-Defaults.md)
+- [コンソール変数](Console-Variables.md)
+- [UE5 からの移行](Migrating-From-UE5.md)

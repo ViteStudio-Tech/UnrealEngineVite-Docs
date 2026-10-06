@@ -1,61 +1,61 @@
-# Building from Source
+# ソースからのビルド
 
 <tldr>
 <p>
-<code>Setup.bat</code> (answer <code>N</code> when asked to overwrite) &rarr; <code>GenerateProjectFiles.bat</code>
-&rarr; build <b>UE4</b> in <b>Development Editor</b> / <b>Win64</b>. Or run <code>ViteSetup.bat</code>
-and let the assistant do all of it.
+<code>Setup.bat</code>（上書きを尋ねられたら <code>N</code>）&rarr; <code>GenerateProjectFiles.bat</code>
+&rarr; <b>Development Editor</b> / <b>Win64</b> で <b>UE4</b> をビルドします。または <code>ViteSetup.bat</code> を
+実行して、アシスタントにすべてを任せます。
 </p>
 </tldr>
 
-This page covers building the engine from source on Windows. Install the
-[toolchain](Toolchain-Requirements.md) first &mdash; almost every build failure reported against Vite turns
-out to be a toolchain problem, not a code problem.
+このページでは、Windows でソースからエンジンをビルドする手順を説明します。先に
+[ツールチェーン](Toolchain-Requirements.md) をインストールしてください。Vite で報告されるビルド失敗のほとんどは、
+コードではなくツールチェーンの問題です。
 
-If you have never built Unreal Engine from source before, Epic's
-[Visual Studio setup guide for 4.27](https://dev.epicgames.com/documentation/en-us/unreal-engine/setting-up-visual-studio-development-environment-for-cplusplus-projects-in-unreal-engine?application_version=4.27)
-is still the best background reading.
+Unreal Engine をソースからビルドしたことがない場合は、Epic の
+[4.27 向け Visual Studio セットアップガイド](https://dev.epicgames.com/documentation/en-us/unreal-engine/setting-up-visual-studio-development-environment-for-cplusplus-projects-in-unreal-engine?application_version=4.27)
+が今でも最良の予備知識になります。
 
-## Guided build with ViteSetup
+## ViteSetup によるガイド付きビルド
 
-The repository root ships `ViteSetup.bat`, an assistant that runs the whole flow in order: environment
-check, toolchain enforcement, dependency setup with platform selection, project file generation, source or
-binary build, engine registration, desktop shortcut, and optional debloat.
+リポジトリのルートには `ViteSetup.bat` が同梱されています。これは環境チェック、ツールチェーンの検証、
+プラットフォームを選んでの依存関係のセットアップ、プロジェクトファイルの生成、ソースまたはバイナリのビルド、
+エンジンの登録、デスクトップショートカットの作成、そして任意のデブロートまで、一連の流れを順に実行する
+アシスタントです。
 
 ```batch
 ViteSetup.bat
 ```
 
-For the advanced menu, which lets you run any single step on its own:
+個々の手順を単独で実行できる上級者向けメニューは次のとおりです。
 
 ```batch
 ViteSetup.bat menu
 ```
 
-The assistant is the recommended path for a first build because it catches missing prerequisites before you
-spend twenty minutes compiling. See [ViteSetup Assistant](ViteSetup.md) for a full walkthrough of
-its screens and options.
+アシスタントは、20 分かけてコンパイルする前に不足している前提条件を検出してくれるため、初回のビルドには
+推奨の方法です。画面とオプションの詳しい説明は [ViteSetup アシスタント](ViteSetup.md) を参照してください。
 
-> The assistant enforces its toolchain requirements with no bypass. If it refuses to continue, it will
-> print exactly which component is missing.
+> アシスタントはツールチェーンの要件を回避手段なしに検証します。続行を拒否した場合は、どのコンポーネントが
+> 不足しているかを正確に表示します。
 >
 {style="note"}
 
-## Manual build
+## 手動ビルド
 
-If you would rather drive the steps yourself, this is what the assistant is doing.
+自分で手順を進めたい場合は、アシスタントが行っている内容は次のとおりです。
 
-### 1. Download dependencies
+### 1. 依存関係のダウンロード
 
 ```batch
 Setup.bat
 ```
 
-GitDeps is already patched in this fork, so no manual edits are needed. When the script asks whether to
-overwrite local changes, answer `N`.
+このフォークでは GitDeps が修正済みなので、手作業での編集は不要です。ローカルの変更を上書きするか尋ねられたら
+`N` と答えてください。
 
-`Setup.bat` accepts `-exclude=` arguments to skip platforms and content you do not need, which
-substantially reduces download size and disk usage. A Win64-only setup looks roughly like this:
+`Setup.bat` は不要なプラットフォームやコンテンツを除外する `-exclude=` 引数を受け付け、ダウンロード量と
+ディスク使用量を大幅に減らせます。Win64 のみのセットアップはおおよそ次のようになります。
 
 ```batch
 Setup.bat -exclude=Android -exclude=IOS -exclude=TVOS -exclude=Mac -exclude=MacOSX ^
@@ -64,39 +64,40 @@ Setup.bat -exclude=Android -exclude=IOS -exclude=TVOS -exclude=Mac -exclude=MacO
           -exclude=Samples -exclude=Templates -exclude=FeaturePacks -exclude=Engine/Documentation
 ```
 
-> Do not exclude the Win32 folders. Win64 installed builds depend on third-party tools that live under
-> Win32, including `ARM\Win32\astcenc.exe`.
+> Win32 のフォルダーは除外しないでください。Win64 のインストール済みビルドは、`ARM\Win32\astcenc.exe` など
+> Win32 の下にあるサードパーティ製ツールに依存しています。
 >
 {style="warning"}
 
-`ViteSetup.bat` exposes these as named presets &mdash; **Recommended Win64**, **Win64 ultra compact**,
-**Win64 + templates / feature packs**, **Win64 + Android**, **Win64 + Linux** and **Full setup** &mdash; and
-will print the exact `Setup.bat` command line for each one from its **Show setup profiles** menu entry.
+`ViteSetup.bat` はこれらを名前付きのプリセットとして提供しています。**Recommended Win64**、
+**Win64 ultra compact**、**Win64 + templates / feature packs**、**Win64 + Android**、**Win64 + Linux**、
+**Full setup** の 6 種類で、**Show setup profiles** メニューからそれぞれの `Setup.bat` のコマンドラインを
+正確に表示できます。
 
-### 2. Generate project files
+### 2. プロジェクトファイルの生成
 
 ```batch
 GenerateProjectFiles.bat
 ```
 
-This produces `UE4.sln` in the repository root.
+これにより、リポジトリのルートに `UE4.sln` が生成されます。
 
-<img src="UE4SolutionFiles.jpg" alt="Repository root in Explorer after project file generation, showing UE4.sln" border-effect="line"/>
+<img src="UE4SolutionFiles.jpg" alt="プロジェクトファイル生成後のリポジトリルートをエクスプローラーで表示したもの。UE4.sln がある" border-effect="line"/>
 
-*`UE4.sln` appears alongside the setup scripts once generation succeeds. If it is missing, generation
-failed &mdash; read its output rather than opening Visual Studio.*
+*生成に成功すると、セットアップスクリプトと並んで `UE4.sln` が作られます。見当たらない場合は生成に失敗しています。
+Visual Studio を開く前に、出力を確認してください。*
 
-### 3. Build
+### 3. ビルド
 
-Open `UE4.sln` and set **UE4** as the startup project if it is not already. Build the
-**Development Editor** configuration for **Win64**.
+`UE4.sln` を開き、まだ設定されていなければ **UE4** をスタートアッププロジェクトに設定します。**Win64** の
+**Development Editor** 構成をビルドします。
 
-<img src="VSBuildUE4.jpg" alt="Visual Studio Solution Explorer with the UE4 project selected and the Build command open" border-effect="line"/>
+<img src="VSBuildUE4.jpg" alt="Visual Studio のソリューションエクスプローラーで UE4 プロジェクトを選択し、ビルドコマンドを開いた状態" border-effect="line"/>
 
-*Build **UE4** under **Engine**, not the solution. Building the whole solution compiles program targets you
-do not need for an editor build.*
+*ソリューション全体ではなく、**Engine** の下の **UE4** をビルドしてください。ソリューション全体をビルドすると、
+エディタのビルドに不要なプログラムターゲットまでコンパイルされます。*
 
-From the command line, the equivalent is:
+コマンドラインでは次のように実行します。
 
 ```batch
 Engine\Build\BatchFiles\Build.bat UE4Editor Win64 Development -WaitMutex
@@ -104,43 +105,43 @@ Engine\Build\BatchFiles\Build.bat ShaderCompileWorker Win64 Development -WaitMut
 Engine\Build\BatchFiles\Build.bat UnrealLightmass Win64 Development -WaitMutex
 ```
 
-All three targets are needed for a working editor. `ViteSetup.bat` builds them in this order.
+エディタを正しく動作させるには 3 つのターゲットすべてが必要です。`ViteSetup.bat` はこの順序でビルドします。
 
-### 4. Register the engine
+### 4. エンジンの登録
 
-So that `.uproject` files can find this build, register it under the current user's Unreal Engine build key:
+`.uproject` ファイルからこのビルドを見つけられるよう、現在のユーザーの Unreal Engine ビルドキーに登録します。
 
 ```batch
 reg add "HKCU\Software\Epic Games\Unreal Engine\Builds" /v UE_ViteFork /t REG_SZ /d "<engine root>" /f
 ```
 
-Then set `"EngineAssociation": "UE_ViteFork"` in your project's `.uproject` file. The assistant does this
-step for you and also cleans up stale GUID-keyed entries that point at the same folder.
+その後、プロジェクトの `.uproject` ファイルに `"EngineAssociation": "UE_ViteFork"` を設定します。アシスタントは
+この手順を代行し、同じフォルダーを指している古い GUID キーのエントリも整理します。
 
-## Build times
+## ビルド時間
 
-Compile time is dominated by core count. As a reference point, a full build of the repository on a
-Ryzen 9 9950X3D takes about 15 minutes; removing the bundled Vite plugins brings that down to about
-12 minutes, with the Houdini plugin accounting for most of the difference. See
-[Debloat Guide](Debloat-Guide.md) if iteration speed matters more to you than plugin coverage.
+コンパイル時間はコア数でほぼ決まります。参考として、Ryzen 9 9950X3D でリポジトリをフルビルドするとおよそ 15 分
+かかり、同梱の Vite プラグインを外すとおよそ 12 分に短縮されます。この差の大部分は Houdini プラグインによる
+もので、同プラグインは [June Major](ueVite26-JuneMajor.md) で既定のセットから外されました。プラグインの網羅性より
+イテレーション速度を重視する場合は、[デブロートガイド](Debloat-Guide.md) を参照してください。
 
-## Producing an installed build
+## インストール済みビルドの作成
 
-Once a source build works, you can turn it into a redistributable installed build for the rest of the
-team. `RunUAT.bat` in the repository root runs the BuildGraph `Make Installed Build Win64` target and
-writes the result to `LocalBuilds\Engine\Windows\`:
+ソースビルドが動作したら、チームの他のメンバー向けに再配布可能なインストール済みビルドに変換できます。リポジトリ
+ルートの `RunUAT.bat` は BuildGraph の `Make Installed Build Win64` ターゲットを実行し、結果を
+`LocalBuilds\Engine\Windows\` に書き出します。
 
 ```batch
 RunUAT.bat
 ```
 
-See [Installed Builds](Installed-Builds.md) for the full set of options and
-[Packaging and Distribution](Installed-Builds.md) for the compression scripts.
+オプションの全一覧は [インストール済みビルド](Installed-Builds.md) を、圧縮スクリプトについては
+[パッケージングと配布](Installed-Builds.md) を参照してください。
 
-## See also
+## 関連項目
 
-- [Toolchain Requirements](Toolchain-Requirements.md)
-- [Build Troubleshooting](Build-Troubleshooting.md)
-- [ViteSetup Assistant](ViteSetup.md)
-- [Installed Builds](Installed-Builds.md)
-- [Cache Management](Cache-Management.md)
+- [ツールチェーン要件](Toolchain-Requirements.md)
+- [ビルドのトラブルシューティング](Build-Troubleshooting.md)
+- [ViteSetup アシスタント](ViteSetup.md)
+- [インストール済みビルド](Installed-Builds.md)
+- [キャッシュ管理](Cache-Management.md)

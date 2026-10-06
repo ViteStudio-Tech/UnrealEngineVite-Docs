@@ -2,10 +2,9 @@
 
 <tldr>
 <p>
-Create a project as you normally would, then decide which ray tracing effects you actually want &mdash;
-Vite enables most of them by default. Enable <a href="DDGI-Dynamic.md">DDGI</a> with
-<code>r.GlobalIllumination.ExperimentalPlugin 1</code> and pair it with
-<code>r.SSGI.Enable 1</code>.
+Create a project as you normally would. <a href="DDGI-Dynamic.md">Dynamic DDGI</a> is already on
+(<code>r.GlobalIllumination.ExperimentalPlugin 1</code>); pair it with <code>r.SSGI.Enable 1</code>, then
+enable only the ray-traced effects your performance target needs &mdash; they start disabled.
 </p>
 </tldr>
 
@@ -33,11 +32,11 @@ If you are opening an existing project instead, right-click the `.uproject`, cho
 
 ## Understand the defaults before you build content
 
-> Vite ships with the full ray tracing suite enabled by default &mdash; shadows, reflections, translucency
-> and ambient occlusion. This is deliberate, so that new users discover the features immediately, but it
-> means an empty project costs more than a stock 4.27 one.
+> New projects start with ray tracing support and Dynamic DDGI enabled. Ray-traced reflections, shadows,
+> ambient occlusion and translucency are off by default and are enabled per project or per post-process
+> volume, so you decide what each effect costs your frame.
 >
-{style="warning"}
+{style="note"}
 
 Decide early which effects your project actually needs, because the answer shapes your entire art and
 performance budget. A stylised competitive title targeting 4K120 will typically run DDGI alone. A fidelity
@@ -59,17 +58,20 @@ The conventional place to set these up in a sample project is the character clas
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.GlobalIllumination.ExperimentalPlugin"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.SSGI.Enable"))->Set(1);
 
-// Ray tracing effects
+// Ray tracing effects available in a default build (they start disabled)
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.AmbientOcclusion"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.Reflections"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.Shadows"))->Set(1);
+
+// Compiled out unless the engine is rebuilt with VITE_RT_PSO_DEBLOAT=0
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.Translucency"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.SampledDirectLighting"))->Set(1);
 IConsoleManager::Get().FindConsoleVariable(TEXT("r.RayTracing.MeshCaustics.Enable"))->Set(1);
 ```
 
-`r.GlobalIllumination.ExperimentalPlugin 1` enables DDGI. Running SSGI alongside it is recommended rather
-than optional: DDGI resolves world-scale bounce, SSGI fills in high-frequency contact detail that probe
+`r.GlobalIllumination.ExperimentalPlugin 1` enables DDGI; it is already set in `BaseEngine.ini`, so the
+line is only needed if a project turned it off. Running SSGI alongside it is recommended rather than
+optional: DDGI resolves world-scale bounce, SSGI fills in high-frequency contact detail that probe
 volumes are too coarse to capture. See [DDGI and SSGI Together](SSGI.md).
 
 For production, prefer setting these in configuration files rather than code, so they participate in

@@ -121,7 +121,8 @@ step for you and also cleans up stale GUID-keyed entries that point at the same 
 
 Compile time is dominated by core count. As a reference point, a full build of the repository on a
 Ryzen 9 9950X3D takes about 15 minutes; removing the bundled Vite plugins brings that down to about
-12 minutes, with the Houdini plugin accounting for most of the difference. See
+12 minutes. Most of that difference came from the Houdini plugin, which the
+[June Major](ueVite26-JuneMajor.md) removed from the default set. See
 [Debloat Guide](Debloat-Guide.md) if iteration speed matters more to you than plugin coverage.
 
 ## Producing an installed build

@@ -1,72 +1,72 @@
-# Installing a Binary Build
+# バイナリビルドのインストール
 
 <tldr>
 <p>
-Extract <code>UE_ViteFork.7z</code>, run <code>RegistryAdd.bat</code> to register the engine, run
-<code>MakeShortcut.bat</code> for a desktop launcher, then set
-<code>"EngineAssociation": "UE_ViteFork"</code> in your <code>.uproject</code>.
+<code>UE_ViteFork.7z</code> を展開し、<code>RegistryAdd.bat</code> でエンジンを登録し、
+<code>MakeShortcut.bat</code> でデスクトップ用のランチャーを作成してから、<code>.uproject</code> に
+<code>"EngineAssociation": "UE_ViteFork"</code> を設定します。
 </p>
 </tldr>
 
-An installed build is a precompiled, redistributable copy of the editor. It behaves like an
-Epic Games Launcher installation: you can open and cook projects, but you cannot modify or debug into
-engine source. This is the right choice for artists, designers and anyone evaluating the fork.
+インストール済みビルドは、コンパイル済みで再配布可能なエディタ一式です。Epic Games Launcher でインストールした
+エンジンと同じように振る舞い、プロジェクトを開いたりクックしたりはできますが、エンジンのソースを変更したり
+デバッグしたりはできません。アーティスト、デザイナー、そしてフォークを評価する方に適した選択肢です。
 
-Installed builds are produced from a source build by the team. If you need to make one yourself, see
-[Installed Builds](Installed-Builds.md).
+インストール済みビルドは、チームがソースビルドから作成しています。自分で作成する必要がある場合は
+[インストール済みビルド](Installed-Builds.md) を参照してください。
 
-## Contents of a build archive
+## ビルドアーカイブの内容
 
-A packaged Vite build extracts to a folder containing:
+パッケージ化された Vite のビルドを展開すると、次の内容を含むフォルダーができます。
 
-| Item | Purpose |
+| 項目 | 用途 |
 |---|---|
-| `Engine\` | The engine itself, including `Engine\Binaries\Win64\UE4Editor.exe` |
-| `MakeShortcut.bat` | Creates `UEViteFork.lnk` pointing at the editor executable |
-| `RegistryAdd.bat` | Registers the folder as the `UEViteFork` engine association |
-| `RegistryRemove.bat` | Removes that registration |
-| `Templates\` | Project templates, if the build was packaged with them |
-| `FeaturePacks\` | Feature packs, if the build was packaged with them |
-| `Samples\` | Sample content, if the build was packaged with them |
+| `Engine\` | エンジン本体（`Engine\Binaries\Win64\UE4Editor.exe` を含む） |
+| `MakeShortcut.bat` | エディタの実行ファイルを指す `UEViteFork.lnk` を作成 |
+| `RegistryAdd.bat` | フォルダーを `UEViteFork` のエンジン関連付けとして登録 |
+| `RegistryRemove.bat` | その登録を削除 |
+| `Templates\` | プロジェクトテンプレート（ビルドに含めた場合） |
+| `FeaturePacks\` | フィーチャーパック（ビルドに含めた場合） |
+| `Samples\` | サンプルコンテンツ（ビルドに含めた場合） |
 
-Lean builds omit templates, feature packs, samples and debug symbols. Some builds ship an accompanying
-`ExcludedPlugins.7z` containing plugins that were split out of the main archive to keep it small; extract
-it over the same folder if you need those plugins.
+軽量版のビルドでは、テンプレート、フィーチャーパック、サンプル、デバッグシンボルを省いています。メインの
+アーカイブを小さく保つためにプラグインを分離した `ExcludedPlugins.7z` が付属するビルドもあります。それらの
+プラグインが必要な場合は、同じフォルダーに上書きで展開してください。
 
-## Installation
+## インストール
 
-<procedure title="Install and register an installed build" id="install-binary">
+<procedure title="インストール済みビルドをインストールして登録する" id="install-binary">
     <step>
-        Extract <code>UE_ViteFork.7z</code> to a path with no spaces or non-ASCII characters, for example
-        <code>D:\Engines\UE_ViteFork</code>. Avoid <code>Program Files</code>; the editor writes to its own
-        directory and the permission prompts are not worth it.
+        <code>UE_ViteFork.7z</code> を、スペースや非 ASCII 文字を含まないパス（例:
+        <code>D:\Engines\UE_ViteFork</code>）に展開します。<code>Program Files</code> は避けてください。
+        エディタは自身のディレクトリに書き込むため、権限の確認ダイアログに悩まされます。
     </step>
     <step>
-        If the build shipped a separate <code>ExcludedPlugins.7z</code> and you need those plugins, extract
-        it into the same folder now.
+        ビルドに <code>ExcludedPlugins.7z</code> が別途付属していて、そのプラグインが必要な場合は、
+        ここで同じフォルダーに展開します。
     </step>
     <step>
-        Run <code>RegistryAdd.bat</code>. This writes the engine path to
-        <code>HKCU\Software\Epic Games\Unreal Engine\Builds</code> under the name <code>UE_ViteFork</code>,
-        and removes stale GUID-keyed entries that pointed at the same folder.
+        <code>RegistryAdd.bat</code> を実行します。これはエンジンのパスを
+        <code>HKCU\Software\Epic Games\Unreal Engine\Builds</code> に <code>UE_ViteFork</code> という名前で書き込み、
+        同じフォルダーを指していた古い GUID キーのエントリを削除します。
     </step>
     <step>
-        Run <code>MakeShortcut.bat</code> to create <code>UEViteFork.lnk</code> next to the engine folder.
+        <code>MakeShortcut.bat</code> を実行し、エンジンフォルダーの隣に <code>UEViteFork.lnk</code> を作成します。
     </step>
     <step>
-        Launch the editor through the shortcut, or directly via
-        <code>Engine\Binaries\Win64\UE4Editor.exe</code>.
+        ショートカットから、または <code>Engine\Binaries\Win64\UE4Editor.exe</code> を直接実行してエディタを
+        起動します。
     </step>
 </procedure>
 
-> Registration is per-user, written under `HKCU`. Each Windows user account that needs the engine must run
-> `RegistryAdd.bat` once.
+> 登録はユーザー単位で、`HKCU` に書き込まれます。エンジンを使う Windows のユーザーアカウントごとに、一度
+> `RegistryAdd.bat` を実行する必要があります。
 >
 {style="note"}
 
-## Pointing a project at the build
+## プロジェクトをビルドに関連付ける
 
-Open your `.uproject` file in a text editor and set the engine association:
+`.uproject` ファイルをテキストエディタで開き、エンジンの関連付けを設定します。
 
 ```json
 {
@@ -77,32 +77,32 @@ Open your `.uproject` file in a text editor and set the engine association:
 }
 ```
 
-Projects packaged inside an installed build archive already have this set. If you right-click a `.uproject`
-and choose **Switch Unreal Engine version**, `UE_ViteFork` will appear in the list once the build is
-registered.
+インストール済みビルドのアーカイブに同梱されたプロジェクトには、すでにこの設定が入っています。ビルドを登録すると、
+`.uproject` を右クリックして **Switch Unreal Engine version** を選んだときの一覧に `UE_ViteFork` が表示されます。
 
-## Moving or removing a build
+## ビルドの移動と削除
 
-The registry entry stores an absolute path, so moving the engine folder breaks it. If you relocate a build:
+レジストリのエントリは絶対パスを保存しているため、エンジンフォルダーを移動すると関連付けが壊れます。ビルドを
+移動する場合は次のようにします。
 
-1. Run `RegistryRemove.bat` from the old location, or delete the `UE_ViteFork` value manually.
-2. Move the folder.
-3. Run `RegistryAdd.bat` from the new location.
+1. 移動前の場所で `RegistryRemove.bat` を実行するか、`UE_ViteFork` の値を手作業で削除します。
+2. フォルダーを移動します。
+3. 移動後の場所で `RegistryAdd.bat` を実行します。
 
-To uninstall entirely, run `RegistryRemove.bat` and then delete the folder. Nothing is written outside the
-engine directory and the single `HKCU` registry value, apart from the usual per-user Unreal directories
-under `%LOCALAPPDATA%\UnrealEngine` and `%APPDATA%\Unreal Engine`.
+完全にアンインストールするには、`RegistryRemove.bat` を実行してからフォルダーを削除します。エンジンディレクトリと
+`HKCU` の 1 つのレジストリ値以外には、`%LOCALAPPDATA%\UnrealEngine` と `%APPDATA%\Unreal Engine` の通常の
+ユーザー別 Unreal ディレクトリを除いて何も書き込まれません。
 
-## Running source and binary builds side by side
+## ソースビルドとバイナリビルドの併用
 
-You can have both installed. They are separate engine associations as long as they register under different
-names, so if you want a source build and an installed build available at the same time, change the
-`ENGINE_ASSOCIATION` value in one of them before registering. Note that both builds share the per-user
-Unreal directories, so editor layout and some settings will be common between them.
+両方をインストールしておくこともできます。異なる名前で登録すれば別々のエンジン関連付けになるので、ソースビルドと
+インストール済みビルドを同時に使いたい場合は、登録前にどちらかの `ENGINE_ASSOCIATION` の値を変更してください。
+ただし、両方のビルドはユーザー別の Unreal ディレクトリを共有するため、エディタのレイアウトや一部の設定は共通に
+なります。
 
-## See also
+## 関連項目
 
-- [Getting Started](Getting-Started.md)
-- [Installed Builds](Installed-Builds.md)
-- [Packaging and Distribution](Installed-Builds.md)
-- [Creating Your First Project](First-Project.md)
+- [はじめに](Getting-Started.md)
+- [インストール済みビルド](Installed-Builds.md)
+- [パッケージングと配布](Installed-Builds.md)
+- [最初のプロジェクト](First-Project.md)

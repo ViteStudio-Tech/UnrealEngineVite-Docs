@@ -44,6 +44,12 @@ renders nothing.**
 To use anything in the compiled-out set, rebuild with `VITE_RT_PSO_DEBLOAT=0`. See
 [Compile-Time Switches](Compile-Time-Switches.md).
 
+**Available is not the same as enabled.** In the current release, `r.RayTracing.Reflections`,
+`r.RayTracing.Shadows`, `r.RayTracing.AmbientOcclusion` and `r.RayTracing.Translucency` all default to `0`:
+the effects are compiled in but start disabled, and a project or post-process volume turns them on.
+Dynamic DDGI is the exception and is enabled by default through
+`r.GlobalIllumination.ExperimentalPlugin=True` in `BaseEngine.ini`.
+
 Reflections have one further caveat even when available: the debloat switch forces the sorted deferred
 reflection algorithm and compiles out the older non-deferred path.
 

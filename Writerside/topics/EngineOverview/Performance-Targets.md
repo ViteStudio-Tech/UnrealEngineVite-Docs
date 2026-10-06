@@ -87,8 +87,9 @@ Pick your target before you build content, because it determines your entire art
         means the Stylised 4K120 target; a narrative single-player title can usually afford Fidelity.
     </step>
     <step>
-        Configure the corresponding feature set and nothing more. Vite enables most ray tracing effects by
-        default, so this usually means turning things <i>off</i>. See <a href="Ray-Tracing.md">Ray Tracing</a>.
+        Configure the corresponding feature set and nothing more. DDGI is on by default and the individual
+        ray-traced effects are opt-in, so most targets mean enabling only the effects in your row. See
+        <a href="Ray-Tracing.md">Ray Tracing</a>.
     </step>
     <step>
         Establish a frame-time budget per system &mdash; GI, reflections, shadows, geometry, post &mdash; and

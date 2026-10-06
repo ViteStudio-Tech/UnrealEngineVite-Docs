@@ -43,10 +43,10 @@ UBT reports is the one you intended.
 ### `ViteSetup.bat` refuses to continue with a `[FAIL]` line
 
 The assistant enforces its toolchain requirements deliberately and offers no bypass. The failing line names
-the missing component. Note that the assistant currently pins Visual Studio 2022, MSVC 14.44 and Windows SDK
-10.0.26100.7705 or higher; if you are on the newer VS 2026 / MSVC 14.50 toolchain, either build manually as
-described in [Building from Source](Build-From-Source.md), or update the `REQUIRED_*` variables at the top
-of the script.
+the missing component. It accepts Visual Studio 2022 with MSVC 14.44 or newer, or Visual Studio 2026 with
+MSVC 14.50 or newer, and in both cases Windows SDK 10.0.26100 at subversion .7705 or higher. An older MSVC
+toolset or SDK subversion is the usual cause; update it through the Visual Studio Installer. See
+[Toolchain Requirements](Toolchain-Requirements.md).
 
 ### C# tool projects fail to build (SwarmAgent, NetworkProfiler, UnrealControls)
 
@@ -120,11 +120,14 @@ The engine rebuilds them on the next launch, which will take a while. Close the 
 
 ### A new project runs much slower than expected
 
-Ray tracing is enabled by default in Vite, including shadows, reflections, translucency and ambient
-occlusion. This is intentional so that the features are discoverable, but it means an empty project is
-heavier than a stock 4.27 one.
+New projects have ray tracing support and Dynamic DDGI enabled by default, so an empty project already
+traces rays every frame. On GPUs without hardware ray tracing, or on low-end hardware, DDGI is the first
+thing to check. Ray-traced reflections, shadows and ambient occlusion default to off; if they are running,
+a project setting or post-process volume enabled them.
 
-**Fix.** Disable the effects you do not need. See [Ray Tracing](Ray-Tracing.md) for the console variables.
+**Fix.** Profile with `stat gpu`, then disable what you do not need: `r.GlobalIllumination.ExperimentalPlugin 0`
+for DDGI, or the individual `r.RayTracing.*` variables. See [Ray Tracing](Ray-Tracing.md) and
+[Dynamic DDGI](DDGI-Dynamic.md).
 
 ### Gameplay behaves differently from stock 4.27
 

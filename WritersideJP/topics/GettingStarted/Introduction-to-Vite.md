@@ -1,125 +1,121 @@
-# Introduction to Vite
+# Vite の概要
 
 <tldr>
 <p>
-Vite is a production-oriented fork of Unreal Engine 4.27, based on NVIDIA's NvRTX Caustics branch.
-It keeps PhysX 3.4 and an engine-agnostic ray tracing pipeline, and replaces Epic's UE5 feature stack
-(Lumen, Nanite, VSM, TSR, Chaos) with lighter alternatives that hit native resolution at high frame rates.
+Vite は NVIDIA の NvRTX Caustics ブランチをベースとした、製品開発向けの Unreal Engine 4.27 フォークです。
+PhysX 3.4 と、特定のライティング手法に依存しないレイトレーシングパイプラインを維持し、Epic の UE5 機能群
+（Lumen、Nanite、VSM、TSR、Chaos）を、高フレームレートでネイティブ解像度を達成できる軽量な代替手段に
+置き換えています。
 </p>
 </tldr>
 
-Unreal Engine Vite is built for professional game development and supports titles currently in active
-production. Its long-term goal is a continuously evolving modern engine that delivers CPU and rendering
-throughput competitive with proprietary in-house engines, with ongoing performance, stability and
-graphics-pipeline work aimed at contemporary console hardware.
+Unreal Engine Vite はプロフェッショナルなゲーム開発のために作られ、現在開発中のタイトルを支えています。
+長期的な目標は、自社開発の独自エンジンに匹敵する CPU とレンダリングのスループットを備え、現行のコンソール
+ハードウェアを見据えた性能・安定性・グラフィックスパイプラインの改良を続ける、進化し続けるモダンなエンジンです。
 
-The objective is specific enough to be falsifiable: **beat Epic's UE5 on fidelity per millisecond and on
-simulation scale**, and be competitive with the proprietary AAA engines on both. Fidelity per millisecond
-is what [Performance Targets](Performance-Targets.md) and
-[UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md) measure. Simulation scale is what the
-[physics](Physics-Cube-Bench.md) and [character](400-Characters-CMC-Bench.md) benchmarks measure. Where
-Vite does not currently win, this manual says so.
+目標は反証可能なほど具体的です。**ミリ秒あたりの品質とシミュレーション規模で Epic の UE5 を上回り**、その両方で
+AAA 向けの独自エンジンと競争力を持つことです。ミリ秒あたりの品質は [パフォーマンス目標](Performance-Targets.md)
+と [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md) が測定しています。シミュレーション規模は
+[物理](Physics-Cube-Bench.md) と [キャラクター](400-Characters-CMC-Bench.md) のベンチマークが測定しています。
+現時点で Vite が勝っていない点については、このマニュアルでそう明記します。
 
-## The design argument
+## 設計上の論点
 
-Epic's Unreal Engine 5.7 and 5.8 target roughly 60 FPS at dynamic internal resolutions of 720p&ndash;1080p
-on PlayStation 5 using Lumen, Nanite, Virtual Shadow Maps, Temporal Super Resolution and Chaos. That is
-what shipped titles on the engine demonstrate in practice.
+Epic の Unreal Engine 5.7 と 5.8 は、Lumen、Nanite、仮想シャドウマップ、Temporal Super Resolution、Chaos を
+用いて、PlayStation 5 上で 720p〜1080p の動的内部解像度によりおよそ 60 FPS を目標としています。これは、
+このエンジンで出荷されたタイトルが実際に示している水準です。
 
-The virtualized approach &mdash; virtualized geometry, shadows and textures, plus reconstructed resolution
-&mdash; adds processing, streaming and memory overhead. Temporal reconstruction, denoising and stochastic
-sampling introduce noise, ghosting, instability and blur. Substrate, GPU Scene, RDG, heavier shader models
-and general feature expansion increase base renderer overhead, shader permutation counts, bytecode size,
-PSO counts, compilation time and cache sizes relative to UE4. Beyond Chaos, CPU cost grows through heavier
-scene maintenance, GPU Scene uploads, Lumen updates, Nanite streaming, VSM invalidation, World Partition,
-and render-thread and RHI workloads.
+仮想化のアプローチ、つまりジオメトリ・シャドウ・テクスチャの仮想化と再構成された解像度は、処理・ストリーミング・
+メモリのオーバーヘッドを増やします。時間的再構成、デノイズ、確率的サンプリングは、ノイズ、ゴースト、不安定さ、
+ブラーをもたらします。Substrate、GPU Scene、RDG、重いシェーダーモデル、そして全般的な機能拡張は、UE4 と比べて
+レンダラーの基本オーバーヘッド、シェーダーパーミュテーション数、バイトコードサイズ、PSO 数、コンパイル時間、
+キャッシュサイズを増やします。Chaos 以外にも、より重いシーン管理、GPU Scene のアップロード、Lumen の更新、
+Nanite のストリーミング、VSM の無効化、World Partition、レンダースレッドと RHI の負荷によって CPU コストが
+増加しています。
 
-Meanwhile the hardware is moving the other way. The Nintendo Switch 2 has shipped with an expected
-seven-to-eight year lifespan. Handhelds substantially less powerful than a PS5 are now a mainstream
-segment, including Valve's Steam Deck and Steam Machine. Hardware costs are rising under AI demand. Against
-that backdrop, UE5's performance targets look increasingly misaligned with the machines games actually ship
-on, and the rendering stack is arguably better suited to film, virtual production and high-end PC than to
-sustainable long-term game development across mass-market hardware.
+一方で、ハードウェアは逆方向に進んでいます。Nintendo Switch 2 は 7〜8 年の製品寿命が見込まれる形で発売されました。
+PS5 よりかなり非力な携帯機は、Valve の Steam Deck や Steam Machine を含め、いまや主流のセグメントです。
+AI 需要によりハードウェアの価格は上昇しています。こうした状況では、UE5 のパフォーマンス目標は実際にゲームが
+出荷されるマシンとますます噛み合わなくなっており、そのレンダリングスタックは大衆向けハードウェアでの持続的な
+ゲーム開発よりも、映像制作、バーチャルプロダクション、ハイエンド PC に向いていると言えます。
 
-Vite takes the opposite position: prioritise high visual fidelity while holding strict frame-time budgets
-at high native resolutions on console-class hardware.
+Vite は逆の立場を取ります。コンシューマー機クラスのハードウェアで、高いネイティブ解像度のまま厳格なフレームタイム
+予算を守りつつ、高いビジュアル品質を優先します。
 
-> A scene running in Vite with ray-traced global illumination, ray-traced reflections and tessellation
-> outperforms the same scene in UE 5.7 with no ray tracing, Lumen, Nanite or tessellation at all. This
-> holds at 4K native on an RTX 4080 Super and on an RDNA2 RX 6700 (PS5 equivalent), and at native
-> resolution on Steam Deck hardware.
+> レイトレーシング GI、レイトレーシング反射、テッセレーションを使った Vite のシーンは、レイトレーシングも Lumen も
+> Nanite もテッセレーションも一切使わない UE 5.7 の同一シーンを上回る性能を発揮します。これは RTX 4080 Super と
+> RDNA2 の RX 6700（PS5 相当）での 4K ネイティブ、そして Steam Deck のハードウェアでのネイティブ解像度で成り立ちます。
 >
 {style="note"}
 
-## What Vite is made of
+## Vite の構成要素
 
-Vite began as a fork of NvRTX 4.27 Caustics, which added DX12, ray tracing and rendering improvements over
-Epic's standard 4.27 branch, along with DLSS, NVIDIA Reflex, improved denoisers and comprehensive ray
-tracing support including DDGI-lit ray-traced reflections.
+Vite は NvRTX 4.27 Caustics のフォークとして始まりました。このブランチは Epic の標準 4.27 ブランチに対して、
+DX12、レイトレーシング、レンダリングの改良に加え、DLSS、NVIDIA Reflex、改良されたデノイザー、そして DDGI で
+ライティングされたレイトレーシング反射を含む包括的なレイトレーシング対応を追加したものです。
 
-On top of that base:
+このベースの上に、次のものを取り込んでいます。
 
-- Epic's UE 4.27 Plus branch is fully merged.
-- NVIDIA's NvRTX 5.0 branch is merged.
-- Rendering features from AMD's engine branches are integrated.
-- More than 300 backports from UE 5.0 through the 5.8 era are in the release branch, with over 1,200
-  integrated in internal staging branches.
+- Epic の UE 4.27 Plus ブランチを完全にマージ。
+- NVIDIA の NvRTX 5.0 ブランチをマージ。
+- AMD のエンジンブランチのレンダリング機能を統合。
+- UE 5.0 から 5.8 世代までの 300 件を超えるバックポートがリリースブランチにあり、内部のステージングブランチでは
+  1,200 件以上を統合済み。
 
-The integration work is done by engine programmers with extensive Unreal Engine source experience, using
-proper code guards, managed shader permutations, and manual adaptation of each cherry-picked UE5 change to
-the Vite codebase rather than blind merging.
+統合作業は Unreal Engine のソースに精通したエンジンプログラマーが行っています。適切なコードガードを用い、
+シェーダーパーミュテーションを管理し、取り込んだ UE5 の各変更を機械的にマージするのではなく、Vite のコードベースに
+合わせて手作業で適応させています。
 
-With PhysX and a combined DDGI plus SSGI lighting pipeline, Vite closely resembles the bespoke Unreal
-Engine build used for the launch of *The Finals*.
+PhysX と、DDGI と SSGI を組み合わせたライティングパイプラインを備えた Vite は、*The Finals* のローンチに使われた
+独自の Unreal Engine ビルドによく似た構成になっています。
 
-## Headline features
+## 主な機能
 
-**[Dynamic DDGI](DDGI-Dynamic.md).** A noise-free global illumination alternative to Lumen. Higher quality
-bounce and less light leaking than software Lumen, comparable to hardware Lumen for bounce, and typically
-around twice the frame rate. DDGI implementations ship in Metro Exodus, Overwatch 2, The Finals, Control,
-The Witcher 3, Warhammer 40,000: Darktide, DOOM: The Dark Ages, Indiana Jones and the Great Circle,
-007 First Light, Ghost of Yotei and Star Wars Outlaws including its Switch 2 version.
+**[動的 DDGI](DDGI-Dynamic.md)。** Lumen に代わる、ノイズのないグローバルイルミネーションです。ソフトウェア Lumen
+より高品質なバウンスと少ない光漏れを実現し、バウンス品質はハードウェア Lumen と同等で、フレームレートは一般に約
+2 倍です。DDGI の実装は Metro Exodus、Overwatch 2、The Finals、Control、The Witcher 3、Warhammer 40,000: Darktide、
+DOOM: The Dark Ages、Indiana Jones and the Great Circle、007 First Light、Ghost of Yotei、そして Switch 2 版を含む
+Star Wars Outlaws で出荷されています。
 
-**[Static DDGI](DDGI-Static.md).** A baked mode with near-instant bake times, higher bounce fidelity than
-traditional baked lighting and better coverage of moving objects, viable on GPUs without ray tracing
-support at all.
+**[静的 DDGI](DDGI-Static.md)。** ほぼ一瞬で終わるベイク、従来のベイクライティングより高精度なバウンス、動く
+オブジェクトへのより良いカバレッジを備えたベイクモードで、レイトレーシング非対応の GPU でも利用できます。
 
-**[PhysX 3.4](PhysX.md).** Stable, commercially proven, and in Vite upgraded to build under newer
-Clang versions for meaningful compiler optimisation gains. Internal stress tests show Chaos running over
-five times slower than PhysX in physics-bound scenarios.
+**[PhysX 3.4](PhysX.md)。** 安定しており商用実績があり、Vite では新しい Clang でビルドできるよう更新して、
+コンパイラ最適化による確かな性能向上を得ています。社内のストレステストでは、物理がボトルネックとなるシナリオで
+Chaos は PhysX より 5 倍以上遅くなっています。
 
-**[RTXDI](RTXDI.md).** A less noisy alternative to MegaLights, in its standalone form rather than the
-Lumen-integrated version found in UE 5.1 and later NvRTX branches.
+**[RTXDI](RTXDI.md)。** MegaLights よりノイズの少ない代替手段です。UE 5.1 以降の NvRTX ブランチにある Lumen 統合版
+ではなく、スタンドアロン版を採用しています。
 
-**[Tessellation](Tessellation.md).** Distance- and displacement-driven geometric detail without Nanite's
-overhead.
+**[テッセレーション](Tessellation.md)。** Nanite のオーバーヘッドなしに、距離とディスプレイスメントに基づく
+ジオメトリディテールを実現します。
 
-**[Full ray tracing suite](Ray-Tracing.md).** Reflections, ambient occlusion, shadows, skylight,
-translucency, caustics, direct lighting, per-pixel ray-traced GI and path tracing &mdash; the rendering
-stack Black Myth: Wukong shipped on.
+**[レイトレーシング一式](Ray-Tracing.md)。** 反射、アンビエントオクルージョン、シャドウ、スカイライト、半透明、
+コースティクス、直接光、ピクセル単位のレイトレーシング GI、パストレーシング。Black Myth: Wukong が出荷に使った
+レンダリングスタックです。
 
-For the complete list, see [Release Notes](Release-Notes.md).
+変更点の全一覧は [リリースノート](Release-Notes.md) を参照してください。
 
-## Is UE4 not a deprecated codebase?
+## UE4 は非推奨のコードベースではないのか
 
-It is a fair question, and the answer is that Unreal Engine 4 continues to power recent AAA releases:
-Final Fantasy VII Rebirth (4.26, 2024), Stellar Blade (4.26, 2024), Days Gone Remastered (4.11, 2025),
-Delta Force (4.22, 2026), Mortal Kombat 1 (4.27, 2023), Mario &amp; Luigi: Brothership (4.26, 2024),
-Princess Peach: Showtime! (4.26, 2024), Pikmin 4 (4.26, 2023), Square Enix's Dragon Quest VII Reimagined
-(4.27, 2026) and the upcoming Final Fantasy VII: Revelation (4.27, 2027). All of them ship PhysX.
+もっともな疑問ですが、答えは「Unreal Engine 4 は最近の AAA タイトルでも使われ続けている」です。
+Final Fantasy VII Rebirth（4.26、2024 年）、Stellar Blade（4.26、2024 年）、Days Gone Remastered（4.11、2025 年）、
+Delta Force（4.22、2026 年）、Mortal Kombat 1（4.27、2023 年）、Mario &amp; Luigi: Brothership（4.26、2024 年）、
+Princess Peach: Showtime!（4.26、2024 年）、Pikmin 4（4.26、2023 年）、Square Enix の Dragon Quest VII Reimagined
+（4.27、2026 年）、そして発売予定の Final Fantasy VII: Revelation（4.27、2027 年）です。いずれも PhysX を使って
+出荷されています。
 
-These productions stay on UE4 to retain specific features and meet fidelity and performance targets. UE4
-also continues to receive updates from major studios through the 4.27 Plus branch, and remains a priority
-for Nintendo platforms.
+これらのタイトルは、特定の機能を維持し、品質とパフォーマンスの目標を満たすために UE4 にとどまっています。UE4 は
+4.27 Plus ブランチを通じて大手スタジオから更新を受け続けており、任天堂のプラットフォームでは今も優先されています。
 
-Vite's plan is to keep upgrading that codebase: optimise core systems, modernise the rendering core, improve
-the UI and update the toolchains, rather than treat 4.27 as a frozen artifact. See
-[Why NvRTX 4.27](Why-NvRTX-427.md) for the technical reasoning behind the base version choice.
+Vite の方針は、4.27 を凍結された遺物として扱うのではなく、このコードベースを改良し続けることです。コアシステムの
+最適化、レンダリングコアの近代化、UI の改善、ツールチェーンの更新を進めます。ベースバージョンを選んだ技術的な
+理由は [なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md) を参照してください。
 
-## See also
+## 関連項目
 
-- [Performance Targets](Performance-Targets.md)
-- [Why NvRTX 4.27](Why-NvRTX-427.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
-- [Getting Started](Getting-Started.md)
-- [License and Copyright](License-And-Copyright.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+- [はじめに](Getting-Started.md)
+- [ライセンスと著作権](License-And-Copyright.md)

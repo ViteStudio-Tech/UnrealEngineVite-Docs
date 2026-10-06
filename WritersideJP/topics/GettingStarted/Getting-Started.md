@@ -1,83 +1,82 @@
-# Getting Started
+# はじめに
 
 <tldr>
 <p>
-Fastest path: download an installed binary build, run <code>RegistryAdd.bat</code>, and open the editor.
-Building from source takes roughly 15&ndash;30 minutes of compile time on a modern desktop CPU and
-requires a pinned toolchain.
+最短の方法は、インストール済みバイナリビルドをダウンロードし、<code>RegistryAdd.bat</code> を実行して
+エディタを開くことです。ソースからのビルドは、最新のデスクトップ CPU でおよそ 15〜30 分のコンパイル時間がかかり、
+バージョンを固定したツールチェーンが必要です。
 </p>
 </tldr>
 
-This section takes you from nothing installed to a running editor and a first project on Unreal Engine
-Vite. Read [Introduction to Vite](Introduction-to-Vite.md) first if you have not yet decided whether the
-fork is right for your project. Source builds use the same Unreal Engine licence as stock 4.27; see
-[License and Copyright](License-And-Copyright.md).
+このセクションでは、何もインストールされていない状態から、Unreal Engine Vite のエディタを起動して最初の
+プロジェクトを作るまでを案内します。このフォークが自分のプロジェクトに合うかまだ判断していない場合は、先に
+[Vite の概要](Introduction-to-Vite.md) を読んでください。ソースビルドには標準の 4.27 と同じ Unreal Engine
+ライセンスが適用されます。[ライセンスと著作権](License-And-Copyright.md) を参照してください。
 
-## Choose how you install
+## インストール方法を選ぶ
 
-Vite ships in two forms. They are functionally the same editor; the difference is whether you compile
-the engine yourself.
+Vite は 2 つの形態で提供されます。機能的には同じエディタであり、違いはエンジンを自分でコンパイルするかどうか
+だけです。
 
-| | Installed binary build | Source build |
+| | インストール済みバイナリビルド | ソースビルド |
 |---|---|---|
-| Setup time | Minutes | 15&ndash;30 min compile, plus dependency download |
-| Disk footprint | Smaller, no intermediates | Large, includes full source and intermediates |
-| Can modify engine code | No | Yes |
-| Can debug into engine code | Only with symbols shipped | Yes |
-| Recommended for | Artists, designers, evaluation | Programmers, anyone contributing to the fork |
+| セットアップ時間 | 数分 | 15〜30 分のコンパイルと依存関係のダウンロード |
+| ディスク使用量 | 小さい（中間ファイルなし） | 大きい（全ソースと中間ファイルを含む） |
+| エンジンコードの変更 | 不可 | 可能 |
+| エンジンコードのデバッグ | 同梱のシンボルがある場合のみ | 可能 |
+| 推奨対象 | アーティスト、デザイナー、評価目的 | プログラマー、フォークへの貢献者 |
 
-Most teams run a mixed setup: engineers on source builds, everyone else on an installed build produced
-from the same commit. See [Installed Builds](Installed-Builds.md) for how to produce one.
+多くのチームは混在構成を採用しています。エンジニアはソースビルドを使い、それ以外のメンバーは同じコミットから
+作成したインストール済みビルドを使います。作成方法は [インストール済みビルド](Installed-Builds.md) を参照してください。
 
-## Steps in order
+## 手順
 
-1. Check [System Requirements](System-Requirements.md) so you know what hardware and disk space you need.
-2. Install the [Toolchain Requirements](Toolchain-Requirements.md). This step is mandatory and unforgiving
-   &mdash; the wrong MSVC or Windows SDK version produces confusing compile errors rather than a clear
-   message.
-3. Either [Install a Binary Build](Install-Binary-Build.md) or [Build from Source](Build-From-Source.md).
-4. Create your [First Project](First-Project.md).
-5. If you are bringing existing content across, read [Migrating from Unreal Engine 5](Migrating-From-UE5.md).
+1. [動作環境](System-Requirements.md) を確認し、必要なハードウェアとディスク容量を把握します。
+2. [ツールチェーン要件](Toolchain-Requirements.md) に従ってインストールします。この手順は必須で、融通が利きません。
+   MSVC や Windows SDK のバージョンが違うと、明確なメッセージではなく分かりにくいコンパイルエラーが発生します。
+3. [バイナリビルドをインストール](Install-Binary-Build.md) するか、[ソースからビルド](Build-From-Source.md) します。
+4. [最初のプロジェクト](First-Project.md) を作成します。
+5. 既存のコンテンツを持ち込む場合は、[UE5 からの移行](Migrating-From-UE5.md) を読みます。
 
-If anything fails along the way, [Build Troubleshooting](Build-Troubleshooting.md) covers the errors that
-come up most often, including the `C4668: '__has_feature' is not defined` error that signals a toolchain
-mismatch.
+途中で失敗した場合は、[ビルドのトラブルシューティング](Build-Troubleshooting.md) によくあるエラーをまとめています。
+ツールチェーンの不一致を示す `C4668: '__has_feature' is not defined` エラーもここで扱っています。
 
-## What is different from stock Unreal Engine 4.27
+## 標準の Unreal Engine 4.27 との違い
 
-If you have built Unreal Engine from source before, three things will surprise you.
+以前に Unreal Engine をソースからビルドしたことがあれば、驚く点が 3 つあります。
 
-**GitDeps is already patched.** Stock 4.27 fails to download dependencies because the CDN endpoints have
-moved. Vite ships the fix, so `Setup.bat` works with no manual edits. When `Setup.bat` asks whether to
-overwrite local changes, answer `N`.
+**GitDeps は修正済みです。** 標準の 4.27 は CDN のエンドポイントが移転したため、依存関係のダウンロードに失敗します。
+Vite には修正が含まれているので、`Setup.bat` は手作業での編集なしに動作します。`Setup.bat` がローカルの変更を
+上書きするか尋ねてきたら、`N` と答えてください。
 
-**Ray tracing is on by default.** New projects enable ray-traced shadows, reflections, translucency and
-ambient occlusion out of the box. This is deliberate, so that the features are discoverable, but it means
-a new empty project is heavier than a stock 4.27 one. See [Ray Tracing](Ray-Tracing.md) for how to turn
-individual effects off.
+**レイトレーシング GI は有効、個別の RT エフェクトはオプトインです。** レイトレーシングのサポートと動的 DDGI は
+既定で有効なので、新規プロジェクトはすぐにレイトレーシングによるグローバルイルミネーションを使えます。
+レイトレーシングの反射、シャドウ、アンビエントオクルージョン、半透明は無効の状態で始まり、プロジェクトごとに
+有効にします。半透明、コースティクス、RTXDI、パストレーシングは、エンジンを `VITE_RT_PSO_DEBLOAT=0` で
+再ビルドしない限りコンパイル対象からも除外されています。[レイトレーシング](Ray-Tracing.md) を参照してください。
 
-**Several engine defaults are changed for performance.** Overlap events, skeletal mesh settings, lightmap
-UV generation and a number of plugins differ from stock. These changes affect gameplay behaviour, not just
-frame time, so read [Engine Default Changes](Engine-Defaults.md) before you ship.
+**パフォーマンスのためにいくつかのエンジン既定値が変更されています。** オーバーラップイベント、スケルタルメッシュの
+設定、ライトマップ UV の生成、一部のプラグインが標準と異なります。これらの変更はフレームタイムだけでなく
+ゲームプレイの挙動にも影響するため、出荷前に [エンジン既定値の変更](Engine-Defaults.md) を読んでください。
 
-## Unreal Engine fundamentals
+## Unreal Engine の基礎
 
-This manual documents the fork, not the engine underneath it. Everything Vite does not change works the way
-Unreal Engine 4.27 works, and Epic's own 4.27 documentation is the correct reference for it:
+このマニュアルが扱うのはフォークであり、その下にあるエンジン全般ではありません。Vite が変更していない部分は
+すべて Unreal Engine 4.27 と同じように動作し、Epic による 4.27 のドキュメントが正しい参照先になります。
 
-| Topic | Epic's 4.27 documentation |
+| トピック | Epic の 4.27 ドキュメント |
 |---|---|
-| Projects, templates and directory structure | [Working with Unreal Projects and Templates](https://dev.epicgames.com/documentation/unreal-engine/working-with-unreal-projects-and-templates?application_version=4.27) |
-| Setting up Visual Studio for source builds | [Setting Up Visual Studio](https://dev.epicgames.com/documentation/en-us/unreal-engine/setting-up-visual-studio-development-environment-for-cplusplus-projects-in-unreal-engine?application_version=4.27) |
-| Blueprints and the gameplay framework | [Unreal Engine 4.27 documentation](https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-4-27-documentation) |
+| プロジェクト、テンプレート、ディレクトリ構成 | [Working with Unreal Projects and Templates](https://dev.epicgames.com/documentation/unreal-engine/working-with-unreal-projects-and-templates?application_version=4.27) |
+| ソースビルド用の Visual Studio のセットアップ | [Setting Up Visual Studio](https://dev.epicgames.com/documentation/en-us/unreal-engine/setting-up-visual-studio-development-environment-for-cplusplus-projects-in-unreal-engine?application_version=4.27) |
+| ブループリントとゲームプレイフレームワーク | [Unreal Engine 4.27 documentation](https://dev.epicgames.com/documentation/en-us/unreal-engine/unreal-engine-4-27-documentation) |
 
-Keep the version selector on 4.27. UE5 documentation describes systems Vite deliberately does not have,
-and following it is a common source of confusion for people arriving from UE5.
+バージョンセレクターは 4.27 のままにしておいてください。UE5 のドキュメントは Vite が意図的に持たないシステムを
+説明しており、それに従うことは UE5 から移ってきた人が混乱する典型的な原因です。
 
-## See also
+## 関連項目
 
-- [Introduction to Vite](Introduction-to-Vite.md)
-- [Toolchain Requirements](Toolchain-Requirements.md)
-- [ViteSetup Assistant](ViteSetup.md)
-- [Engine Default Changes](Engine-Defaults.md)
-- [License and Copyright](License-And-Copyright.md)
+- [Vite の概要](Introduction-to-Vite.md)
+- [ツールチェーン要件](Toolchain-Requirements.md)
+- [ViteSetup アシスタント](ViteSetup.md)
+- [エンジン既定値の変更](Engine-Defaults.md)
+- [ライセンスと著作権](License-And-Copyright.md)
