@@ -1,261 +1,282 @@
-# Glossary
+# 用語集
 
 <tldr>
 <p>
-Terminology used throughout this documentation. Vite-specific terms are marked; the rest are standard
-Unreal or graphics vocabulary that these docs assume.
+このドキュメント全体で使う用語です。Vite 固有の用語はその旨を示しています。それ以外は、このドキュメントが前提とする
+標準的な Unreal やグラフィックスの用語です。
 </p>
 </tldr>
 
-## Vite and fork terminology
+## Vite とフォークの用語
 
 <deflist>
 <def title="Vite">
-This engine: a fork of Unreal Engine 4.27 based on NVIDIA's NvRTX branches, focused on performance and
-rendering technology that 4.27 does not ship with upstream. Engine association identifier
-<code>UE_ViteFork</code>. Licensed as Unreal Engine 4.27; Vite-original work is copyright Vite
-Studio. See <a href="License-And-Copyright.md">License and Copyright</a>.
+このエンジン。NVIDIA の NvRTX のブランチをベースにした Unreal Engine 4.27 のフォークで、性能と、上流の 4.27 には含まれない
+レンダリング技術に重点を置いています。エンジン関連付けの識別子は <code>UE_ViteFork</code>。Unreal Engine 4.27 として
+ライセンスされ、Vite 独自の作業の著作権は Vite Studio にあります。<a href="License-And-Copyright.md">ライセンスと著作権</a>
+を参照してください。
 </def>
 <def title="NvRTX">
-NVIDIA's public Unreal Engine branches carrying their ray tracing technology ahead of upstream. Vite draws
-from <b>NvRTX 4.27 Caustics</b> and <b>NvRTX 5.0</b>.
+上流に先行して NVIDIA のレイトレーシング技術を取り込んだ、NVIDIA の公開 Unreal Engine のブランチ。Vite は
+<b>NvRTX 4.27 Caustics</b> と <b>NvRTX 5.0</b> から取り入れています。
 </def>
-<def title="VITE_* switch">
-A compile-time preprocessor switch controlling whether a feature is built into the engine at all. Defined
-in <code>Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h</code>. Changing one requires an engine
-rebuild. See <a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+<def title="VITE_* スイッチ">
+機能をそもそもエンジンにビルドするかどうかを制御する、コンパイル時のプリプロセッサのスイッチ。
+<code>Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h</code> で定義されています。変更にはエンジンの再ビルドが必要です。
+<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
 </def>
-<def title="Compiled out">
-A feature whose shader permutations and code paths are excluded from the build by a compile-time switch.
-Its console variables still exist and set successfully; nothing renders. The most common cause of
-"this setting does nothing" in Vite.
+<def title="コンパイル対象外">
+コンパイル時のスイッチによって、シェーダーのパーミュテーションとコードパスがビルドから除外された機能。そのコンソール
+変数は存在し、設定にも成功しますが、何も描画されません。Vite で「この設定が何もしない」の最もよくある原因です。
 </def>
-<def title="Debloat">
-The process of removing unused platform binaries, templates, samples and plugins from the engine tree to
-reduce disk footprint. See <a href="Debloat-Guide.md">Debloat Guide</a>.
+<def title="デブロート">
+ディスク容量を減らすために、使わないプラットフォームのバイナリ、テンプレート、サンプル、プラグインをエンジンのツリーから
+取り除く作業。<a href="Debloat-Guide.md">デブロートガイド</a> を参照してください。
 </def>
-<def title="Installed build">
-A precompiled, redistributable engine that works like a launcher install. Cannot compile engine C++. See
-<a href="Installed-Builds.md">Installed Builds</a>.
+<def title="インストール済みビルド">
+ランチャーでインストールしたものと同じように動作する、ビルド済みで再配布可能なエンジン。エンジンの C++ はコンパイル
+できません。<a href="Installed-Builds.md">インストール済みビルド</a> を参照してください。
 </def>
 </deflist>
 
-## Rendering
+## レンダリング
 
 <deflist>
 <def title="DDGI">
-Dynamic Diffuse Global Illumination. NVIDIA's probe-based GI technique, provided by the RTXGI plugin.
-Probes store irradiance and depth; surfaces sample the surrounding probes for indirect light. Vite's
-recommended dynamic GI. See <a href="DDGI-Dynamic.md">Dynamic DDGI</a>.
+Dynamic Diffuse Global Illumination。RTXGI のプラグインが提供する、NVIDIA のプローブベースの GI の手法。プローブが放射照度と
+深度を保持し、サーフェスは周囲のプローブから間接光をサンプリングします。Vite が推奨する動的 GI です。
+<a href="DDGI-Dynamic.md">動的 DDGI</a> を参照してください。
 </def>
 <def title="SSGI">
-Screen Space Global Illumination. Derives indirect light from the rendered frame. Cheap and detailed but
-limited to what is on screen. Usually layered under DDGI rather than used alone. See
-<a href="SSGI.md">SSGI</a>.
+Screen Space Global Illumination。描画されたフレームから間接光を導きます。安価で細かいものの、画面に映っているものに
+限られます。単独で使うより、DDGI の下に重ねるのが普通です。<a href="SSGI.md">SSGI</a> を参照してください。
 </def>
 <def title="RTXDI">
-RTX Direct Illumination. Ray-traced direct lighting for scenes with very many lights, using reservoir
-resampling. Vite has the standalone version, not the Lumen-integrated one from UE 5.1+. Compiled out by
-default. See <a href="RTXDI.md">RTXDI</a>.
+RTX Direct Illumination。リザーバーの再サンプリングを使った、非常に多くのライトを持つシーン向けのレイトレーシングの
+直接光。Vite にあるのは単体の版で、UE 5.1 以降の Lumen に統合された版ではありません。既定ではコンパイル対象外です。
+<a href="RTXDI.md">RTXDI</a> を参照してください。
 </def>
-<def title="ReSTIR / reservoir resampling">
-The sampling technique behind RTXDI. Each pixel maintains a reservoir of light samples that is refined
-spatially and temporally, so a small number of rays approximates a much larger light set.
+<def title="ReSTIR / リザーバーの再サンプリング">
+RTXDI を支えるサンプリングの手法。各ピクセルがライトのサンプルのリザーバーを持ち、それを空間と時間の方向に洗練していく
+ことで、少ない数のレイで、はるかに大きなライトの集合を近似します。
 </def>
-<def title="Path tracing">
-Full light transport simulation. Reference quality, not a runtime target. Compiled out by default. See
-<a href="Path-Tracing.md">Path Tracing</a>.
+<def title="パストレーシング">
+光の伝搬の完全なシミュレーション。リファレンスの品質であり、実行時の目標ではありません。既定ではコンパイル対象外です。
+<a href="Path-Tracing.md">パストレーシング</a> を参照してください。
 </def>
 <def title="DXR">
-DirectX Raytracing. The API behind every ray-traced feature in Vite, and the reason they all require
-DirectX 12.
+DirectX Raytracing。Vite のレイトレーシングのすべての機能を支える API であり、それらがすべて DirectX 12 を必要とする理由
+です。
 </def>
 <def title="PSO">
-Pipeline State Object. A compiled bundle of shader and fixed-function state. Ray tracing PSOs are large
-and slow to build, which is what <code>VITE_RT_PSO_DEBLOAT</code> exists to reduce. See
-<a href="Shader-Compilation-And-PSO.md">Shader Compilation and PSO</a>.
+Pipeline State Object。シェーダーと固定機能のステートをコンパイルしてまとめたもの。レイトレーシングの PSO は大きく、
+構築に時間がかかります。それを減らすために存在するのが <code>VITE_RT_PSO_DEBLOAT</code> です。
+<a href="Shader-Compilation-And-PSO.md">シェーダーコンパイルと PSO</a> を参照してください。
 </def>
-<def title="Shader permutation">
-One compiled variant of a shader for a specific combination of features. Permutation count multiplies:
-each shading model, each optional feature and each quality level widens the set. The dominant factor in
-shader compile time and package size.
+<def title="シェーダーのパーミュテーション">
+特定の機能の組み合わせに対してコンパイルされた、シェーダーの 1 つの派生。パーミュテーションの数は掛け算で増え、
+シェーディングモデル、任意の機能、品質レベルのそれぞれが集合を広げます。シェーダーのコンパイル時間とパッケージのサイズを
+左右する最大の要因です。
 </def>
-<def title="Caustics">
-Light focused by refraction or reflection through transparent or specular surfaces. Vite has both mesh
-caustics and water caustics from the NvRTX Caustics branch. Compiled out by default. See
-<a href="RT-Translucency-And-Caustics.md">RT Translucency and Caustics</a>.
+<def title="コースティクス">
+透明なサーフェスやスペキュラーのサーフェスでの屈折や反射によって集められた光。Vite には NvRTX Caustics のブランチから
+来たメッシュのコースティクスと水のコースティクスの両方があります。既定ではコンパイル対象外です。
+<a href="RT-Translucency-And-Caustics.md">レイトレーシング半透明とコースティクス</a> を参照してください。
 </def>
 <def title="Callisto BRDF">
-A Vite-specific shading model for characters and skin, exposing retroreflection, diffuse Fresnel and
-terminator smoothing by repurposing standard material pins. See
-<a href="Shading-Models.md">Shading Models</a>.
+キャラクターと肌のための Vite 固有のシェーディングモデル。標準のマテリアルのピンを流用して、再帰反射、ディフューズの
+フレネル、ターミネーターの平滑化を公開します。<a href="Shading-Models.md">シェーディングモデル</a> を参照してください。
 </def>
-<def title="Shadow terminator">
-The boundary between lit and unlit regions on a curved surface. Its hardness is one of the most visible
-tells of real-time rendering; Callisto BRDF exposes direct control over it.
+<def title="シャドウターミネーター">
+曲面上で光が当たっている領域と当たっていない領域の境界。その硬さは、リアルタイムレンダリングであることが最もよく分かる
+特徴の 1 つで、Callisto BRDF はそれを直接制御できます。
 </def>
 <def title="SMAA">
-Subpixel Morphological Anti-Aliasing. Vite's recommended anti-aliasing method. Spatial rather than
-temporal, so it does not introduce the ghosting and smearing TAA does. See
-<a href="Anti-Aliasing.md">Anti-Aliasing</a>.
+Subpixel Morphological Anti-Aliasing。Vite が推奨するアンチエイリアシングの手法。時間的ではなく空間的な手法なので、
+TAA のようなゴーストやにじみを生みません。<a href="Anti-Aliasing.md">アンチエイリアシング</a> を参照してください。
 </def>
 <def title="TAA">
-Temporal Anti-Aliasing. Unreal's default. Accumulates samples across frames; effective but introduces
-ghosting, smearing and softness on motion.
+Temporal Anti-Aliasing。Unreal の既定。フレームをまたいでサンプルを蓄積します。効果的ですが、動きの中でゴースト、にじみ、
+ぼやけが生じます。
 </def>
 <def title="HBAO+">
-NVIDIA's Horizon-Based Ambient Occlusion. Higher quality than standard SSAO, multiplying over the
-screen-space AO buffer. Works on DX11 and D3D12 despite help text to the contrary. See
-<a href="Ambient-Occlusion.md">Ambient Occlusion</a>.
+NVIDIA の Horizon-Based Ambient Occlusion。標準の SSAO より高品質で、スクリーンスペースの AO のバッファに乗算します。
+ヘルプの記述に反して、DX11 と D3D12 の両方で動作します。<a href="Ambient-Occlusion.md">アンビエントオクルージョン</a>
+を参照してください。
 </def>
-<def title="Tessellation">
-Hardware subdivision of triangles on the GPU, driving displacement. Removed in UE5 in favour of Nanite;
-retained in Vite. See <a href="Tessellation.md">Tessellation</a>.
+<def title="テッセレーション">
+GPU 上でのハードウェアによる三角形の分割で、ディスプレイスメントを駆動します。UE5 では Nanite のために取り除かれ、
+Vite では残っています。<a href="Tessellation.md">テッセレーション</a> を参照してください。
 </def>
 <def title="TressFX">
-AMD's strand-based hair rendering and simulation system. Version 5.0 is bundled. An alternative to
-Unreal's Groom system. See <a href="Hair-Rendering.md">Hair Rendering</a>.
+AMD のストランドベースのヘアの描画とシミュレーションのシステム。バージョン 5.0 を同梱しています。Unreal の Groom の
+代わりになるものです。<a href="Hair-Rendering.md">ヘアレンダリング</a> を参照してください。
 </def>
 <def title="NRD / ReLAX">
-NVIDIA Real-Time Denoiser. Cleans up the noise inherent in low-sample-count ray tracing. Enabled by
-default.
+NVIDIA Real-Time Denoiser。サンプル数の少ないレイトレーシングに付きもののノイズを取り除きます。プラグインは既定でオフ
+なので、それを使うレイトレーシングのエフェクトとともに有効にしてください。
 </def>
 </deflist>
 
-## Upscaling
+## アップスケーリング
 
 <deflist>
 <def title="DLSS">
-NVIDIA Deep Learning Super Sampling. Renders at lower resolution and reconstructs, using an AI model.
-NVIDIA hardware only. Vite bundles 4.5. See <a href="Upscalers.md">Upscalers</a>.
+NVIDIA Deep Learning Super Sampling。低い解像度で描画し、AI のモデルで再構築します。NVIDIA のハードウェア専用です。Vite は
+4.5 を同梱しています。<a href="Upscalers.md">アップスケーラー</a> を参照してください。
 </def>
 <def title="DLAA">
-Deep Learning Anti-Aliasing. DLSS's reconstruction applied at native resolution &mdash; quality rather than
-performance.
+Deep Learning Anti-Aliasing。DLSS の再構築をネイティブ解像度で適用するもので、性能ではなく品質のためのものです。
 </def>
 <def title="Ray Reconstruction">
-DLSS component that replaces hand-tuned ray tracing denoisers with a learned one.
+手作業で調整したレイトレーシングのデノイザーを、学習によるものに置き換える DLSS の機能。
 </def>
 <def title="FSR">
-AMD FidelityFX Super Resolution. Cross-vendor upscaling. Vite bundles FSR 4.1.1, which is DX12-only.
+AMD FidelityFX Super Resolution。ベンダーを問わないアップスケーリング。Vite は DX12 専用の FSR 4.1.1 を同梱しています。
 </def>
 <def title="XeSS">
-Intel Xe Super Sampling. Cross-vendor, with a faster path on Intel Arc hardware. Vite bundles 3.0.5.
+Intel Xe Super Sampling。ベンダーを問わず、Intel Arc のハードウェアではより高速な経路があります。Vite は XeFG の
+フレーム生成を含む 3.1.0 を同梱しています。
 </def>
 <def title="NIS">
-NVIDIA Image Scaling. Spatial upscaling with no temporal component. The cheapest and lowest-quality
-option, but it works everywhere.
+NVIDIA Image Scaling。時間方向の処理を持たない空間的なアップスケーリング。最も安価で品質も最も低い選択肢ですが、どこでも
+動作します。
 </def>
 <def title="Streamline">
-NVIDIA's plugin layer providing DLSS Frame Generation and Reflex.
+DLSS Frame Generation と RTX Dynamic Vibrance のための NVIDIA の SDK の層。Vite のプラグインは Streamline SDK 2.12 の上に
+構築されています。Reflex は独立したプラグインとして同梱されています。
 </def>
-<def title="Frame generation">
-Synthesising intermediate frames between rendered ones. Increases displayed frame rate without reducing
-input latency, and slightly increases it.
+<def title="フレーム生成">
+描画したフレームの間に中間のフレームを合成すること。表示されるフレームレートは上がりますが、入力の遅延は減らず、
+わずかに増えます。
 </def>
 <def title="Reflex">
-NVIDIA's input latency reduction technology, which matters more once frame generation is in play.
+NVIDIA の入力遅延を減らす技術。フレーム生成を使うようになると、より重要になります。
 </def>
 </deflist>
 
-## Physics
+## 物理
 
 <deflist>
 <def title="PhysX">
-NVIDIA's physics engine, Unreal's default through 4.27. Retained by Vite rather than migrating to Chaos.
-See <a href="PhysX.md">PhysX</a>.
+NVIDIA の物理エンジンで、4.27 までの Unreal の既定。Vite は Chaos に移行せずにこれを維持しています。
+<a href="PhysX.md">PhysX</a> を参照してください。
 </def>
 <def title="Chaos">
-Epic's physics engine, which replaced PhysX in UE5. Vite does not use it.
+UE5 で PhysX を置き換えた Epic の物理エンジン。Vite は使いません。
 </def>
 <def title="Apex Destruction">
-PhysX's destructible mesh system. Removed in UE5; retained in Vite. See
-<a href="Destruction-And-Cloth.md">Destruction and Cloth</a>.
+PhysX の破壊可能なメッシュのシステム。UE5 では取り除かれ、Vite では残っています。
+<a href="Destruction-And-Cloth.md">破壊とクロス</a> を参照してください。
 </def>
 <def title="Apex Cloth">
-PhysX's cloth simulation. Removed in UE5; retained in Vite.
+PhysX のクロスシミュレーション。UE5 では取り除かれ、Vite では残っています。
 </def>
 <def title="Blast">
-NVIDIA's newer destruction library, more flexible than Apex Destruction. Bundled with separate runtime and
-authoring plugins.
+Apex Destruction より柔軟な、NVIDIA の新しい破壊のライブラリ。ランタイムと作成用の別々のプラグインで同梱されています。
 </def>
-<def title="Fixed timestep">
-Advancing physics by a constant delta regardless of frame time, giving frame-rate-independent determinism.
-Optional in Vite behind <code>VITE_PHYSX_FIXED_TIMESTEP</code>. See
-<a href="Fixed-Timestep.md">Fixed Timestep</a>.
+<def title="固定タイムステップ">
+フレームの時間に関係なく一定の差分で物理を進め、フレームレートに依存しない決定性を得ること。Vite では
+<code>VITE_PHYSX_FIXED_TIMESTEP</code> の背後にある任意の機能です。<a href="Fixed-Timestep.md">固定タイムステップ</a>
+を参照してください。
 </def>
-<def title="Substepping">
-Subdividing a frame's physics update into smaller steps for stability. Distinct from fixed timestep, which
-also fixes the step size across frames.
+<def title="サブステップ">
+安定性のために、1 フレームの物理の更新をより小さなステップに分割すること。ステップの大きさをフレームをまたいで固定する
+固定タイムステップとは異なります。
 </def>
 <def title="CCD">
-Continuous Collision Detection. Sweeps a body's motion between frames rather than testing only its
-endpoints, preventing fast objects from tunnelling through thin geometry. More expensive than discrete
-detection.
+Continuous Collision Detection。端点だけを調べるのではなく、フレーム間のボディの動きをスイープし、速いオブジェクトが
+薄いジオメトリをすり抜けるのを防ぎます。離散的な検出より高価です。
 </def>
 <def title="CMC">
-Character Movement Component. Unreal's standard character locomotion component, and one of the most
-expensive per-instance costs in a crowd scene. See
-<a href="400-Characters-CMC-Bench.md">400 Characters CMC Bench</a>.
+Character Movement Component。Unreal の標準的なキャラクターの移動コンポーネントで、群衆のシーンでインスタンスあたりの
+コストが最も高いものの 1 つです。<a href="400-Characters-CMC-Bench.md">400 キャラクター CMC ベンチマーク</a> を参照して
+ください。
 </def>
 </deflist>
 
-## Engine and build
+## エンジンとビルド
 
 <deflist>
 <def title="Compiler Explorer / Godbolt">
-An online C++ compiler that shows the assembly MSVC, Clang and GCC emit.
-<a href="https://gcc.godbolt.org/">gcc.godbolt.org</a>. It does not measure runtime. See
-<a href="Compiler-Explorer.md">Compiler Explorer</a>.
+MSVC、Clang、GCC が出力するアセンブリを表示するオンラインの C++ コンパイラ。
+<a href="https://gcc.godbolt.org/">gcc.godbolt.org</a>。実行時間は計測しません。
+<a href="Compiler-Explorer.md">Compiler Explorer</a> を参照してください。
 </def>
 <def title="Quick Bench">
-An online Google Benchmark runner for GCC and Clang on Linux.
-<a href="https://quick-bench.com/">quick-bench.com</a>. No MSVC. See
-<a href="Compiler-Explorer.md">Compiler Explorer</a>.
+Linux 上の GCC と Clang のための、オンラインの Google Benchmark の実行環境。
+<a href="https://quick-bench.com/">quick-bench.com</a>。MSVC はありません。<a href="Compiler-Explorer.md">Compiler Explorer</a>
+を参照してください。
 </def>
 <def title="DDC">
-Derived Data Cache. Where compiled shaders, cooked textures and other derived artefacts are stored. See
-<a href="Cache-Management.md">Cache Management</a>.
+Derived Data Cache。コンパイル済みのシェーダー、クックしたテクスチャなどの派生データが保存される場所。
+<a href="Cache-Management.md">キャッシュ管理</a> を参照してください。
 </def>
 <def title="UAT / UBT">
-Unreal Automation Tool and Unreal Build Tool. UAT drives high-level operations such as installed builds
-and packaging; UBT compiles.
+Unreal Automation Tool と Unreal Build Tool。UAT はインストール済みビルドやパッケージ化などの高レベルの操作を、UBT は
+コンパイルを担います。
 </def>
 <def title="BuildGraph">
-UAT's XML-driven build orchestration system, used to produce installed builds.
+インストール済みビルドの作成に使われる、UAT の XML で記述するビルドの統括システム。
 </def>
 <def title="ISM / HISM">
-Instanced Static Mesh and Hierarchical Instanced Static Mesh components. Render many copies of one mesh in
-a small number of draw calls. The rendering side of the
-<a href="Instanced-Physics.md">PhysX Instanced Subsystem</a>.
+Instanced Static Mesh と Hierarchical Instanced Static Mesh のコンポーネント。1 つのメッシュの多数のコピーを、少数の
+ドローコールで描画します。<a href="Instanced-Physics.md">PhysX Instanced Subsystem</a> の描画側を担います。
 </def>
 <def title="ABI">
-Application Binary Interface. In Vite's context, the binary layout of structures shared between CPU and
-GPU. Changing one breaks PSO caching, serialization and ray tracing stability, and is grounds for
-immediate rejection of a contribution. See <a href="Coding-Guidelines.md">Coding Guidelines</a>.
+Application Binary Interface。Vite の文脈では、CPU と GPU で共有する構造体のバイナリのレイアウト。変更すると PSO の
+キャッシュ、シリアライズ、レイトレーシングの安定性が壊れ、コントリビュートは即座に却下されます。
+<a href="Coding-Guidelines.md">コーディングガイドライン</a> を参照してください。
 </def>
 <def title="ACL">
-Animation Compression Library. Replaces Unreal's built-in animation compression with a substantially
-better size-to-quality curve.
+Animation Compression Library。Unreal に組み込みのアニメーション圧縮を、サイズと品質の関係がはるかに優れたものに
+置き換えます。
 </def>
-<def title="Motion matching">
-Selecting animation frames at runtime by matching current pose and trajectory against a database, rather
-than following a state machine. Provided by the Motion Symphony plugin.
+<def title="モーションマッチング">
+ステートマシンに従うのではなく、現在のポーズと軌跡をデータベースと照合して、実行時にアニメーションのフレームを選ぶこと。
+Motion Symphony のプラグインが提供します。
 </def>
 <def title="FPU">
-Floating-point unit. PS5 Zen 2 deletes <code>FP3</code>, uses <code>FP2</code> as store-only, and keeps
-one 256-bit FMA pipe. AVX2 and FMA latency remain. Series X Zen 2 does not take that cut. See
-<a href="PS5-CPU-FPU.md">PS5 CPU FPU</a>.
+浮動小数点演算ユニット。PS5 の Zen 2 は <code>FP3</code> を削除し、<code>FP2</code> をストア専用にし、256 ビットの FMA
+パイプを 1 本残しています。AVX2 と FMA のレイテンシーはそのままです。Series X の Zen 2 にはこの削減はありません。
+<a href="PS5-CPU-FPU.md">PS5 CPU の FPU</a> を参照してください。
 </def>
 <def title="4700S">
-AMD desktop kit with eight further-cut Zen 2 cores (FPU reduced versus Series X) and the iGPU fused off.
-Windows proxy for PS5 CPU FPU work, including the PhysX 3.4 rewrite. Not a GPU test box. See
-<a href="PS5-CPU-FPU.md">PS5 CPU FPU</a>.
+さらに削減された Zen 2 のコア（Series X に比べて FPU を縮小）を 8 基持ち、内蔵 GPU が無効化された AMD のデスクトップ
+キット。PhysX 3.4 の書き直しを含む、PS5 の CPU の FPU に関する作業の Windows 上での代替です。GPU のテスト機ではありません。
+<a href="PS5-CPU-FPU.md">PS5 CPU の FPU</a> を参照してください。
 </def>
 </deflist>
 
-## See also
+## Vite Technology
 
-- [Console Variables](Console-Variables.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [FAQ](FAQ.md)
+Vite の次世代のシステムに使う製品名です。いずれも、すでにエンジンに含まれているものの上に築かれています。状況と詳細は
+[Vite Technology](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/) のサイトにあります。
+
+<deflist>
+<def title="Vite ReSTIR">
+リアルタイムのグローバルイルミネーションのための、リザーバーによる時空間の再サンプリング。同じパイプライン上に
+リアルタイムのパストレーサーを備えます。動的 DDGI、RTXDI、ReSTIR のファイナルギャザーを伴うピクセルごとの
+レイトレーシング GI の上に築かれています。開発中です。
+</def>
+<def title="ViteX Physics">
+Unreal Engine 4 と互換の物理 SDK。ゲーム向けに調整した PhysX 4 と 5 のソルバーの進歩と、Flex と Flow による GPU の高速化を
+組み合わせます。Vite の PhysX 3.4、APEX、Blast、固定タイムステップ、インスタンス化ボディの上に築かれています。開発中です。
+</def>
+<def title="Vite BRDF">
+Callisto に基づく、キャラクター向けの品質の BRDF。現在は実験的な Callisto BRDF のシェーディングモデルとして利用できます。
+</def>
+<def title="Vite Vertis">
+標準のメッシュのパイプライン上での連続的な LOD。ゲームが出荷されるハードウェアで、Nanite 級のジオメトリの密度を目指して
+います。開発中です。
+</def>
+<def title="Vite Hair FX">
+TressFX 5.0 の上に築いたストランドのヘアで、新しいヘアの BRDF と、より低いフレームのコストを備えます。開発中です。
+</def>
+</deflist>
+
+## 関連項目
+
+- [コンソール変数](Console-Variables.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [よくある質問](FAQ.md)

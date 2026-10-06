@@ -1,52 +1,55 @@
-# License and Copyright
+# ライセンスと著作権
 
 <tldr>
 <p>
-Vite is a fork of Unreal Engine 4.27. The engine is used under Epic's
-<a href="https://www.unrealengine.com/eula/unreal">Unreal Engine End User License Agreement</a>.
-Work original to Vite is copyright Vite Studio.
+Vite は Unreal Engine 4.27 のフォークです。エンジンは Epic の
+<a href="https://www.unrealengine.com/eula/unreal">Unreal Engine エンドユーザーライセンス契約</a> に基づいて使用されます。
+Vite 独自の作業の著作権は Vite Studio にあります。
 </p>
 </tldr>
 
-Unreal Engine Vite is based on Unreal Engine 4.27. Using it is the same kind of arrangement as using
-any other Unreal Engine source build: you accept Epic's licence, you keep the existing notices, and
-the project you make with the engine is yours.
+<note>
+この日本語訳は参考のためのものです。法的な効力を持つのは、Epic の EULA の原文と、このページの英語版です。
+</note>
+
+Unreal Engine Vite は Unreal Engine 4.27 をベースにしています。使用の仕組みは、他の Unreal Engine のソースビルドを使う
+場合と同じです。Epic のライセンスに同意し、既存の表示を残し、エンジンで作ったプロジェクトはあなたのものになります。
 
 ## Unreal Engine
 
-The engine, including Vite's modifications to it, is **Licensed Technology** under Epic's
-[Unreal Engine EULA](https://www.unrealengine.com/eula/unreal). Source and editor tools are available
-to Unreal Engine licensees for this version (4.27).
+Vite による変更を含むエンジンは、Epic の [Unreal Engine EULA](https://www.unrealengine.com/eula/unreal) における
+**Licensed Technology** です。このバージョン（4.27）のソースとエディタのツールは、Unreal Engine のライセンシーが
+利用できます。
 
-A game or other project you create with Vite is a **Product**. You own that Product, other than the
-Licensed Technology inside it. Epic owns the Licensed Technology.
+Vite で作ったゲームやその他のプロジェクトは **Product** です。その Product は、中に含まれる Licensed Technology を除いて、
+あなたが所有します。Licensed Technology は Epic が所有します。
 
-Epic's usual terms for royalties, seat subscriptions and shipping still apply. Vite Studio does not
-replace them.
+ロイヤリティ、シートのサブスクリプション、出荷に関する Epic の通常の条件は引き続き適用されます。Vite Studio がそれらを
+置き換えることはありません。
 
-## Copyright
+## 著作権
 
-Stock Unreal Engine 4.27 remains copyright Epic Games, Inc. NVIDIA material from the NvRTX branches
-remains copyright NVIDIA. Third-party libraries keep the notices they already ship with.
+標準の Unreal Engine 4.27 の著作権は引き続き Epic Games, Inc. にあります。NvRTX のブランチ由来の NVIDIA の素材の著作権は
+引き続き NVIDIA にあります。サードパーティのライブラリには、すでに付属している表示がそのまま残ります。
 
-Vite-original work is copyright Vite Studio:
+Vite 独自の作業の著作権は Vite Studio にあります。
 
 ```
 Copyright 2026 Vite Studio. All rights reserved.
 ```
 
-In source, that appears as:
+ソースでは次のように表記します。
 
 ```c++
 // Copyright 2026 Vite Studio. All rights reserved.
 ```
 
-Epic's existing headers stay on engine files. Where Vite has added original work, the Vite Studio
-notice appears alongside them.
+エンジンのファイルには Epic の既存のヘッダーがそのまま残ります。Vite が独自の作業を加えた箇所では、Vite Studio の表示が
+それと並んで記載されます。
 
-## Attribution
+## クレジット表記
 
-If a shipped Product has credits, include Epic's standard Unreal Engine credit (with the current year):
+出荷する Product にクレジットがある場合は、Epic の標準の Unreal Engine のクレジット（現在の年を記載）を含めてください。
 
 ```
 [Product name] uses Unreal® Engine. Unreal® is a trademark or registered trademark of Epic Games, Inc. in the United States of America and elsewhere.
@@ -54,21 +57,21 @@ If a shipped Product has credits, include Epic's standard Unreal Engine credit (
 Unreal® Engine, Copyright 1998 – 2026, Epic Games, Inc. All rights reserved.
 ```
 
-## Trademarks
+## 商標
 
-Unreal® and Unreal Engine are trademarks of Epic Games, Inc. Vite and Unreal Engine Vite are used
-by Vite Studio for this fork.
+Unreal® と Unreal Engine は Epic Games, Inc. の商標です。Vite と Unreal Engine Vite は、このフォークのために Vite Studio が
+使用しています。
 
-## Third-party components
+## サードパーティのコンポーネント
 
-| Component | Terms |
+| コンポーネント | 条件 |
 |---|---|
-| NVIDIA NvRTX and related SDKs | NVIDIA's licences for those branches and SDKs |
-| PhysX, Apex Destruction, Apex Cloth | [GameWorks source SDK EULA](https://developer.nvidia.com/gameworks-source-sdk-eula) |
-| Other bundled libraries | `Engine/Source/ThirdParty/Licenses` and `Engine/Extras/ThirdPartyNotUE/` |
+| NVIDIA NvRTX と関連する SDK | それらのブランチと SDK に対する NVIDIA のライセンス |
+| PhysX、Apex Destruction、Apex Cloth | [GameWorks source SDK EULA](https://developer.nvidia.com/gameworks-source-sdk-eula) |
+| その他の同梱ライブラリ | `Engine/Source/ThirdParty/Licenses` と `Engine/Extras/ThirdPartyNotUE/` |
 
-## See also
+## 関連項目
 
-- [Getting Started](Getting-Started.md)
-- [FAQ](FAQ.md)
+- [はじめに](Getting-Started.md)
+- [よくある質問](FAQ.md)
 - [Unreal Engine EULA](https://www.unrealengine.com/eula/unreal)

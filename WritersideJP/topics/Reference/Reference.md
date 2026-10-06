@@ -1,47 +1,47 @@
-# Reference
+# リファレンス
 
 <tldr>
 <p>
-Lookup material: console variables, terminology and frequently asked questions. Use these when you know
-what you are looking for; use the feature sections when you do not.
+調べるための資料です。コンソール変数、用語、よくある質問をまとめています。探しているものが分かっている場合はここを、
+分からない場合は各機能のセクションを使ってください。
 </p>
 </tldr>
 
-## In this section
+## このセクションの内容
 
-| Topic | Covers |
+| トピック | 内容 |
 |---|---|
-| [License and Copyright](License-And-Copyright.md) | Unreal Engine EULA and Vite Studio copyright |
-| [Console Variables](Console-Variables.md) | Vite-specific and commonly needed console variables, grouped by subsystem |
-| [Compile-Time Switches](Compile-Time-Switches.md) | The `VITE_*` build switches and what they change |
-| [Glossary](Glossary.md) | Terminology used throughout these docs |
-| [FAQ](FAQ.md) | Questions that come up repeatedly |
+| [ライセンスと著作権](License-And-Copyright.md) | Unreal Engine の EULA と Vite Studio の著作権 |
+| [コンソール変数](Console-Variables.md) | Vite 固有のものと、よく必要になるコンソール変数。サブシステムごとに整理 |
+| [コンパイル時スイッチ](Compile-Time-Switches.md) | `VITE_*` のビルドスイッチと、それが変えるもの |
+| [用語集](Glossary.md) | このドキュメント全体で使う用語 |
+| [よくある質問](FAQ.md) | 繰り返し寄せられる質問 |
 
-## Quick answers
+## すぐに分かる答え
 
 <deflist>
-<def title="A console variable I set does nothing">
-Most likely the feature is compiled out. <code>VITE_RT_PSO_DEBLOAT</code> defaults to <code>1</code> and
-removes the shader permutations for RTXDI, path tracing, ray-traced translucency, caustics and per-pixel
-ray-traced GI. The variables still set; nothing renders. See
-<a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+<def title="設定したコンソール変数が何もしない">
+最も可能性が高いのは、機能がコンパイル対象から外れていることです。<code>VITE_RT_PSO_DEBLOAT</code> は既定で
+<code>1</code> で、RTXDI、パストレーシング、レイトレーシングの半透明、コースティクス、ピクセルごとのレイトレーシング GI の
+シェーダーのパーミュテーションを取り除きます。変数の設定はできますが、何も描画されません。
+<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
 </def>
-<def title="A feature is missing from the editor">
-Check whether its plugin is enabled. Most bundled plugins default to off &mdash; see
-<a href="Bundled-Plugins.md">Bundled Plugins</a>.
+<def title="エディタに機能が見当たらない">
+そのプラグインが有効になっているかを確認してください。同梱プラグインの多くは既定でオフです。
+<a href="Bundled-Plugins.md">同梱プラグイン</a> を参照してください。
 </def>
-<def title="The build fails on a fresh clone">
-Usually a toolchain mismatch or missing .NET Framework 4.5 reference assemblies. See
-<a href="Build-Troubleshooting.md">Build Troubleshooting</a>.
+<def title="クローンしたばかりでビルドが失敗する">
+通常はツールチェーンの不一致か、.NET Framework 4.5 のリファレンスアセンブリの欠落です。
+<a href="Build-Troubleshooting.md">ビルドのトラブルシューティング</a> を参照してください。
 </def>
-<def title="Shaders behave as though my change did not happen">
-Stale cache. See <a href="Cache-Management.md">Cache Management</a>.
+<def title="変更が反映されていないかのようにシェーダーが振る舞う">
+古いキャッシュです。<a href="Cache-Management.md">キャッシュ管理</a> を参照してください。
 </def>
 </deflist>
 
-## See also
+## 関連項目
 
-- [Getting Started](Getting-Started.md)
-- [Performance](Performance.md)
-- [Contributing](Contributing.md)
-- [License and Copyright](License-And-Copyright.md)
+- [はじめに](Getting-Started.md)
+- [パフォーマンスと最適化](Performance.md)
+- [コントリビュート](Contributing.md)
+- [ライセンスと著作権](License-And-Copyright.md)

@@ -20,8 +20,9 @@ The detailed argument, with numbers, is in [Why NvRTX 4.27](Why-NvRTX-427.md) an
 ### Is Vite a drop-in replacement for stock 4.27?
 
 Close, but not exactly. Vite changes a number of engine defaults for performance &mdash; overlap event
-handling, scalability settings, tick behaviour, ray tracing culling and others. A project moving from stock
-4.27 will mostly work, but should read [Engine Defaults](Engine-Defaults.md) to understand what changed.
+handling, skeletal mesh and actor defaults, shadow scalability, tick behaviour and others. A project moving
+from stock 4.27 will mostly work, but should read [Engine Default Changes](Engine-Defaults.md) to understand
+what changed. `ViteDefaults.bat` can switch the overlap and skeletal mesh defaults back while you migrate.
 
 ### Can I use UE5 marketplace assets?
 
@@ -31,8 +32,9 @@ equivalent such as Nanite geometry. Features that do not exist in 4.27 cannot be
 
 ### What platforms does Vite support?
 
-Windows 64-bit, primarily on DirectX 12. Other platforms inherit stock 4.27 support but are neither tested
-nor tuned. See [Platforms](Platforms.md).
+Windows 64-bit, primarily on DirectX 12. Android and Linux (servers) receive toolchain and build fixes;
+other platforms inherit stock 4.27 support but are neither tested nor tuned. Console work is private. See
+[Platforms](Platforms.md).
 
 ### Do I need an Unreal Engine licence to use Vite?
 
@@ -44,13 +46,10 @@ project you make with Vite is yours. See [License and Copyright](License-And-Cop
 
 ### What toolchain do I need?
 
-Vite is currently developed against Visual Studio 2026 with MSVC 14.50 and Windows SDK 10.0.26100.
-
-<warning>
-<code>ViteSetup.bat</code>'s environment check still enforces Visual Studio 2022 with MSVC 14.44 and SDK
-10.0.26100.7705, and will fail on the newer toolchain. Build through the manual path or the individual
-menu options if you hit this. See <a href="Toolchain-Requirements.md">Toolchain Requirements</a>.
-</warning>
+Vite is currently developed against Visual Studio 2026 with MSVC 14.51 and Windows SDK 10.0.26100.
+`ViteSetup.bat` accepts Visual Studio 2026 with MSVC 14.50 or newer, or Visual Studio 2022 with MSVC 14.44
+or newer, together with SDK 10.0.26100.7705 or newer; if both Visual Studio versions are installed it asks
+which to use. See [Toolchain Requirements](Toolchain-Requirements.md).
 
 ### The build fails immediately on a fresh clone
 
@@ -70,9 +69,9 @@ the first launch afterwards. See [Shader Compilation and PSO](Shader-Compilation
 
 ### The engine takes too much disk space
 
-Run the debloat suite in `devops\`. It moves platform binaries, templates, samples and optionally plugins
-out of the tree, with a dry-run mode and a recovery folder rather than deletion. See
-[Debloat Guide](Debloat-Guide.md).
+Take the Express path in [ViteSetup](ViteSetup.md), or run the debloat suite in `devops\` yourself. Both
+move platform binaries, templates, samples and optionally plugins out of the tree, with a dry-run review
+and a recovery folder rather than deletion. See [Debloat Guide](Debloat-Guide.md).
 
 ## Rendering
 
@@ -112,9 +111,9 @@ not have them. It is Vite's recommended method: select it with `r.DefaultFeature
 
 ### Which upscaler should I use?
 
-DLSS if you are on NVIDIA hardware and shipping to NVIDIA users. FSR or XeSS for cross-vendor coverage. NIS
-as a cheap fallback with no temporal component. Most projects should offer more than one. See
-[Upscalers](Upscalers.md).
+DLSS if you are on NVIDIA hardware and shipping to NVIDIA users. FSR 4 (DirectX 12, with its FSR 3.1 path
+for older GPUs) or XeSS for cross-vendor coverage. NIS as a cheap fallback with no temporal component. Most
+projects should offer more than one. See [Upscalers](Upscalers.md).
 
 ### Volumetric fog looks wrong with upscaling enabled
 
@@ -125,8 +124,11 @@ resolution, along with translucency fixes. It defaults to `0`, so it requires a 
 
 ### Does Vite have Nanite or Lumen?
 
-No, and it will not. Those are UE5 systems built on UE5 assumptions. Vite's answers are hardware
-tessellation and LODs for geometry, and DDGI plus SSGI for global illumination.
+No. Those are UE5 systems built on UE5 assumptions, with base costs Vite exists to avoid. Vite's shipping
+answers are hardware tessellation and LODs for geometry, and DDGI plus SSGI for global illumination. Its
+own successors &mdash; **Vite Vertis** for geometry and **Vite ReSTIR** for GI and real-time path tracing
+&mdash; are in development; see the
+[Vite Technology](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/) site.
 
 ## Physics
 

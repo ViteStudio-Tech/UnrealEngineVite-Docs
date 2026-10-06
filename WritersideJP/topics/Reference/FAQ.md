@@ -1,226 +1,226 @@
-# Frequently Asked Questions
+# よくある質問
 
 <tldr>
 <p>
-The questions that come up most often, with short answers and links to the full explanation.
+よく寄せられる質問に短く答え、詳しい説明へのリンクを添えています。
 </p>
 </tldr>
 
-## About the fork
+## フォークについて
 
-### Why 4.27 and not UE5?
+### なぜ UE5 ではなく 4.27 なのか
 
-Because for a large class of projects UE5's headline features cost more than they return. Nanite, Lumen and
-Chaos each carry a base cost whether or not you exploit them, and UE5's core class and tick overhead is
-higher. Vite takes 4.27's lower baseline and adds the rendering technology that was actually worth having.
+多くの種類のプロジェクトにとって、UE5 の目玉機能は得られるもの以上のコストがかかるからです。Nanite、Lumen、Chaos は、
+活用するかどうかに関係なくそれぞれ基本コストを伴い、UE5 のコアクラスとティックのオーバーヘッドも大きくなっています。
+Vite は 4.27 の低い基準を出発点に、本当に価値のあったレンダリング技術を加えています。
 
-The detailed argument, with numbers, is in [Why NvRTX 4.27](Why-NvRTX-427.md) and
-[UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md).
+数値を含む詳しい議論は [なぜ NvRTX 4.27 なのか](Why-NvRTX-427.md) と
+[UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md) にあります。
 
-### Is Vite a drop-in replacement for stock 4.27?
+### Vite は標準の 4.27 をそのまま置き換えられるか
 
-Close, but not exactly. Vite changes a number of engine defaults for performance &mdash; overlap event
-handling, scalability settings, tick behaviour, ray tracing culling and others. A project moving from stock
-4.27 will mostly work, but should read [Engine Defaults](Engine-Defaults.md) to understand what changed.
+ほぼ置き換えられますが、完全ではありません。Vite は性能のためにエンジンの既定値をいくつか変更しています。
+オーバーラップイベントの扱い、スケルタルメッシュとアクターの既定値、シャドウのスケーラビリティ、ティックの挙動などです。
+標準の 4.27 から移行するプロジェクトはほとんどそのまま動きますが、何が変わったかを理解するために
+[エンジンの既定値の変更](Engine-Defaults.md) を読んでください。移行中は `ViteDefaults.bat` でオーバーラップと
+スケルタルメッシュの既定値を元に戻せます。
 
-### Can I use UE5 marketplace assets?
+### UE5 のマーケットプレイスのアセットを使えるか
 
-Not directly. The Asset Downgrader plugin converts UE5 assets to 4.27, stripping data that has no 4.27
-equivalent such as Nanite geometry. Features that do not exist in 4.27 cannot be ported, only removed. See
-[Migrating from UE5](Migrating-From-UE5.md).
+そのままでは使えません。Asset Downgrader プラグインが UE5 のアセットを 4.27 に変換し、Nanite のジオメトリなど 4.27 に
+相当するもののないデータを取り除きます。4.27 に存在しない機能は移植できず、取り除かれるだけです。
+[UE5 からの移行](Migrating-From-UE5.md) を参照してください。
 
-### What platforms does Vite support?
+### Vite はどのプラットフォームに対応しているか
 
-Windows 64-bit, primarily on DirectX 12. Other platforms inherit stock 4.27 support but are neither tested
-nor tuned. See [Platforms](Platforms.md).
+主に DirectX 12 の 64 ビット Windows です。Android と Linux（サーバー）にはツールチェーンとビルドの修正が入り、その他の
+プラットフォームは標準の 4.27 の対応を引き継ぎますが、テストも調整もされていません。コンソールの作業は非公開です。
+[対応プラットフォーム](Platforms.md) を参照してください。
 
-### Do I need an Unreal Engine licence to use Vite?
+### Vite を使うには Unreal Engine のライセンスが必要か
 
-Yes, the same one every Unreal Engine source build uses. Vite is a 4.27 fork, so source and editor
-tools are covered by Epic's [Unreal Engine EULA](https://www.unrealengine.com/eula/unreal). The
-project you make with Vite is yours. See [License and Copyright](License-And-Copyright.md).
+はい。Unreal Engine のソースビルドで使うものと同じライセンスです。Vite は 4.27 のフォークなので、ソースとエディタの
+ツールは Epic の [Unreal Engine EULA](https://www.unrealengine.com/eula/unreal) の対象です。Vite で作ったプロジェクトは
+あなたのものです。[ライセンスと著作権](License-And-Copyright.md) を参照してください。
 
-## Setup and building
+## セットアップとビルド
 
-### What toolchain do I need?
+### どのツールチェーンが必要か
 
-Vite is currently developed against Visual Studio 2026 with MSVC 14.50 and Windows SDK 10.0.26100.
+Vite は現在、Visual Studio 2026 と MSVC 14.51、Windows SDK 10.0.26100 で開発されています。`ViteSetup.bat` は、
+Visual Studio 2026 と MSVC 14.50 以上、または Visual Studio 2022 と MSVC 14.44 以上を、SDK 10.0.26100.7705 以上と
+組み合わせたものを受け付けます。両方の Visual Studio がインストールされている場合は、どちらを使うかを尋ねます。
+[ツールチェーン要件](Toolchain-Requirements.md) を参照してください。
 
-<warning>
-<code>ViteSetup.bat</code>'s environment check still enforces Visual Studio 2022 with MSVC 14.44 and SDK
-10.0.26100.7705, and will fail on the newer toolchain. Build through the manual path or the individual
-menu options if you hit this. See <a href="Toolchain-Requirements.md">Toolchain Requirements</a>.
-</warning>
+### クローンしたばかりなのにビルドがすぐに失敗する
 
-### The build fails immediately on a fresh clone
+ほとんどの場合、.NET Framework 4.5 のリファレンスアセンブリが欠けています。最近の Visual Studio のインストーラーは既定で
+これを含めなくなりました。[ビルドのトラブルシューティング](Build-Troubleshooting.md) を参照してください。
 
-Most often missing .NET Framework 4.5 reference assemblies, which recent Visual Studio installers no longer
-include by default. See [Build Troubleshooting](Build-Troubleshooting.md).
+### ソースからビルドする必要があるか
 
-### Do I need to build from source?
+エンジンの C++ を変更する場合や [コンパイル時スイッチ](Compile-Time-Switches.md) を変える場合だけです。それ以外は、
+[インストール済みビルド](Install-Binary-Build.md) のほうが早く動かせ、必要なディスクもはるかに少なくて済みます。
 
-Only if you need to modify engine C++ or change a [compile-time switch](Compile-Time-Switches.md). For
-everything else an [installed build](Install-Binary-Build.md) is faster to get running and needs far less
-disk.
+### ビルドにはどれくらい時間がかかるか
 
-### How long does a build take?
+一般的なハードウェアでは、ソースビルドに数時間かかり、インストール済みビルドはそれ以上かかります。その後の初回起動では
+シェーダーのコンパイルが大半を占めます。[シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md) を参照してください。
 
-A source build is hours on typical hardware, and an installed build is longer. Shader compilation dominates
-the first launch afterwards. See [Shader Compilation and PSO](Shader-Compilation-And-PSO.md).
+### エンジンがディスクを使いすぎる
 
-### The engine takes too much disk space
+[ViteSetup](ViteSetup.md) で Express の経路を選ぶか、`devops\` のデブロートのスイートを自分で実行してください。どちらも
+プラットフォームのバイナリ、テンプレート、サンプル、必要に応じてプラグインをツリーの外に移し、削除ではなくドライランでの
+確認と回復用のフォルダーを用意します。[デブロートガイド](Debloat-Guide.md) を参照してください。
 
-Run the debloat suite in `devops\`. It moves platform binaries, templates, samples and optionally plugins
-out of the tree, with a dry-run mode and a recovery folder rather than deletion. See
-[Debloat Guide](Debloat-Guide.md).
+## レンダリング
 
-## Rendering
+### レイトレーシングのコンソール変数を設定したのに何も起きない
 
-### I set a ray tracing console variable and nothing happened
+これは最もよくある質問で、答えはほぼ必ず `VITE_RT_PSO_DEBLOAT` です。既定値は `1` で、次のもののシェーダーの
+パーミュテーションをコンパイル対象から外します。
 
-This is the single most common question, and the answer is almost always
-`VITE_RT_PSO_DEBLOAT`. It defaults to `1`, which compiles out the shader permutations for:
+- RTXDI（`r.RayTracing.SampledDirectLighting`）
+- パストレーシング
+- レイトレーシングの半透明と、両方のコースティクスのシステム
+- ピクセルごとのレイトレーシングのグローバルイルミネーション
+- ディファードではない反射の経路と、それに伴う反射内の半透明とレイトレーシングのリフレクションキャプチャ
 
-- RTXDI (`r.RayTracing.SampledDirectLighting`)
-- Path tracing
-- Ray-traced translucency and both caustics systems
-- Per-pixel ray-traced global illumination
-- The non-deferred reflection path, and with it reflected translucency and RT reflection captures
+コンソール変数は存在し、設定もできますが、何も描画されません。使うには `VITE_RT_PSO_DEBLOAT=0` でエンジンを再ビルドして
+ください。[コンパイル時スイッチ](Compile-Time-Switches.md) と [レイトレーシング](Ray-Tracing.md) を参照してください。
 
-The console variables still exist and still set. Nothing renders. Rebuild the engine with
-`VITE_RT_PSO_DEBLOAT=0` to use them. See [Compile-Time Switches](Compile-Time-Switches.md) and
-[Ray Tracing](Ray-Tracing.md).
+### そのまま使えるレイトレーシングの機能はどれか
 
-### Which ray tracing features work out of the box?
+動的 DDGI は既定で有効です。反射、シャドウ、アンビエントオクルージョン、スカイライトは既定のビルドに含まれ、
+コンソール変数で有効にできますが、最初は無効です。残りはコンパイル対象から外れています。一覧は
+[レイトレーシング](Ray-Tracing.md) にあります。
 
-Reflections, shadows, ambient occlusion and sky light. Those four are available in a default build; the
-rest are compiled out. Full table in [Ray Tracing](Ray-Tracing.md).
+### どの GI を使うべきか
 
-### Which GI should I use?
+ほとんどのプロジェクトでは DDGI と SSGI の組み合わせです。DDGI が低周波の間接光のバウンスを、SSGI がプローブの
+グリッドでは解像できない接触スケールのディテールを補います。何も動かないなら、静的 DDGI のほうが安価で正確です。
+ピクセルごとのレイトレーシング GI はリファレンス専用で、既定ではコンパイル対象外です。
+[グローバルイルミネーション](Global-Illumination.md) を参照してください。
 
-For most projects, DDGI plus SSGI. DDGI provides the low-frequency indirect bounce and SSGI adds
-contact-scale detail its probe grid cannot resolve. Static DDGI is cheaper and correct if nothing moves.
-Per-pixel ray-traced GI is reference-only and compiled out by default. See
-[Global Illumination](Global-Illumination.md).
+### なぜ TAA ではなく SMAA なのか
 
-### Why SMAA instead of TAA?
+TAA のゴースト、にじみ、動きの中でのぼやけは構造的なもので、調整の問題ではありません。SMAA は空間的な手法で、それらが
+ありません。Vite の推奨手法で、`r.DefaultFeature.AntiAliasing=4` で選び、`r.SMAA.Quality` で品質を設定します。
+[アンチエイリアシング](Anti-Aliasing.md) を参照してください。
 
-TAA's ghosting, smearing and motion softness are structural, not tuning problems. SMAA is spatial and does
-not have them. It is Vite's recommended default and is enabled with `r.Vite.SMAA.Mode`. See
-[Anti-Aliasing](Anti-Aliasing.md).
+### どのアップスケーラーを使うべきか
 
-### Which upscaler should I use?
+NVIDIA のハードウェアで NVIDIA のユーザー向けに出荷するなら DLSS。ベンダーを問わない対応には FSR 4（DirectX 12、古い GPU
+向けに FSR 3.1 の経路あり）か XeSS。時間方向の処理を持たない安価な代替には NIS。ほとんどのプロジェクトは複数を用意
+すべきです。[アップスケーラー](Upscalers.md) を参照してください。
 
-DLSS if you are on NVIDIA hardware and shipping to NVIDIA users. FSR or XeSS for cross-vendor coverage. NIS
-as a cheap fallback with no temporal component. Most projects should offer more than one. See
-[Upscalers](Upscalers.md).
+### アップスケーリングを有効にするとボリュメトリックフォグがおかしい
 
-### Volumetric fog looks wrong with upscaling enabled
+それを直すのが `VITE_DLSS_PATCH` です。フォグを内部解像度ではなく出力解像度で描画する
+`r.VolumetricFog.UseUpScaledSizeVolumetricFog` を、半透明の修正とともに追加します。既定値は `0` なので、再ビルドが
+必要です。[アップスケーラー](Upscalers.md) を参照してください。
 
-That is what `VITE_DLSS_PATCH` fixes. It adds
-`r.VolumetricFog.UseUpScaledSizeVolumetricFog`, which renders fog at output rather than internal
-resolution, along with translucency fixes. It defaults to `0`, so it requires a rebuild. See
-[Upscalers](Upscalers.md).
+### Vite に Nanite や Lumen はあるか
 
-### Does Vite have Nanite or Lumen?
+ありません。それらは UE5 の前提の上に作られた UE5 のシステムで、Vite が避けるために存在する基本コストを伴います。
+Vite が現在出荷している答えは、ジオメトリにはハードウェアテッセレーションと LOD、グローバルイルミネーションには DDGI と
+SSGI です。Vite 独自の後継である、ジオメトリの **Vite Vertis** と、GI とリアルタイムのパストレーシングの **Vite ReSTIR**
+は開発中です。[Vite Technology](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/jp/) のサイトを参照して
+ください。
 
-No, and it will not. Those are UE5 systems built on UE5 assumptions. Vite's answers are hardware
-tessellation and LODs for geometry, and DDGI plus SSGI for global illumination.
+## 物理
 
-## Physics
+### なぜ Chaos ではなく PhysX なのか
 
-### Why PhysX instead of Chaos?
+Vite が対象とする負荷では PhysX のほうが速く予測しやすく、UE5 で取り除かれた Apex Destruction と Apex Cloth も引き続き
+使えるからです。[PhysX](PhysX.md) を参照してください。
 
-PhysX is faster and more predictable on the workloads Vite targets, and it keeps Apex Destruction and Apex
-Cloth &mdash; both removed in UE5 &mdash; available. See [PhysX](PhysX.md).
+### 決定的な物理を得るには
 
-### How do I get deterministic physics?
+`VITE_PHYSX_FIXED_TIMESTEP=1` で再ビルドしてから、`p.VitePhysXFixedTimestep.Enabled` を有効にします。コンパイル時の
+スイッチがなければ、コンソール変数は何もしません。[固定タイムステップ](Fixed-Timestep.md) を参照してください。
 
-Rebuild with `VITE_PHYSX_FIXED_TIMESTEP=1`, then enable
-`p.VitePhysXFixedTimestep.Enabled`. Without the compile-time switch the console variables do nothing. See
-[Fixed Timestep](Fixed-Timestep.md).
+### 何千もの物理オブジェクトが必要
 
-### I need thousands of physics objects
+[PhysX Instanced Subsystem](Instanced-Physics.md) を使ってください。ボディごとにアクターを持つ従来の物理は、数千の
+ボディでソルバーの限界ではなくアクターのオーバーヘッドに突き当たります。このサブシステムは、インスタンス化メッシュの
+トランスフォームを直接動かすことでそのオーバーヘッドを取り除きます。
 
-Use the [PhysX Instanced Subsystem](Instanced-Physics.md). Conventional actor-per-body physics hits actor
-overhead, not solver limits, at a few thousand bodies. The subsystem removes that overhead by driving
-instanced mesh transforms directly.
+## パフォーマンス
 
-## Performance
+### Compiler Explorer で MSVC と Clang を比較計測できるか
 
-### Can I measure MSVC versus Clang on Compiler Explorer?
+できません。[Compiler Explorer](https://gcc.godbolt.org/) は各コンパイラが出力するアセンブリを表示するもので、生成された
+コードの時間は計測しません。[Quick Bench](https://quick-bench.com/) は Linux 上の GCC か Clang を計測するもので、MSVC は
+ありません。MSVC と clang-cl はローカルで計測してください。[Compiler Explorer](Compiler-Explorer.md) を参照してください。
 
-No. [Compiler Explorer](https://gcc.godbolt.org/) shows the assembly each compiler emits; it does not
-time the generated code. [Quick Bench](https://quick-bench.com/) times GCC or Clang on Linux and has no
-MSVC. Time MSVC versus clang-cl locally. See [Compiler Explorer](Compiler-Explorer.md).
+### 最適化はどこから始めるべきか
 
-### Where do I start optimising?
+`stat unit` で、Game、Draw、GPU のどれが最も大きいかを特定してください。間違ったものを最適化しても、フレームタイムは
+まったく改善しません。[プロファイリング](Profiling.md) を参照してください。
 
-`stat unit`, and identify which of Game, Draw or GPU is the largest. Optimising the wrong one produces no
-frame time improvement at all. See [Profiling](Profiling.md).
+### ゲームスレッドがボトルネックになっている
 
-### My game thread is the bottleneck
+よくある原因を、おおよそ頻度の高い順に挙げると、キャラクタームーブメントコンポーネント、アニメーションの評価、
+ブループリントのティックのロジック、そしてアクターのティック全般のオーバーヘッドです。
+[400 キャラクター CMC ベンチマーク](400-Characters-CMC-Bench.md) と [パフォーマンス目標](Performance-Targets.md) を
+参照してください。
 
-The usual suspects, in rough order of frequency: Character Movement Components, animation evaluation,
-Blueprint tick logic, and actor tick overhead generally. See
-[400 Characters CMC Bench](400-Characters-CMC-Bench.md) and
-[Performance Targets](Performance-Targets.md).
+### シェーダーのコンパイルに時間がかかりすぎる
 
-### Shader compilation is taking forever
+避けられないと決めつける前に、実際のパーミュテーションの数を確認してください。使用中のシェーディングモデル、有効な
+プラグイン、品質レベルのすべてが掛け算で効きます。`VITE_RT_PSO_DEBLOAT=1` はすでにレイトレーシングのパーミュテーションの
+大部分を取り除いており、それが既定値である理由です。[シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md) を参照
+してください。
 
-Check what your permutation count actually is before assuming it is unavoidable. Every shading model in
-use, every enabled plugin and every quality level multiplies. `VITE_RT_PSO_DEBLOAT=1` already removes a
-large share of the ray tracing permutations, which is why it is the default. See
-[Shader Compilation and PSO](Shader-Compilation-And-PSO.md).
+### 変更が反映されていないかのようにシェーダーが振る舞う
 
-### Shaders behave as though my change did not happen
+古いキャッシュです。まず `recompileshaders changed` か `recompileshaders global` を試してください。どちらも完全な消去より
+はるかに安上がりです。それでも直らなければ `WipeShaderCache.bat` を実行してください。[キャッシュ管理](Cache-Management.md)
+を参照してください。
 
-Stale cache. Try `recompileshaders changed` or `recompileshaders global` first &mdash; both are far cheaper
-than a full wipe. If neither helps, run `WipeShaderCache.bat`. See
-[Cache Management](Cache-Management.md).
+## プラグイン
 
-## Plugins
+### エディタに機能が見当たらない
 
-### A feature is missing from the editor
+そのプラグインが有効になっているかを確認してください。同梱プラグインの多くは既定でオフです。既定で有効なのは RTXGI、
+ACL、カスタムのスプラッシュ画面だけです。プラグインのフォルダー自体がない場合は、ViteSetup の Express の経路が
+`ViteDebloat_Moved` に移動した可能性があります。[同梱プラグイン](Bundled-Plugins.md) を参照してください。
 
-Check whether its plugin is enabled. Most bundled plugins default to off. Only RTXGI, NRD and the custom
-splash screen are on by default. See [Bundled Plugins](Bundled-Plugins.md).
+### プラグイン X を同梱してもらえるか
 
-### Can I get plugin X bundled?
+4.21&ndash;4.27 と互換で、寛容なライセンスを持ち、サイズとコンパイルのコストに見合うなら、提案してください。UE5 専用の
+プラグインは対象外です。[提案中のプラグイン](Proposed-Plugins.md) を参照してください。
 
-If it is 4.21&ndash;4.27 compatible, permissively licensed and worth its size and compile cost, propose it.
-UE5-only plugins are out of scope. See [Proposed Plugins](Proposed-Plugins.md).
+### デブロートのスクリプトが必要なプラグインを取り除いてしまった
 
-### The debloat script removed a plugin I need
+`ExcludedPlugins.txt` は積極的で、多くのプロジェクトが使うプラグインも含まれています。移動モードで実行した場合、
+ファイルはエンジンのフォルダーの隣の `ViteDebloat_Moved` にあります。削除モードで実行した場合は失われているため、
+ソース管理から復元する必要があります。[デブロートガイド](Debloat-Guide.md) を参照してください。
 
-`ExcludedPlugins.txt` is aggressive and includes plugins many projects use. If you ran in move mode, the
-files are in `ViteDebloat_Moved` next to the engine folder. If you ran in delete mode, they are gone and
-you need to restore from source control. See [Debloat Guide](Debloat-Guide.md).
+## コントリビュート
 
-## Contributing
+### プルリクエストが最も早く却下される原因は何か
 
-### What gets a pull request rejected fastest?
+ABI の変更です。レイトレーシングのペイロードのビットフィールド、シェーダーから見える列挙型、パックされた RHI や
+RenderCore のビットマスク、反射のビットマスクの定義、CPU と GPU で共有する構造体のレイアウトなどです。これらは、変更の
+他の部分に関係なく却下されます。[コーディングガイドライン](Coding-Guidelines.md) を参照してください。
 
-Modifying an ABI: ray tracing payload bitfields, shader-visible enums, packed RHI or RenderCore bitmasks,
-reflection bitmask definitions, or any CPU/GPU shared struct layout. These are rejected regardless of the
-rest of the change. See [Coding Guidelines](Coding-Guidelines.md).
+### 再帰、仮想関数、テンプレートは使えるか
 
-### Can I use recursion, virtuals or templates?
+再帰は禁止です。新しい仮想関数には厳密な正当化が必要です。テンプレートは、コンパイル時間とバイナリサイズのコストに
+見合う場合を除いて推奨しません。ブループリントに公開する新しい関数には、明示的な承認が必要です。
 
-Recursion is banned. New virtuals need strict justification. Templates are discouraged unless they earn
-their compile-time and binary-size cost. New Blueprint-exposed functions need explicit approval.
+### 変更はどうドキュメント化すればよいか
 
-### How do I document my change?
+同じプルリクエストの中で行います。新しいコンソール変数は該当する機能のページに、新しい `VITE_*` スイッチは
+[コンパイル時スイッチ](Compile-Time-Switches.md) に、変更した既定値は [エンジンの既定値の変更](Engine-Defaults.md) に
+記載します。[ドキュメントへの貢献](Documentation-Contributions.md) を参照してください。
 
-In the same pull request. New console variables go on the relevant feature page, new `VITE_*` switches go
-in [Compile-Time Switches](Compile-Time-Switches.md), and changed defaults go in
-[Engine Defaults](Engine-Defaults.md). See
-[Documentation Contributions](Documentation-Contributions.md).
+## 関連項目
 
-## See also
-
-- [Console Variables](Console-Variables.md)
-- [Glossary](Glossary.md)
-- [License and Copyright](License-And-Copyright.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Build Troubleshooting](Build-Troubleshooting.md)
+- [コンソール変数](Console-Variables.md)
+- [用語集](Glossary.md)
+- [ライセンスと著作権](License-And-Copyright.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [ビルドのトラブルシューティング](Build-Troubleshooting.md)

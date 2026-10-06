@@ -117,8 +117,8 @@ AMD's strand-based hair rendering and simulation system. Version 5.0 is bundled.
 Unreal's Groom system. See <a href="Hair-Rendering.md">Hair Rendering</a>.
 </def>
 <def title="NRD / ReLAX">
-NVIDIA Real-Time Denoiser. Cleans up the noise inherent in low-sample-count ray tracing. Enabled by
-default.
+NVIDIA Real-Time Denoiser. Cleans up the noise inherent in low-sample-count ray tracing. The plugin is
+off by default; enable it with the ray-traced effects that use it.
 </def>
 </deflist>
 
@@ -140,14 +140,16 @@ DLSS component that replaces hand-tuned ray tracing denoisers with a learned one
 AMD FidelityFX Super Resolution. Cross-vendor upscaling. Vite bundles FSR 4.1.1, which is DX12-only.
 </def>
 <def title="XeSS">
-Intel Xe Super Sampling. Cross-vendor, with a faster path on Intel Arc hardware. Vite bundles 3.0.5.
+Intel Xe Super Sampling. Cross-vendor, with a faster path on Intel Arc hardware. Vite bundles 3.1.0,
+including XeFG frame generation.
 </def>
 <def title="NIS">
 NVIDIA Image Scaling. Spatial upscaling with no temporal component. The cheapest and lowest-quality
 option, but it works everywhere.
 </def>
 <def title="Streamline">
-NVIDIA's plugin layer providing DLSS Frame Generation and Reflex.
+NVIDIA's SDK layer for DLSS Frame Generation and RTX Dynamic Vibrance. Vite's plugins are built on
+Streamline SDK 2.12. Reflex ships as its own plugin.
 </def>
 <def title="Frame generation">
 Synthesising intermediate frames between rendered ones. Increases displayed frame rate without reducing
@@ -251,6 +253,35 @@ one 256-bit FMA pipe. AVX2 and FMA latency remain. Series X Zen 2 does not take 
 AMD desktop kit with eight further-cut Zen 2 cores (FPU reduced versus Series X) and the iGPU fused off.
 Windows proxy for PS5 CPU FPU work, including the PhysX 3.4 rewrite. Not a GPU test box. See
 <a href="PS5-CPU-FPU.md">PS5 CPU FPU</a>.
+</def>
+</deflist>
+
+## Vite Technology
+
+The product names used for Vite's next-generation systems. Each builds on something that already ships in
+the engine; status and detail are on the
+[Vite Technology](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/) site.
+
+<deflist>
+<def title="Vite ReSTIR">
+Reservoir-based spatiotemporal resampling for real-time global illumination, with a real-time path tracer
+on the same pipeline. Builds on Dynamic DDGI, RTXDI and per-pixel ray-traced GI with ReSTIR final gather.
+In development.
+</def>
+<def title="ViteX Physics">
+A physics SDK compatible with Unreal Engine 4, combining solver advances from PhysX 4 and 5 tuned for games
+with GPU acceleration through Flex and Flow. Builds on Vite's PhysX 3.4, APEX, Blast, fixed timestep and
+instanced bodies. In development.
+</def>
+<def title="Vite BRDF">
+A character-grade BRDF based on Callisto. Available today as the experimental Callisto BRDF shading model.
+</def>
+<def title="Vite Vertis">
+Continuous level of detail on the standard mesh pipeline, aimed at Nanite-class geometry density on the
+hardware games ship on. In development.
+</def>
+<def title="Vite Hair FX">
+Strand hair built on TressFX 5.0, with a new hair BRDF and a lower frame cost. In development.
 </def>
 </deflist>
 

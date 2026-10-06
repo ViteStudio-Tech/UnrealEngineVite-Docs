@@ -33,11 +33,11 @@ These do not exist in stock UE 4.27.
 | `r.SMAA.DebugVisualization` | 0 | SMAA debug view, non-Shipping builds. 1 = edges, 2 = blend weights, 3 = highlighted result. Earlier releases use `r.AntiAliasing.SMAA.Debug`. |
 | `r.Vite.SSAO` | 1 | Vite's optimised SSAO path, development builds only; Shipping and Test are locked to `VITE_O_SSAO`. See [Ambient Occlusion](Ambient-Occlusion.md). |
 | `p.VitePhysXFixedTimestep.Enabled` | 0 | Enable fixed timestep physics |
-| `p.VitePhysXFixedTimestep.DeltaTime` | 1/60 | Fixed step duration in seconds |
-| `p.VitePhysXFixedTimestep.MaxTimesteps` | &mdash; | Maximum steps per frame |
-| `p.VitePhysXFixedTimestep.MaxCumulativeExtraSteps` | &mdash; | Cap on accumulated catch-up steps |
-| `p.VitePhysXFixedTimestep.LimitType` | &mdash; | How overload is handled |
-| `p.VitePhysXFixedTimestep.InterpolationMode` | &mdash; | Render interpolation between fixed steps |
+| `p.VitePhysXFixedTimestep.DeltaTime` | 0.01667 (1/60) | Fixed step duration in seconds |
+| `p.VitePhysXFixedTimestep.MaxTimesteps` | 16 | Maximum fixed steps per game tick |
+| `p.VitePhysXFixedTimestep.MaxCumulativeExtraSteps` | 50 | Overload budget before the limit policy applies |
+| `p.VitePhysXFixedTimestep.LimitType` | 0 | 0 = clamp fixed steps, 1 = fall back to variable substeps |
+| `p.VitePhysXFixedTimestep.InterpolationMode` | 1 | 0 = off, 1 = per component, 2 = always |
 
 <note>
 The <code>p.VitePhysXFixedTimestep.*</code> variables require a build with
@@ -62,14 +62,15 @@ A value of `-1` means the setting is driven by the post-process volume rather th
 
 | Variable | Purpose |
 |---|---|
-| `r.RayTracing.Culling` | Ray tracing instance culling mode |
-| `r.RayTracing.Culling.Radius` | Culling distance |
-| `r.RayTracing.Culling.Angle` | Angular culling threshold |
+| `r.RayTracing.Culling` | `0` (default) off, `1` cull objects behind the camera by distance and solid angle |
+| `r.RayTracing.Culling.Radius` | Distance beyond which objects behind the camera are culled. Default 10000 (100&nbsp;m). |
+| `r.RayTracing.Culling.Angle` | Projected-angle threshold below which objects behind the camera are culled. Default 1. |
 | `r.RayTracing.SceneCaptures` | Whether scene captures build ray tracing scenes |
 | `r.RayTracing.PreGather` | Pre-gather pass control |
 
-Culling settings are among the most effective ray tracing performance levers, and Vite changes some of
-their defaults &mdash; see [Engine Defaults](Engine-Defaults.md).
+Culling settings are among the most effective ray tracing performance levers. Vite leaves them at the
+stock 4.27 values, with culling off; see
+[Engine Default Changes](Engine-Defaults.md#ray-tracing-culling) for when to turn it on.
 
 ### Sky light
 
@@ -183,7 +184,7 @@ See [Hair Rendering](Hair-Rendering.md).
 
 | Variable | Purpose |
 |---|---|
-| `r.RayTracing.VolumeFogMode` | Ray traced volumetric fog mode |
+| `r.RayTracing.VolumeFogMode` | How lights are handled in volumetric fog when shadows are ray traced |
 | `r.VolumetricFog.UseUpScaledSizeVolumetricFog` | Render volumetric fog at output rather than internal resolution |
 
 <note>

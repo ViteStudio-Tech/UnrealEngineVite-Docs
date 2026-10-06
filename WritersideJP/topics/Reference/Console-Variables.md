@@ -1,233 +1,234 @@
-# Console Variables
+# コンソール変数
 
 <tldr>
 <p>
-Vite-specific console variables and the stock ones you most often need, grouped by subsystem. This is a
-curated list, not an exhaustive dump &mdash; use <code>help</code> or the console's autocomplete for the
-full set.
+Vite 固有のコンソール変数と、よく必要になる標準のものを、サブシステムごとにまとめています。これは選び抜いた一覧であり、
+すべてを網羅したものではありません。全体を確認するには <code>help</code> かコンソールの自動補完を使ってください。
 </p>
 </tldr>
 
 <warning>
-Several ray tracing variables in this list are <b>compiled out</b> in a default build. They will set
-successfully and render nothing. Availability is noted per variable; see
-<a href="Compile-Time-Switches.md">Compile-Time Switches</a>.
+この一覧のレイトレーシングの変数のいくつかは、既定のビルドでは <b>コンパイル対象から外れています</b>。設定自体は成功
+しますが、何も描画されません。利用可否は変数ごとに示しています。<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a>
+を参照してください。
 </warning>
 
-Set variables at runtime in the console, or persistently in `Config\DefaultEngine.ini`:
+変数は実行時にコンソールで設定するか、`Config\DefaultEngine.ini` で恒久的に設定します。
 
 ```ini
 [/Script/Engine.RendererSettings]
-r.Vite.SMAA.Mode=1
+r.SMAA.Quality=2
 r.HBAO.Enable=1
 ```
 
-## Vite-specific
+## Vite 固有
 
-These do not exist in stock UE 4.27.
+これらは標準の UE 4.27 には存在しません。
 
-| Variable | Default | Purpose |
+| 変数 | 既定値 | 用途 |
 |---|---|---|
-| `r.Vite.SMAA.Mode` | 1 | SMAA quality. 0 = Low, 1 = High. See [Anti-Aliasing](Anti-Aliasing.md). |
-| `r.Vite.SSAO` | &mdash; | Vite's optimised SSAO path. See [Ambient Occlusion](Ambient-Occlusion.md). |
-| `r.AntiAliasing.SMAA.Debug` | &mdash; | SMAA debug visualisation |
-| `p.VitePhysXFixedTimestep.Enabled` | 0 | Enable fixed timestep physics |
-| `p.VitePhysXFixedTimestep.DeltaTime` | 1/60 | Fixed step duration in seconds |
-| `p.VitePhysXFixedTimestep.MaxTimesteps` | &mdash; | Maximum steps per frame |
-| `p.VitePhysXFixedTimestep.MaxCumulativeExtraSteps` | &mdash; | Cap on accumulated catch-up steps |
-| `p.VitePhysXFixedTimestep.LimitType` | &mdash; | How overload is handled |
-| `p.VitePhysXFixedTimestep.InterpolationMode` | &mdash; | Render interpolation between fixed steps |
+| `r.SMAA.Quality` | 2 | SMAA の品質。0 = Low、1 = Medium、2 = High、3 = Ultra。August Major 以降。それ以前のリリースは `r.Vite.SMAA.Mode`（0 = Low、1 = High）。[アンチエイリアシング](Anti-Aliasing.md) を参照 |
+| `r.SMAA.EdgeMode` | 0 | SMAA のエッジ検出。0 = 色、1 = 輝度。August Major 以降 |
+| `r.SMAA.DebugVisualization` | 0 | SMAA のデバッグ表示（Shipping 以外のビルド）。1 = エッジ、2 = ブレンドの重み、3 = 強調した結果。それ以前のリリースは `r.AntiAliasing.SMAA.Debug` |
+| `r.Vite.SSAO` | 1 | Vite の最適化された SSAO の経路。開発用のビルドのみで、Shipping と Test は `VITE_O_SSAO` に固定。[アンビエントオクルージョン](Ambient-Occlusion.md) を参照 |
+| `p.VitePhysXFixedTimestep.Enabled` | 0 | 固定タイムステップの物理を有効にする |
+| `p.VitePhysXFixedTimestep.DeltaTime` | 0.01667（1/60） | 固定ステップの長さ（秒） |
+| `p.VitePhysXFixedTimestep.MaxTimesteps` | 16 | 1 回のゲームのティックあたりの固定ステップの最大数 |
+| `p.VitePhysXFixedTimestep.MaxCumulativeExtraSteps` | 50 | 制限の方針が適用されるまでの過負荷の予算 |
+| `p.VitePhysXFixedTimestep.LimitType` | 0 | 0 = 固定ステップを制限、1 = 可変のサブステップに切り替え |
+| `p.VitePhysXFixedTimestep.InterpolationMode` | 1 | 0 = オフ、1 = コンポーネントごと、2 = 常に |
 
 <note>
-The <code>p.VitePhysXFixedTimestep.*</code> variables require a build with
-<code>VITE_PHYSX_FIXED_TIMESTEP=1</code>. See <a href="Fixed-Timestep.md">Fixed Timestep</a>.
+<code>p.VitePhysXFixedTimestep.*</code> の変数には、<code>VITE_PHYSX_FIXED_TIMESTEP=1</code> でビルドしたエンジンが必要です。
+<a href="Fixed-Timestep.md">固定タイムステップ</a> を参照してください。
 </note>
 
-## Ray tracing
+## レイトレーシング
 
-| Variable | Default | Availability | Page |
+| 変数 | 既定値 | 利用可否 | ページ |
 |---|---|---|---|
-| `r.RayTracing.Reflections` | 0 | Available | [RT Reflections](RT-Reflections.md) |
-| `r.RayTracing.Shadows` | 0 | Available | [RT Shadows and AO](RT-Shadows-And-Ambient-Occlusion.md) |
-| `r.RayTracing.AmbientOcclusion` | 0 | Available | [Ambient Occlusion](Ambient-Occlusion.md) |
-| `r.RayTracing.SkyLight` | &mdash; | Available | [Ray Tracing](Ray-Tracing.md) |
-| `r.RayTracing.GlobalIllumination` | -1 | **Compiled out** | [Global Illumination](Global-Illumination.md) |
-| `r.RayTracing.Translucency` | 0 | **Compiled out** | [RT Translucency and Caustics](RT-Translucency-And-Caustics.md) |
-| `r.RayTracing.SampledDirectLighting` | 0 | **Compiled out** | [RTXDI](RTXDI.md) |
+| `r.RayTracing.Reflections` | 0 | 利用可 | [レイトレーシング反射](RT-Reflections.md) |
+| `r.RayTracing.Shadows` | 0 | 利用可 | [レイトレーシングシャドウと AO](RT-Shadows-And-Ambient-Occlusion.md) |
+| `r.RayTracing.AmbientOcclusion` | 0 | 利用可 | [アンビエントオクルージョン](Ambient-Occlusion.md) |
+| `r.RayTracing.SkyLight` | &mdash; | 利用可 | [レイトレーシング](Ray-Tracing.md) |
+| `r.RayTracing.GlobalIllumination` | -1 | **コンパイル対象外** | [グローバルイルミネーション](Global-Illumination.md) |
+| `r.RayTracing.Translucency` | 0 | **コンパイル対象外** | [レイトレーシング半透明とコースティクス](RT-Translucency-And-Caustics.md) |
+| `r.RayTracing.SampledDirectLighting` | 0 | **コンパイル対象外** | [RTXDI](RTXDI.md) |
 
-A value of `-1` means the setting is driven by the post-process volume rather than the console variable.
+値が `-1` の場合、その設定はコンソール変数ではなくポストプロセスボリュームによって決まります。
 
-### Culling and scene setup
+### カリングとシーンの設定
 
-| Variable | Purpose |
+| 変数 | 用途 |
 |---|---|
-| `r.RayTracing.Culling` | Ray tracing instance culling mode |
-| `r.RayTracing.Culling.Radius` | Culling distance |
-| `r.RayTracing.Culling.Angle` | Angular culling threshold |
-| `r.RayTracing.SceneCaptures` | Whether scene captures build ray tracing scenes |
-| `r.RayTracing.PreGather` | Pre-gather pass control |
+| `r.RayTracing.Culling` | `0`（既定）はオフ、`1` はカメラの後ろのオブジェクトを距離と立体角でカリング |
+| `r.RayTracing.Culling.Radius` | カメラの後ろのオブジェクトをカリングする距離。既定は 10000（100&nbsp;m） |
+| `r.RayTracing.Culling.Angle` | カメラの後ろのオブジェクトをカリングする、投影された角度のしきい値。既定は 1 |
+| `r.RayTracing.SceneCaptures` | シーンキャプチャがレイトレーシングのシーンを構築するかどうか |
+| `r.RayTracing.PreGather` | 事前収集のパスの制御 |
 
-Culling settings are among the most effective ray tracing performance levers, and Vite changes some of
-their defaults &mdash; see [Engine Defaults](Engine-Defaults.md).
+カリングの設定は、レイトレーシングの性能を左右する最も効果的な手段の 1 つです。Vite はこれらを標準の 4.27 の値のまま、
+カリングを無効にしています。有効にすべき場面は [エンジンの既定値の変更](Engine-Defaults.md#ray-tracing-culling) を参照して
+ください。
 
-### Sky light
+### スカイライト
 
-| Variable | Purpose |
+| 変数 | 用途 |
 |---|---|
-| `r.RayTracing.SkyLight.SamplesPerPixel` | Sample count |
-| `r.RayTracing.SkyLight.MaxRayDistance` | Ray length limit |
-| `r.RayTracing.SkyLight.ScreenPercentage` | Resolution scale for the sky light pass |
-| `r.RayTracing.SkyLight.Denoiser` | Denoiser selection |
-| `r.RayTracing.SkyLight.EnableMaterials` | Evaluate materials on hit |
-| `r.RayTracing.SkyLight.EnableTwoSidedGeometry` | Two-sided geometry handling |
+| `r.RayTracing.SkyLight.SamplesPerPixel` | サンプル数 |
+| `r.RayTracing.SkyLight.MaxRayDistance` | レイの長さの上限 |
+| `r.RayTracing.SkyLight.ScreenPercentage` | スカイライトのパスの解像度のスケール |
+| `r.RayTracing.SkyLight.Denoiser` | デノイザーの選択 |
+| `r.RayTracing.SkyLight.EnableMaterials` | ヒット時にマテリアルを評価する |
+| `r.RayTracing.SkyLight.EnableTwoSidedGeometry` | 両面のジオメトリの扱い |
 
-`ScreenPercentage` and `SamplesPerPixel` are the two to reach for when the sky light pass is too expensive.
+スカイライトのパスが高価すぎる場合は、`ScreenPercentage` と `SamplesPerPixel` の 2 つから調整してください。
 
-### Translucency
+### 半透明
 
-Compiled out by default.
+既定ではコンパイル対象外です。
 
-| Variable | Purpose |
+| 変数 | 用途 |
 |---|---|
-| `r.RayTracing.Translucency.HalfRes` | Half-resolution translucency |
-| `r.RayTracing.Translucency.HybridDepthThreshold` | Hybrid translucency depth threshold |
-| `r.RayTracing.Translucency.HybridDepthBias` | Hybrid translucency depth bias |
-| `r.RayTracing.PrimaryRays.IncludeDOF` | Include depth of field in primary rays |
+| `r.RayTracing.Translucency.HalfRes` | 半分の解像度の半透明 |
+| `r.RayTracing.Translucency.HybridDepthThreshold` | ハイブリッドな半透明の深度のしきい値 |
+| `r.RayTracing.Translucency.HybridDepthBias` | ハイブリッドな半透明の深度のバイアス |
+| `r.RayTracing.PrimaryRays.IncludeDOF` | プライマリレイに被写界深度を含める |
 
-### RTXDI (sampled lighting)
+### RTXDI（サンプリングによるライティング）
 
-Compiled out by default. `r.RayTracing.SampledDirectLighting` is the master switch; the
-`r.RayTracing.SampledLighting.*` family &mdash; over sixty variables covering reservoir counts, spatial and
-temporal resampling, ReGIR cell configuration and per-light-type toggles &mdash; tunes it.
+既定ではコンパイル対象外です。`r.RayTracing.SampledDirectLighting` が全体のスイッチで、`r.RayTracing.SampledLighting.*`
+の系統（リザーバーの数、空間と時間の再サンプリング、ReGIR のセルの構成、ライトの種類ごとの切り替えなど、60 を超える
+変数）で調整します。
 
-The ones worth knowing first:
+まず知っておく価値があるもの:
 
-| Variable | Default | Purpose |
+| 変数 | 既定値 | 用途 |
 |---|---|---|
-| `r.RayTracing.SampledLighting.Mode` | 1 | Sampling mode |
-| `r.RayTracing.SampledLighting.InitialSamples` | 8 | Initial candidate samples |
-| `r.RayTracing.SampledLighting.Spatial` | 1 | Spatial resampling |
-| `r.RayTracing.SampledLighting.Temporal` | 1 | Temporal resampling |
-| `r.RayTracing.SampledLighting.NumReservoirs` | -1 | Reservoir count, -1 for automatic |
-| `r.RayTracing.SampledLighting.Denoiser` | &mdash; | Denoiser selection |
-| `r.RayTracing.SampledLighting.DebugMode` | &mdash; | Debug visualisation |
+| `r.RayTracing.SampledLighting.Mode` | 1 | サンプリングのモード |
+| `r.RayTracing.SampledLighting.InitialSamples` | 8 | 最初の候補のサンプル数 |
+| `r.RayTracing.SampledLighting.Spatial` | 1 | 空間の再サンプリング |
+| `r.RayTracing.SampledLighting.Temporal` | 1 | 時間の再サンプリング |
+| `r.RayTracing.SampledLighting.NumReservoirs` | -1 | リザーバーの数。-1 で自動 |
+| `r.RayTracing.SampledLighting.Denoiser` | &mdash; | デノイザーの選択 |
+| `r.RayTracing.SampledLighting.DebugMode` | &mdash; | デバッグ表示 |
 
-See [RTXDI](RTXDI.md).
+[RTXDI](RTXDI.md) を参照してください。
 
-### Caustics
+### コースティクス
 
-Mesh and water caustics are driven primarily by post-process volume settings rather than console variables,
-and both are compiled out by default. Related variables:
+メッシュと水のコースティクスは、主にコンソール変数ではなくポストプロセスボリュームの設定で制御され、どちらも既定では
+コンパイル対象外です。関連する変数:
 
-| Variable | Purpose |
+| 変数 | 用途 |
 |---|---|
-| `r.RayTracing.BuildRayTracingMeshForCaustics` | Build caustics-capable ray tracing geometry |
-| `r.ParallelCausticsMap` | Parallel caustics map rendering |
-| `r.PathTracing.ApproximateCaustics` | Approximate caustics in the path tracer |
+| `r.RayTracing.BuildRayTracingMeshForCaustics` | コースティクスに対応したレイトレーシングのジオメトリを構築する |
+| `r.ParallelCausticsMap` | コースティクスマップの並列描画 |
+| `r.PathTracing.ApproximateCaustics` | パストレーサーでのコースティクスの近似 |
 
-See [RT Translucency and Caustics](RT-Translucency-And-Caustics.md).
+[レイトレーシング半透明とコースティクス](RT-Translucency-And-Caustics.md) を参照してください。
 
-## Global illumination
+## グローバルイルミネーション
 
-| Variable | Purpose |
+| 変数 | 用途 |
 |---|---|
-| `r.RTXGI.DDGI` | Master DDGI toggle |
-| `r.RTXGI.DDGI.LightingPass.Scale` | Lighting pass resolution scale |
-| `r.RTXGI.DDGI.LightingPass.RelativeDistanceThreshold` | Distance rejection threshold |
-| `r.RTXGI.DDGI.LightingPass.NormalPower` | Normal weighting |
-| `r.RTXGI.DDGI.ProbesTextureVis` | Probe texture visualisation |
-| `r.RTXGI.DDGI.ProbesTextureVis.IrradianceScalar` | Visualisation scaling |
-| `r.RTXGI.DDGI.StatVolume` | Per-volume statistics |
-| `r.RTXGI.MemoryUsed` | Report DDGI memory usage |
+| `r.RTXGI.DDGI` | DDGI 全体の切り替え |
+| `r.RTXGI.DDGI.LightingPass.Scale` | ライティングのパスの解像度のスケール |
+| `r.RTXGI.DDGI.LightingPass.RelativeDistanceThreshold` | 距離による除外のしきい値 |
+| `r.RTXGI.DDGI.LightingPass.NormalPower` | 法線による重み付け |
+| `r.RTXGI.DDGI.ProbesTextureVis` | プローブのテクスチャの可視化 |
+| `r.RTXGI.DDGI.ProbesTextureVis.IrradianceScalar` | 可視化のスケール |
+| `r.RTXGI.DDGI.StatVolume` | ボリュームごとの統計 |
+| `r.RTXGI.MemoryUsed` | DDGI のメモリ使用量を報告する |
 
-The RTXGI plugin is enabled by default. See [Dynamic DDGI](DDGI-Dynamic.md) and
-[Global Illumination](Global-Illumination.md).
+RTXGI のプラグインは既定で有効です。[動的 DDGI](DDGI-Dynamic.md) と [グローバルイルミネーション](Global-Illumination.md)
+を参照してください。
 
-## Ambient occlusion
+## アンビエントオクルージョン
 
-| Variable | Default | Purpose |
+| 変数 | 既定値 | 用途 |
 |---|---|---|
-| `r.HBAO.Enable` | 0 | Enable HBAO+. Multiplies over the screen-space AO buffer. |
-| `r.HBAO.HighPrecisionDepth` | 0 | 0 = FP16 internal depth, 1 = FP32. Use FP32 to avoid self-occlusion banding on distant objects. |
-| `r.HBAO.GBufferNormals` | 1 | 0 = reconstruct normals from depth, 1 = fetch GBuffer normals |
+| `r.HBAO.Enable` | 0 | HBAO+ を有効にする。スクリーンスペースの AO のバッファに乗算します。 |
+| `r.HBAO.HighPrecisionDepth` | 0 | 0 = 内部の深度を FP16、1 = FP32。遠くのオブジェクトの自己遮蔽によるバンディングを避けるには FP32 を使います。 |
+| `r.HBAO.GBufferNormals` | 1 | 0 = 深度から法線を再構築、1 = GBuffer の法線を取得 |
 
-HBAO+ has additional per-volume settings in the post-process volume: power exponent (default 2.0), radius
-(2.0), bias (0.1), small-scale AO (1.0), blur radius (2 pixels), blur sharpness (16.0), max view depth
-(9500), depth sharpness (50.0), and foreground and background AO distances.
+HBAO+ には、ポストプロセスボリュームにボリュームごとの追加の設定があります。べき指数（既定 2.0）、半径（2.0）、
+バイアス（0.1）、小スケールの AO（1.0）、ブラーの半径（2 ピクセル）、ブラーのシャープネス（16.0）、最大の視距離（9500）、
+深度のシャープネス（50.0）、そして前景と背景の AO の距離です。
 
 <note>
-The <code>r.HBAO.Enable</code> help text describes HBAO+ as DX11-only. This is out of date; there is a
-working D3D12 implementation. See <a href="Ambient-Occlusion.md">Ambient Occlusion</a>.
+<code>r.HBAO.Enable</code> のヘルプは HBAO+ を DX11 専用と説明していますが、これは古い記述です。動作する D3D12 の実装が
+あります。<a href="Ambient-Occlusion.md">アンビエントオクルージョン</a> を参照してください。
 </note>
 
-## Tessellation
+## テッセレーション
 
-| Variable | Default | Purpose |
+| 変数 | 既定値 | 用途 |
 |---|---|---|
-| `r.TessellationAdaptivePixelsPerTriangle` | 48.0 | Global tessellation factor multiplier. Lower means more triangles. |
+| `r.TessellationAdaptivePixelsPerTriangle` | 48.0 | テッセレーションの係数の全体の倍率。小さいほど三角形が増えます。 |
 
-See [Tessellation](Tessellation.md).
+[テッセレーション](Tessellation.md) を参照してください。
 
-## Hair
+## ヘア
 
-| Variable | Purpose |
+| 変数 | 用途 |
 |---|---|
-| `r.TressFX.StrandsMode` | Debug render mode. 0 = off, 1 = simulation strands, 2 = render strands with simulation influence, 3 = hair UV, 4 = root UV, 5 = seed, 6 = dimensions |
-| `r.TressFX.Interoplation.FrustumCulling` | Frustum culling for interpolation. Default 1. |
-| `r.TressFX.MorphTargetMeshVisualization` | Morph target mesh visualisation |
+| `r.TressFX.StrandsMode` | デバッグ描画のモード。0 = オフ、1 = シミュレーション用ストランド、2 = シミュレーションの影響度で色分けした描画用ストランド、3 = 髪の UV、4 = 根元の UV、5 = シード、6 = 寸法 |
+| `r.TressFX.Interoplation.FrustumCulling` | 補間時の視錐台カリング。既定は 1 |
+| `r.TressFX.MorphTargetMeshVisualization` | モーフターゲットのメッシュの可視化 |
 
-See [Hair Rendering](Hair-Rendering.md).
+[ヘアレンダリング](Hair-Rendering.md) を参照してください。
 
-## Volumetric fog
+## ボリュメトリックフォグ
 
-| Variable | Purpose |
+| 変数 | 用途 |
 |---|---|
-| `r.RayTracing.VolumeFogMode` | Ray traced volumetric fog mode |
-| `r.VolumetricFog.UseUpScaledSizeVolumetricFog` | Render volumetric fog at output rather than internal resolution |
+| `r.RayTracing.VolumeFogMode` | シャドウをレイトレーシングする際に、ボリュメトリックフォグでライトをどう扱うか |
+| `r.VolumetricFog.UseUpScaledSizeVolumetricFog` | ボリュメトリックフォグを内部解像度ではなく出力解像度で描画する |
 
 <note>
-<code>r.VolumetricFog.UseUpScaledSizeVolumetricFog</code> only exists in builds with
-<code>VITE_DLSS_PATCH=1</code>. It exists to fix volumetric fog resolution when upscaling. See
-<a href="Upscalers.md">Upscalers</a>.
+<code>r.VolumetricFog.UseUpScaledSizeVolumetricFog</code> は、<code>VITE_DLSS_PATCH=1</code> のビルドにだけ存在します。
+アップスケーリング時のボリュメトリックフォグの解像度を修正するためのものです。<a href="Upscalers.md">アップスケーラー</a>
+を参照してください。
 </note>
 
-## Profiling
+## プロファイリング
 
-Standard Unreal, but worth having in one place:
+標準の Unreal のものですが、1 か所にまとめておく価値があります。
 
-| Command | Shows |
+| コマンド | 表示されるもの |
 |---|---|
-| `stat unit` | Frame, Game, Draw, GPU and RHIT timings. Start here. |
-| `stat unitgraph` | The same over time |
-| `stat game` | Game thread breakdown |
-| `stat scenerendering` | Render thread breakdown |
-| `stat gpu` | GPU pass breakdown |
-| `stat physics` | Physics solver time |
-| `stat rhi` | RHI resource statistics |
-| `stat memory` | Memory usage |
-| `profilegpu` | Single-frame GPU capture |
-| `recompileshaders changed` | Recompile modified shaders |
-| `recompileshaders global` | Recompile global shaders |
+| `stat unit` | Frame、Game、Draw、GPU、RHIT の時間。まずここから。 |
+| `stat unitgraph` | 同じものの時間変化 |
+| `stat game` | ゲームスレッドの内訳 |
+| `stat scenerendering` | レンダースレッドの内訳 |
+| `stat gpu` | GPU のパスの内訳 |
+| `stat physics` | 物理ソルバーの時間 |
+| `stat rhi` | RHI のリソースの統計 |
+| `stat memory` | メモリ使用量 |
+| `profilegpu` | 1 フレームの GPU のキャプチャ |
+| `recompileshaders changed` | 変更したシェーダーを再コンパイル |
+| `recompileshaders global` | グローバルシェーダーを再コンパイル |
 
-See [Profiling](Profiling.md).
+[プロファイリング](Profiling.md) を参照してください。
 
-## Finding variables yourself
+## 変数を自分で探す
 
-| Command | Effect |
+| コマンド | 効果 |
 |---|---|
-| `help` | Dumps all console variables and commands to the log |
-| `<partial name>` then Tab | Autocomplete in the console |
-| `<variable>` with no value | Prints the current value and help text |
-| `DumpConsoleCommands` | Lists commands |
+| `help` | すべてのコンソール変数とコマンドをログに出力する |
+| 名前の一部を入力して Tab | コンソールでの自動補完 |
+| 値なしで `<変数>` | 現在の値とヘルプを表示する |
+| `DumpConsoleCommands` | コマンドの一覧を表示する |
 
 <warning>
-Help text in the engine is occasionally stale &mdash; HBAO+'s DX11-only claim is one example. When
-behaviour and help text disagree, the source is authoritative.
+エンジンのヘルプは古いことがあります。HBAO+ の DX11 専用という記述はその一例です。挙動とヘルプが食い違う場合は、
+ソースが正しい情報源です。
 </warning>
 
-## See also
+## 関連項目
 
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Engine Defaults](Engine-Defaults.md)
-- [Profiling](Profiling.md)
-- [Glossary](Glossary.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [エンジンの既定値の変更](Engine-Defaults.md)
+- [プロファイリング](Profiling.md)
+- [用語集](Glossary.md)
