@@ -141,8 +141,7 @@ RT DOF と併せて、強化された半透明のモード 3、RT による半�
 
 | コンソール変数 | 用途 |
 |---|---|
-| `r.RayTracing.MeshCaustics.EnableTranslucentReflection` | 透明なオブジェクトの反射のコースティクス |
-| `r.RayTracing.MeshCaustics.TranslucentReflectionMode` | 0 は屈折のみ、1 は屈折と最初のバウンスでの反射、2 は任意のバウンス数での反射 |
+| `r.RayTracing.MeshCaustics.TranslucentReflectionMode` | 半透明のオブジェクトが落とすコースティクス。`0` は常に屈折、`1` は常に反射、`2` はランダム。既定値 `-1` ではポストプロセスボリュームの設定を使います。 |
 | `r.RayTracing.MeshCaustics.EnableDispersion` | 分散を有効にします。マテリアルのルートノードで **Ray Traced Caustics Dispersion Amount** を 0 より大きくする必要があります。 |
 | `r.RayTracing.MeshCaustics.DispersionSamples` | 分散に使う色のサンプル数 |
 | `r.RayTracing.MeshCaustics.SoftCausticsSample` | ソフトコースティクスのサンプル数。ライトの設定で **Mesh Caustics Softness** を 0 より大きくする必要があります。 |

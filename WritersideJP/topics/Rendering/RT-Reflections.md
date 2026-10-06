@@ -79,8 +79,9 @@ Vite には、4.27 と NvRTX から受け継いだ 2 つのレイトレーシン
 | コンソール変数 | 用途 |
 |---|---|
 | `r.RayTracing.Reflections.ReflectedTranslucencyMode` | 0 はエミッシブのみ、1 はシェーディング、2 はシェーディングと屈折、3 はシェーディング・屈折・吸収。既定値 0。 |
-| `r.RayTracing.Reflections.ReflectedTranslucencyMaxBounces` | 反射の中での半透明のレイトレーシングの最大バウンス数。既定値 8。 |
-| `r.RayTracing.Reflections.ReflectedTranslucencyTransmissionThreshold` | 蓄積した透過率がこの値を下回ると半透明の追跡を止めます。既定値 0.1。 |
+| `r.RayTracing.Reflections.ReflectedTranslucency.MaxBounces` | 反射の中での半透明のレイトレーシングの最大バウンス数。既定値 5。 |
+| `r.RayTracing.Reflections.ReflectedTranslucency.TransmissionThreshold` | 蓄積した透過率がこの値を下回ると半透明の追跡を止めます。既定値 0.1。 |
+| `r.RayTracing.Reflections.ReflectedTranslucency.TraceForOpaqueMiss` | 不透明のレイがミスした後に半透明のオブジェクトも追跡します。既定値 0。 |
 
 モード 3 が最も良い結果になり、コストも最も高くなります。反射の中にガラスが多く映るシーンでは差が大きく、そうでないシーンでは 0 のままにしてください。
 

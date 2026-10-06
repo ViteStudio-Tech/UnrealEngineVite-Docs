@@ -170,8 +170,7 @@ Where a console variable is set to `-1`, the post process volume controls the ac
 
 | Console variable | Purpose |
 |---|---|
-| `r.RayTracing.MeshCaustics.EnableTranslucentReflection` | Reflective caustics for transparent objects |
-| `r.RayTracing.MeshCaustics.TranslucentReflectionMode` | 0 refractive only, 1 refractive plus reflective first bounce, 2 reflective for arbitrary bounces |
+| `r.RayTracing.MeshCaustics.TranslucentReflectionMode` | Caustics cast by translucent objects: `0` always refractive, `1` always reflective, `2` random. Default `-1` uses the post process volume. |
 | `r.RayTracing.MeshCaustics.EnableDispersion` | Enables dispersion. Requires **Ray Traced Caustics Dispersion Amount** greater than 0 in the material root node. |
 | `r.RayTracing.MeshCaustics.DispersionSamples` | Colour samples used for dispersion |
 | `r.RayTracing.MeshCaustics.SoftCausticsSample` | Sample count for soft caustics. Requires **Mesh Caustics Softness** greater than 0 in light settings. |

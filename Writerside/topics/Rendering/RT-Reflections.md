@@ -109,8 +109,9 @@ NvRTX option to render fully ray-traced translucent objects inside reflections:
 | Console variable | Purpose |
 |---|---|
 | `r.RayTracing.Reflections.ReflectedTranslucencyMode` | 0 emissive only, 1 shading, 2 shading and refraction, 3 shading, refraction and absorption. Default 0. |
-| `r.RayTracing.Reflections.ReflectedTranslucencyMaxBounces` | Maximum ray-traced translucency bounces inside reflections. Default 8. |
-| `r.RayTracing.Reflections.ReflectedTranslucencyTransmissionThreshold` | Stops the translucency walk when accumulated transmission falls below this. Default 0.1. |
+| `r.RayTracing.Reflections.ReflectedTranslucency.MaxBounces` | Maximum ray-traced translucency bounces inside reflections. Default 5. |
+| `r.RayTracing.Reflections.ReflectedTranslucency.TransmissionThreshold` | Stops the translucency walk when accumulated transmission falls below this. Default 0.1. |
+| `r.RayTracing.Reflections.ReflectedTranslucency.TraceForOpaqueMiss` | Also traces translucent objects after an opaque ray misses. Default 0. |
 
 Mode 3 gives the best result and the highest cost. In scenes with a lot of glass visible in reflections, the
 difference is substantial; in scenes without, leave it at 0.
