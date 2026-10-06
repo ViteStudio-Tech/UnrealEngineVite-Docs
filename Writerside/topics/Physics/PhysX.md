@@ -27,7 +27,8 @@ See <a href="Physics.md">Physics</a> for the matched capture.
 </def>
 <def title="Faster than stock PhysX">
 Vite's PhysX 3.4 build needs 25.2–28.2% less solver time than stock NVIDIA PhysX 3.4 on the 10,005-body
-Box Container Pile benchmark, at every shared thread count.
+Box Container Pile benchmark, and is 1.15–1.44× faster than stock PhysX 5.6.1 on CPU, at every thread count
+from one to six.
 </def>
 <def title="Feature-complete for UE4 content">
 Rigid bodies, scene queries, constraints, ragdolls, vehicles, APEX Destruction, APEX Cloth and NVIDIA

@@ -8,6 +8,11 @@ where one actor per object would be unaffordable.
 </p>
 </tldr>
 
+<img src="PhysXInstancedSubsystem.png" alt="Large number of instanced rigid bodies simulated by the PhysX Instanced Subsystem" border-effect="line"/>
+
+*Instanced rendering backed by real per-instance PhysX bodies: one Instanced Static Mesh component draws
+every object, and the subsystem owns a PhysX body for each one that is still moving.*
+
 The standard way to simulate many objects in Unreal is one actor per object, each with a primitive
 component and a body instance. That works up to a few hundred objects and then falls apart: actor overhead,
 component ticking, transform propagation and scene graph updates cost more than the physics itself.
@@ -16,9 +21,10 @@ The PhysX Instanced Subsystem separates the two concerns. Rendering goes through
 Mesh component; physics goes through PhysX bodies the subsystem owns directly. There are no per-object
 actors and no per-object components.
 
-| Detail | |
+| Detail | Value |
 |---|---|
 | Plugin | `Engine/Plugins/Runtime/VitePlugins/PhysXInstancedSubsystem` |
+| Version | 1.11, since the [March Major](ueVite26-MarchMajor.md) |
 | Module | `PhysXInstancedSubsystem` |
 | Subsystem | `UPhysXInstancedWorldSubsystem` (tickable world subsystem) |
 | Actor | `APhysXInstancedMeshActor` |

@@ -7,6 +7,11 @@ NVIDIA <b>Blast</b> for modern fracture. Existing 4.27 destructible and clothing
 </p>
 </tldr>
 
+<img src="ApexDestructionTest.jpg" alt="A destructible wall breaking into chunks and debris under weapon fire in a Vite physics test level" border-effect="line"/>
+
+*Apex Destruction in a Vite physics test level: the wall fractures along its authored chunk hierarchy and
+the debris is simulated by PhysX.*
+
 Destruction and cloth are the two areas where the [PhysX decision](PhysX.md) has the most visible
 consequences for content. Both Apex systems are tied to PhysX; removing PhysX removed them.
 
@@ -16,7 +21,7 @@ Apex Destruction fractures a mesh into a hierarchy of chunks that break apart un
 authored as Destructible Meshes, either fractured in-editor with Voronoi decomposition or imported from
 external tools.
 
-| Detail | |
+| Detail | Value |
 |---|---|
 | Plugin | `Engine/Plugins/Runtime/ApexDestruction` |
 | Asset type | Destructible Mesh |
@@ -42,7 +47,7 @@ Instructional video on Apex Destruction [![Instructional video by MeanLemur](htt
 Apex Cloth is the PhysX-era clothing system, authored either through the in-editor Clothing Tool or imported
 from APEX clothing assets produced in external DCC tools.
 
-| Detail | |
+| Detail | Value |
 |---|---|
 | Asset type | APEX Clothing asset or in-editor clothing data on a skeletal mesh |
 | Status in UE5 | Removed in favour of Chaos Cloth |
@@ -67,7 +72,7 @@ Blast is NVIDIA's successor to Apex Destruction, and the more capable of the two
 [Official Blast Plugin Documentation](https://archive.docs.nvidia.com/gameworks/content/gameworkslibrary/blast/1.1/authoring_docs/BlastUe4_QuickStart.html) 
 
 
-| Detail | |
+| Detail | Value |
 |---|---|
 | Plugin | `Engine/Plugins/GameWorks/Blast` (version 1.0) |
 | Platforms | Win64, Linux |
@@ -83,6 +88,15 @@ Blast also supports runtime fracture, so the fracture pattern can depend on wher
 hit rather than being fully baked at author time.
 
 Enable the plugin from **Edit > Plugins > GameWorks**, then use the Blast Mesh Editor to author assets.
+
+### Vite's Blast work
+
+| Release | Change |
+|---|---|
+| [June Major](ueVite26-JuneMajor.md) | PhysX Blast plugin integration with the engine-side changes Blast needs to render correctly, plus a [Blast sample project](https://github.com/ViteStudio-Tech/ueVite-PhysX_Blast-ProjectSample) |
+| [July Major](ueVite26-JulyMajor.md) | Blast SDK upgrade; skin-cache rebuild support; the fracture editor invalidates DDC data on fracture and guards bone indices |
+
+Start from the sample project to see a working Blast setup in Vite before authoring your own assets.
 
 > Blast is not a drop-in replacement for Apex Destruction. The asset types, authoring workflow and runtime
 > API are all different. Choose one per project rather than mixing them, and prefer Blast for new work.

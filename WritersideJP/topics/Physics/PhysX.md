@@ -2,165 +2,202 @@
 
 <tldr>
 <p>
-Vite integrates <b>NVIDIA PhysX 3.4</b> for rigid-body simulation, collision queries, constraints,
-vehicles and skeletal physics. Vite extends the backend with modern compiler support, fixed-timestep
-simulation, NVIDIA Blast and a high-count instanced physics subsystem.
+Vite は剛体シミュレーション、コリジョンクエリ、コンストレイント、ビークル、スケルタルの物理に
+<b>NVIDIA PhysX 3.4</b> を統合しています。さらに、最新のコンパイラ対応、固定タイムステップのシミュレーション、
+NVIDIA Blast、大量のボディを扱うインスタンス化物理サブシステムでバックエンドを拡張しています。
 </p>
 </tldr>
 
-PhysX is exposed through Unreal Engine's standard physics framework. Existing engine types such as body
-instances, physical materials, physics assets, collision profiles and constraint components use the PhysX
-scene underneath.
+<img src="PhysicsCubeBench.png" alt="1,400 個のキューブのシミュレーションの比較キャプチャ。Chaos は 75.45 FPS、PhysX 3.4 は 148.44 FPS" border-effect="line"/>
 
-## Core simulation features
+*同じシーンでシミュレーションする 1,400 個のキューブ。Chaos（左）はフレーム 13.25 ms で 75.45 FPS、Vite の
+PhysX 3.4（右）はフレーム 6.74 ms で 148.44 FPS です。方法の詳細は
+[物理キューブベンチマーク](Physics-Cube-Bench.md) を参照してください。*
 
-### Rigid bodies
+PhysX は Unreal Engine の標準の物理フレームワークを通じて公開されています。ボディインスタンス、物理マテリアル、
+物理アセット、コリジョンプロファイル、コンストレイントコンポーネントといった既存のエンジンの型は、内部で PhysX の
+シーンを使います。そのため、UE4 のゲームプレイコード、ブループリント、コンテンツは、物理のための移植作業なしに
+動作します。
 
-- static, dynamic and kinematic actors;
-- box, sphere, capsule, convex and triangle-mesh collision geometry;
-- physical materials with friction, restitution and density;
-- gravity, damping, forces, impulses and torque;
-- sleeping, waking and active-body tracking;
-- continuous collision detection for fast-moving bodies;
-- collision filtering and simulation/query shape flags;
-- contact, overlap and wake/sleep notifications.
+## 概要
 
-### Scene queries
+<deflist>
+<def title="エンジン内で Chaos より高速">
+エンジンが管理する 3,000 個のキューブが、同じシーンの Chaos を使う Unreal Engine 5.7 の 4.75 倍のフレームレートで
+動作します。同条件のキャプチャは <a href="Physics.md">物理</a> を参照してください。
+</def>
+<def title="標準の PhysX より高速">
+10,005 ボディの Box Container Pile ベンチマークで、Vite の PhysX 3.4 ビルドは標準の NVIDIA PhysX 3.4 よりソルバー時間が
+25.2〜28.2% 少なく、CPU 版の標準 PhysX 5.6.1 より 1.15〜1.44 倍高速です。いずれも 1〜6 のすべてのスレッド数で
+成り立ちます。
+</def>
+<def title="UE4 のコンテンツに必要な機能を網羅">
+剛体、シーンクエリ、コンストレイント、ラグドール、ビークル、APEX Destruction、APEX Cloth、NVIDIA Blast。UE5 が削除・
+置き換えたシステムも引き続き利用できます。
+</def>
+<def title="製品開発のための設計">
+固定タイムステップのシミュレーション、大量のボディを扱うインスタンス化サブシステム、そして最新の MSVC、Clang、
+PS5 の CPU に合わせたツールチェーンの作業です。
+</def>
+</deflist>
 
-PhysX provides the collision-query path used throughout the engine:
+## シミュレーションの主要機能
 
-- raycasts;
-- shape sweeps;
-- overlaps;
-- single-hit and multi-hit queries;
-- object-channel, trace-channel and profile filtering;
-- synchronous scene queries used by movement, weapons, navigation and gameplay systems.
+### 剛体
 
-Query cost depends on collision complexity, broad-phase population, filter callbacks and result count. Use
-simple collision for repeated gameplay queries and avoid requesting multi-hit results when only the first
-blocking hit is needed.
+- スタティック、ダイナミック、キネマティックのアクター
+- ボックス、スフィア、カプセル、凸形状、三角形メッシュのコリジョンジオメトリ
+- 摩擦、反発、密度を持つ物理マテリアル
+- 重力、減衰、力、インパルス、トルク
+- スリープ、ウェイク、アクティブなボディの追跡
+- 高速に動くボディのための連続衝突検出
+- コリジョンのフィルタリングと、シミュレーション用・クエリ用の形状フラグ
+- 接触、オーバーラップ、ウェイク/スリープの通知
 
-### Constraints
+### シーンクエリ
 
-The integration supports fixed, distance, hinge, spherical and D6-style constraints through Unreal's
-constraint framework. Available controls include:
+PhysX はエンジン全体で使われるコリジョンクエリのパスを提供します。
 
-- linear and angular limits;
-- motors and drives;
-- break force and break torque;
-- constraint projection;
-- collision enablement between constrained bodies;
-- mass and inertia scaling;
-- skeletal constraint chains authored in Physics Assets.
+- レイキャスト
+- 形状のスイープ
+- オーバーラップ
+- 単一ヒットと複数ヒットのクエリ
+- オブジェクトチャンネル、トレースチャンネル、プロファイルによるフィルタリング
+- 移動、武器、ナビゲーション、ゲームプレイのシステムが使う同期的なシーンクエリ
 
-### Character and skeletal physics
+クエリのコストは、コリジョンの複雑さ、ブロードフェーズに含まれる数、フィルターのコールバック、結果の数に依存します。
+繰り返し行うゲームプレイのクエリには単純なコリジョンを使い、最初のブロッキングヒットだけが必要な場合は複数ヒットの
+結果を要求しないでください。
 
-PhysX supplies collision queries for Character Movement and rigid-body simulation for Physics Assets. This
-includes ragdolls, physical animation, hit reactions, body welding and per-body collision configuration.
+### コンストレイント
 
-### Vehicles
+統合は、Unreal のコンストレイントフレームワークを通じて、固定、距離、ヒンジ、球面、D6 形式のコンストレイントに
+対応しています。利用できる制御は次のとおりです。
 
-Vite retains the UE4.27 PhysX vehicle stack, including wheel simulation, suspension, tire friction, engine,
-gearing, differential and drivetrain configuration. Vehicle behavior is authored through the standard
-vehicle and tire data assets used by UE4 projects.
+- 直線と角度の制限
+- モーターとドライブ
+- 破断する力とトルク
+- コンストレイントのプロジェクション
+- コンストレイントで結ばれたボディ間のコリジョンの有効化
+- 質量と慣性のスケーリング
+- 物理アセットで作成するスケルタルのコンストレイントの連鎖
 
-## Destruction, cloth and Blast
+### キャラクターとスケルタルの物理
 
-The Vite physics stack includes the following NVIDIA systems:
+PhysX は、キャラクタームーブメントのコリジョンクエリと、物理アセットの剛体シミュレーションを提供します。これには
+ラグドール、フィジカルアニメーション、ヒットリアクション、ボディのウェルド、ボディごとのコリジョン設定が含まれます。
 
-| Feature | Function |
+### ビークル
+
+Vite は UE4.27 の PhysX のビークルスタックを維持しており、ホイールのシミュレーション、サスペンション、タイヤの摩擦、
+エンジン、ギア、デファレンシャル、ドライブトレインの設定を含みます。ビークルの挙動は、UE4 のプロジェクトで使われる
+標準のビークルとタイヤのデータアセットで作成します。
+
+## 破壊、クロス、Blast
+
+Vite の物理スタックには、次の NVIDIA のシステムが含まれます。
+
+| 機能 | 役割 |
 |---|---|
-| APEX Destruction | Authored destructible meshes, support chunks, damage and fracture events |
-| APEX Cloth | Vertex-painted cloth constraints and skeletal-mesh clothing simulation |
-| NVIDIA Blast | Destruction assets and fracture workflows integrated alongside the PhysX backend |
+| APEX Destruction | 作成済みの破壊可能メッシュ、サポートチャンク、ダメージと破砕のイベント |
+| APEX Cloth | 頂点ペイントによるクロスのコンストレイントと、スケルタルメッシュの衣服シミュレーション |
+| NVIDIA Blast | PhysX バックエンドと統合された破壊アセットと破砕のワークフロー |
 
-See [Destruction and Cloth](Destruction-And-Cloth.md) for authoring and runtime guidance.
+作成と実行時の指針は [破壊とクロス](Destruction-And-Cloth.md) を参照してください。
 
-## Vite extensions
+## Vite の拡張
 
-### Modern toolchain support
+### 最新ツールチェーンへの対応
 
-Vite's PhysX 3.4 libraries and build files are being modernised for current MSVC and Clang (including the
-Android NDK Clang path) and retuned for **PS5 Zen 2's cut-down FPU**: `FP3` gone, `FP2` store-only,
-**one 256-bit FMA pipe**. That work is validated on an AMD 4700S, not on desktop Matisse and not on
-Series X. Series X is 15.3 billion transistors vs Oberon's 10.6 billion; part of that delta is CPU FPU
-silicon, so Series X dual-issues FMA the PS5 core cannot. Kernel rules, probes and `V3ScaleAdd` patterns
-are in [PS5 CPU FPU](PS5-CPU-FPU.md).
+Vite の PhysX 3.4 のライブラリとビルドファイルは、最新の MSVC と Clang（Android NDK の Clang を含む）に向けて
+近代化を進めるとともに、**PS5 の Zen 2 の削減された FPU**（`FP3` なし、`FP2` はストア専用、**256 ビットの FMA
+パイプ 1 本**）に合わせて再調整しています。この作業はデスクトップの Matisse でも Series X でもなく、AMD 4700S で
+検証しています。Series X のトランジスタ数は 153 億、Oberon は 106 億で、その差の一部は CPU の FPU の回路です。
+そのため Series X は PS5 のコアにはできない FMA のデュアル発行ができます。カーネルのルール、計測方法、`V3ScaleAdd`
+のパターンは [PS5 CPU の FPU](PS5-CPU-FPU.md) にまとめています。
 
-### Fixed-timestep simulation
+### 固定タイムステップのシミュレーション
 
-The optional fixed-timestep path decouples the simulation cadence from variable render frames and adds render
-interpolation. It is intended for projects that require a stable simulation delta or reproducible captures.
-See [Fixed Timestep](Fixed-Timestep.md) for compile-time setup and integration requirements.
+任意で使える固定タイムステップのパスは、シミュレーションの周期を可変のレンダーフレームから切り離し、レンダー補間を
+加えます。安定したシミュレーションのデルタや再現可能なキャプチャが必要なプロジェクト向けです。コンパイル時の設定と
+統合の要件は [固定タイムステップ](Fixed-Timestep.md) を参照してください。
 
-### Instanced physics subsystem
+### インスタンス化物理サブシステム
 
-The instanced subsystem represents large homogeneous rigid-body sets through instanced meshes instead of one
-Actor and component hierarchy per body. It is intended for debris, shells, environmental objects and other
-high-count simulations. See [Instanced Physics Subsystem](Instanced-Physics.md).
+<img src="PhysXInstancedSubsystem.png" alt="PhysX のインスタンス化サブシステムでシミュレーションされた大量のインスタンス化剛体" border-effect="line"/>
 
-### Native actor path
+*インスタンスごとに本物の PhysX のボディを持つインスタンス描画。[PhysX インスタンスサブシステムのデモ](PhysX-Instanced-Subsystem.md)
+を参照してください。*
 
-Engine-level systems that already own compact simulation state can operate closer to native PhysX actors and
-avoid unnecessary high-level Actor/component work. This is a specialized integration path: ownership,
-lifetime, transform synchronization, collision filtering and teardown remain the caller's responsibility.
+インスタンス化サブシステムは、ボディごとにアクターとコンポーネントの階層を持つ代わりに、インスタンスメッシュを使って
+大規模で均質な剛体の集合を表現します。破片、薬莢、環境オブジェクトなど、数の多いシミュレーション向けです。
+[インスタンス化物理](Instanced-Physics.md) を参照してください。
 
-## Configuration
+### ネイティブアクターのパス
 
-Physics settings are under **Project Settings > Engine > Physics**.
+<img src="NativePhysXActors1425.png" alt="1,425 個のキューブをシミュレーションする Vite のネイティブ PhysX アクターのエンジン内テスト。374 FPS" border-effect="line"/>
 
-| Setting | Function |
+*Unreal Engine 内でネイティブ PhysX アクターとしてシミュレーションする 1,425 個のキューブ: 374 FPS、フレームタイム
+2.67 ms。*
+
+コンパクトなシミュレーション状態をすでに持っているエンジンレベルのシステムは、ネイティブの PhysX アクターに近い形で
+動作し、不要な上位のアクターやコンポーネントの処理を避けられます。これは特殊な統合パスであり、所有権、ライフタイム、
+トランスフォームの同期、コリジョンのフィルタリング、破棄は呼び出し側の責任です。
+
+## 設定
+
+物理の設定は **プロジェクト設定 > エンジン > 物理** にあります。
+
+| 設定 | 役割 |
 |---|---|
-| Default Gravity Z | World gravity; `-980.0` corresponds to 1 uu = 1 cm |
-| Substepping | Divides a long frame into smaller simulation steps |
-| Max Substep Delta Time | Maximum delta processed by one substep |
-| Max Substeps | Upper bound on simulation steps performed for one frame |
-| Simulate Skeletal Mesh on Dedicated Server | Enables skeletal rigid-body simulation on server targets |
-| Default Degrees Of Freedom | Constrains motion for planar or limited-axis games |
+| Default Gravity Z | ワールドの重力。`-980.0` は 1 uu = 1 cm に相当 |
+| Substepping | 長いフレームを小さなシミュレーションステップに分割 |
+| Max Substep Delta Time | 1 回のサブステップで処理する最大のデルタ |
+| Max Substeps | 1 フレームで実行するシミュレーションステップの上限 |
+| Simulate Skeletal Mesh on Dedicated Server | サーバーのターゲットでスケルタルの剛体シミュレーションを有効化 |
+| Default Degrees Of Freedom | 平面や軸が制限されたゲーム向けに動きを拘束 |
 
-### Substepping
+### サブステップ
 
-Without substepping, the physics scene advances with the frame delta. Large or variable deltas can reduce
-contact and constraint stability. Substepping performs multiple smaller advances when required; its CPU cost
-increases with the number of executed substeps.
+サブステップを使わない場合、物理シーンはフレームのデルタで進みます。大きなデルタや変動するデルタは、接触と
+コンストレイントの安定性を下げることがあります。サブステップは必要に応じて複数の小さな前進を行い、その CPU コストは
+実行するサブステップの数に応じて増えます。
 
-Choose `Max Substep Delta Time` from the fastest interaction that must remain stable, then set `Max Substeps`
-to cap worst-case work. A cap prevents a slow frame from creating an unbounded simulation backlog.
+`Max Substep Delta Time` は安定を保つ必要がある最も速い相互作用から決め、次に `Max Substeps` で最悪時の処理量に上限を
+設けます。上限を設けることで、遅いフレームがシミュレーションの際限ない遅れを生むことを防げます。
 
-For a fixed simulation cadence rather than frame-triggered substeps, use the
-[fixed-timestep path](Fixed-Timestep.md).
+フレームに応じたサブステップではなく、固定のシミュレーション周期を使う場合は、
+[固定タイムステップのパス](Fixed-Timestep.md) を使用してください。
 
 ## PhysX Visual Debugger
 
-PhysX Visual Debugger can inspect a connected scene, including actors, shapes, contacts, constraints and
-simulation state. Use a development build with PVD support, connect before reproducing the issue, and limit
-capture duration when the scene contains many bodies.
+PhysX Visual Debugger は、接続したシーンのアクター、形状、接触、コンストレイント、シミュレーションの状態を調べられます。
+PVD 対応の開発ビルドを使い、問題を再現する前に接続し、ボディの多いシーンではキャプチャの時間を短く抑えてください。
 
-Viewport collision visualization remains useful for confirming authored geometry and filtering before a
-full PVD capture.
+PVD で完全なキャプチャを取る前に、作成したジオメトリとフィルタリングを確認するには、ビューポートのコリジョン表示が
+引き続き便利です。
 
-## Profiling
+## プロファイリング
 
-| Command | Shows |
+| コマンド | 表示内容 |
 |---|---|
-| `stat physics` | Physics timing divided by engine phase |
-| `stat game` | Physics cost in the context of game-thread work |
-| `p.NumPhysScenes` | Number of active physics scenes |
-| `show Collision` | Collision geometry in the viewport |
+| `stat physics` | エンジンのフェーズごとに分けた物理の時間 |
+| `stat game` | ゲームスレッドの処理の中での物理のコスト |
+| `p.NumPhysScenes` | アクティブな物理シーンの数 |
+| `show Collision` | ビューポートでのコリジョンジオメトリ |
 
-Profile with representative collision geometry, body counts, sleeping behavior and event generation. Record
-physics milliseconds, body/shape counts, active-body count, solver settings, substeps and worker configuration
-with every comparison.
+代表的なコリジョンジオメトリ、ボディの数、スリープの挙動、イベントの生成でプロファイリングしてください。比較のたびに、
+物理のミリ秒、ボディ数と形状数、アクティブなボディの数、ソルバーの設定、サブステップ、ワーカーの構成を記録します。
 
-For high body counts, compare standard Actor-based simulation with the
-[instanced subsystem](Instanced-Physics.md) using the same shapes and solver settings.
+ボディの数が多い場合は、同じ形状とソルバー設定で、標準のアクターベースのシミュレーションと
+[インスタンス化サブシステム](Instanced-Physics.md) を比較してください。
 
-## See also
+## 関連項目
 
-- [Physics](Physics.md)
-- [PS5 CPU FPU](PS5-CPU-FPU.md)
-- [Fixed Timestep](Fixed-Timestep.md)
-- [Destruction and Cloth](Destruction-And-Cloth.md)
-- [Instanced Physics Subsystem](Instanced-Physics.md)
-- [Physics Cube Bench](Physics-Cube-Bench.md)
-- [PhysX Test](PhysXTest.md)
+- [物理](Physics.md)
+- [PS5 CPU の FPU](PS5-CPU-FPU.md)
+- [固定タイムステップ](Fixed-Timestep.md)
+- [破壊とクロス](Destruction-And-Cloth.md)
+- [インスタンス化物理](Instanced-Physics.md)
+- [物理キューブベンチマーク](Physics-Cube-Bench.md)
+- [PhysX テスト](PhysXTest.md)

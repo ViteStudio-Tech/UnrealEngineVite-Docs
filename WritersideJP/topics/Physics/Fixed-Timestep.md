@@ -1,145 +1,141 @@
-# Fixed Timestep
+# 固定タイムステップ
 
 <tldr>
 <p>
-An optional Vite feature that steps PhysX at a fixed rate independent of frame rate, with render
-interpolation so motion stays smooth. Compile-time switch <code>VITE_PHYSX_FIXED_TIMESTEP</code>
-(default <code>0</code>), runtime CVar <code>p.VitePhysXFixedTimestep.Enabled</code>.
+フレームレートに依存しない固定のレートで PhysX を進め、レンダー補間で動きを滑らかに保つ、Vite の任意機能です。
+コンパイル時スイッチは <code>VITE_PHYSX_FIXED_TIMESTEP</code>（既定値 <code>0</code>）、実行時の CVar は
+<code>p.VitePhysXFixedTimestep.Enabled</code> です。
 </p>
 </tldr>
 
-By default, Unreal steps physics with the frame's delta time. A frame that took 8&nbsp;ms steps physics by
-8&nbsp;ms; a frame that took 33&nbsp;ms steps by 33&nbsp;ms. Simulation results therefore depend on frame
-rate, which means the same input produces different outcomes on different hardware, and a replay recorded on
-one machine does not reproduce on another.
+既定では、Unreal はフレームのデルタタイムで物理を進めます。8&nbsp;ms かかったフレームでは物理を 8&nbsp;ms、
+33&nbsp;ms かかったフレームでは 33&nbsp;ms 進めます。そのためシミュレーションの結果はフレームレートに依存し、同じ入力でも
+ハードウェアによって結果が変わり、あるマシンで記録したリプレイが別のマシンでは再現されません。
 
-Vite's fixed timestep mode decouples the two. Physics always advances in identical increments; the renderer
-interpolates between the two most recent physics states to keep motion smooth.
+Vite の固定タイムステップモードは、この 2 つを切り離します。物理は常に同じ刻み幅で進み、レンダラーは直近 2 つの
+物理状態の間を補間して動きを滑らかに保ちます。
 
-## Enabling
+## 有効にする
 
-This is a two-stage opt-in. The feature is compiled out by default.
+これは 2 段階のオプトインです。既定ではこの機能はコンパイル対象から外れています。
 
-<procedure title="Enable fixed timestep physics" id="enable-fixed-timestep">
+<procedure title="固定タイムステップの物理を有効にする" id="enable-fixed-timestep">
     <step>
-        Set <code>VITE_PHYSX_FIXED_TIMESTEP</code> to <code>1</code>. See
-        <a href="Compile-Time-Switches.md">Compile-Time Switches</a> for how to override it without
-        editing <code>CoreDefines.h</code>.
+        <code>VITE_PHYSX_FIXED_TIMESTEP</code> を <code>1</code> に設定します。<code>CoreDefines.h</code> を
+        編集せずに上書きする方法は <a href="Compile-Time-Switches.md">コンパイル時スイッチ</a> を参照してください。
     </step>
-    <step>Rebuild the engine.</step>
+    <step>エンジンを再ビルドします。</step>
     <step>
-        Set <code>p.VitePhysXFixedTimestep.Enabled 1</code> at runtime, or in
-        <code>DefaultEngine.ini</code>.
+        実行時に、または <code>DefaultEngine.ini</code> で <code>p.VitePhysXFixedTimestep.Enabled 1</code> を
+        設定します。
     </step>
     <step>
-        Enable substepping in <b>Project Settings &gt; Engine &gt; Physics</b>. The fixed-step
-        implementation runs through the substepping path.
+        <b>プロジェクト設定 &gt; エンジン &gt; 物理</b> でサブステップを有効にします。固定ステップの実装は
+        サブステップのパスを通って実行されます。
     </step>
 </procedure>
 
-The compile-time gate exists because the feature changes hot paths in the physics scene, the substep task
-and the animation physics blend. Projects that do not need determinism should not pay for the extra branches
-and the double-buffered transform storage.
+コンパイル時のゲートがあるのは、この機能が物理シーン、サブステップのタスク、アニメーションの物理ブレンドの
+ホットパスを変更するためです。決定論的な動作が不要なプロジェクトが、追加の分岐やダブルバッファのトランスフォームの
+保存領域のコストを支払うべきではありません。
 
-## Console variables
+## コンソール変数
 
-All of these exist only when `VITE_PHYSX_FIXED_TIMESTEP` is compiled in.
+以下はすべて、`VITE_PHYSX_FIXED_TIMESTEP` をコンパイルに含めた場合にのみ存在します。
 
-| CVar | Default | Range | Purpose |
+| CVar | 既定値 | 範囲 | 用途 |
 |---|---|---|---|
-| `p.VitePhysXFixedTimestep.Enabled` | `0` | 0/1 | Master enable |
-| `p.VitePhysXFixedTimestep.DeltaTime` | `0.01667` (1/60) | 0.0013&ndash;1.0 | Fixed simulation step in seconds |
-| `p.VitePhysXFixedTimestep.MaxTimesteps` | `16` | 1&ndash;50 | Maximum fixed steps per game tick before overload accumulates |
-| `p.VitePhysXFixedTimestep.MaxCumulativeExtraSteps` | `50` | 0&ndash;100 | Cumulative overload budget before the limit policy applies |
-| `p.VitePhysXFixedTimestep.LimitType` | `0` | 0/1 | `0` clamp fixed steps, `1` fall back to variable substeps |
-| `p.VitePhysXFixedTimestep.InterpolationMode` | `1` | 0/1/2 | `0` disabled, `1` per component, `2` always |
+| `p.VitePhysXFixedTimestep.Enabled` | `0` | 0/1 | 全体の有効化 |
+| `p.VitePhysXFixedTimestep.DeltaTime` | `0.01667`（1/60） | 0.0013〜1.0 | 固定のシミュレーションステップ（秒） |
+| `p.VitePhysXFixedTimestep.MaxTimesteps` | `16` | 1〜50 | 過負荷が蓄積し始めるまでの、ゲームの 1 Tick あたりの固定ステップの最大数 |
+| `p.VitePhysXFixedTimestep.MaxCumulativeExtraSteps` | `50` | 0〜100 | 制限ポリシーが適用されるまでの過負荷の累積予算 |
+| `p.VitePhysXFixedTimestep.LimitType` | `0` | 0/1 | `0` は固定ステップを打ち切り、`1` は可変サブステップにフォールバック |
+| `p.VitePhysXFixedTimestep.InterpolationMode` | `1` | 0/1/2 | `0` は無効、`1` はコンポーネント単位、`2` は常に補間 |
 
-## How it works
+## 仕組み
 
-The implementation maintains a time accumulator. Each game tick adds the frame's delta to the accumulator,
-then runs as many whole fixed steps as fit. The remainder stays in the accumulator for next frame.
+実装は時間のアキュムレーターを保持します。ゲームの Tick ごとにフレームのデルタをアキュムレーターに加え、そこに
+収まるだけの固定ステップを丸ごと実行します。余りは次のフレームのためにアキュムレーターに残ります。
 
-Because a fast frame may fit zero fixed steps and a slow frame may fit several, the system has to handle two
-things carefully.
+速いフレームでは固定ステップが 0 回、遅いフレームでは複数回になりうるため、システムは 2 つの点を慎重に扱う必要が
+あります。
 
-**Buffers are not rotated on frames with no physics step.** Standard substepping swaps the physics target
-buffers unconditionally. In fixed-step mode the swap is deferred until a step actually happens, which
-preserves one-shot forces, kinematic targets and custom physics callbacks that were queued during a frame
-that did not step. Without this, an impulse applied on a zero-step frame would be silently discarded.
+**物理ステップのないフレームではバッファを入れ替えません。** 標準のサブステップは、物理のターゲットバッファを
+無条件に入れ替えます。固定ステップモードでは、実際にステップが行われるまで入れ替えを遅らせます。これにより、
+ステップのなかったフレームでキューに入った一度きりの力、キネマティックの目標、独自の物理コールバックが保持されます。
+これがないと、ステップが 0 回のフレームで加えたインパルスは黙って捨てられてしまいます。
 
-**Results are only fetched when a step occurred.** `fetchResults` is skipped on frames with no simulation,
-avoiding redundant work and stale transform reads.
+**結果の取得はステップが行われた場合のみです。** シミュレーションのないフレームでは `fetchResults` をスキップし、
+冗長な処理や古いトランスフォームの読み取りを避けます。
 
-## Overload handling
+## 過負荷への対処
 
-If the game cannot keep up &mdash; a long hitch, or a physics load too heavy for the fixed rate &mdash; the
-accumulator grows faster than it drains. Left alone this becomes a death spiral: each frame takes longer,
-which queues more steps, which makes the next frame longer still.
+ヒッチが長い、または固定レートに対して物理の負荷が重すぎるなどでゲームが追いつけない場合、アキュムレーターは消化
+されるより速く増えていきます。放置すると悪循環に陥ります。各フレームが長くなり、より多くのステップがキューに入り、
+次のフレームがさらに長くなるのです。
 
-Two limits prevent that. `MaxTimesteps` caps steps per tick. Overload beyond that cap accumulates against
-`MaxCumulativeExtraSteps`, and when that budget is exhausted, `LimitType` decides what happens:
+これを防ぐ制限が 2 つあります。`MaxTimesteps` は 1 Tick あたりのステップ数に上限を設けます。その上限を超えた過負荷は
+`MaxCumulativeExtraSteps` に対して蓄積され、その予算を使い切ると、`LimitType` が挙動を決めます。
 
-| `LimitType` | Behaviour | Use when |
+| `LimitType` | 挙動 | 使う場面 |
 |---|---|---|
-| `0` &mdash; Clamp | Discard excess accumulated time. Simulation falls behind wall-clock time. | Determinism matters more than real-time correspondence: replays, deterministic tests |
-| `1` &mdash; Variable substeps | Fall back to normal variable-step substepping until caught up. | Real-time correspondence matters more: general gameplay |
+| `0` &mdash; 打ち切り | 蓄積した余分な時間を破棄します。シミュレーションは実時間より遅れます。 | 実時間との対応より決定論が重要な場合: リプレイ、決定論的なテスト |
+| `1` &mdash; 可変サブステップ | 追いつくまで通常の可変ステップのサブステップに戻ります。 | 実時間との対応が重要な場合: 一般的なゲームプレイ |
 
-Clamping means physics runs in slow motion under sustained overload but remains bit-identical for a given
-step sequence. Falling back to variable substeps keeps things real-time but sacrifices determinism for the
-frames where it engages.
+打ち切りでは、過負荷が続くと物理はスローモーションで動きますが、同じステップの並びに対してはビット単位で同一の
+結果を保ちます。可変サブステップへのフォールバックは実時間性を保ちますが、それが働いたフレームでは決定論を
+犠牲にします。
 
-## Render interpolation
+## レンダー補間
 
-Fixed stepping at 60&nbsp;Hz while rendering at 120&nbsp;fps would show each physics state twice without
-interpolation, producing visible judder. The system stores the two most recent completed transforms per body
-(`PreviousPhysicsTransform` and `LatestPhysicsTransform`) and blends between them using the accumulator's
-fractional remainder.
+120&nbsp;fps で描画しながら 60&nbsp;Hz で固定ステップを行うと、補間なしでは各物理状態が 2 回ずつ表示され、目に見える
+カクつきが生じます。システムはボディごとに直近 2 つの完了したトランスフォーム（`PreviousPhysicsTransform` と
+`LatestPhysicsTransform`）を保存し、アキュムレーターの端数を使ってその間をブレンドします。
 
-`InterpolationMode` controls how widely this applies:
+`InterpolationMode` は、補間をどこまで適用するかを制御します。
 
-- **`0` Disabled.** No interpolation. Bodies snap to the latest physics state. Cheapest, and correct if your
-  render rate matches your fixed step rate exactly.
-- **`1` Per component (default).** Interpolates only bodies whose `bInterpolateWhenSubStepping` flag is set.
-  The engine clears this flag for bodies where interpolation cannot be observed &mdash; kinematic
-  query-only bodies, for instance &mdash; so this mode gets the visual benefit without paying for bodies
-  that do not need it.
-- **`2` Always.** Interpolates every body unconditionally.
+- **`0` 無効。** 補間しません。ボディは最新の物理状態にスナップします。最も軽く、描画レートが固定ステップのレートと
+  完全に一致する場合は正しい結果になります。
+- **`1` コンポーネント単位（既定）。** `bInterpolateWhenSubStepping` フラグが設定されたボディだけを補間します。
+  エンジンは、クエリ専用のキネマティックのボディなど補間が目に見えないボディではこのフラグを外すため、このモードは
+  不要なボディのコストを払わずに見た目の利点を得られます。
+- **`2` 常に。** すべてのボディを無条件に補間します。
 
-Interpolation applies to both rigid bodies and the skeletal mesh physics blend, so ragdolls and
-physics-blended animation stay smooth.
+補間は剛体とスケルタルメッシュの物理ブレンドの両方に適用されるため、ラグドールと物理ブレンドしたアニメーションも
+滑らかに保たれます。
 
-## Choosing a step rate
+## ステップレートの選び方
 
-`DeltaTime` is the central tuning decision.
+`DeltaTime` は調整の中心となる判断です。
 
-| Step rate | Value | Notes |
+| ステップレート | 値 | 備考 |
 |---|---|---|
-| 30&nbsp;Hz | `0.03333` | Cheapest. Acceptable for slow, heavy objects. Fast bodies will tunnel. |
-| 60&nbsp;Hz | `0.01667` | Default. Good general choice. |
-| 120&nbsp;Hz | `0.00833` | Better for fast projectiles and tight constraints. Roughly double the CPU cost. |
+| 30&nbsp;Hz | `0.03333` | 最も軽量。遅く重いオブジェクトなら許容範囲。速いボディはすり抜けます。 |
+| 60&nbsp;Hz | `0.01667` | 既定値。一般的に良い選択です。 |
+| 120&nbsp;Hz | `0.00833` | 高速な弾や硬いコンストレイントに向いています。CPU コストはおよそ 2 倍です。 |
 
-Physics cost scales linearly with step rate, so 120&nbsp;Hz stepping costs about twice 60&nbsp;Hz. Pick the
-lowest rate that keeps your fastest-moving simulated bodies stable, and use CCD rather than a higher step
-rate to solve isolated tunnelling problems.
+物理のコストはステップレートに比例するため、120&nbsp;Hz のステップは 60&nbsp;Hz のおよそ 2 倍のコストがかかります。
+最も速く動くシミュレーション対象のボディが安定する最低のレートを選び、個別のすり抜けの問題はステップレートを
+上げるのではなく CCD で解決してください。
 
-> Choose the step rate early and do not change it after content is tuned. Physics content &mdash; impulse
-> magnitudes, constraint stiffness, damping values &mdash; is implicitly tuned against the step rate.
-> Changing it late means retuning everything.
+> ステップレートは早い段階で決め、コンテンツを調整した後は変更しないでください。インパルスの大きさ、
+> コンストレイントの剛性、減衰の値といった物理のコンテンツは、暗黙のうちにステップレートに合わせて調整されています。
+> 後から変更すると、すべてを調整し直すことになります。
 >
 {style="warning"}
 
-## When to use this
+## 使うべき場面
 
-**Use fixed timestep for** deterministic replays, networked physics where client and server must agree,
-automated tests that assert on physics outcomes, and any game where identical input must produce identical
-results across machines.
+**固定タイムステップを使うべき場面:** 決定論的なリプレイ、クライアントとサーバーの結果が一致しなければならない
+ネットワーク物理、物理の結果を検証する自動テスト、そして同じ入力がマシンを問わず同じ結果を生まなければならない
+あらゆるゲーム。
 
-**Do not use it for** projects with no determinism requirement. The default variable-step path is cheaper
-and the compile-time switch defaults to off for that reason.
+**使うべきでない場面:** 決定論の要件がないプロジェクト。既定の可変ステップのパスのほうが軽く、そのためにコンパイル時
+スイッチの既定値は無効になっています。
 
-## See also
+## 関連項目
 
 - [PhysX](PhysX.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Instanced Physics Subsystem](Instanced-Physics.md)
-- [Profiling](Profiling.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [インスタンス化物理](Instanced-Physics.md)
+- [プロファイリング](Profiling.md)

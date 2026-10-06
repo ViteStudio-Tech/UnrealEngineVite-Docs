@@ -1,265 +1,282 @@
-# Physics
+# 物理
 
 <tldr>
 <p>
-Vite's physics stack uses <b>PhysX 3.4</b>, with Vite extensions for fixed-timestep simulation,
-modern toolchains, NVIDIA Blast and high-count instanced rigid bodies. This page describes the physics
-architecture and its measured CPU behavior; the <a href="PhysX.md">PhysX page</a> documents backend features.
+Vite の物理スタックは <b>PhysX 3.4</b> を使用し、固定タイムステップのシミュレーション、最新のツールチェーン、
+NVIDIA Blast、大量のインスタンス化剛体のための Vite 独自の拡張を備えています。このページではまず測定結果を示し、
+次にその背景にある CPU アーキテクチャを説明します。バックエンドの機能は <a href="PhysX.md">PhysX</a> のページで
+扱います。
 </p>
 </tldr>
 
-Vite treats physics as a frame-time-critical engine system. Simulation cost includes more than the solver:
-broad phase, contact generation, island construction, constraint preparation, iterative solving, integration,
-callbacks and synchronization with engine state all contribute to the final physics time.
+<img src="ChaosVsPhysX3000.png" alt="3,000 個のキューブのシミュレーションのエンジン内比較。Unreal 5.7 の Chaos は 33.26 FPS、Unreal Vite 26 の PhysX 3.4 は 157.88 FPS" border-effect="line"/>
 
-## What is in this section
+*エンジンが管理する 3,000 個のキューブ。シーンもプリミティブ数も同一です。Chaos を使う Unreal Engine 5.7（左）は
+33.26 FPS、PhysX 3.4 を使う Unreal Vite 26（右）は 157.88 FPS で動作します。*
 
-| Topic | Covers |
+Vite は物理をフレームタイムに直結するエンジンシステムとして扱います。シミュレーションのコストはソルバーだけでは
+ありません。ブロードフェーズ、接触の生成、アイランドの構築、コンストレイントの準備、反復的な求解、積分、
+コールバック、そしてエンジンの状態との同期のすべてが、最終的な物理時間に寄与します。
+
+## 結果の概要
+
+| ワークロード | 比較 | Vite の結果 |
+|---|---|---|
+| [エンジン内の 3,000 キューブ](#cubes-3000) | Unreal 5.7 の Chaos と Unreal Vite 26 の PhysX 3.4 | **フレームレート 4.75 倍**、フレームタイム 78.9% 減 |
+| [Box Container Pile 10K、1 スレッド](#box-pile-10k) | Unreal Chaos と Vite PhysX 3.4 | Chaos は 1 ステップに **29.55 倍** の時間 |
+| [Box Container Pile 10K、6 スレッド](#box-pile-10k) | Unreal Chaos と Vite PhysX 3.4 | Chaos は 1 ステップに **67.34 倍** の時間 |
+| [Box Container Pile 10K、1〜6 スレッド](#box-pile-10k) | 標準の NVIDIA PhysX 3.4 と Vite PhysX 3.4 | Vite は物理時間が **25.2〜28.2% 少ない**（1.34〜1.39 倍） |
+| [Box Container Pile 10K、1〜6 スレッド](#box-pile-10k) | 標準の NVIDIA PhysX 5.6.1（CPU）と Vite PhysX 3.4 | すべてのスレッド数で Vite が **1.15〜1.44 倍高速** |
+| [ネイティブ PhysX アクター 1,425 個](#native-actors-1425) | Vite のネイティブアクターパス | **374 FPS**、フレームタイム 2.67 ms |
+
+このページの数値はすべて、特定のワークロード、ホスト、ビルドに紐付いています。引用する前に各結果の方法の説明を
+読んでください。どれも PhysX と Chaos の普遍的な倍率ではありません。
+
+## このセクションの内容
+
+| トピック | 内容 |
 |---|---|
-| [PhysX](PhysX.md) | PhysX 3.4 features, Vite extensions, configuration and profiling |
-| [Fixed Timestep](Fixed-Timestep.md) | Fixed-step simulation with render interpolation |
-| [Destruction and Cloth](Destruction-And-Cloth.md) | APEX Destruction, APEX Cloth and NVIDIA Blast |
-| [Instanced Physics Subsystem](Instanced-Physics.md) | Simulating large rigid-body sets through instanced meshes |
+| [PhysX](PhysX.md) | PhysX 3.4 の機能、Vite の拡張、設定、プロファイリング |
+| [固定タイムステップ](Fixed-Timestep.md) | レンダー補間付きの固定ステップのシミュレーション |
+| [破壊とクロス](Destruction-And-Cloth.md) | APEX Destruction、APEX Cloth、NVIDIA Blast |
+| [インスタンス化物理](Instanced-Physics.md) | インスタンスメッシュによる大規模な剛体のシミュレーション |
 
-## Physics CPU architecture
+## エンジン内のキューブのワークロード
 
-### Threading and the critical path
+[Vite PhysX Cube Test](https://github.com/ViteStudio-Tech/Vite-PhysX-Cube-Test) は Unreal Engine の中で動作するため、
+その数値には出荷されるゲームが支払う周辺のエンジン処理も含まれます。公開されている
+[キューブ生成の実装](https://github.com/ViteStudio-Tech/Vite-PhysX-Cube-Test/blob/5ae89c3b7b9d6993fdc535a54769e39ca7a116b4/Source/PhysXTest/CubeSpawner.cpp)
+は、キューブごとに `UStaticMeshComponent` を 1 つ作成してエンジンに登録し、`SetSimulatePhysics(true)` で
+シミュレーションを有効にします。スポナー自体は 1 つの `AActor` なので、これは 3,000 個の Unreal アクターを個別に
+生成するのではなく、エンジンが管理するコンポーネントのパスを測定しています。
 
-PhysX and Chaos both support multithreaded simulation. Chaos can execute through the Task Graph, use a
-dedicated physics thread and parallelize selected particle, collision and island work. A dedicated thread
-moves work away from the game thread, but it does not by itself reduce the time between starting and
-finishing a simulation step.
+### エンジンが管理する 3,000 個のキューブ {id="cubes-3000"}
 
-Physics contains ordered phases and data dependencies. Constraints within a connected island cannot all be
-solved independently, and later stages must wait for the state produced by earlier stages. Scaling therefore
-depends on the number and size of independent islands, task granularity, synchronization frequency and the
-amount of state transferred between the game and physics representations.
+このページの冒頭に示した同条件のキャプチャでは、どちらのエンジンでも 3,000 個のキューブを生成し、3,016 個の
+プリミティブを描画しています。後述の Box Container Pile 10K のランナーとは異なり、これらの値には周辺の Unreal の
+ランタイム処理が含まれており、物理ソルバー単体のミリ秒ではありません。
 
-PhysX 3.4 exposes a dependency-linked `TaskManager` and `CpuDispatcher`. Simulation stages create
-`LightCpuTask` jobs and submit them to the engine worker pool as their prerequisites complete. Vite's Unreal
-integration can batch dispatcher submissions to trade scheduling overhead against available parallelism.
-NVIDIA's [PhysX 3.4 threading documentation](https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Threading.html?highlight=cpudispatcher)
-
-
-### SIMD coverage
-
-Chaos contains optional Intel ISPC kernels. ISPC is a SIMD technology: it compiles an SPMD program for the
-vector units of the target CPU. The relevant constraint is coverage and utilization, not "ISPC versus SIMD."
-Only work implemented by an ISPC kernel receives that vector path. Divergent contacts, indirect memory
-access, gathers and scatters, heterogeneous constraint types and pointer-heavy data reduce effective lane
-occupancy. Intel's [ISPC documentation](https://ispc.github.io/index.html) describes the compiler and its SIMD
-execution model.
-
-PhysX's narrow phase and solver were developed around batched float data and platform SIMD kernels. The
-useful measurement is effective vector occupancy across the complete simulation step, including work that
-remains scalar or loses time to data movement.
-
-On the PS5 CPU that occupancy hits **one 256-bit FMA pipe** (`FP3` deleted, `FP2` stores only), not
-desktop or Series X Zen 2's two FMA pipes. FMA-throughput-bound solver work runs at about half a 3700X
-at the same clock. Vite's PhysX 3.4 modernisation is timed on the 4700S for that reason. Keep kernels
-FMA-fused (`V3ScaleAdd`) and SoA. Do not treat a desktop Ryzen or Series X capture as the PS5 result.
-Patterns are in [PS5 CPU FPU](PS5-CPU-FPU.md).
-
-### Numeric precision
-
-UE5 Large World Coordinates changed core world-space types to double precision. Epic's
-[LWC documentation](https://dev.epicgames.com/documentation/unreal-engine/large-world-coordinates-in-unreal-engine-5)
-explicitly documents double precision in Chaos destruction. This does not mean that every field in every
-Chaos subsystem is FP64. Modern Chaos uses mixed precision in selected paths, while the experimental Chaos
-implementation in the UE4.27 base aliases its primary `FReal` to `float`.
-
-Double precision remains SIMD-capable. A fixed-width register, however, carries half as many doubles as
-floats: a 256-bit register holds four 64-bit values or eight 32-bit values. Double-based fields also require
-twice the storage and memory bandwidth of equivalent float fields. In affected kernels this can reduce
-theoretical element throughput, increase cache pressure and add conversion work at float/double boundaries.
-Epic's [LWC conversion guide](https://dev.epicgames.com/documentation/unreal-engine/large-world-coordinates-project-conversion-guidelines-in-unreal-engine-5)
-documents both `VectorRegister4f` and `VectorRegister4d`; the constraint is lane width and data cost, not an
-absence of vector instructions.
-
-There is no accurate universal percentage for the FP64 cost. Scalar FP32 and FP64 instructions can have
-similar latency on some CPUs, while vector-throughput- or bandwidth-bound kernels can experience a much
-larger difference. Any percentage must be attached to a named workload, platform and build.
-
-## Box Container Pile 10K benchmark
-
-The supplied reports measure a deliberately physics-bound pile containing **10,005 active rigid bodies and
-10,005 shapes**. Rendering is removed(except for Chaos), sleeping is disabled and both runs use four solver iterations, a
-60 Hz simulation step, 30 warm-up steps and 300 measured steps. The metric is median physics milliseconds
-per frame; lower is better. 
-
-<note>
-This is purely a performance test; simulation precision and SDK features should be evaluated separately.
-</note>
-
-| Test property | Reported configuration |
-|---|---|
-| Host | Intel Core i7-13700K (8P+8E / 24 threads), maximum 3.40 GHz |
-| Memory | 64 GB DDR5-4800 |
-| Platform | Windows 11 Pro for Workstations x64, build 10.0.26200 |
-| Workload | Headless; 10,005 bodies; 10,005 shapes; rigid-body sleeping disabled |
-| Solver | Four iterations; 60 Hz |
-| Sampling | 300 measured steps after 30 warm-up steps |
-| Chaos build | Unreal release-branch Chaos Program target; Win64 Shipping; one reported repeat |
-| NVIDIA PhysX build | NVIDIA PhysX 3.4; Visual Studio 2026 MSBuild Release; SDK and runner; ten reported repeats |
-| Vite PhysX build | Vite PhysX 3.4; clang-cl 22 Release; runtime DLLs; ten reported repeats |
-
-### Matching thread-count results
-
-| Reported threads | Unreal Chaos | NVIDIA PhysX 3.4 | Vite PhysX 3.4 | Chaos / Vite | NVIDIA / Vite |
-|---:|---:|---:|---:|---:|---:|
-| 1 | 1,052.09 ms | 49.61 ms | 35.60 ms | **29.55×** | **1.39×** |
-| 3 | 1,051.41 ms | 21.98 ms | 15.95 ms | **65.92×** | **1.38×** |
-| 4 | 951.36 ms | 18.94 ms | 14.17 ms | **67.14×** | **1.34×** |
-| 5 | 857.89 ms | 17.09 ms | 12.47 ms | **68.80×** | **1.37×** |
-| 6 | 791.97 ms | 15.82 ms | 11.76 ms | **67.34×** | **1.35×** |
-
-<note>
-Chaos had to be benched through Win64, not Headless as the rest of the SDKs.
-</note>
-
-Vite PhysX improves from 35.60 ms at one reported thread to 11.76 ms at six, a **3.03× throughput
-increase**. NVIDIA PhysX 3.4 improves from 49.61 ms to 15.82 ms, a **3.14× increase**, while Chaos improves
-from 1,052.09 ms to 791.97 ms over the same range, a **1.33× increase**. The Chaos report continues to 24
-threads and reaches 581.25 ms, **1.81× the throughput of its one-thread result**.
-
-At matching thread counts, Chaos takes **21.21× as long as stock NVIDIA PhysX at one thread** and **50.06×
-as long at six threads**. NVIDIA PhysX takes 1.34–1.39× as long as Vite PhysX across the shared thread counts;
-equivalently, Vite reduces the reported median physics time by **25.2–28.2%** relative to the NVIDIA PhysX
-3.4 baseline. Vite PhysX enters the 16.67 ms budget for 60 Hz at three threads, and NVIDIA PhysX enters it at
-six. The reported Chaos result remains outside that budget at 24 threads.
-
-The one-thread result shows that task scaling cannot explain the complete gap: the reported physics time is
-already 29.55× as long for Chaos as for Vite PhysX and 21.21× as long for Chaos as for NVIDIA PhysX before
-additional worker scaling. The multi-thread results show that scaling widens a difference that also includes
-solver work, data access, collision and constraint processing, build configuration and engine integration.
-The stock NVIDIA result also separates the base PhysX architecture from the additional improvements in
-Vite's PhysX build.
-
-<img src="BoxContainerPile10KChaos.jpg" alt="Unreal Chaos Box Container Pile 10K benchmark report across one to 24 threads" border-effect="line"/>
-
-*Unreal Chaos report. Median physics milliseconds per frame; lower is better.*
-
-<img src="BoxContainerPile10KVitePhysX.jpg" alt="Vite PhysX and comparison engines Box Container Pile 10K benchmark report" border-effect="line"/>
-
-*Vite PhysX and comparison-engine report. The shared table above uses only thread counts reported for Chaos,
-NVIDIA PhysX 3.4 and Vite PhysX 3.4 in the supplied reports.*
-
-<note>
-The reports use the same host and high-level workload settings, but not identical executables: Chaos is a Win64 Shipping
-Chaos Program target, NVIDIA PhysX is a Visual Studio 2026 MSBuild Release SDK runner, and Vite PhysX is a
-clang-cl 22 Release runtime build (Chaos had to be tested as Win64 due to it not being able to be compiled independently of UE5). Cite these values as the <b>reported Box Container Pile 10K result</b>, not as a
-universal PhysX-versus-Chaos multiplier.
-</note>
-
-## Reproducing the comparison
-
-For a controlled engine decision:
-
-1. Pin both engine and benchmark-project commits.
-2. Use equivalent compiler optimization, checks, logging and instrumentation.
-3. Match collision shapes, material settings, solver iterations, sleeping, timestep and event generation.
-4. Record thread affinity and P-core/E-core placement on hybrid CPUs.
-5. Publish raw frame samples, median, percentiles and variance.
-6. Capture the solver critical path and worker utilization with the appropriate CPU profiler.
-7. Repeat with a representative production scene; a fully awake 10,005-body pile is a stress workload.
-
-## In-engine cube workload
-
-The [Vite PhysX Cube Test](https://github.com/ViteStudio-Tech/Vite-PhysX-Cube-Test) complements the headless
-solver report with a workload that runs inside Unreal Engine. The public
-[cube-spawner implementation](https://github.com/ViteStudio-Tech/Vite-PhysX-Cube-Test/blob/5ae89c3b7b9d6993fdc535a54769e39ca7a116b4/Source/PhysXTest/CubeSpawner.cpp)
-creates one `UStaticMeshComponent` per cube, registers it with the engine and enables simulation through
-`SetSimulatePhysics(true)`. The spawner itself is a single `AActor`, so this measures an engine-managed
-component path rather than 3,000 separately spawned Unreal Actors.
-
-### 3,000 engine-managed cubes
-
-The matched capture reports 3,000 spawned cubes and 3,016 rendered primitives in both engine variants.
-Unlike the Box Container Pile 10K runner, these values include the surrounding Unreal runtime work and are
-not physics-solver milliseconds in isolation.
-
-| Reported metric | Unreal 5.7 — Chaos | Unreal Vite 26 — PhysX 3.4 | Vite relative result |
+| 報告された指標 | Unreal 5.7 — Chaos | Unreal Vite 26 — PhysX 3.4 | Vite の相対結果 |
 |---|---:|---:|---:|
-| Spawned cubes | 3,000 | 3,000 | Matched |
-| Rendered primitives | 3,016 | 3,016 | Matched |
-| FPS | 33.26 | 157.88 | **4.75× as high** |
-| Frame time | 30.07 ms | 6.33 ms | **78.9% lower** |
-| Game time | 30.01 ms | 6.11 ms | **79.6% lower** |
+| 生成したキューブ | 3,000 | 3,000 | 同一 |
+| 描画したプリミティブ | 3,016 | 3,016 | 同一 |
+| FPS | 33.26 | 157.88 | **4.75 倍** |
+| フレームタイム | 30.07 ms | 6.33 ms | **78.9% 減** |
+| ゲーム時間 | 30.01 ms | 6.11 ms | **79.6% 減** |
 
+キャプチャした Chaos のゲーム時間は Vite PhysX の **4.91 倍**、フレームタイムは **4.75 倍** です。どちらのキャプチャでも
+ゲーム時間がフレームのほぼ全体を占めているため、この結果は GPU 律速の比較ではなく CPU 側の比較です。
 
-The captured Chaos game time is **4.91×** the Vite PhysX game time, while its frame time is **4.75×** the
-Vite PhysX frame time. Game time accounts for almost the complete frame in both captures, so the result is
-CPU-side rather than a GPU-limited comparison.
+### ネイティブ PhysX アクター 1,425 個 {id="native-actors-1425"}
 
-<img src="ChaosVsPhysX3000.png" alt="In-engine comparison of 3,000 simulated cubes in Unreal 5.7 Chaos and Unreal Vite 26 PhysX 3.4" border-effect="line"/>
+<img src="NativePhysXActors1425.png" alt="1,425 個のキューブをシミュレーションする Vite のネイティブ PhysX アクターのエンジン内テスト。374 FPS" border-effect="line"/>
 
-*In-engine 3,000-cube capture. Both sides report 3,016 rendered primitives.*
+*シミュレーションするキューブごとに Unreal アクターを用意せずに、Unreal Engine の中で動作するネイティブ PhysX
+アクターのキャプチャ。*
 
+ネイティブパスのキャプチャでは、ボディごとに Unreal の `AActor` を用意する代わりに、シミュレーションするキューブを
+PhysX アクターとして直接表現しています。これにより、シーンは Unreal Engine の中で動作・描画され続けたまま、ボディごとの
+Unreal アクターのライフサイクルがシミュレーションの表現から取り除かれます。残る描画表現とトランスフォームの受け渡しの
+コストは、ネイティブ統合の実装によって決まります。
 
-### 1,425 native PhysX actors
-
-The native-path capture represents simulated cubes directly as PhysX actors instead of giving every body a
-separate Unreal `AActor`. This removes the per-body Unreal Actor lifecycle from the simulation representation
-while the scene continues to run and render inside Unreal Engine. Any remaining render representation and
-transform-bridge cost depends on the native integration.
-
-| Reported metric | Native PhysX actor path |
-|---|------------------------:|
-| Engine label |     UE Vite  — PxActors |
-| Spawned cubes |                   1,425 |
-| Rendered primitives |                   1,447 |
-| FPS |                  374.28 |
-| Frame time |                 2.67 ms |
-| Game time |                 2.11 ms |
-
-<img src="NativePhysXActors1425.png" alt="In-engine Vite native PhysX actor test with 1,425 simulated cubes" border-effect="line"/>
-
-*Native PhysX actor capture running in Unreal Engine without a separate UE Actor representation for each
-simulated cube.*
+| 報告された指標 | ネイティブ PhysX アクターのパス |
+|---|---:|
+| エンジンのラベル | UE Vite — PxActors |
+| 生成したキューブ | 1,425 |
+| 描画したプリミティブ | 1,447 |
+| FPS | 374.28 |
+| フレームタイム | 2.67 ms |
+| ゲーム時間 | 2.11 ms |
 
 <warning>
-Do not calculate a direct multiplier between the native-path capture and the 3,000-cube comparison. The
-native result uses 1,425 cubes, a different engine label and a different object representation. It documents
-the lower-overhead native integration path; it is not a matched Chaos-versus-PhysX result.
+ネイティブパスのキャプチャと 3,000 キューブの比較の間で、直接の倍率を計算しないでください。ネイティブの結果は
+1,425 個のキューブ、異なるエンジンラベル、異なるオブジェクト表現を使っています。これは低オーバーヘッドの
+ネイティブ統合パスを記録したものであり、Chaos と PhysX の同条件の比較ではありません。
 </warning>
 
-## Practical starting points
+## Box Container Pile 10K ベンチマーク {id="box-pile-10k"}
 
-<procedure title="Set up physics for a new project" id="physics-setup">
-    <step>
-        Review the <a href="PhysX.md">PhysX feature and configuration reference</a>.
-    </step>
-    <step>
-        Configure substepping under <b>Project Settings &gt; Engine &gt; Physics</b> when fast-moving or heavily
-        constrained bodies require smaller simulation steps.
-    </step>
-    <step>
-        For a fixed simulation cadence, read <a href="Fixed-Timestep.md">Fixed Timestep</a> before authoring
-        systems around variable frame delta.
-    </step>
-    <step>
-        For large sets of debris, shells or other repeated bodies, evaluate the
-        <a href="Instanced-Physics.md">Instanced Physics Subsystem</a>.
-    </step>
-    <step>
-        PhysX behaves best with a consistent frame rate. At very high or uneven frame rates, stuttering can 
-        occur, so cap the FPS for steadier frame pacing. Setting MaxDepenetrationVelocity to around 100 can 
-        also help reduce stutter caused by uneven frame pacing.
-    </step>
+**10,005 個の動的な剛体と 10,005 個の形状** を意図的に物理律速にした山積みのシーンで、ヘッドレスで実行するため、
+数値はフレームタイムではなくソルバーの時間です。指標はフレームあたりの物理時間の中央値（ミリ秒）で、小さいほど
+良好です。
 
+<img src="BoxContainerPile10KVitePhysX.jpg" alt="Vite PhysX 3.4 を標準の NVIDIA PhysX 3.4、PhysX 5.6.1 などの物理エンジンと 1〜6 スレッドで比較した Box Container Pile 10K のベンチマークレポート" border-effect="line"/>
 
+*Vite PhysX と比較対象のエンジンのレポート。下の表は、Chaos、NVIDIA PhysX 3.4、Vite PhysX 3.4 で報告された
+スレッド数のみを使っています。*
+
+### スレッド数をそろえた結果
+
+| スレッド数 | Unreal Chaos | NVIDIA PhysX 3.4 | NVIDIA PhysX 5.6.1 | Vite PhysX 3.4 | Chaos / Vite | PhysX 3.4 / Vite | PhysX 5.6.1 / Vite |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 1,052.09 ms | 49.61 ms | 51.28 ms | 35.60 ms | **29.55×** | **1.39×** | **1.44×** |
+| 3 | 1,051.41 ms | 21.98 ms | 20.99 ms | 15.95 ms | **65.92×** | **1.38×** | **1.32×** |
+| 4 | 951.36 ms | 18.94 ms | 17.44 ms | 14.17 ms | **67.14×** | **1.34×** | **1.23×** |
+| 5 | 857.89 ms | 17.09 ms | 14.90 ms | 12.47 ms | **68.80×** | **1.37×** | **1.19×** |
+| 6 | 791.97 ms | 15.82 ms | 13.54 ms | 11.76 ms | **67.34×** | **1.35×** | **1.15×** |
+
+NVIDIA PhysX 5.6.1 の列は、同じレポートの CPU 版 SDK です。Vite の PhysX 3.4 ビルドは、報告された 1〜6 のすべての
+スレッド数で標準の PhysX 5.6.1 より 1.15〜1.44 倍高速です。スレッドを増やすほど差は縮まるため、この比較は
+コンソールのゲームが物理に割けるコア数で最も Vite に有利になります。
+
+<note>
+Chaos は他の SDK のようなヘッドレスではなく、Win64 経由で計測する必要がありました。
+</note>
+
+Vite PhysX は 1 スレッドの 35.60 ms から 6 スレッドの 11.76 ms まで短縮され、**スループットは 3.03 倍** になります。
+NVIDIA PhysX 3.4 は 49.61 ms から 15.82 ms で **3.14 倍**、Chaos は同じ範囲で 1,052.09 ms から 791.97 ms で
+**1.33 倍** です。Chaos のレポートは 24 スレッドまで続き、581.25 ms に達しますが、これは **1 スレッド時の
+スループットの 1.81 倍** にすぎません。
+
+同じスレッド数で比べると、Chaos は **1 スレッドで標準の NVIDIA PhysX の 21.21 倍**、**6 スレッドで 50.06 倍** の時間が
+かかります。NVIDIA PhysX は共通のスレッド数全体で Vite PhysX の 1.34〜1.39 倍の時間がかかり、言い換えると Vite は
+NVIDIA PhysX 3.4 の基準に対して物理時間の中央値を **25.2〜28.2%** 削減しています。60 Hz の予算である 16.67 ms に、
+Vite PhysX は 3 スレッドで、NVIDIA PhysX は 6 スレッドで収まります。報告された Chaos の結果は 24 スレッドでも予算に
+収まりません。
+
+1 スレッドの結果は、タスクのスケーリングだけでは差のすべてを説明できないことを示しています。ワーカーによる
+スケーリングの前の時点で、報告された物理時間は Chaos が Vite PhysX の 29.55 倍、NVIDIA PhysX の 21.21 倍です。
+マルチスレッドの結果は、ソルバーの処理、データアクセス、コリジョンとコンストレイントの処理、ビルド構成、
+エンジン統合を含む差を、スケーリングがさらに広げることを示しています。標準の NVIDIA の結果は、PhysX の基本
+アーキテクチャと、Vite の PhysX ビルドによる追加の改善とを切り分ける役割も果たしています。
+
+<img src="BoxContainerPile10KChaos.jpg" alt="1〜24 スレッドでの Unreal Chaos の Box Container Pile 10K ベンチマークレポート" border-effect="line"/>
+
+*Unreal Chaos のレポート。フレームあたりの物理時間の中央値（ミリ秒）で、小さいほど良好です。*
+
+### テスト構成
+
+描画は除去し（Chaos を除く）、スリープは無効化し、すべての実行でソルバーの反復回数 4、60 Hz のシミュレーション
+ステップ、ウォームアップ 30 ステップ、計測 300 ステップを使用しています。
+
+<note>
+これは純粋な性能テストです。シミュレーションの精度と SDK の機能は別途評価してください。
+</note>
+
+| テスト項目 | 報告された構成 |
+|---|---|
+| ホスト | Intel Core i7-13700K（8P+8E / 24 スレッド）、最大 3.40 GHz |
+| メモリ | 64 GB DDR5-4800 |
+| プラットフォーム | Windows 11 Pro for Workstations x64、ビルド 10.0.26200 |
+| ワークロード | ヘッドレス、10,005 ボディ、10,005 形状、剛体のスリープ無効 |
+| ソルバー | 反復 4 回、60 Hz |
+| サンプリング | ウォームアップ 30 ステップの後に 300 ステップを計測 |
+| Chaos のビルド | Unreal のリリースブランチの Chaos Program ターゲット、Win64 Shipping、報告された反復 1 回 |
+| NVIDIA PhysX のビルド | NVIDIA PhysX 3.4、Visual Studio 2026 MSBuild Release、SDK とランナー、報告された反復 10 回 |
+| Vite PhysX のビルド | Vite PhysX 3.4、clang-cl 22 Release、ランタイム DLL、報告された反復 10 回 |
+
+<note>
+各レポートは同じホストと同じ大まかなワークロード設定を使っていますが、実行ファイルは同一ではありません。Chaos は
+Win64 Shipping の Chaos Program ターゲット、NVIDIA PhysX は Visual Studio 2026 MSBuild Release の SDK ランナー、
+Vite PhysX は clang-cl 22 Release のランタイムビルドです。Chaos は UE5 から独立してコンパイルできないため、Win64 で
+テストする必要がありました。これらの値は <b>報告された Box Container Pile 10K の結果</b> として引用し、PhysX と
+Chaos の普遍的な倍率としては扱わないでください。
+</note>
+
+## 差が生じる理由: 物理の CPU アーキテクチャ
+
+### スレッド化とクリティカルパス
+
+PhysX と Chaos はどちらもマルチスレッドのシミュレーションに対応しています。Chaos は Task Graph を通じて実行し、
+専用の物理スレッドを使い、パーティクル、コリジョン、アイランドの一部の処理を並列化できます。専用スレッドは処理を
+ゲームスレッドから移しますが、それだけではシミュレーションの 1 ステップの開始から終了までの時間は短くなりません。
+
+物理には順序付きのフェーズとデータの依存関係があります。連結したアイランド内のコンストレイントをすべて独立に解く
+ことはできず、後の段階は前の段階が生成する状態を待たなければなりません。したがってスケーリングは、独立した
+アイランドの数と大きさ、タスクの粒度、同期の頻度、そしてゲーム側と物理側の表現の間で受け渡す状態の量に左右されます。
+
+PhysX 3.4 は、依存関係で結ばれた `TaskManager` と `CpuDispatcher` を提供します。シミュレーションの各段階は
+`LightCpuTask` のジョブを作成し、前提条件が満たされるとエンジンのワーカープールに投入します。Vite の Unreal 統合では、
+ディスパッチャーへの投入をまとめることで、スケジューリングのオーバーヘッドと利用可能な並列性を調整できます。
+NVIDIA の [PhysX 3.4 のスレッド化に関するドキュメント](https://docs.nvidia.com/gameworks/content/gameworkslibrary/physx/guide/Manual/Threading.html?highlight=cpudispatcher)
+を参照してください。
+
+### SIMD の適用範囲
+
+Chaos には任意で使える Intel ISPC のカーネルがあります。ISPC は SIMD の技術で、対象 CPU のベクトルユニット向けに
+SPMD プログラムをコンパイルします。重要な制約は「ISPC か SIMD か」ではなく、適用範囲と使用率です。ISPC のカーネルで
+実装された処理だけがそのベクトルパスの恩恵を受けます。分岐する接触、間接的なメモリアクセス、ギャザーとスキャッター、
+種類の異なるコンストレイント、ポインターの多いデータは、実効的なレーンの占有率を下げます。Intel の
+[ISPC のドキュメント](https://ispc.github.io/index.html) に、コンパイラと SIMD の実行モデルの説明があります。
+
+PhysX のナローフェーズとソルバーは、バッチ化された float データとプラットフォームの SIMD カーネルを中心に開発されて
+います。有用な指標は、スカラーのまま残る処理やデータの移動で失われる時間も含めた、シミュレーションのステップ全体での
+実効的なベクトル占有率です。
+
+PS5 の CPU では、その占有率は **256 ビットの FMA パイプ 1 本**（`FP3` は削除、`FP2` はストア専用）に当たります。
+デスクトップや Series X の Zen 2 のような 2 本の FMA パイプではありません。FMA のスループットに律速されるソルバーの
+処理は、同じクロックの 3700X のおよそ半分の速度で動作します。Vite の PhysX 3.4 の近代化を 4700S で計測しているのは
+そのためです。カーネルは FMA を融合した形（`V3ScaleAdd`）と SoA のまま保ってください。デスクトップの Ryzen や
+Series X のキャプチャを PS5 の結果として扱わないでください。パターンは [PS5 CPU の FPU](PS5-CPU-FPU.md) にあります。
+
+### 数値の精度
+
+UE5 のラージワールド座標により、コアとなるワールド空間の型は倍精度に変わりました。Epic の
+[LWC のドキュメント](https://dev.epicgames.com/documentation/unreal-engine/large-world-coordinates-in-unreal-engine-5)
+は、Chaos の破壊で倍精度を使うことを明記しています。ただし、これはあらゆる Chaos のサブシステムのすべてのフィールドが
+FP64 だという意味ではありません。最新の Chaos は一部のパスで混合精度を使い、UE4.27 のベースにある実験的な Chaos の
+実装は主要な `FReal` を `float` の別名にしています。
+
+倍精度でも SIMD は使えます。ただし固定幅のレジスタに入る double の数は float の半分です。256 ビットのレジスタには
+64 ビットの値が 4 つ、32 ビットの値なら 8 つ入ります。double ベースのフィールドは、同等の float のフィールドの 2 倍の
+ストレージとメモリ帯域も必要とします。影響を受けるカーネルでは、理論上の要素スループットの低下、キャッシュの負荷の
+増加、float と double の境界での変換処理の追加が起こりえます。Epic の
+[LWC 変換ガイド](https://dev.epicgames.com/documentation/unreal-engine/large-world-coordinates-project-conversion-guidelines-in-unreal-engine-5)
+は `VectorRegister4f` と `VectorRegister4d` の両方を説明しています。制約はレーン幅とデータのコストであり、ベクトル
+命令がないことではありません。
+
+FP64 のコストを表す普遍的な割合はありません。スカラーの FP32 と FP64 の命令は CPU によってはほぼ同じレイテンシーで
+ある一方、ベクトルのスループットや帯域に律速されるカーネルでははるかに大きな差が出ることがあります。割合を示す場合は、
+特定のワークロード、プラットフォーム、ビルドに紐付けなければなりません。
+
+## 比較を再現する
+
+エンジンの判断のために管理された比較を行うには、次のようにします。
+
+1. エンジンとベンチマークプロジェクトの両方のコミットを固定します。
+2. コンパイラの最適化、チェック、ログ、計測の設定をそろえます。
+3. コリジョン形状、マテリアルの設定、ソルバーの反復回数、スリープ、タイムステップ、イベントの生成をそろえます。
+4. スレッドのアフィニティと、ハイブリッド CPU での P コアと E コアへの配置を記録します。
+5. 生のフレームサンプル、中央値、パーセンタイル、分散を公開します。
+6. 適切な CPU プロファイラーで、ソルバーのクリティカルパスとワーカーの使用率をキャプチャします。
+7. 代表的な製品のシーンでも繰り返します。10,005 個のボディがすべて起きている山積みは負荷試験用のワークロードです。
+
+## 実践的な出発点
+
+<procedure title="新しいプロジェクトの物理を設定する" id="physics-setup">
+    <step>
+        <a href="PhysX.md">PhysX の機能と設定のリファレンス</a> を確認します。
+    </step>
+    <step>
+        高速に動くボディやコンストレイントの多いボディに小さなシミュレーションステップが必要な場合は、
+        <b>プロジェクト設定 &gt; エンジン &gt; 物理</b> でサブステップを設定します。
+    </step>
+    <step>
+        シミュレーションの周期を固定する場合は、可変のフレームデルタを前提にシステムを作る前に
+        <a href="Fixed-Timestep.md">固定タイムステップ</a> を読みます。
+    </step>
+    <step>
+        破片、薬莢、その他の繰り返し使うボディを大量に扱う場合は、
+        <a href="Instanced-Physics.md">インスタンス化物理</a> を検討します。
+    </step>
+    <step>
+        PhysX は安定したフレームレートで最もよく動作します。非常に高い、または不安定なフレームレートではスタッターが
+        起こることがあるため、フレームペーシングを安定させるよう FPS に上限を設けてください。
+        <code>MaxDepenetrationVelocity</code> を 100 程度に設定することも、不安定なフレームペーシングによる
+        スタッターを減らすのに役立ちます。
+    </step>
 </procedure>
 
-## Reference workloads
+## 参考となるワークロード
 
-- [Physics Cube Bench](Physics-Cube-Bench.md) — in-engine rigid-body throughput
-- [PhysX Instanced Subsystem demo](PhysX-Instanced-Subsystem.md) — instanced simulation at scale
-- [400 Characters CMC Bench](400-Characters-CMC-Bench.md) — character movement and physics-query cost
+- [物理キューブベンチマーク](Physics-Cube-Bench.md) — エンジン内の剛体のスループット
+- [PhysX インスタンスサブシステムのデモ](PhysX-Instanced-Subsystem.md) — 大規模なインスタンス化シミュレーション
+- [400 キャラクター CMC ベンチマーク](400-Characters-CMC-Bench.md) — キャラクタームーブメントと物理クエリのコスト
 
-## See also
+## 関連項目
 
-- [PS5 CPU FPU](PS5-CPU-FPU.md)
+- [PS5 CPU の FPU](PS5-CPU-FPU.md)
 - [PhysX](PhysX.md)
-- [UE4 versus UE5 Cost Analysis](UE4-Versus-UE5-Cost-Analysis.md)
-- [Performance Targets](Performance-Targets.md)
-- [Profiling](Profiling.md)
+- [UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md)
+- [パフォーマンス目標](Performance-Targets.md)
+- [プロファイリング](Profiling.md)

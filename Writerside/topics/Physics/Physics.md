@@ -26,6 +26,7 @@ callbacks and synchronization with engine state all contribute to the final phys
 | [Box Container Pile 10K, 1 thread](#box-pile-10k) | Unreal Chaos vs Vite PhysX 3.4 | Chaos takes **29.55× as long** per step |
 | [Box Container Pile 10K, 6 threads](#box-pile-10k) | Unreal Chaos vs Vite PhysX 3.4 | Chaos takes **67.34× as long** per step |
 | [Box Container Pile 10K, 1–6 threads](#box-pile-10k) | Stock NVIDIA PhysX 3.4 vs Vite PhysX 3.4 | Vite needs **25.2–28.2% less** physics time (1.34–1.39×) |
+| [Box Container Pile 10K, 1–6 threads](#box-pile-10k) | Stock NVIDIA PhysX 5.6.1 (CPU) vs Vite PhysX 3.4 | Vite is **1.15–1.44× faster** at every thread count |
 | [1,425 native PhysX actors](#native-actors-1425) | Vite native actor path | **374 FPS**, 2.67 ms frame time |
 
 Every number on this page is tied to a named workload, host and build. Read the methodology notes with each
@@ -107,13 +108,18 @@ Chaos, NVIDIA PhysX 3.4 and Vite PhysX 3.4.*
 
 ### Matching thread-count results
 
-| Reported threads | Unreal Chaos | NVIDIA PhysX 3.4 | Vite PhysX 3.4 | Chaos / Vite | NVIDIA / Vite |
-|---:|---:|---:|---:|---:|---:|
-| 1 | 1,052.09 ms | 49.61 ms | 35.60 ms | **29.55×** | **1.39×** |
-| 3 | 1,051.41 ms | 21.98 ms | 15.95 ms | **65.92×** | **1.38×** |
-| 4 | 951.36 ms | 18.94 ms | 14.17 ms | **67.14×** | **1.34×** |
-| 5 | 857.89 ms | 17.09 ms | 12.47 ms | **68.80×** | **1.37×** |
-| 6 | 791.97 ms | 15.82 ms | 11.76 ms | **67.34×** | **1.35×** |
+| Reported threads | Unreal Chaos | NVIDIA PhysX 3.4 | NVIDIA PhysX 5.6.1 | Vite PhysX 3.4 | Chaos / Vite | PhysX 3.4 / Vite | PhysX 5.6.1 / Vite |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 1,052.09 ms | 49.61 ms | 51.28 ms | 35.60 ms | **29.55×** | **1.39×** | **1.44×** |
+| 3 | 1,051.41 ms | 21.98 ms | 20.99 ms | 15.95 ms | **65.92×** | **1.38×** | **1.32×** |
+| 4 | 951.36 ms | 18.94 ms | 17.44 ms | 14.17 ms | **67.14×** | **1.34×** | **1.23×** |
+| 5 | 857.89 ms | 17.09 ms | 14.90 ms | 12.47 ms | **68.80×** | **1.37×** | **1.19×** |
+| 6 | 791.97 ms | 15.82 ms | 13.54 ms | 11.76 ms | **67.34×** | **1.35×** | **1.15×** |
+
+The NVIDIA PhysX 5.6.1 column is the CPU SDK from the same report. Vite's PhysX 3.4 build is faster than
+stock PhysX 5.6.1 at every reported thread count from one to six, by 1.15× to 1.44×; the gap narrows as
+threads are added, so the comparison favours Vite most on the core counts a console game can dedicate to
+physics.
 
 <note>
 Chaos had to be benched through Win64, not Headless as the rest of the SDKs.

@@ -1,155 +1,159 @@
-# Instanced Physics Subsystem
+# インスタンス化物理
 
 <tldr>
 <p>
-A Vite plugin that gives individual instances of an Instanced Static Mesh component their own PhysX
-rigid bodies, controlled through stable numeric handles. Built for simulating thousands of objects
-where one actor per object would be unaffordable.
+Instanced Static Mesh コンポーネントの個々のインスタンスに専用の PhysX 剛体を与え、安定した数値ハンドルで制御する
+Vite のプラグインです。オブジェクトごとに 1 つのアクターを使うのでは負担しきれない、数千個のオブジェクトの
+シミュレーションのために作られています。
 </p>
 </tldr>
 
-The standard way to simulate many objects in Unreal is one actor per object, each with a primitive
-component and a body instance. That works up to a few hundred objects and then falls apart: actor overhead,
-component ticking, transform propagation and scene graph updates cost more than the physics itself.
+<img src="PhysXInstancedSubsystem.png" alt="PhysX Instanced Subsystem でシミュレーションされた大量のインスタンス化剛体" border-effect="line"/>
 
-The PhysX Instanced Subsystem separates the two concerns. Rendering goes through a single Instanced Static
-Mesh component; physics goes through PhysX bodies the subsystem owns directly. There are no per-object
-actors and no per-object components.
+*インスタンスごとに本物の PhysX ボディを持つインスタンス描画。1 つの Instanced Static Mesh コンポーネントがすべての
+オブジェクトを描画し、まだ動いているものについてはサブシステムがそれぞれの PhysX ボディを所有します。*
 
-| Detail | |
+Unreal で多数のオブジェクトをシミュレーションする標準的な方法は、オブジェクトごとに 1 つのアクターを用意し、それぞれに
+プリミティブコンポーネントとボディインスタンスを持たせることです。これは数百個までは機能しますが、そこを超えると
+破綻します。アクターのオーバーヘッド、コンポーネントの Tick、トランスフォームの伝播、シーングラフの更新のコストが、
+物理そのものより大きくなるのです。
+
+PhysX Instanced Subsystem は、この 2 つの関心事を分離します。描画は 1 つの Instanced Static Mesh コンポーネントで行い、
+物理はサブシステムが直接所有する PhysX のボディで行います。オブジェクトごとのアクターもコンポーネントもありません。
+
+| 項目 | 値 |
 |---|---|
-| Plugin | `Engine/Plugins/Runtime/VitePlugins/PhysXInstancedSubsystem` |
-| Module | `PhysXInstancedSubsystem` |
-| Subsystem | `UPhysXInstancedWorldSubsystem` (tickable world subsystem) |
-| Actor | `APhysXInstancedMeshActor` |
-| Component | `UPhysXInstancedStaticMeshComponent` |
-| Author | NordVader Inc. |
+| プラグイン | `Engine/Plugins/Runtime/VitePlugins/PhysXInstancedSubsystem` |
+| バージョン | 1.11（[March Major](ueVite26-MarchMajor.md) 以降） |
+| モジュール | `PhysXInstancedSubsystem` |
+| サブシステム | `UPhysXInstancedWorldSubsystem`（Tick 可能なワールドサブシステム） |
+| アクター | `APhysXInstancedMeshActor` |
+| コンポーネント | `UPhysXInstancedStaticMeshComponent` |
+| 作者 | NordVader Inc. |
 
-See the [PhysX Instanced Subsystem demo](PhysX-Instanced-Subsystem.md) for a working project.
+動作するプロジェクトは [PhysX インスタンスサブシステムのデモ](PhysX-Instanced-Subsystem.md) を参照してください。
 
-## Core concepts
+## 基本概念
 
-**Instances are addressed by handle, not pointer.** `FPhysXInstanceID` wraps a `uint32`, where `0` means
-invalid. Handles stay stable even when instances move between actors, which matters because ISM instance
-indices shift when instances are removed. Gameplay code holds handles; the subsystem maintains the mapping
-from handle to component and index.
+**インスタンスはポインターではなくハンドルで指定します。** `FPhysXInstanceID` は `uint32` をラップしたもので、`0` は
+無効を意味します。ハンドルはインスタンスがアクター間を移動しても変わりません。ISM のインスタンスのインデックスは
+インスタンスを削除するとずれるため、これは重要です。ゲームプレイのコードはハンドルを保持し、サブシステムがハンドルから
+コンポーネントとインデックスへの対応を管理します。
 
-**Dynamic and storage instances are different states of the same instance.** A dynamic instance has a
-PhysX body and simulates. A storage instance lives on a separate storage actor with no PhysX body at all.
-Converting between the two preserves the handle. This is the central performance mechanism: debris that has
-come to rest converts to storage, costs nothing to simulate, and stays visible.
+**動的インスタンスと格納インスタンスは、同じインスタンスの異なる状態です。** 動的インスタンスは PhysX のボディを持ち、
+シミュレーションされます。格納インスタンスは PhysX のボディを一切持たず、別の格納用アクターに置かれます。両者の間で
+変換してもハンドルは保たれます。これが性能の中心となる仕組みです。静止した破片は格納インスタンスに変換され、
+シミュレーションのコストはゼロになり、表示はそのまま残ります。
 
-**Work is budgeted per frame.** Creating PhysX bodies, applying forces and expiring lifetimes are all
-queued and processed against per-frame limits, so spawning ten thousand instances in one frame does not
-produce a ten-thousand-body hitch.
+**処理はフレームごとに予算が決められています。** PhysX のボディの生成、力の適用、ライフタイムの期限切れの処理は
+すべてキューに入り、フレームごとの上限に従って処理されます。そのため、1 フレームで 1 万個のインスタンスを生成しても、
+1 万個のボディ分のヒッチは起きません。
 
-## Setting up an actor
+## アクターのセットアップ
 
-Place an `APhysXInstancedMeshActor` in the level and configure it in the details panel under
-**Phys X Instance**.
+レベルに `APhysXInstancedMeshActor` を配置し、詳細パネルの **Phys X Instance** で設定します。
 
-<procedure title="Configure an instanced physics actor" id="setup-instanced-actor">
-    <step>Set <b>Static Mesh</b>, and override materials if needed.</step>
+<procedure title="インスタンス化物理のアクターを設定する" id="setup-instanced-actor">
+    <step><b>Static Mesh</b> を設定し、必要であればマテリアルを上書きします。</step>
     <step>
-        Choose a <b>Spawn Mode</b>. <b>Manual</b> uses the <b>Instance Relative Transforms</b> array;
-        <b>Grid</b> generates a rows &times; columns &times; layers grid from the spacing settings, which
-        is convenient for benchmarks and test scenes.
+        <b>Spawn Mode</b> を選びます。<b>Manual</b> は <b>Instance Relative Transforms</b> の配列を使い、
+        <b>Grid</b> は間隔の設定から 行 &times; 列 &times; 層 のグリッドを生成します。後者はベンチマークや
+        テストシーンに便利です。
     </step>
     <step>
-        Set <b>Instance Shape Type</b>. Box, Sphere and Capsule are cheapest; <b>Convex Mesh</b> is
-        accurate and moderately priced; <b>Triangle Mesh</b> is static or kinematic only.
+        <b>Instance Shape Type</b> を設定します。Box、Sphere、Capsule が最も軽く、<b>Convex Mesh</b> は正確で
+        中程度のコスト、<b>Triangle Mesh</b> はスタティックまたはキネマティック専用です。
     </step>
     <step>
-        Set <b>Simulate Instances</b> and <b>Instances Use Gravity</b>, plus mass override and damping if
-        the defaults are wrong for your object.
+        <b>Simulate Instances</b> と <b>Instances Use Gravity</b> を設定し、既定値がオブジェクトに合わない場合は
+        質量の上書きと減衰も設定します。
     </step>
     <step>
-        Leave <b>Disable ISM Physics</b> enabled so the render component does not create its own collision
-        alongside the subsystem's bodies.
+        描画コンポーネントがサブシステムのボディとは別に独自のコリジョンを作らないよう、<b>Disable ISM Physics</b>
+        は有効のままにしておきます。
     </step>
     <step>
-        Enable <b>Auto Register On Begin Play</b>, or call <code>BuildAndRegisterInstances</code>, which is
-        also callable from the editor.
+        <b>Auto Register On Begin Play</b> を有効にするか、エディタからも呼び出せる
+        <code>BuildAndRegisterInstances</code> を呼び出します。
     </step>
 </procedure>
 
-If no collision mesh is specified for Convex or Triangle shapes, the render mesh is used. Mass is computed
-from the physical material's density on the collision mesh, converted from g/cm³ to kg/m³, and scaled by the
-component's mass scale.
+Convex や Triangle の形状でコリジョンメッシュを指定しない場合は、描画用メッシュが使われます。質量はコリジョンメッシュ上の
+物理マテリアルの密度から計算され、g/cm³ から kg/m³ に変換されたうえで、コンポーネントの質量スケールが掛けられます。
 
-## Auto-stop
+## 自動停止
 
-Auto-stop is what makes large-scale simulation affordable. It detects instances that have effectively
-stopped moving and does something cheaper with them.
+大規模なシミュレーションを負担可能にしているのが自動停止です。実質的に動きを止めたインスタンスを検出し、より安価な
+状態に移します。
 
-Configure it in **Phys X Instance > Runtime > Auto Stop Config**:
+**Phys X Instance > Runtime > Auto Stop Config** で設定します。
 
-| Setting | Default | Purpose |
+| 設定 | 既定値 | 用途 |
 |---|---|---|
-| Enable Auto Stop | `false` | Master enable |
-| Condition | PhysX sleep flag | How "stopped" is determined |
-| Linear Speed Threshold | `5.0` cm/s | Used by velocity-based conditions |
-| Angular Speed Threshold | `5.0` deg/s | Used by velocity-based conditions |
-| Min Stopped Time | `0.5` s | How long the condition must hold before acting |
-| Action | Destroy Body | What happens when it fires |
+| Enable Auto Stop | `false` | 全体の有効化 |
+| Condition | PhysX のスリープフラグ | 「停止」の判定方法 |
+| Linear Speed Threshold | `5.0` cm/s | 速度ベースの条件で使用 |
+| Angular Speed Threshold | `5.0` deg/s | 速度ベースの条件で使用 |
+| Min Stopped Time | `0.5` s | 処理を行う前に条件が成立し続けるべき時間 |
+| Action | Destroy Body | 条件が成立したときの処理 |
 
-Conditions are **PhysX sleep flag only**, **velocity thresholds only**, **sleep OR velocity**, or
-**sleep AND velocity**. The sleep flag is cheapest and usually sufficient; velocity thresholds catch bodies
-that are drifting slowly enough to be visually stopped but not sleeping.
+条件は **PhysX のスリープフラグのみ**、**速度のしきい値のみ**、**スリープまたは速度**、**スリープかつ速度** から選びます。
+スリープフラグが最も軽く、通常はそれで十分です。速度のしきい値は、見た目には止まっているもののスリープしていない、
+ゆっくり漂っているボディを捕捉します。
 
-Actions, in ascending order of aggressiveness:
+処理は、影響の小さい順に次のとおりです。
 
-| Action | Effect |
+| 処理 | 効果 |
 |---|---|
-| Do nothing | Track state only |
-| Disable simulation (keep body) | Body stays but stops simulating |
-| Destroy body (keep instance) | PhysX body freed, visual instance remains in place |
-| Destroy body and remove instance | Both freed. Shifts ISM indices &mdash; use handles, not indices. |
-| Convert to storage | Instance moves to a storage actor, body freed, handle preserved |
+| 何もしない | 状態の追跡のみ |
+| シミュレーションを無効化（ボディは保持） | ボディは残るがシミュレーションを停止 |
+| ボディを破棄（インスタンスは保持） | PhysX のボディを解放し、表示上のインスタンスはその場に残る |
+| ボディとインスタンスを削除 | 両方を解放。ISM のインデックスがずれるため、インデックスではなくハンドルを使うこと |
+| 格納に変換 | インスタンスを格納用アクターに移し、ボディを解放し、ハンドルを保持 |
 
-**Convert to storage** is usually the right choice for debris you want to keep visible. **Destroy body** is
-right when you want the object to remain but never move again.
+表示を残したい破片には、通常 **格納に変換** が適切です。オブジェクトを残しつつ二度と動かさない場合は **ボディを破棄** が
+適しています。
 
-### Safety rules
+### 安全のためのルール
 
-Two additional rules catch instances that will never stop on their own:
+自然には止まらないインスタンスを捕捉するルールが 2 つあります。
 
-- **Max Fall Time** fires the stop action after an instance has been falling continuously for longer than
-  the threshold. Catches objects that fell through world geometry.
-- **Max Distance From Actor** fires when an instance travels further than the threshold from its owner.
-  Catches objects launched by a bad impulse.
+- **Max Fall Time** は、インスタンスがしきい値より長く落下し続けた後に停止の処理を実行します。ワールドのジオメトリを
+  すり抜けて落ちたオブジェクトを捕捉します。
+- **Max Distance From Actor** は、インスタンスが所有者からしきい値より遠くへ移動したときに実行されます。誤った
+  インパルスで吹き飛ばされたオブジェクトを捕捉します。
 
-Separately, **Use Custom Kill Z** with a **Custom Kill Z** height and a **Lost Instance Action** handles
-instances that fall below a world Z threshold.
+これとは別に、**Use Custom Kill Z** と **Custom Kill Z** の高さ、**Lost Instance Action** で、ワールドの Z のしきい値より
+下に落ちたインスタンスを処理します。
 
-## Lifetime
+## ライフタイム
 
-Instances can expire on a timer. Set **Enable Lifetime**, a **Default Life Time Seconds** and a
-**Default Lifetime Action** on the actor, or override per spawn through the spawn request.
+インスタンスはタイマーで期限切れにできます。アクターで **Enable Lifetime**、**Default Life Time Seconds**、
+**Default Lifetime Action** を設定するか、生成リクエストで生成ごとに上書きします。
 
-Expirations are held in a min-heap keyed on expiry time, so the per-frame cost is proportional to the number
-of instances actually expiring rather than the total instance count.
+期限切れは期限の時刻をキーとする最小ヒープで管理されるため、フレームごとのコストはインスタンスの総数ではなく、実際に
+期限切れになるインスタンスの数に比例します。
 
-## Continuous collision detection
+## 連続衝突検出
 
-CCD prevents fast bodies tunnelling through thin geometry, and it is not free. **CCD Config** offers four
-modes:
+CCD は高速なボディが薄いジオメトリをすり抜けるのを防ぎますが、無料ではありません。**CCD Config** には 4 つのモードが
+あります。
 
-| Mode | Behaviour |
+| モード | 挙動 |
 |---|---|
-| Off | Never |
-| Simulating bodies only | Only bodies that are actually dynamic |
-| Auto (by velocity) | Enabled above **Min CCD Velocity** (default 2000 cm/s), optionally capped by **Max CCD Velocity** |
-| All bodies | Always |
+| Off | 使用しない |
+| Simulating bodies only | 実際に動的なボディのみ |
+| Auto (by velocity) | **Min CCD Velocity**（既定値 2000 cm/s）を超えたときに有効。**Max CCD Velocity** で上限を設定可能 |
+| All bodies | 常に使用 |
 
-Auto by velocity is the right default for debris: slow-moving chunks skip CCD entirely, and only the fast
-ones pay for it.
+破片の既定には速度による自動判定が適しています。ゆっくり動くチャンクは CCD を完全にスキップし、速いものだけが
+コストを支払います。
 
-## Runtime API
+## 実行時の API
 
-Everything is Blueprint-callable. Get the subsystem from the world, then work through handles.
+すべてブループリントから呼び出せます。ワールドからサブシステムを取得し、ハンドルを通じて操作します。
 
-### Spawning
+### 生成
 
 ```c++
 FPhysXSpawnInstanceRequest Request;
@@ -165,20 +169,19 @@ Request.LifetimeAction = EPhysXInstanceStopAction::ConvertToStorage;
 const FPhysXSpawnInstanceResult Result = Subsystem->SpawnPhysicsInstance(Request);
 ```
 
-**Actor Mode** decides where the instance lands: `AlwaysCreateNew` spawns a fresh actor,
-`FindOrCreateByMeshAndMats` reuses an existing actor with matching mesh and materials, and
-`UseExplicitActor` targets an actor you supply. `FindOrCreateByMeshAndMats` is the usual choice &mdash; it
-keeps instance counts consolidated into as few ISM components as possible, which is what makes the rendering
-side efficient.
+**Actor Mode** はインスタンスの配置先を決めます。`AlwaysCreateNew` は新しいアクターを生成し、
+`FindOrCreateByMeshAndMats` はメッシュとマテリアルが一致する既存のアクターを再利用し、`UseExplicitActor` は指定した
+アクターを対象にします。通常は `FindOrCreateByMeshAndMats` を選びます。インスタンスをできるだけ少ない ISM
+コンポーネントにまとめられるため、描画側が効率的になります。
 
-For bulk registration of instances that already exist on a component, `RegisterInstancesBatch` spreads the
-work across frames.
+コンポーネント上にすでに存在するインスタンスをまとめて登録するには、`RegisterInstancesBatch` が処理を複数のフレームに
+分散させます。
 
-### Forces and queries
+### 力とクエリ
 
-Force and impulse functions come in plain and Advanced variants. The Advanced versions take
-`bIncludeStorage` and `bConvertStorageToDynamic`, which control whether a storage instance is woken back
-into a dynamic body by the call &mdash; that is how a settled debris field reacts to a later explosion.
+力とインパルスの関数には、通常版と Advanced 版があります。Advanced 版は `bIncludeStorage` と
+`bConvertStorageToDynamic` を受け取り、その呼び出しで格納インスタンスを動的なボディに戻すかどうかを制御します。
+静止した破片の山が後の爆発に反応するのは、この仕組みによるものです。
 
 ```c++
 Subsystem->AddRadialImpulse(
@@ -189,56 +192,56 @@ Subsystem->AddRadialImpulse(
     /*bLinearFalloff=*/true);
 ```
 
-Spatial queries return handles rather than hit results: `RaycastInstanceID`, `SweepSphereInstanceID`,
-`OverlapSphereInstanceIDs`, `FindNearestInstance` and `FindNearestInstanceAdvanced`. Each takes an optional
-debug mode (`None`, `Basic`, `Detailed`) and draw duration, which is the fastest way to understand why a
-query is not hitting what you expect.
+空間クエリはヒット結果ではなくハンドルを返します。`RaycastInstanceID`、`SweepSphereInstanceID`、
+`OverlapSphereInstanceIDs`、`FindNearestInstance`、`FindNearestInstanceAdvanced` です。それぞれ任意のデバッグモード
+（`None`、`Basic`、`Detailed`）と描画時間を受け取り、クエリが期待どおりに当たらない理由を理解する最も早い方法に
+なります。
 
-### Events
+### イベント
 
-`APhysXInstancedMeshActor` exposes six multicast delegates: `OnInstancePreRemove`, `OnInstancePostRemove`,
-`OnInstancePreConvert`, `OnInstancePostConvert`, `OnInstancePrePhysics` and `OnInstancePostPhysics`.
+`APhysXInstancedMeshActor` は 6 つのマルチキャストデリゲートを公開しています。`OnInstancePreRemove`、
+`OnInstancePostRemove`、`OnInstancePreConvert`、`OnInstancePostConvert`、`OnInstancePrePhysics`、
+`OnInstancePostPhysics` です。
 
-Events are gated by the **Instance Event Mask** bitmask on the actor. Leave the mask empty unless you are
-actually binding, since broadcasting to nothing across thousands of instances is wasted work. Remove and
-convert events carry a reason (`Explicit`, `Expired`, `AutoStop`, `KillZ`, `Lost`) and the world transform
-at the time, which is what you need to spawn a particle effect or play a sound as debris settles.
+イベントはアクターの **Instance Event Mask** のビットマスクで制御されます。実際にバインドしない限りマスクは空のままに
+してください。何も受け取らないのに数千のインスタンスにブロードキャストするのは無駄な処理です。削除と変換のイベントは、
+理由（`Explicit`、`Expired`、`AutoStop`、`KillZ`、`Lost`）とその時点のワールドトランスフォームを伝えます。破片が
+落ち着いたときにパーティクルエフェクトを出したりサウンドを鳴らしたりするのに必要な情報です。
 
-## Performance tuning
+## パフォーマンスの調整
 
-| Setting | Default | Effect |
+| 設定 | 既定値 | 効果 |
 |---|---|---|
-| `MaxAddActorsPerFrame` | `64` | Bodies added to the PhysX scene per frame. `0` means no limit. |
-| `MaxInstanceTasksPerFrame` | `4096` | Queued force/impulse/sleep/wake operations per frame. `0` means no limit. |
-| `MaxLifetimeExpirationsPerTick` | `4096` | Lifetime expirations processed per tick. `0` means no limit. |
+| `MaxAddActorsPerFrame` | `64` | フレームごとに PhysX シーンに追加するボディの数。`0` は無制限。 |
+| `MaxInstanceTasksPerFrame` | `4096` | フレームごとの、キューに入った力・インパルス・スリープ・ウェイクの操作の数。`0` は無制限。 |
+| `MaxLifetimeExpirationsPerTick` | `4096` | Tick ごとに処理するライフタイムの期限切れの数。`0` は無制限。 |
 
-All three are config properties on the subsystem, so they can be set in `DefaultGame.ini` and tuned per
-platform.
+3 つともサブシステムの設定プロパティなので、`DefaultGame.ini` で設定し、プラットフォームごとに調整できます。
 
-`MaxAddActorsPerFrame` is the one to adjust first. Adding a PhysX body to a scene is not cheap, and a burst
-of spawns is the most likely source of a hitch. Lowering it spreads the cost; raising it reduces the delay
-before newly spawned debris starts moving.
+最初に調整すべきは `MaxAddActorsPerFrame` です。PhysX のボディをシーンに追加するのは軽い処理ではなく、生成の集中は
+ヒッチの最も起こりやすい原因です。値を下げるとコストが分散し、上げると新しく生成した破片が動き出すまでの遅れが
+短くなります。
 
-The subsystem evaluates instances in parallel where it can. Worker threads read PhysX state and actor
-configuration through copied snapshots and never touch UObjects; the game thread applies results back as
-batched transform updates per component.
+サブシステムは可能な範囲でインスタンスを並列に評価します。ワーカースレッドは PhysX の状態とアクターの設定を
+コピーしたスナップショットを通じて読み取り、UObject には一切触れません。ゲームスレッドが、コンポーネントごとに
+まとめたトランスフォームの更新として結果を反映します。
 
-## Guidance
+## 指針
 
-**Use this for** debris, shell casings, destructible fragments after they detach, knocked-over props,
-scattered clutter, and anything where you want hundreds or thousands of simulated objects.
+**使うべき対象:** 破片、薬莢、分離した後の破壊の欠片、倒れたプロップ、散らばった小物など、数百から数千のオブジェクトを
+シミュレーションしたいもの全般。
 
-**Do not use it for** objects that need their own gameplay logic, components, replication or Blueprint
-behaviour. Those are actors, and they should stay actors.
+**使うべきでない対象:** 独自のゲームプレイロジック、コンポーネント、レプリケーション、ブループリントの振る舞いを
+必要とするオブジェクト。それらはアクターであり、アクターのままにしておくべきです。
 
-**Watch out for** ISM index shifting. Removing a visual instance changes the indices of instances after it.
-The subsystem repairs its own mapping, but any index you cached in your own code is now wrong. Cache
-handles.
+**注意点:** ISM のインデックスのずれ。表示上のインスタンスを削除すると、それより後ろのインスタンスのインデックスが
+変わります。サブシステムは自身の対応関係を修正しますが、自分のコードでキャッシュしたインデックスは不正になります。
+ハンドルをキャッシュしてください。
 
-## See also
+## 関連項目
 
 - [PhysX](PhysX.md)
-- [PhysX Instanced Subsystem demo](PhysX-Instanced-Subsystem.md)
-- [Destruction and Cloth](Destruction-And-Cloth.md)
-- [Physics Cube Bench](Physics-Cube-Bench.md)
-- [Profiling](Profiling.md)
+- [PhysX インスタンスサブシステムのデモ](PhysX-Instanced-Subsystem.md)
+- [破壊とクロス](Destruction-And-Cloth.md)
+- [物理キューブベンチマーク](Physics-Cube-Bench.md)
+- [プロファイリング](Profiling.md)
