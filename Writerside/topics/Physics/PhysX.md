@@ -89,7 +89,7 @@ includes ragdolls, physical animation, hit reactions, body welding and per-body 
 ### Vehicles
 
 Vite retains the UE4.27 PhysX vehicle stack, including wheel simulation, suspension, tire friction, engine,
-gearing, differential and drivetrain configuration. Vehicle behavior is authored through the standard
+gearing, differential and drivetrain configuration. Vehicle behaviour is authored through the standard
 vehicle and tire data assets used by UE4 projects.
 
 ## Destruction, cloth and Blast
@@ -173,7 +173,7 @@ PhysX Visual Debugger can inspect a connected scene, including actors, shapes, c
 simulation state. Use a development build with PVD support, connect before reproducing the issue, and limit
 capture duration when the scene contains many bodies.
 
-Viewport collision visualization remains useful for confirming authored geometry and filtering before a
+Viewport collision visualisation remains useful for confirming authored geometry and filtering before a
 full PVD capture.
 
 ## Profiling
@@ -184,7 +184,7 @@ full PVD capture.
 | `stat game` | Physics cost in the context of game-thread work |
 | `show Collision` | Collision geometry in the viewport |
 
-Profile with representative collision geometry, body counts, sleeping behavior and event generation. Record
+Profile with representative collision geometry, body counts, sleeping behaviour and event generation. Record
 physics milliseconds, body/shape counts, active-body count, solver settings, substeps and worker configuration
 with every comparison.
 
