@@ -48,7 +48,9 @@ The assistant accepts either of two toolchains and will not proceed without one:
 
 If both Visual Studio versions are installed, it asks which one to build with and passes `-2022` or
 `-2026` to every build. If the SDK is below the minimum or the .NET 4.5 targeting pack is missing, it offers
-to install them and re-checks the full toolchain afterwards. See
+to install them &mdash; the SDK through winget, the targeting pack from Microsoft's official
+`Microsoft.NETFramework.ReferenceAssemblies.net45` NuGet package &mdash; and re-checks the full toolchain
+afterwards. See
 [Toolchain Requirements](Toolchain-Requirements.md).
 
 The .NET Framework 4.5 targeting pack is the component people most often lack, since recent Visual Studio

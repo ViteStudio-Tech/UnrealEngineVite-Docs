@@ -37,7 +37,7 @@
 | Windows SDK | 10.0.26100、サブバージョン .7705 以上、メジャーは 26100 に固定 |
 | .NET Framework のターゲットパック | 4.6.2（UnrealBuildTool、AutomationTool）と 4.5（SwarmAgent と C# のツール） |
 
-両方の Visual Studio がインストールされている場合は、どちらでビルドするかを尋ね、すべてのビルドに `-2022` または `-2026` を渡します。SDK が最低バージョンに満たない場合や .NET 4.5 のターゲットパックがない場合は、インストールを提案し、その後ツールチェーン全体を再確認します。[ツールチェーン要件](Toolchain-Requirements.md) を参照してください。
+両方の Visual Studio がインストールされている場合は、どちらでビルドするかを尋ね、すべてのビルドに `-2022` または `-2026` を渡します。SDK が最低バージョンに満たない場合や .NET 4.5 のターゲットパックがない場合は、インストールを提案し（SDK は winget で、ターゲットパックは Microsoft の公式 NuGet パッケージ `Microsoft.NETFramework.ReferenceAssemblies.net45` から）、その後ツールチェーン全体を再確認します。[ツールチェーン要件](Toolchain-Requirements.md) を参照してください。
 
 最近の Visual Studio のインストーラーは既定で提供しなくなったため、最もよく欠けているのは .NET Framework 4.5 のターゲットパックです。[ビルドのトラブルシューティング](Build-Troubleshooting.md) を参照してください。
 
