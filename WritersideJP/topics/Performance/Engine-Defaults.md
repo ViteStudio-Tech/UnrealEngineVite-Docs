@@ -84,6 +84,12 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 [コミット](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
 
+### スタンドアロンとパッケージ化したビルドのフレームレートを 120 に制限
+
+`Engine/Config/BaseGameUserSettings.ini` の `FrameRateLimit=120.0` により、フレームペーシングを安定させるため、スタンドアロンとパッケージ化したゲームは 120&nbsp;FPS に制限されます（[July Major](ueVite26-JulyMajor.md) 以降）。
+
+**影響:** 120&nbsp;FPS を超えて動くベンチマークは、いくつかの [デモプロジェクト](ProjectsAndDemos.md) も含め、制限を外すまで 120 と表示されます。実行時に `t.MaxFPS 0` で制限を外すか、プロジェクトの `DefaultGameUserSettings.ini` で `FrameRateLimit` を設定してください。
+
 ## スケーラビリティ
 
 Vite は `Engine/Config/BaseScalability.ini` のシャドウのスケーラビリティグループを調整し直しています。標準の 4.27 は、Low でほぼシャドウなし、Epic と Cinematic で非常に高価なシャドウという幅の広い構成です。Vite はその幅を狭め、Low で実用的なシャドウを出し、High と Epic を安価にし、Medium は変更していません。

@@ -104,6 +104,15 @@ the setting in the static mesh import options.
 
 [Commit](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
 
+### Frame rate capped at 120 in standalone and packaged builds
+
+`FrameRateLimit=120.0` in `Engine/Config/BaseGameUserSettings.ini` caps standalone and packaged games at
+120&nbsp;FPS, for consistent frame pacing (since the [July Major](ueVite26-JulyMajor.md)).
+
+**What this means for you:** benchmarks that run faster than 120&nbsp;FPS, including several of the
+[demo projects](ProjectsAndDemos.md), report 120 until you lift the cap. Use `t.MaxFPS 0` at runtime for an
+uncapped frame rate, or set `FrameRateLimit` in your project's `DefaultGameUserSettings.ini`.
+
 ## Scalability
 
 Vite rebalances the shadow scalability groups in `Engine/Config/BaseScalability.ini`. Stock 4.27 spreads
