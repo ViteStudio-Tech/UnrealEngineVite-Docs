@@ -1,48 +1,47 @@
-# Commit Conventions
+# コミット規約
 
 <tldr>
 <p>
-Prefix every commit subject with one or more category tags. Stack them from broad to specific. Backports
-and plugin additions must link to the original commit or repository.
+すべてのコミットの件名の先頭に、1 つ以上のカテゴリーのタグを付けます。広いものから具体的なものの順に重ねます。
+バックポートとプラグインの追加では、元のコミットやリポジトリへのリンクが必須です。
 </p>
 </tldr>
 
-A fork that tracks an upstream engine accumulates a long history of changes from many sources. Being able
-to scan that history and tell an optimisation from a rendering feature from a backport is what makes future
-merges tractable.
+上流のエンジンを追うフォークには、さまざまな出所からの長い変更の履歴が蓄積します。その履歴を眺めて、最適化、
+レンダリングの機能、バックポートを区別できることが、将来のマージを扱えるものにします。
 
-## Prefixes
+## プレフィックス
 
-Use one of the following at the start of the commit subject.
+コミットの件名の先頭に、次のいずれかを付けます。
 
-| Prefix | Use for |
+| プレフィックス | 用途 |
 |---|---|
-| `[Rendering]` | Renderer work generally &mdash; the most used tag in the tree |
-| `[Rendering Feature]` | New or changed rendering functionality specifically |
-| `[RT]` | Ray tracing |
-| `[Forward]` | Forward renderer path |
-| `[Optimization]` | Performance work with no behaviour change |
-| `[Backport]` | A change cherry-picked from a later engine version |
-| `[Animation]` | Animation systems |
-| `[GameplayFramework]` | Cameras, Character Movement, AI and the rest of the gameplay framework |
-| `[Memory]` | The UObject memory subsystem |
-| `[DOP]` | Data-oriented work, including ECS |
-| `[PhysX]` | Physics |
-| `[Plugin]` | Adding, updating or removing a plugin |
-| `[Lib]` | Third-party library updates |
-| `[Toolchain]` | Compiler, SDK and build environment |
-| `[Defaults]` | Changes to shipped engine defaults |
-| `[Debloat]` | Removing or gating cost from a default build |
-| `[Mobile]` | Mobile-specific work |
-| `[VR]` | VR-specific work |
-| `[AMD]` | AMD-specific work |
-| `[NVIDIA]` | NVIDIA-specific work |
-| `[Fix]` | Bug fixes |
+| `[Rendering]` | レンダラーの作業全般。ツリーで最も多く使われるタグ |
+| `[Rendering Feature]` | 特にレンダリングの機能の追加や変更 |
+| `[RT]` | レイトレーシング |
+| `[Forward]` | フォワードレンダラーの経路 |
+| `[Optimization]` | 挙動を変えない性能の作業 |
+| `[Backport]` | 後のエンジンバージョンから取り込んだ変更 |
+| `[Animation]` | アニメーションのシステム |
+| `[GameplayFramework]` | カメラ、キャラクタームーブメント、AI などのゲームプレイフレームワーク |
+| `[Memory]` | UObject のメモリのサブシステム |
+| `[DOP]` | ECS を含むデータ指向の作業 |
+| `[PhysX]` | 物理 |
+| `[Plugin]` | プラグインの追加、更新、削除 |
+| `[Lib]` | サードパーティのライブラリの更新 |
+| `[Toolchain]` | コンパイラ、SDK、ビルド環境 |
+| `[Defaults]` | 出荷するエンジンの既定値の変更 |
+| `[Debloat]` | 既定のビルドからコストを取り除く、またはゲートする |
+| `[Mobile]` | モバイル固有の作業 |
+| `[VR]` | VR 固有の作業 |
+| `[AMD]` | AMD 固有の作業 |
+| `[NVIDIA]` | NVIDIA 固有の作業 |
+| `[Fix]` | 不具合の修正 |
 
-### Stacking prefixes
+### プレフィックスを重ねる
 
-Most non-trivial changes carry more than one tag. Order them broad to specific, and put the backport marker
-last so the origin of the change reads at the end:
+自明でない変更の多くは、複数のタグを持ちます。広いものから具体的なものの順に並べ、変更の出所が最後に読めるように
+バックポートの印は最後に置きます。
 
 ```
 [Rendering][RT][Optimization][Adapted Backport 5.3] Exclude raygen shaders from RTPSOs
@@ -51,11 +50,11 @@ unless the corresponding feature is enabled
 [Rendering][Shading Models] Remove unnecessary branch for the Toon shading model
 ```
 
-`Adapted Backport` rather than `Backport` signals that the upstream change did not apply cleanly and was
-rewritten against the Vite codebase. That distinction matters later, when someone is working out whether an
-upstream fix to the original commit also applies here.
+`Backport` ではなく `Adapted Backport` とするのは、上流の変更がそのままでは適用できず、Vite のコードベースに合わせて
+書き直したことを示すためです。後で、元のコミットに対する上流の修正がここにも当てはまるかを調べるときに、この区別が
+重要になります。
 
-Single-tag commits are fine when the change genuinely is one thing:
+変更が本当に 1 つのことなら、タグが 1 つのコミットでも問題ありません。
 
 ```
 [Toolchain] Compiling on VS 18.8.2 (_MSC_VER 1950) and Windows SDK 10.0.26100
@@ -64,18 +63,16 @@ Single-tag commits are fine when the change genuinely is one thing:
 [Fix] Guard RTXDI CVar behind ShouldRenderRayTracingSampledLighting
 ```
 
-If a change spans genuinely unrelated areas, split it rather than stacking every tag in the table onto one
-commit.
+変更が本当に無関係な領域にまたがる場合は、表のタグをすべて 1 つのコミットに重ねるのではなく、分割してください。
 
-## Attribution
+## 出典の明記
 
 <warning>
-When making backports or adding a plugin, include the correct links to the original commits or
-repositories in the commit body.
+バックポートやプラグインの追加では、コミットの本文に元のコミットやリポジトリへの正しいリンクを含めてください。
 </warning>
 
-This is not a courtesy, it is a practical requirement. Without the link, nobody can determine what version
-was integrated, whether upstream has since fixed a bug in it, or whether the licence permits redistribution.
+これは礼儀ではなく、実際上の要件です。リンクがなければ、どのバージョンを統合したのか、その後上流で不具合が修正されたか、
+ライセンスが再配布を認めているかを、誰も判断できません。
 
 ```
 [Plugin] Add Kawaii Physics 1.18.0, backported from UE5
@@ -86,43 +83,41 @@ Changes: UE5 API calls replaced with 4.27 equivalents in
 KawaiiPhysicsEditMode.cpp and AnimNode_KawaiiPhysics.cpp
 ```
 
-For backports of individual upstream commits, link the commit itself, not just the repository. See
-[Backporting](Backporting.md).
+上流の個々のコミットのバックポートでは、リポジトリだけでなくコミットそのものにリンクしてください。
+[バックポート](Backporting.md) を参照してください。
 
-## Commit body
+## コミットの本文
 
-The subject line says what changed. The body should say why, and what a reviewer needs to know:
+件名は何が変わったかを伝えます。本文は、なぜ変えたのか、そしてレビュアーが知るべきことを伝えます。
 
-- What problem the change solves
-- Measured impact, for anything claiming to be an optimisation
-- Any console variable or [compile-time switch](Compile-Time-Switches.md) added, with its default
-- Anything deliberately left undone
+- その変更がどの問題を解決するか
+- 最適化を主張するものなら、計測した効果
+- 追加したコンソール変数や [コンパイル時スイッチ](Compile-Time-Switches.md) と、その既定値
+- 意図的にやり残したこと
 
-Measured impact matters. A commit prefixed `[Optimization]` with no numbers is an assertion, not a result.
-See [Profiling](Profiling.md) for how to produce a credible before-and-after.
+計測した効果は重要です。数値のない `[Optimization]` のコミットは、結果ではなく主張にすぎません。説得力のある変更前と
+変更後の比較の作り方は [プロファイリング](Profiling.md) を参照してください。
 
-## Branches
+## ブランチ
 
-| Rule | |
+| ルール | |
 |---|---|
-| Work in progress goes on alternative branches | Do not push half-finished work to shared branches |
-| Note what remains | A brief comment on the branch or in the commit body |
-| Delete temporary branches | Once merged or abandoned |
-| Tell other forkers | So parallel effort is not wasted |
+| 作業途中のものは別のブランチに置く | 未完成の作業を共有のブランチにプッシュしない |
+| 残っている作業を記す | ブランチかコミットの本文に簡単なコメントを残す |
+| 一時的なブランチは削除する | マージしたとき、または放棄したとき |
+| 他のフォークの作業者に知らせる | 並行した作業が無駄にならないように |
 
-## Console variables and switches
+## コンソール変数とスイッチ
 
-New console variables follow the engine's existing naming. Vite-specific ones are prefixed with the
-subsystem, then `Vite`:
+新しいコンソール変数は、エンジンの既存の命名に従います。Vite 固有のものは、サブシステムの後に `Vite` を付けます。
 
-| Example | Subsystem |
+| 例 | サブシステム |
 |---|---|
-| `r.Vite.SMAA.Mode` | Renderer |
-| `r.Vite.SSAO` | Renderer |
-| `p.VitePhysXFixedTimestep.Enabled` | Physics |
+| `r.Vite.SSAO` | レンダラー |
+| `p.VitePhysXFixedTimestep.Enabled` | 物理 |
 
-Compile-time switches use the `VITE_` prefix and must be defined with a default in
-`Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h`:
+コンパイル時スイッチには `VITE_` のプレフィックスを使い、`Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h` で既定値と
+ともに定義しなければなりません。
 
 ```c++
 #ifndef VITE_MY_FEATURE
@@ -130,13 +125,13 @@ Compile-time switches use the `VITE_` prefix and must be defined with a default 
 #endif
 ```
 
-Document any new switch in [Compile-Time Switches](Compile-Time-Switches.md) in the same change. A switch
-that is not documented will be discovered by someone debugging a console variable that silently does
-nothing &mdash; which is exactly the failure mode `VITE_RT_PSO_DEBLOAT` caused before it was written up.
+新しいスイッチは、同じ変更の中で [コンパイル時スイッチ](Compile-Time-Switches.md) に記載してください。記載されていない
+スイッチは、何も通知せずに何もしないコンソール変数をデバッグしている誰かによって発見されることになります。それこそが、
+記載される前の `VITE_RT_PSO_DEBLOAT` が引き起こした問題です。
 
-## See also
+## 関連項目
 
-- [Contributing](Contributing.md)
-- [Coding Guidelines](Coding-Guidelines.md)
-- [Backporting](Backporting.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
+- [コントリビュート](Contributing.md)
+- [コーディングガイドライン](Coding-Guidelines.md)
+- [バックポート](Backporting.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)

@@ -1,93 +1,107 @@
-# Contributing to the Documentation
+# ドキュメントへの貢献
 
 <tldr>
 <p>
-These docs are a JetBrains Writerside project. Add a Markdown file under
-<code>Writerside\topics\</code>, register it in <code>Writerside\hi.tree</code>, and push to
-<code>main</code> &mdash; GitHub Actions builds and deploys to GitHub Pages.
+このドキュメントは JetBrains Writerside のプロジェクトで、英語の <code>Writerside\</code> と日本語の
+<code>WritersideJP\</code> の 2 つのモジュールがあります。Markdown のファイルを両方に追加し、両方のツリーに登録して
+<code>main</code> にプッシュすると、GitHub Actions が両言語と Vite Technology のサイトをビルドし、GitHub Pages に
+デプロイします。
 </p>
 </tldr>
 
-Documentation that lags the engine is worse than no documentation, because people trust it. If you change
-a default, add a console variable or compile out a feature, the page describing it needs to change in the
-same pass.
+エンジンに遅れたドキュメントは、ドキュメントがないより悪いものです。人はそれを信頼するからです。既定値を変える、
+コンソール変数を追加する、機能をコンパイル対象から外す、といった変更をしたら、それを説明するページも同じ作業の中で変える
+必要があります。
 
-## Repository layout
+## リポジトリの構成
 
-| Path | Contents |
+| パス | 内容 |
 |---|---|
-| `Writerside\topics\` | All topic Markdown files, organised in subfolders by section |
-| `Writerside\images\` | Images, referenced by filename alone |
-| `Writerside\hi.tree` | Navigation tree; a topic not listed here is not published |
-| `Writerside\writerside.cfg` | Project configuration |
-| `Writerside\v.list` | Variables |
-| `Writerside\c.list` | Categories |
-| `.github\workflows\DocsBuild.yml` | Build and deploy pipeline |
+| `Writerside\topics\` | 英語のトピックの Markdown ファイル。セクションごとにサブフォルダーで整理 |
+| `Writerside\images\` | 両言語の画像。ファイル名だけで参照 |
+| `Writerside\hi.tree` | 英語のナビゲーションツリー（インスタンス `hi`）。ここにないトピックは公開されない |
+| `Writerside\cfg\vite-theme.html` | 共通のテーマ。ヘッダー、ナビゲーション、ランディングページのスタイル |
+| `WritersideJP\topics\` | 日本語のトピック。英語と同じファイル名とフォルダー |
+| `WritersideJP\jp.tree` | 日本語のナビゲーションツリー（インスタンス `jp`）。同じ順序で、タイトルは日本語 |
+| `Tools\ReleaseNotes\generate_release_notes.py` | リリースノートのページのコミットの記録を再生成する |
+| `ViteTech\` | Vite Technology のサイト。`src\pages\en` と `src\pages\ja` を `build.py` でビルド |
+| `.github\workflows\DocsBuild.yml` | ビルドとデプロイのパイプライン |
 
-## Adding a topic
+## トピックを追加する
 
-<procedure title="Add a documentation page" id="add-topic">
+<procedure title="ドキュメントのページを追加する" id="add-topic">
     <step>
-        Create the Markdown file in the appropriate <code>Writerside\topics\</code> subfolder. Use
-        <code>Title-Case-With-Hyphens.md</code>.
+        適切な <code>Writerside\topics\</code> のサブフォルダーに Markdown のファイルを作成します。名前は
+        <code>Title-Case-With-Hyphens.md</code> の形にします。
     </step>
     <step>
-        Add a <code>&lt;toc-element topic="Your-File.md"/&gt;</code> entry to
-        <code>Writerside\hi.tree</code> in the right section.
+        <code>Writerside\hi.tree</code> の適切なセクションに <code>&lt;toc-element topic="Your-File.md"/&gt;</code>
+        のエントリを追加します。
     </step>
     <step>
-        Cross-link it. Add it to the parent section page's topic table and to the
-        <b>See also</b> lists of related pages.
+        相互にリンクします。親のセクションのページのトピックの表と、関連するページの <b>関連項目</b> の一覧に追加します。
     </step>
-    <step>Push to <code>main</code>. The workflow builds and deploys automatically.</step>
+    <step>
+        <code>WritersideJP\topics\</code> の同じパスに日本語のページを作成し、<code>WritersideJP\jp.tree</code> の同じ
+        位置に日本語の <code>toc-title</code> とともに追加します。まだ翻訳できない場合は、2 つのツリーが一致するように
+        英語のページをコピーしておきます。
+    </step>
+    <step><code>main</code> にプッシュします。ワークフローが自動でビルドしてデプロイします。</step>
 </procedure>
 
 <note>
-Writerside resolves topic links by filename, not by path, so <code>[Ray Tracing](Ray-Tracing.md)</code>
-works regardless of which folder either file is in. Filenames must therefore be unique across the whole
-project.
+画像と <code>vite-theme.html</code> は英語のモジュールにだけ置きます。ワークフローは日本語のビルドの前にそれらを
+<code>WritersideJP</code> にコピーし、そのコピーは Git で無視されます。<code>WritersideJP\images\</code> に画像を
+コミットしないでください。
 </note>
 
-## Writing conventions
+<note>
+Writerside はトピックのリンクをパスではなくファイル名で解決するため、<code>[Ray Tracing](Ray-Tracing.md)</code> は
+どちらのファイルがどのフォルダーにあっても機能します。そのため、ファイル名はモジュール全体で一意でなければなりません。
+</note>
 
-### Structure
+## 執筆の決まり
 
-Most pages follow the same shape:
+### 構成
 
-1. `# Title`
-2. A `<tldr>` block giving the answer in two or three sentences
-3. Body sections
-4. A `## See also` list
+ほとんどのページは同じ形をしています。
 
-The `<tldr>` is not optional on substantial pages. Readers arriving from search need to know within a
-sentence whether they are in the right place.
+1. `# タイトル`
+2. 答えを 2、3 文で示す `<tldr>` のブロック
+3. 本文のセクション
+4. `## 関連項目` の一覧
 
-### Writerside elements
+内容のあるページでは `<tldr>` は必須です。検索から来た読者は、正しい場所にいるかを 1 文で知る必要があります。
 
-| Element | Use |
+### Writerside の要素
+
+| 要素 | 用途 |
 |---|---|
-| `<tldr>` | The summary at the top |
-| `<note>` | Useful context that is not a hazard |
-| `<warning>` | Something that will cost the reader time or break their build |
-| `<procedure>` | Numbered steps with an `id` attribute |
-| `<deflist>` / `<def>` | Term-and-explanation lists |
-| `<code-block lang="ini">` | Code inside an HTML-like element, where fenced blocks do not work |
+| `<tldr>` | 冒頭の要約 |
+| `<note>` | 危険ではないが役に立つ補足 |
+| `<warning>` | 読者の時間を奪う、またはビルドを壊すもの |
+| `<procedure>` | `id` 属性を持つ番号付きの手順 |
+| `<deflist>` / `<def>` | 用語と説明の一覧 |
+| `<code-block lang="ini">` | フェンスで囲んだブロックが使えない、HTML 風の要素の中のコード |
 
-Inside `<tldr>`, `<note>`, `<warning>` and `<def>`, use HTML rather than Markdown &mdash; `<b>`, `<code>`,
-`<a href="Page.md">`, `<p>`. Markdown syntax is not processed there.
+`<tldr>`、`<note>`、`<warning>`、`<def>` の中では、Markdown ではなく HTML（`<b>`、`<code>`、`<a href="Page.md">`、
+`<p>`）を使ってください。そこでは Markdown の構文は処理されません。
 
-### Tone
+### 文体
 
-- State the answer, then the reasoning. Not the reverse.
-- Say what something costs, not only what it does.
-- Where a feature is unavailable by default, say so at the top of the page, not in a footnote. The
-  [RTXDI](RTXDI.md) and [path tracing](Path-Tracing.md) pages are the pattern to follow.
-- Tables for enumerable facts, prose for explanation. Do not put explanations in table cells.
+- 先に答えを、次に理由を述べる。逆にはしない。
+- 何をするかだけでなく、何にコストがかかるかを書く。
+- 既定で使えない機能は、脚注ではなくページの冒頭でそう書く。[RTXDI](RTXDI.md) と [パストレーシング](Path-Tracing.md)
+  のページが手本です。
+- 列挙できる事実は表に、説明は文章に。表のセルに説明を書かない。
 
-### Accuracy
+日本語のページでは、英語のページと同じ見出しの構成と ID を保ってください。手順の `id` やアンカーを変えると、両言語の
+リンクがずれます。
 
-Ground claims in the engine source. Console variable names, defaults and help text should be checked
-against their definition rather than remembered:
+### 正確さ
+
+主張はエンジンのソースに基づかせてください。コンソール変数の名前、既定値、ヘルプは、記憶に頼らず定義と照らし合わせて
+確認します。
 
 ```
 Engine\Source\Runtime\Renderer\Private\        renderer CVars
@@ -96,42 +110,66 @@ Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h   VITE_* compile switches
 ```
 
 <warning>
-Console variable help text in the engine is sometimes out of date. HBAO+ describes itself as DX11-only in
-its help string but has a working D3D12 implementation. When source and help text disagree, trust the
-source and document the discrepancy.
+エンジンのコンソール変数のヘルプは古いことがあります。HBAO+ はヘルプで自らを DX11 専用と説明していますが、動作する
+D3D12 の実装があります。ソースとヘルプが食い違う場合はソースを信頼し、その食い違いを記載してください。
 </warning>
 
-## Building locally
+## ローカルでビルドする
 
-Install the Writerside plugin for a JetBrains IDE, or Writerside standalone, and open the repository root.
-The instance ID is `hi`.
+JetBrains の IDE に Writerside のプラグインを入れるか、Writerside のスタンドアロン版を入れて、リポジトリのルートを開き
+ます。インスタンスの ID は `hi`（英語）と `jp`（日本語）です。`jp` をプレビューする前に、ワークフローと同じように
+`Writerside\images\` と `Writerside\cfg\vite-theme.html` を `WritersideJP\` にコピーしてください。
 
-Writerside's own inspections catch broken topic links, unreferenced topics and missing images, which is
-faster than discovering them after a deploy.
+Vite Technology のサイトに必要なのは Python 3 だけです。
 
-## The build pipeline
+```
+python ViteTech/build.py
+```
 
-`.github\workflows\DocsBuild.yml` runs on every push to `main` and on manual dispatch. It builds the `hi`
-instance with the Writerside Docker builder, uploads the artifact, then deploys to GitHub Pages.
+`ViteTech\public\` に、英語はルートに、日本語は `jp\` の下にプレーンな HTML を書き出します。
 
-A build failure usually means a topic referenced in `hi.tree` does not exist, or a topic exists but is not
-referenced. Both are reported by name in the workflow log.
+Writerside 自身の検査は、壊れたトピックのリンク、参照されていないトピック、欠けた画像を検出します。デプロイの後で気づくより
+早く済みます。
 
-## Documenting engine changes
+## ビルドのパイプライン
 
-If your engine change affects any of the following, update the documentation in the same pull request:
+`.github\workflows\DocsBuild.yml` は、`main` へのプッシュのたびと、手動での実行時に動きます。Writerside の Docker の
+ビルダーで `hi` と `jp` のインスタンスを並行してビルドし、1 つのサイトにまとめます。英語はルートに、日本語は `/jp/` の
+下に、Vite Technology のサイトは `/tech/` の下に置かれます。
 
-| Change | Page to update |
+日本語のビルドが失敗しても英語のデプロイは止まりませんが、英語のビルドが失敗するとデプロイは止まり、古いサイトが公開
+されることはありません。ビルドの失敗は通常、ツリーで参照しているトピックが存在しないか、トピックが存在するのに参照されて
+いないことが原因です。どちらもワークフローのログに名前で報告されます。
+
+## リリースノート
+
+各リリースのページには、手で書いた要約と、`<!-- BEGIN GENERATED COMMIT RECORD -->` と
+`<!-- END GENERATED COMMIT RECORD -->` の間の生成されたコミットの記録があります。記録は、公開リポジトリをリモート `pub`、
+社内リポジトリをリモート `int` とするエンジンのクローンから再生成します（August の記録には社内のステージングのコミットが
+含まれるため）。ツリーを持たないクローン（`--filter=tree:0`）で十分です。
+
+```
+python Tools/ReleaseNotes/generate_release_notes.py --git-dir <path to engine clone>
+python Tools/ReleaseNotes/generate_release_notes.py --git-dir <path to engine clone> --locale ja
+```
+
+要約は手で編集し、生成されたブロックの中は決して編集しないでください。
+
+## エンジンの変更を文書化する
+
+エンジンの変更が次のいずれかに影響する場合は、同じプルリクエストの中でドキュメントを更新してください。
+
+| 変更 | 更新するページ |
 |---|---|
-| New or changed console variable | The relevant feature page |
-| New `VITE_*` switch | [Compile-Time Switches](Compile-Time-Switches.md) |
-| Changed engine default | [Engine Defaults](Engine-Defaults.md) |
-| New or updated plugin | [Bundled Plugins](Bundled-Plugins.md) |
-| New tool or script | The [Tools](Tools.md) section |
-| A feature becoming unavailable in default builds | The feature's page, and [Ray Tracing](Ray-Tracing.md) if applicable |
+| コンソール変数の追加や変更 | 該当する機能のページ |
+| 新しい `VITE_*` スイッチ | [コンパイル時スイッチ](Compile-Time-Switches.md) |
+| エンジンの既定値の変更 | [エンジンの既定値の変更](Engine-Defaults.md) |
+| プラグインの追加や更新 | [同梱プラグイン](Bundled-Plugins.md) |
+| 新しいツールやスクリプト | [ツールと自動化](Tools.md) のセクション |
+| 既定のビルドで使えなくなる機能 | その機能のページ。該当する場合は [レイトレーシング](Ray-Tracing.md) も |
 
-## See also
+## 関連項目
 
-- [Contributing](Contributing.md)
-- [Coding Guidelines](Coding-Guidelines.md)
-- [Commit Conventions](Commit-Conventions.md)
+- [コントリビュート](Contributing.md)
+- [コーディングガイドライン](Coding-Guidelines.md)
+- [コミット規約](Commit-Conventions.md)

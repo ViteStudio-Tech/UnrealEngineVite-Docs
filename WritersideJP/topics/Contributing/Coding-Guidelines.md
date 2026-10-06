@@ -1,141 +1,138 @@
-# Coding Guidelines
+# コーディングガイドライン
 
 <tldr>
 <p>
-Stability first, performance-focused, strict Clang 22 compliance, copyright-clean, ABI-safe. No recursion,
-no new virtuals, no new Blueprint exposure, minimal templates. Gate anything that adds overhead or changes
-behaviour behind a guard in <code>CoreDefines.h</code>.
+安定性が第一、性能重視、厳格な Clang 22 への準拠、著作権の明確さ、ABI の安全性。再帰なし、新しい仮想関数なし、新しい
+ブループリントへの公開なし、テンプレートは最小限。オーバーヘッドを加えるもの、挙動を変えるものは、すべて
+<code>CoreDefines.h</code> のガードの背後に置きます。
 </p>
 </tldr>
 
-These rules are stricter than stock Unreal's own coding standard. They exist because Vite's value
-proposition is predictable performance on Console Class hardware, and because a fork that breaks binary
-compatibility with its own shaders is unusable.
+これらのルールは、標準の Unreal 自身のコーディング規約より厳しいものです。Vite の価値がコンソールクラスのハードウェアで
+予測できる性能にあること、そして自身のシェーダーとのバイナリ互換性を壊すフォークは使い物にならないことが、その理由です。
 
-## Core principles
+## 基本原則
 
 <deflist>
-<def title="Stability first">
-Code must remain predictable and safe under both MSVC and Clang. Behaviour that happens to work on one
-compiler is not acceptable.
+<def title="安定性が第一">
+コードは MSVC と Clang の両方で予測でき、安全でなければなりません。片方のコンパイラでたまたま動く挙動は認められません。
 </def>
-<def title="Performance-focused">
-All changes must consider CPU, GPU and memory impact, with an ARM-class ~1 GHz CPU as the baseline target.
-Performance measured on a local desktop CPU must not be treated as sufficient or representative of
-real-world target hardware.
+<def title="性能重視">
+すべての変更は、ARM クラスの約 1 GHz の CPU を基準として、CPU、GPU、メモリへの影響を考慮しなければなりません。
+ローカルのデスクトップの CPU で計測した性能を、十分なもの、あるいは実際の対象ハードウェアを代表するものとして扱っては
+なりません。
 </def>
-<def title="Strict Clang 22 compliance">
-No MSVC-specific behaviour, compiler extensions or undefined constructs. Code that only builds because MSVC
-is permissive about it does not meet this bar, even when MSVC is the compiler you personally use.
+<def title="厳格な Clang 22 への準拠">
+MSVC 固有の挙動、コンパイラの拡張、未定義の構文は使いません。MSVC が寛容だからビルドできているだけのコードは、たとえ
+自分が普段 MSVC を使っていても、この基準を満たしません。
 </def>
-<def title="Licensing clarity">
-All contributions must be copyright-clean. Code may be included only if it is original work by the
-contributor, or licensed permissively &mdash; MIT, Apache 2.0, BSD, Zlib. Vite-original files use
-<code>// Copyright 2026 Vite Studio. All rights reserved.</code> See
-<a href="License-And-Copyright.md">License and Copyright</a>.
+<def title="ライセンスの明確さ">
+すべてのコントリビュートは著作権的に問題のないものでなければなりません。含められるのは、コントリビューター自身の独自の
+作業か、寛容なライセンス（MIT、Apache 2.0、BSD、Zlib）のコードだけです。Vite 独自のファイルには
+<code>// Copyright 2026 Vite Studio. All rights reserved.</code> を記載します。
+<a href="License-And-Copyright.md">ライセンスと著作権</a> を参照してください。
 </def>
-<def title="ABI safety">
-Do not modify engine bitmask layouts, payload structures, serialization formats, or any CPU/GPU-shared
-binary contracts.
+<def title="ABI の安全性">
+エンジンのビットマスクのレイアウト、ペイロードの構造、シリアライズの形式、CPU と GPU で共有するバイナリの取り決めを
+変更しないでください。
 </def>
 </deflist>
 
-## Forbidden
+## 禁止事項
 
-### Recursion
+### 再帰
 
-Banned. Use iterative patterns. Recursion makes stack usage unbounded and unpredictable, which matters on
-the hardware Vite targets.
+禁止です。反復のパターンを使ってください。再帰はスタックの使用量を際限のない予測できないものにし、それは Vite が対象と
+するハードウェアで問題になります。
 
-### New virtual functions
+### 新しい仮想関数
 
-Do not add new virtuals unless strictly required. Where you can, cache existing engine virtuals rather than
-calling through them repeatedly.
+厳密に必要な場合を除き、新しい仮想関数を追加しないでください。可能な場合は、既存のエンジンの仮想関数を繰り返し呼ぶの
+ではなく、結果をキャッシュしてください。
 
-### Kismet / Blueprint API additions
+### Kismet / ブループリントの API の追加
 
-No new `BlueprintCallable` or `BlueprintPure` functions without explicit approval. Every Blueprint-exposed
-function adds reflection metadata, binary size and a call path that is slower than native C++. At the same type 
-the Blueprint Nativization system needs to remain stable.
+明示的な承認なしに、新しい `BlueprintCallable` や `BlueprintPure` の関数を追加しないでください。ブループリントに公開する
+関数は、リフレクションのメタデータ、バイナリサイズ、そしてネイティブの C++ より遅い呼び出しの経路を追加します。同時に、
+ブループリントのネイティブ化のシステムを安定に保つ必要があります。
 
-### Template-heavy patterns
+### テンプレートを多用するパターン
 
-Avoid templates unless they provide a clear performance or architectural benefit. Do not introduce patterns
-that increase compile times, binary size or code complexity. See
-[Shader Compilation and PSO](Shader-Compilation-And-PSO.md) for why compile times are taken seriously here.
+明確な性能上またはアーキテクチャ上の利点がない限り、テンプレートは避けてください。コンパイル時間、バイナリサイズ、
+コードの複雑さを増やすパターンを持ち込まないでください。ここでコンパイル時間が重視される理由は
+[シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md) を参照してください。
 
-### ABI-breaking modifications
+### ABI を壊す変更
 
 <warning>
-Do not modify any of the following:
+次のものはどれも変更しないでください。
 <list>
-<li>Ray tracing payload bitfields</li>
-<li>Shader-visible enums or flags</li>
-<li>Packed bitmasks used by RHI or RenderCore</li>
-<li>Reflection system bitmask definitions</li>
-<li>Any CPU/GPU shared struct layouts</li>
+<li>レイトレーシングのペイロードのビットフィールド</li>
+<li>シェーダーから見える列挙型やフラグ</li>
+<li>RHI や RenderCore が使うパックされたビットマスク</li>
+<li>リフレクションシステムのビットマスクの定義</li>
+<li>CPU と GPU で共有する構造体のレイアウト</li>
 </list>
 <p>
-Such modifications break PSO caching, ray tracing stability, serialization, and cross-platform and
-cross-vendor GPU behaviour. This is the single most common cause of immediate rejection.
+こうした変更は、PSO のキャッシュ、レイトレーシングの安定性、シリアライズ、プラットフォームやベンダーをまたいだ GPU の
+挙動を壊します。即座に却下される最も多い原因です。
 </p>
 </warning>
 
-## Technical standards
+## 技術的な基準
 
-1. No undefined behaviour or non-standard extensions.
-2. Avoid implicit type conversions.
-3. Maintain memory correctness. Avoid large stack allocations; minimise dynamic memory.
-4. Prefer `constexpr`, `FORCEINLINE` and zero-cost abstractions.
+1. 未定義動作や標準外の拡張を使わない。
+2. 暗黙の型変換を避ける。
+3. メモリの正しさを保つ。大きなスタックの確保を避け、動的メモリを最小限にする。
+4. `constexpr`、`FORCEINLINE`、ゼロコストの抽象化を優先する。
 
-## Performance rules
+## 性能のルール
 
-1. Favour contiguous memory and cache-friendly layouts.
-2. Avoid unpredictable branching in hot paths.
-3. No `FString` processing, reflection calls, dynamic allocation or virtual dispatch inside per-frame
-   loops.
-4. Use SIMD-friendly math (SSE/AVX/NEON) where appropriate. On the PS5 CPU that means fused FMA and SoA
-   layouts on **one FMA pipe** (`FP3` gone, `FP2` store-only) — see [PS5 CPU FPU](PS5-CPU-FPU.md).
-   Desktop and Series X Zen 2 will overstate FMA throughput.
+1. 連続したメモリと、キャッシュに優しいレイアウトを優先する。
+2. ホットパスでの予測できない分岐を避ける。
+3. 毎フレームのループの中で、`FString` の処理、リフレクションの呼び出し、動的な確保、仮想関数の呼び出しを行わない。
+4. 適切な場面では SIMD に適した演算（SSE/AVX/NEON）を使う。PS5 の CPU では、**FMA パイプが 1 本**（`FP3` がなく、
+   `FP2` はストア専用）であることを踏まえ、融合した FMA と SoA のレイアウトを使います。
+   [PS5 CPU の FPU](PS5-CPU-FPU.md) を参照してください。デスクトップや Series X の Zen 2 は FMA のスループットを
+   過大に見せます。
 
-Rule 3 is the one most often violated by otherwise reasonable code. An `FString` format call in a per-actor
-tick is invisible in a test scene and catastrophic at scale &mdash; see the
-[400-character CMC benchmark](400-Characters-CMC-Bench.md) for what per-frame cost looks like when
-multiplied out.
+それ以外は妥当なコードで最もよく破られるのはルール 3 です。アクターごとのティックでの `FString` のフォーマットの呼び出しは、
+テスト用のシーンでは目に見えませんが、規模が大きくなると致命的です。毎フレームのコストが掛け算されるとどうなるかは
+[400 キャラクター CMC ベンチマーク](400-Characters-CMC-Bench.md) を参照してください。
 
-## Work in progress
+## 作業途中のもの
 
-1. Commit work in progress to alternative branches.
-2. Give a brief commentary on what is left to do.
-3. Delete temporary branches once they are no longer needed.
-4. Make other forkers aware of the work so effort is not duplicated.
+1. 作業途中のものは別のブランチにコミットする。
+2. 残っている作業について簡単なコメントを残す。
+3. 不要になった一時的なブランチは削除する。
+4. 作業の重複を避けるため、他のフォークの作業者に知らせる。
 
-## Verification requirements
+## 確認の要件
 
-### Compilation
+### コンパイル
 
-Must compile cleanly under MSVC and be Clang compliant. "Compiles on my machine with warnings" is not
-clean. For an isolated kernel, compile it on [Compiler Explorer](Compiler-Explorer.md) under the newest
-x64 MSVC and Clang 22 / clang-cl. That confirms both compilers accept the code and shows the assembly
-they emit. It does not time them. Runtime comparison is [Quick Bench](https://quick-bench.com/) for GCC
-or Clang on Linux, or a local benchmark for MSVC versus clang-cl.
+MSVC でクリーンにコンパイルでき、Clang に準拠していなければなりません。「手元のマシンで警告付きでコンパイルできる」は
+クリーンではありません。切り出したカーネルは、[Compiler Explorer](Compiler-Explorer.md) で最新の x64 MSVC と
+Clang 22 / clang-cl でコンパイルしてください。それによって両方のコンパイラがコードを受け付けることを確認し、出力される
+アセンブリを見られます。時間は計測されません。実行時の比較には、Linux 上の GCC や Clang なら
+[Quick Bench](https://quick-bench.com/)、MSVC と clang-cl ならローカルのベンチマークを使います。
 
-### Stability
+### 安定性
 
-- No crashes on startup, shutdown, or on the Tech Showcase project.
-- No log spam.
-- Guard all code not necessary for shipping.
+- 起動時、終了時、Tech Showcase のプロジェクトでクラッシュしないこと。
+- ログを大量に出さないこと。
+- 出荷に必要のないコードはすべてガードすること。
 
 ### ABI
 
-- All shader-visible structs must remain bit-for-bit identical.
-- No changes to payloads, bitmask layouts, uniform buffers or reflection flags.
-- ABI violations result in immediate rejection.
+- シェーダーから見えるすべての構造体は、ビット単位で同一のままでなければなりません。
+- ペイロード、ビットマスクのレイアウト、ユニフォームバッファ、リフレクションのフラグを変更しないこと。
+- ABI の違反は即座に却下されます。
 
-### Code gating
+### コードのゲート
 
-Anything that adds overhead or changes existing behaviour must sit behind a guard defined in
-`Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h`:
+オーバーヘッドを加えるもの、既存の挙動を変えるものは、すべて
+`Engine\Source\Runtime\Core\Public\Misc\CoreDefines.h` で定義したガードの背後に置かなければなりません。
 
 ```c++
 #ifndef VITE_MY_FEATURE
@@ -143,69 +140,77 @@ Anything that adds overhead or changes existing behaviour must sit behind a guar
 #endif
 ```
 
-Two rules follow from that. The default must leave the existing path untouched &mdash; a guard whose
-default value changes behaviour is not a guard. And the guarded code must actually be excluded when the
-switch is off, rather than compiled in and skipped at runtime, or the overhead you were gating is still
-being paid.
+ここから 2 つのルールが導かれます。既定値は既存の経路に手を触れないものでなければなりません。既定値で挙動が変わる
+ガードは、ガードではありません。そして、スイッチがオフのときにはガードしたコードを実際に除外しなければなりません。
+コンパイルに含めたまま実行時にスキップするのでは、ゲートしたはずのオーバーヘッドを払い続けることになります。
 
-This is what makes optional features free for projects that do not use them, and it is why
-`VITE_PHYSX_FIXED_TIMESTEP` and the rest of the
-[compile-time switches](Compile-Time-Switches.md) exist in the form they do. Document every new switch on
-that page in the same change.
+これが、任意の機能を使わないプロジェクトにとってコストゼロにする仕組みであり、`VITE_PHYSX_FIXED_TIMESTEP` をはじめとする
+[コンパイル時スイッチ](Compile-Time-Switches.md) が今の形で存在する理由です。`VITE_RT_PSO_DEBLOAT`、`VITE_O_SSAO`、
+`VITE_UE5_POSTPROCESSING` など、いくつかの確立したスイッチは Vite の基準の一部であるため既定値が `1` です。新しい
+スイッチは `0` から始めます。新しいスイッチは、同じ変更の中でそのページにすべて記載してください。
 
-## Review checklist
+## レビューのチェックリスト
 
-Confirm all of these before opening a pull request:
+プルリクエストを出す前に、次のすべてを確認してください。
 
-| Check | |
+| 確認項目 | |
 |---|---|
-| No recursion | ☐ |
-| No added virtual calls, existing engine virtuals cached where possible | ☐ |
-| No new Kismet exposure | ☐ |
-| Copyright-clean code, Vite or Epic header present as required | ☐ |
-| ABI and bitmask integrity preserved | ☐ |
-| Strict Clang compliance | ☐ |
-| No undefined behaviour | ☐ |
-| No performance regressions | ☐ |
-| No unnecessary binary size increases | ☐ |
-| No shader or RHI ABI mismatches | ☐ |
-| Overhead or behaviour changes gated in `CoreDefines.h`, defaulting off | ☐ |
-| New compile-time switches documented | ☐ |
+| 再帰がない | ☐ |
+| 仮想関数の呼び出しを追加しておらず、可能な場合は既存のエンジンの仮想関数をキャッシュしている | ☐ |
+| 新しい Kismet への公開がない | ☐ |
+| 著作権的に問題のないコードで、必要に応じて Vite または Epic のヘッダーがある | ☐ |
+| ABI とビットマスクの整合性が保たれている | ☐ |
+| Clang に厳格に準拠している | ☐ |
+| 未定義動作がない | ☐ |
+| 性能の低下がない | ☐ |
+| 不必要なバイナリサイズの増加がない | ☐ |
+| シェーダーや RHI の ABI の不一致がない | ☐ |
+| オーバーヘッドや挙動の変更が `CoreDefines.h` でゲートされ、既定でオフになっている | ☐ |
+| 新しいコンパイル時スイッチがドキュメント化されている | ☐ |
 
-## Marking your changes
+## 変更の印を付ける
 
-### Copyright headers
+### 著作権のヘッダー
 
-New Vite-original files start with:
+Vite 独自の新しいファイルは次の行で始めます。
 
 ```c++
 // Copyright 2026 Vite Studio. All rights reserved.
 ```
 
-Edited Epic files keep Epic's header and add the Vite Studio line underneath it. Do not remove Epic
-notices. The full rules, and why they exist, are in
-[License and Copyright](License-And-Copyright.md).
+編集した Epic のファイルは Epic のヘッダーを残し、その下に Vite Studio の行を加えます。Epic の表示は削除しないで
+ください。完全なルールとその理由は [ライセンスと著作権](License-And-Copyright.md) にあります。
 
-### Inline change markers
+### インラインの変更の印
 
-Vite's engine modifications are marked inline so they survive upstream merges and are findable later. The
-existing convention in the tree uses trailing comments on modified lines:
+Vite のエンジンへの変更には、上流のマージを経ても残り、後から見つけられるように、インラインで印を付けます。現在のコードは、
+変更した領域を、変更の理由を記した開始と終了の組で囲みます。
 
 ```c++
-case MP_Anisotropy:
-    CustomPinNames.Add({ MSM_CallistoBRDF, "Diffuse Fresnel" }); // AKCHANGES
-    CustomPinNames.Add({ MSM_Toon, "Softness" }); //Fletch
+//vite_begin_change - Improve AO Shader memory access pattern
+#if VITE_SSAO_RUNTIME_TOGGLE
+static TAutoConsoleVariable<int32> CVarViteSSAOOpt(
+	TEXT("r.Vite.SSAO"),
+	...
+#endif
+//vite_end_change
 ```
 
-Follow whatever marker the surrounding code uses. For a new region, a `// AKCHANGES START` /
-`// AKCHANGES END` pair makes the extent of the change clear.
+1 行だけの変更では、元の値を末尾のコメントに残し、上流を参照しなくても標準の挙動に戻せるようにします。
 
-## See also
+```c++
+bEnableUpdateRateOptimizations = true;//Epic's Default was false
+```
 
-- [Contributing](Contributing.md)
-- [Commit Conventions](Commit-Conventions.md)
-- [Backporting](Backporting.md)
-- [License and Copyright](License-And-Copyright.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Performance Targets](Performance-Targets.md)
+ツリー内の古い変更には、別の末尾の印（`// AKCHANGES` やコントリビューターの名前）が使われています。それらはそのまま残し、
+新しい作業には `//vite_begin_change` / `//vite_end_change` を使ってください。
+
+## 関連項目
+
+- [コントリビュート](Contributing.md)
+- [コミット規約](Commit-Conventions.md)
+- [バックポート](Backporting.md)
+- [ライセンスと著作権](License-And-Copyright.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [パフォーマンス目標](Performance-Targets.md)
 - [Compiler Explorer](Compiler-Explorer.md)

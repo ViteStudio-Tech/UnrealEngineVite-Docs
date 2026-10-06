@@ -9,7 +9,7 @@ behaviour behind a guard in <code>CoreDefines.h</code>.
 </tldr>
 
 These rules are stricter than stock Unreal's own coding standard. They exist because Vite's value
-proposition is predictable performance on Console Class hardware, and because a fork that breaks binary
+proposition is predictable performance on console-class hardware, and because a fork that breaks binary
 compatibility with its own shaders is unusable.
 
 ## Core principles
@@ -55,8 +55,8 @@ calling through them repeatedly.
 ### Kismet / Blueprint API additions
 
 No new `BlueprintCallable` or `BlueprintPure` functions without explicit approval. Every Blueprint-exposed
-function adds reflection metadata, binary size and a call path that is slower than native C++. At the same type 
-the Blueprint Nativization system needs to remain stable.
+function adds reflection metadata, binary size and a call path that is slower than native C++. At the same
+time, the Blueprint Nativization system needs to remain stable.
 
 ### Template-heavy patterns
 
@@ -150,8 +150,10 @@ being paid.
 
 This is what makes optional features free for projects that do not use them, and it is why
 `VITE_PHYSX_FIXED_TIMESTEP` and the rest of the
-[compile-time switches](Compile-Time-Switches.md) exist in the form they do. Document every new switch on
-that page in the same change.
+[compile-time switches](Compile-Time-Switches.md) exist in the form they do. A few established switches
+&mdash; `VITE_RT_PSO_DEBLOAT`, `VITE_O_SSAO`, `VITE_UE5_POSTPROCESSING` among them &mdash; default to `1`
+because they are part of Vite's baseline. New switches start at `0`. Document every new switch on that page
+in the same change.
 
 ## Review checklist
 
@@ -188,17 +190,28 @@ notices. The full rules, and why they exist, are in
 
 ### Inline change markers
 
-Vite's engine modifications are marked inline so they survive upstream merges and are findable later. The
-existing convention in the tree uses trailing comments on modified lines:
+Vite's engine modifications are marked inline so they survive upstream merges and are findable later.
+Current code wraps a modified region in a begin/end pair that says why it changed:
 
 ```c++
-case MP_Anisotropy:
-    CustomPinNames.Add({ MSM_CallistoBRDF, "Diffuse Fresnel" }); // AKCHANGES
-    CustomPinNames.Add({ MSM_Toon, "Softness" }); //Fletch
+//vite_begin_change - Improve AO Shader memory access pattern
+#if VITE_SSAO_RUNTIME_TOGGLE
+static TAutoConsoleVariable<int32> CVarViteSSAOOpt(
+	TEXT("r.Vite.SSAO"),
+	...
+#endif
+//vite_end_change
 ```
 
-Follow whatever marker the surrounding code uses. For a new region, a `// AKCHANGES START` /
-`// AKCHANGES END` pair makes the extent of the change clear.
+Single changed lines keep the original value in a trailing comment, so the stock behaviour stays
+recoverable without consulting upstream:
+
+```c++
+bEnableUpdateRateOptimizations = true;//Epic's Default was false
+```
+
+Older changes in the tree use other trailing markers (`// AKCHANGES`, contributor names). Leave those in
+place, and use `//vite_begin_change` / `//vite_end_change` for new work.
 
 ## See also
 

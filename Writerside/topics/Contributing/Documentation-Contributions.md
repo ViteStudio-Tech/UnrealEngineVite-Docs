@@ -2,9 +2,10 @@
 
 <tldr>
 <p>
-These docs are a JetBrains Writerside project. Add a Markdown file under
-<code>Writerside\topics\</code>, register it in <code>Writerside\hi.tree</code>, and push to
-<code>main</code> &mdash; GitHub Actions builds and deploys to GitHub Pages.
+These docs are a JetBrains Writerside project with two modules: English in <code>Writerside\</code> and
+Japanese in <code>WritersideJP\</code>. Add the Markdown file to both, register it in both trees, and push
+to <code>main</code> &mdash; GitHub Actions builds both languages and the Vite Technology site and deploys
+them to GitHub Pages.
 </p>
 </tldr>
 
@@ -16,12 +17,14 @@ same pass.
 
 | Path | Contents |
 |---|---|
-| `Writerside\topics\` | All topic Markdown files, organised in subfolders by section |
-| `Writerside\images\` | Images, referenced by filename alone |
-| `Writerside\hi.tree` | Navigation tree; a topic not listed here is not published |
-| `Writerside\writerside.cfg` | Project configuration |
-| `Writerside\v.list` | Variables |
-| `Writerside\c.list` | Categories |
+| `Writerside\topics\` | English topic Markdown files, organised in subfolders by section |
+| `Writerside\images\` | Images for both languages, referenced by filename alone |
+| `Writerside\hi.tree` | English navigation tree (instance `hi`); a topic not listed here is not published |
+| `Writerside\cfg\vite-theme.html` | The shared theme: header, navigation, landing page styling |
+| `WritersideJP\topics\` | Japanese topics, with the same file names and folders as the English ones |
+| `WritersideJP\jp.tree` | Japanese navigation tree (instance `jp`), in the same order with localised titles |
+| `Tools\ReleaseNotes\generate_release_notes.py` | Regenerates the commit records on the release notes pages |
+| `ViteTech\` | The Vite Technology site: `src\pages\en` and `src\pages\ja`, built by `build.py` |
 | `.github\workflows\DocsBuild.yml` | Build and deploy pipeline |
 
 ## Adding a topic
@@ -39,8 +42,19 @@ same pass.
         Cross-link it. Add it to the parent section page's topic table and to the
         <b>See also</b> lists of related pages.
     </step>
+    <step>
+        Create the Japanese page at the same path under <code>WritersideJP\topics\</code> and add it to
+        <code>WritersideJP\jp.tree</code> in the same position, with a Japanese <code>toc-title</code>.
+        If you cannot translate it yet, copy the English page so the two trees stay identical.
+    </step>
     <step>Push to <code>main</code>. The workflow builds and deploys automatically.</step>
 </procedure>
+
+<note>
+Images and <code>vite-theme.html</code> live only in the English module. The workflow copies them into
+<code>WritersideJP</code> before the Japanese build, and those copies are ignored by Git, so never commit
+images under <code>WritersideJP\images\</code>.
+</note>
 
 <note>
 Writerside resolves topic links by filename, not by path, so <code>[Ray Tracing](Ray-Tracing.md)</code>
@@ -104,7 +118,16 @@ source and document the discrepancy.
 ## Building locally
 
 Install the Writerside plugin for a JetBrains IDE, or Writerside standalone, and open the repository root.
-The instance ID is `hi`.
+The instance IDs are `hi` (English) and `jp` (Japanese). Before previewing `jp`, copy
+`Writerside\images\` and `Writerside\cfg\vite-theme.html` into `WritersideJP\` as the workflow does.
+
+The Vite Technology site needs only Python 3:
+
+```
+python ViteTech/build.py
+```
+
+It writes plain HTML to `ViteTech\public\`, English at the root and Japanese under `jp\`.
 
 Writerside's own inspections catch broken topic links, unreferenced topics and missing images, which is
 faster than discovering them after a deploy.
@@ -112,10 +135,26 @@ faster than discovering them after a deploy.
 ## The build pipeline
 
 `.github\workflows\DocsBuild.yml` runs on every push to `main` and on manual dispatch. It builds the `hi`
-instance with the Writerside Docker builder, uploads the artifact, then deploys to GitHub Pages.
+and `jp` instances in parallel with the Writerside Docker builder, then assembles one site: English at the
+root, Japanese under `/jp/`, and the Vite Technology site under `/tech/`.
 
-A build failure usually means a topic referenced in `hi.tree` does not exist, or a topic exists but is not
-referenced. Both are reported by name in the workflow log.
+A Japanese build failure does not block the English deploy, but an English failure stops the deploy so a
+stale site is never published. A build failure usually means a topic referenced in a tree does not exist,
+or a topic exists but is not referenced. Both are reported by name in the workflow log.
+
+## Release notes
+
+Each release page has a hand-written summary and a generated commit record between
+`<!-- BEGIN GENERATED COMMIT RECORD -->` and `<!-- END GENERATED COMMIT RECORD -->`. Regenerate the records
+from an engine clone with the public repository as remote `pub` and the internal repository as remote `int`
+(the August record lists internal staging commits). A treeless clone (`--filter=tree:0`) is enough:
+
+```
+python Tools/ReleaseNotes/generate_release_notes.py --git-dir <path to engine clone>
+python Tools/ReleaseNotes/generate_release_notes.py --git-dir <path to engine clone> --locale ja
+```
+
+Edit the summaries by hand; never edit inside the generated block.
 
 ## Documenting engine changes
 

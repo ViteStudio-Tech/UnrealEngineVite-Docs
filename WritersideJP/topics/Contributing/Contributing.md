@@ -1,98 +1,96 @@
-# Contributing
+# コントリビュート
 
 <tldr>
 <p>
-Vite has stricter rules than stock Unreal: no recursion, no new virtuals, no new Blueprint exposure, strict
-Clang compliance and absolute ABI stability. Read the guidelines before writing code, not before opening a
-pull request.
+Vite には標準の Unreal より厳しいルールがあります。再帰の禁止、新しい仮想関数の禁止、新しいブループリントへの公開の禁止、
+厳格な Clang への準拠、そして完全な ABI の安定性です。プルリクエストを出す前ではなく、コードを書く前にガイドラインを
+読んでください。
 </p>
 </tldr>
 
-Vite exists because UE 4.27 can be made fast and stable. Contributions that compromise either defeat the
-point. The rules below are unusually restrictive for a game engine fork, and that is deliberate.
+Vite は、UE 4.27 を速く安定させられるからこそ存在します。そのどちらかを損なうコントリビュートは、存在意義を失わせます。
+以下のルールはゲームエンジンのフォークとしては異例なほど厳しいものですが、それは意図的なものです。
 
-## In this section
+## このセクションの内容
 
-| Topic | Covers |
+| トピック | 内容 |
 |---|---|
-| [Coding Guidelines](Coding-Guidelines.md) | Core principles, forbidden constructs, technical and performance rules |
-| [Commit Conventions](Commit-Conventions.md) | Prefixes, attribution, branch hygiene |
-| [Backporting](Backporting.md) | Bringing UE5 and upstream features into 4.27 |
-| [Documentation](Documentation-Contributions.md) | Contributing to these docs |
+| [コーディングガイドライン](Coding-Guidelines.md) | 基本原則、禁止事項、技術と性能のルール |
+| [コミット規約](Commit-Conventions.md) | プレフィックス、出典の明記、ブランチの管理 |
+| [バックポート](Backporting.md) | UE5 と上流の機能を 4.27 に取り込む |
+| [ドキュメントへの貢献](Documentation-Contributions.md) | このドキュメントへの貢献 |
 
-## Before you start
+## 始める前に
 
-<procedure title="Contribution workflow" id="contribution-workflow">
+<procedure title="コントリビュートの流れ" id="contribution-workflow">
     <step>
-        Read the <a href="Coding-Guidelines.md">coding guidelines</a>. Several common C++ patterns are
-        banned outright, and finding out after you have written the code is expensive.
+        <a href="Coding-Guidelines.md">コーディングガイドライン</a> を読みます。よくある C++ のパターンのいくつかは
+        全面的に禁止されており、コードを書いた後に気づくと高くつきます。
     </step>
     <step>
-        Check whether the change is already covered. The
-        <a href="Compile-Time-Switches.md">compile-time switches</a> and
-        <a href="Engine-Defaults.md">engine default changes</a> pages document a lot of existing work.
+        その変更がすでにカバーされていないかを確認します。<a href="Compile-Time-Switches.md">コンパイル時スイッチ</a>
+        と <a href="Engine-Defaults.md">エンジンの既定値の変更</a> のページに、既存の作業の多くが記載されています。
     </step>
     <step>
-        Work on a branch. Push work-in-progress to alternative branches with a note on what remains, and
-        make other forkers aware of it.
+        ブランチで作業します。作業途中のものは、残っている作業のメモを添えて別のブランチにプッシュし、他のフォークの
+        作業者にも知らせます。
     </step>
     <step>
-        Verify: compiles cleanly under MSVC, Clang compliant, no crashes on startup, shutdown or the
-        Tech Showcase project, no log spam, no ABI changes.
+        確認します。MSVC でクリーンにコンパイルでき、Clang に準拠し、起動時、終了時、Tech Showcase のプロジェクトで
+        クラッシュせず、ログを大量に出さず、ABI を変更していないこと。
     </step>
     <step>
-        Work through the <a href="Coding-Guidelines.md">review checklist</a> before opening the pull
-        request.
+        プルリクエストを出す前に <a href="Coding-Guidelines.md">レビューのチェックリスト</a> をすべて確認します。
     </step>
 </procedure>
 
-## The three rules that reject most pull requests
+## プルリクエストの却下の大半を占める 3 つのルール
 
 <deflist>
-<def title="ABI stability">
-Do not modify ray tracing payload bitfields, shader-visible enums or flags, packed bitmasks used by RHI or
-RenderCore, reflection system bitmask definitions, or any CPU/GPU shared struct layout. Breaking these
-breaks PSO caching, ray tracing stability, serialization and cross-vendor GPU behaviour. ABI violations
-are rejected immediately, regardless of how good the rest of the change is.
+<def title="ABI の安定性">
+レイトレーシングのペイロードのビットフィールド、シェーダーから見える列挙型やフラグ、RHI や RenderCore が使うパックされた
+ビットマスク、リフレクションシステムのビットマスクの定義、CPU と GPU で共有する構造体のレイアウトを変更しないでください。
+これらを壊すと、PSO のキャッシュ、レイトレーシングの安定性、シリアライズ、ベンダーをまたいだ GPU の挙動が壊れます。
+ABI の違反は、変更の他の部分がどれほど優れていても即座に却下されます。
 </def>
-<def title="Performance baseline">
-Changes are evaluated against an ARM-class ~1 GHz CPU baseline. Measuring on your desktop and finding it
-fast does not clear the bar. See <a href="Performance-Targets.md">Performance Targets</a>.
+<def title="性能の基準">
+変更は ARM クラスの約 1 GHz の CPU を基準に評価されます。デスクトップで計測して速かったというだけでは基準を満たしません。
+<a href="Performance-Targets.md">パフォーマンス目標</a> を参照してください。
 </def>
-<def title="Copyright cleanliness">
-Contributions must be original work or permissively licensed (MIT, Apache 2.0, BSD, Zlib). Code copied
-from UE5 into a 4.27 fork sits under Epic's licence, which is a different question from a permissive
-licence &mdash; see <a href="Backporting.md">Backporting</a> and
-<a href="License-And-Copyright.md">License and Copyright</a>.
+<def title="著作権の明確さ">
+コントリビュートは、独自の作業か、寛容なライセンス（MIT、Apache 2.0、BSD、Zlib）のものでなければなりません。UE5 から
+4.27 のフォークにコピーしたコードは Epic のライセンスの下にあり、寛容なライセンスとは別の問題です。
+<a href="Backporting.md">バックポート</a> と <a href="License-And-Copyright.md">ライセンスと著作権</a> を参照して
+ください。
 </def>
 </deflist>
 
-## What makes a good contribution
+## 良いコントリビュートとは
 
-Contributions that fit Vite well tend to share a shape:
+Vite によく合うコントリビュートには共通の形があります。
 
-- **Measurable.** A profiling capture before and after, on representative content, beats an argument.
-  [Compiler Explorer](Compiler-Explorer.md) is for assembly and Clang compliance, not frame time.
-- **Guarded.** Anything not needed in shipping is behind a
-  [compile-time switch](Compile-Time-Switches.md) or a console variable, and off by default when it costs
-  something.
-- **Narrow.** A change touching one subsystem is reviewable. A change touching the renderer, the physics
-  layer and the build system is not.
-- **Documented.** New console variables, switches and defaults need a documentation page or a section in an
-  existing one.
+- **計測されている。** 代表的なコンテンツでの変更前と変更後のプロファイリングのキャプチャは、議論に勝ります。
+  [Compiler Explorer](Compiler-Explorer.md) はアセンブリと Clang への準拠を確認するためのもので、フレームタイムの
+  ためのものではありません。
+- **ガードされている。** 出荷に必要のないものは、[コンパイル時スイッチ](Compile-Time-Switches.md) かコンソール変数の
+  背後に置き、コストがかかるなら既定でオフにします。
+- **範囲が狭い。** 1 つのサブシステムに触れる変更はレビューできます。レンダラー、物理の層、ビルドシステムに同時に触れる
+  変更はレビューできません。
+- **ドキュメント化されている。** 新しいコンソール変数、スイッチ、既定値には、ドキュメントのページか、既存のページの
+  セクションが必要です。
 
-## Getting set up
+## セットアップ
 
-See [Build from Source](Build-From-Source.md) and
-[Toolchain Requirements](Toolchain-Requirements.md). Note that engine development requires a source build
-&mdash; [installed builds](Installed-Builds.md) cannot compile engine C++.
+[ソースからのビルド](Build-From-Source.md) と [ツールチェーン要件](Toolchain-Requirements.md) を参照してください。
+エンジンの開発にはソースビルドが必要です。[インストール済みビルド](Installed-Builds.md) ではエンジンの C++ を
+コンパイルできません。
 
-## See also
+## 関連項目
 
-- [Coding Guidelines](Coding-Guidelines.md)
-- [Commit Conventions](Commit-Conventions.md)
-- [Backporting](Backporting.md)
-- [License and Copyright](License-And-Copyright.md)
-- [Build from Source](Build-From-Source.md)
-- [Performance Targets](Performance-Targets.md)
+- [コーディングガイドライン](Coding-Guidelines.md)
+- [コミット規約](Commit-Conventions.md)
+- [バックポート](Backporting.md)
+- [ライセンスと著作権](License-And-Copyright.md)
+- [ソースからのビルド](Build-From-Source.md)
+- [パフォーマンス目標](Performance-Targets.md)
 - [Compiler Explorer](Compiler-Explorer.md)

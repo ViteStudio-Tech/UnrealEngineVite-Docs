@@ -1,138 +1,133 @@
-# Backporting
+# バックポート
 
 <tldr>
 <p>
-Vite July Release has currently over 300 backports from UE5.0 to UE 5.8 
+Vite は UE 5.0 から UE 5.8 までのエンジンの成果を日常的にバックポートしています。LTS 以降の公開リリースの履歴には 100 を
+超えるバックポートのコミットがあり、その多くは複数の上流の変更をまとめたものです。このページでは、ライセンス、ABI、
+性能を壊さずにバックポートを行う方法を説明します。
 </p>
 </tldr>
 
-Vite is a NvRTX 4.27 Plus fork that keeps pace with technology developed for newer engines. That means backporting is
-a routine activity in order to upgrade the source.
+Vite は、新しいエンジン向けに開発された技術に追従する NvRTX 4.27 Plus のフォークです。そのため、バックポートは例外では
+なく日常的な作業です。
 
-## What has been backported
+## これまでにバックポートしたもの
 
-| Source | Examples                                                                                                                              |
-|---|---------------------------------------------------------------------------------------------------------------------------------------|
-| UE5 | Non Trivial Rendering Optimizations, comprehensive CPU Optimizations, Plugins, QoL improvements, Animation features, Third Party Libs |
-| Vendor SDKs | [DLSS 4.5, FSR 4, XeSS 3.0.5, Streamline](Upscalers.md), TressFX 5.0, Blast                                                           |
-| Third-party plugins | ACL, Motion Symphony, [Kawaii Physics](Bundled-Plugins.md)                                                                            |
+| 出所 | 例 |
+|---|---|
+| UE5 | 自明ではないレンダリングの最適化、広範な CPU の最適化、プラグイン、使い勝手の改善、アニメーションの機能、サードパーティのライブラリ |
+| ベンダーの SDK | [DLSS 4.5、FSR 4、XeSS 3.1、Streamline](Upscalers.md)、TressFX 5.0、Blast |
+| サードパーティのプラグイン | ACL、Motion Symphony、[Kawaii Physics](Bundled-Plugins.md) |
 
-## Before you backport
+## バックポートの前に
 
-<procedure title="Backport feasibility check" id="backport-check">
+<procedure title="バックポートの実現性の確認" id="backport-check">
     <step>
-        <b>Check the licence.</b> UE5 code is under Epic's licence, which permits use in an Unreal
-        Engine fork but not arbitrary redistribution. Third-party code must be permissively licensed
-        &mdash; MIT, Apache 2.0, BSD, Zlib. See
-        <a href="Coding-Guidelines.md">Coding Guidelines</a> and
-        <a href="License-And-Copyright.md">License and Copyright</a>.
+        <b>ライセンスを確認します。</b> UE5 のコードは Epic のライセンスの下にあり、Unreal Engine のフォークでの使用は
+        認められますが、自由な再配布は認められません。サードパーティのコードは寛容なライセンス（MIT、Apache 2.0、BSD、
+        Zlib）でなければなりません。<a href="Coding-Guidelines.md">コーディングガイドライン</a> と
+        <a href="License-And-Copyright.md">ライセンスと著作権</a> を参照してください。
     </step>
     <step>
-        <b>Check the dependency graph.</b> A UE5 feature that depends on Nanite, Lumen, the UE5 RDG API
-        surface or the Chaos physics interface will not backport cleanly. Establish what it actually needs
-        before writing code.
+        <b>依存関係を確認します。</b> Nanite、Lumen、UE5 の RDG の API、Chaos の物理のインターフェイスに依存する UE5 の
+        機能は、きれいにはバックポートできません。コードを書く前に、それが実際に何を必要とするかを把握してください。
     </step>
     <step>
-        <b>Check the ABI implications.</b> If the feature requires changing a shader-visible struct or a
-        packed bitmask, it cannot be backported as-is. See the
-        <a href="Coding-Guidelines.md">ABI rules</a>.
+        <b>ABI への影響を確認します。</b> その機能がシェーダーから見える構造体やパックされたビットマスクの変更を必要とする
+        なら、そのままではバックポートできません。<a href="Coding-Guidelines.md">ABI のルール</a> を参照してください。
     </step>
     <step>
-        <b>Check whether it is worth it.</b> A UE5 feature that exists to solve a UE5 problem may have no
-        value in Vite. Focus on optimizations, Third Party Lib Updates, Plugin updates,SDK updates and fixes. 
+        <b>その価値があるかを確認します。</b> UE5 の問題を解決するために存在する UE5 の機能は、Vite では価値がないかも
+        しれません。最適化、サードパーティのライブラリの更新、プラグインと SDK の更新、修正に注力してください。
     </step>
 </procedure>
 
-## Common obstacles
+## よくある障害
 
 <deflist>
-<def title="RDG API differences">
-UE5's Render Dependency Graph API diverged substantially from 4.27's. Pass declarations, resource
-transitions and uniform buffer creation all differ. This is usually mechanical to translate but touches
-every line of a render pass.
+<def title="RDG の API の違い">
+UE5 の Render Dependency Graph の API は 4.27 から大きく変わっています。パスの宣言、リソースの遷移、ユニフォームバッファの
+作成のすべてが異なります。通常は機械的に置き換えられますが、レンダーパスのすべての行に手が入ります。
 </def>
-<def title="Chaos versus PhysX">
-Anything in UE5 that touches physics assumes Chaos. Vite is PhysX &mdash; see
-<a href="PhysX.md">PhysX</a>. Physics-adjacent backports need the interface rewritten, not translated.
+<def title="Chaos と PhysX">
+UE5 で物理に触れるものはすべて Chaos を前提としています。Vite は PhysX です。<a href="PhysX.md">PhysX</a> を参照して
+ください。物理に関わるバックポートでは、インターフェイスを置き換えるのではなく書き直す必要があります。
 </def>
-<def title="Core type changes">
-UE5 changed several core types, most visibly the move from <code>FVector</code> as float to double
-precision. Backporting means reverting those changes throughout, and watching for places where the
-precision was load-bearing.
+<def title="コアの型の変更">
+UE5 はいくつかのコアの型を変更しており、最も目立つのは <code>FVector</code> の float から double の精度への移行です。
+バックポートでは全体にわたってその変更を元に戻し、精度が重要な役割を果たしていた箇所に注意する必要があります。
 </def>
-<def title="Module reorganisation">
-UE5 split and renamed modules. Includes, build dependencies and module names all need remapping to their
-4.27 locations.
+<def title="モジュールの再編">
+UE5 はモジュールを分割し、名前を変えています。インクルード、ビルドの依存関係、モジュール名のすべてを、4.27 での場所に
+対応付け直す必要があります。
 </def>
-<def title="Shading model slots">
-Shading models are a limited enum. Vite already adds <a href="Shading-Models.md">Callisto BRDF, Toon and
-Lit Reactive</a>. Adding another consumes a slot and adds shader permutations across the board &mdash; see
-<a href="Shader-Compilation-And-PSO.md">Shader Compilation and PSO</a>.
+<def title="シェーディングモデルの枠">
+シェーディングモデルは数の限られた列挙型です。Vite はすでに <a href="Shading-Models.md">Callisto BRDF、Toon、
+Lit Reactive</a> を追加しています。さらに追加すると枠を 1 つ使い、全体にシェーダーのパーミュテーションが増えます。
+<a href="Shader-Compilation-And-PSO.md">シェーダーコンパイルと PSO</a> を参照してください。
 </def>
 </deflist>
 
-## Doing the work
+## 作業を進める
 
-### Keep the change traceable
+### 変更を追跡できるようにする
 
-Mark backported regions with the existing inline comment convention so they are identifiable after future
-upstream merges:
+将来の上流のマージの後でも識別できるように、[コーディングガイドライン](Coding-Guidelines.md) のインラインの変更の印を
+バックポートした領域に付け、コードの出所を記します。
 
 ```c++
-// AKCHANGES START
-// Backported from UE5.3, CL 12345678
+//vite_begin_change - Backported from UE 5.3, CL 12345678
 ...
-// AKCHANGES END
+//vite_end_change
 ```
 
-### Guard what costs something
+### コストのかかるものをガードする
 
-If the feature has a runtime or compile-time cost that not every project wants, put it behind a
-[compile-time switch](Compile-Time-Switches.md) or a console variable, defaulted off. Vite's existing
-switches follow this pattern:
+その機能に、すべてのプロジェクトが望むわけではない実行時やコンパイル時のコストがあるなら、
+[コンパイル時スイッチ](Compile-Time-Switches.md) かコンソール変数の背後に置き、既定でオフにしてください。Vite の既存の
+スイッチはこのパターンに従っています。
 
-| Switch | Default | Guards |
+| スイッチ | 既定値 | ガードするもの |
 |---|---|---|
-| `VITE_PHYSX_FIXED_TIMESTEP` | 0 | Fixed timestep physics |
-| `VITE_RT_PSO_DEBLOAT` | 1 | Compiles out most ray tracing permutations |
-| `VITE_O_SSAO` | 1 | Optimised SSAO path |
-| `VITE_DLSS_PATCH` | 0 | DLSS translucency and volumetric fog fixes |
-| `VITE_NVRTX_TRANSLUCENCY_DEPTH` | 0 | NvRTX translucency depth handling |
+| `VITE_PHYSX_FIXED_TIMESTEP` | 0 | 固定タイムステップの物理 |
+| `VITE_RT_PSO_DEBLOAT` | 1 | レイトレーシングのパーミュテーションの大部分をコンパイル対象から外す |
+| `VITE_O_SSAO` | 1 | 最適化された SSAO の経路 |
+| `VITE_DLSS_PATCH` | 0 | DLSS の半透明とボリュメトリックフォグの修正 |
+| `VITE_NVRTX_TRANSLUCENCY_DEPTH` | 0 | NvRTX の半透明の深度の扱い |
 
-Note that `VITE_RT_PSO_DEBLOAT` defaults to the *restrictive* value. When a feature's cost is
-shader-permutation count, the default that keeps builds fast wins, and the feature is documented as opt-in.
+`VITE_RT_PSO_DEBLOAT` は *制限的な* 値が既定であることに注意してください。機能のコストがシェーダーのパーミュテーションの
+数であるときは、ビルドを速く保つ既定値が優先され、その機能は任意で有効にするものとして文書化されます。
 
-### Test against the baseline
+### 基準に対してテストする
 
-Backported features need measurement against Vite's [performance targets](Performance-Targets.md), not
-against how they performed in UE5. A feature tuned for UE5's frame budget may be unaffordable in a 4.27
-project running on the hardware Vite targets.
+バックポートした機能は、UE5 でどう動いていたかではなく、Vite の [パフォーマンス目標](Performance-Targets.md) に対して
+計測する必要があります。UE5 のフレームの予算に合わせて調整された機能は、Vite が対象とするハードウェアで動く 4.27 の
+プロジェクトでは手に負えないかもしれません。
 
-## Documenting a backport
+## バックポートを文書化する
 
-Every backport needs:
+すべてのバックポートには次のものが必要です。
 
-| Item | Where |
+| 項目 | 場所 |
 |---|---|
-| Source link, upstream commit or tag | Commit body &mdash; see [Commit Conventions](Commit-Conventions.md) |
-| What was changed during translation | Commit body |
-| Any new console variable or switch | A documentation page, and [Compile-Time Switches](Compile-Time-Switches.md) if applicable |
-| Availability caveats | The feature's own page, prominently |
+| 出典のリンク、上流のコミットやタグ | コミットの本文。[コミット規約](Commit-Conventions.md) を参照 |
+| 置き換えの際に変更した点 | コミットの本文 |
+| 新しいコンソール変数やスイッチ | ドキュメントのページ。該当する場合は [コンパイル時スイッチ](Compile-Time-Switches.md) にも |
+| 利用可否の注意 | その機能のページに、目立つように |
 
-That last one matters more than it looks. A backported feature that is compiled out by default, or that
-requires a plugin to be enabled, will otherwise be reported as broken by everyone who tries to use it.
+最後の項目は見た目以上に重要です。既定でコンパイル対象から外れている、あるいはプラグインを有効にする必要があるバック
+ポートした機能は、そうしなければ、使おうとした全員から壊れていると報告されます。
 
-## Asset backporting
+## アセットのバックポート
 
-Backporting *assets* from UE5 is a different problem, handled by the Asset Downgrader rather than by code.
-See [Migrating from UE5](Migrating-From-UE5.md) and
-[Proposed Plugins](Proposed-Plugins.md).
+UE5 からの *アセット* のバックポートは別の問題で、コードではなく Asset Downgrader で扱います。
+[UE5 からの移行](Migrating-From-UE5.md) と [提案中のプラグイン](Proposed-Plugins.md) を参照してください。
 
-## See also
+## 関連項目
 
-- [Contributing](Contributing.md)
-- [Coding Guidelines](Coding-Guidelines.md)
-- [Commit Conventions](Commit-Conventions.md)
-- [License and Copyright](License-And-Copyright.md)
-- [Compile-Time Switches](Compile-Time-Switches.md)
-- [Migrating from UE5](Migrating-From-UE5.md)
+- [コントリビュート](Contributing.md)
+- [コーディングガイドライン](Coding-Guidelines.md)
+- [コミット規約](Commit-Conventions.md)
+- [ライセンスと著作権](License-And-Copyright.md)
+- [コンパイル時スイッチ](Compile-Time-Switches.md)
+- [UE5 からの移行](Migrating-From-UE5.md)

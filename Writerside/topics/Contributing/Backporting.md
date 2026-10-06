@@ -2,19 +2,21 @@
 
 <tldr>
 <p>
-Vite July Release has currently over 300 backports from UE5.0 to UE 5.8 
+Vite routinely backports engine work from UE 5.0 through UE 5.8. The public release history since the
+LTS contains more than 100 backport commits, many of them bundling several upstream changes. This page
+covers how to do one without breaking licensing, ABI or performance. 
 </p>
 </tldr>
 
-Vite is a NvRTX 4.27 Plus fork that keeps pace with technology developed for newer engines. That means backporting is
-a routine activity in order to upgrade the source.
+Vite is an NvRTX 4.27 Plus fork that keeps pace with technology developed for newer engines, so backporting
+is routine work rather than an exception.
 
 ## What has been backported
 
 | Source | Examples                                                                                                                              |
 |---|---------------------------------------------------------------------------------------------------------------------------------------|
 | UE5 | Non Trivial Rendering Optimizations, comprehensive CPU Optimizations, Plugins, QoL improvements, Animation features, Third Party Libs |
-| Vendor SDKs | [DLSS 4.5, FSR 4, XeSS 3.0.5, Streamline](Upscalers.md), TressFX 5.0, Blast                                                           |
+| Vendor SDKs | [DLSS 4.5, FSR 4, XeSS 3.1, Streamline](Upscalers.md), TressFX 5.0, Blast                                                           |
 | Third-party plugins | ACL, Motion Symphony, [Kawaii Physics](Bundled-Plugins.md)                                                                            |
 
 ## Before you backport
@@ -39,7 +41,7 @@ a routine activity in order to upgrade the source.
     </step>
     <step>
         <b>Check whether it is worth it.</b> A UE5 feature that exists to solve a UE5 problem may have no
-        value in Vite. Focus on optimizations, Third Party Lib Updates, Plugin updates,SDK updates and fixes. 
+        value in Vite. Focus on optimisations, third-party library updates, plugin and SDK updates, and fixes. 
     </step>
 </procedure>
 
@@ -75,14 +77,14 @@ Lit Reactive</a>. Adding another consumes a slot and adds shader permutations ac
 
 ### Keep the change traceable
 
-Mark backported regions with the existing inline comment convention so they are identifiable after future
-upstream merges:
+Mark backported regions with the inline change markers from the
+[Coding Guidelines](Coding-Guidelines.md) so they are identifiable after future upstream merges, and say
+where the code came from:
 
 ```c++
-// AKCHANGES START
-// Backported from UE5.3, CL 12345678
+//vite_begin_change - Backported from UE 5.3, CL 12345678
 ...
-// AKCHANGES END
+//vite_end_change
 ```
 
 ### Guard what costs something
