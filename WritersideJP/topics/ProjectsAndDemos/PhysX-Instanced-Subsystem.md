@@ -1,4 +1,4 @@
-# PhysX Instanced Subsystem のデモ
+# PhysX インスタンスサブシステムのデモ
 
 <tldr>
 <p>
