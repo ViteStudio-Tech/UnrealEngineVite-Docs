@@ -3,7 +3,7 @@
 <tldr>
 <p>
 Unreal Engine Vite は、NvRTX ブランチと Plus ブランチをベースに構築された、パフォーマンスを最優先とする
-Unreal Engine 4.27 のフォークです。PhysX を維持したまま DDGI、RTXDI、テッセレーション、SMAA、HBAO+ を追加し、コンシューマー機クラスのハードウェアでネイティブ解像度かつ高フレームレートの描画を目標としています。
+Unreal Engine 4.27 のフォークです。PhysX を維持したまま DDGI、RTXDI、テッセレーション、SMAA、HBAO+ を追加し、コンソールクラスのハードウェアでネイティブ解像度かつ高フレームレートの描画を目標としています。
 </p>
 <p>
 初めての方は <a href="Introduction-to-Vite.md">Vite の概要</a> を読み、続いて
