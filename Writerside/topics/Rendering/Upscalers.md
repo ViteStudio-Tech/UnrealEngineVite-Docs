@@ -58,8 +58,10 @@ affected.
 ### Arbitrary render resolution
 
 `r.Upscaler.ScreenPercentageOverride` lets FSR, DLSS and XeSS take any internal render resolution rather than
-only their fixed quality modes. Use it for benchmarking and for exposing a resolution slider; leave it unset
-for normal quality-mode behaviour.
+only their fixed quality modes. Those plugins own the screen percentage and ignore `r.ScreenPercentage`, so
+this is the way to set one: `0` (the default) leaves the quality-mode preset in charge, and `1`&ndash;`100`
+forces that screen percentage, clamped to the range the active upscaler supports. Use it for benchmarking
+and for exposing a resolution slider.
 
 ## Choosing what to ship
 
