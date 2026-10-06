@@ -456,6 +456,47 @@
         color: #e7eaed;
     }
 
+    .vite-hero__release {
+        display: inline-flex;
+        max-width: 100%;
+        margin: 0 0 22px;
+        padding: 5px 14px 5px 5px;
+        border: 1px solid rgba(0, 174, 239, .45);
+        border-radius: 999px;
+        color: #dfe6eb;
+        background: rgba(0, 174, 239, .08);
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1.3;
+        text-decoration: none;
+        align-items: center;
+        gap: 10px;
+        transition: border-color 120ms ease, background-color 120ms ease;
+    }
+
+    .vite-hero__release::after {
+        content: "\2192";
+        color: var(--vite-cyan);
+    }
+
+    .vite-hero__release:hover,
+    .vite-hero__release:focus-visible {
+        border-color: var(--vite-cyan);
+        background: rgba(0, 174, 239, .16);
+    }
+
+    .vite-hero__release-tag {
+        padding: 3px 9px;
+        border-radius: 999px;
+        color: #06181f;
+        background: var(--vite-cyan);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
     .vite-hero__eyebrow {
         margin: 0 0 12px;
         color: var(--vite-cyan);
@@ -561,7 +602,7 @@
         }
     }
 
-    @media screen and (max-width: 1180px) {
+    @media screen and (max-width: 1320px) {
         .vite-primary-nav {
             gap: 16px;
         }
@@ -571,7 +612,7 @@
         }
     }
 
-    @media screen and (max-width: 1000px) {
+    @media screen and (max-width: 1140px) {
         .wh-header__divider {
             margin-left: 0;
         }
@@ -615,14 +656,31 @@
             return path.slice(0, slash + 1) + "jp/" + path.slice(slash + 1);
         };
 
+        /* The Vite Technology site is published beside the manual under
+           tech/ (Japanese under tech/jp/). Resolved from the manual's root,
+           which is the directory above /jp/ on Japanese pages. */
+        const TECH_SITE = "@tech";
+
+        const siteRoot = () => {
+            const path = location.pathname;
+            const jp = path.indexOf(JP_SEGMENT);
+            return jp >= 0 ? path.slice(0, jp + 1) : path.slice(0, path.lastIndexOf("/") + 1);
+        };
+
+        const resolveHref = (href) => href === TECH_SITE
+            ? siteRoot() + "tech/" + (locale === "ja" ? "jp/" : "")
+            : href;
+
         const dictionary = {
             en: {
                 navLabel: "Vite resources",
                 links: [
                     ["GitHub", "https://github.com/GapingPixel/UnrealEngineVite-PhysX", true],
+                    ["Releases", "release-notes.html", false],
                     ["Demos", "projectsanddemos.html", false],
-                    ["Project Samples", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
-                    ["Public Vite Drive", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true],
+                    ["Samples", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
+                    ["Asset Drive", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true],
+                    ["Vite Technology", TECH_SITE, false],
                     ["Contribute", "https://ko-fi.com/vitestudio", true]
                 ],
                 switchLabel: "日本語",
@@ -631,13 +689,14 @@
                 heroEyebrow: "Unreal Engine Vite — Engine Manual",
                 heroTitle: "A performance-first Unreal Engine",
                 heroLede: "Vite is an Unreal Engine fork built to be the most performant engine available for commercial titles: "
-                    + "Ray-Traced Global Illumination & Reflections without Lumen, PhysX instead of Chaos, Tesselation and targeting 4K native-resolution "
-                    + "with high frame rates on console-class hardware.",
+                    + "ray-traced global illumination and reflections without Lumen, PhysX instead of Chaos, tessellation, "
+                    + "and 4K native resolution at high frame rates on console-class hardware.",
+                heroRelease: ["Latest", "ueVite26 September Major — C++20, .NET and Embree 4.4.1", "uevite26-septembermajor.html"],
                 heroStats: [
                     ["Up to 2.5x", "Real game FPS vs UE 5.7"],
                     ["4K native", "60 FPS on PS5-class GPUs"],
-                    ["300+", "UE5 backports integrated"],
-                    ["PhysX", "Not Chaos"]
+                    ["4.75x", "In-engine physics frame rate vs Chaos"],
+                    ["300+", "UE5 backports integrated"]
                 ],
                 heroActions: [
                     ["Get started", "getting-started.html", true],
@@ -649,9 +708,11 @@
                 navLabel: "Vite 関連リンク",
                 links: [
                     ["GitHub", "https://github.com/GapingPixel/UnrealEngineVite-PhysX", true],
+                    ["リリース", "release-notes.html", false],
                     ["デモ", "projectsanddemos.html", false],
-                    ["サンプルプロジェクト", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
-                    ["公開ドライブ", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true],
+                    ["サンプル", "https://github.com/orgs/ViteStudio-Tech/repositories", true],
+                    ["アセットドライブ", "https://drive.google.com/drive/folders/16FOkb5u6GSqHiWeAm50NaxZ19QFBwZeI?usp=sharing", true],
+                    ["Vite テクノロジー", TECH_SITE, false],
                     ["支援する", "https://ko-fi.com/vitestudio", true]
                 ],
                 switchLabel: "English",
@@ -662,11 +723,12 @@
                 heroLede: "Vite は、商用タイトルにとって最速のエンジンであることを目指して開発された Unreal Engine のフォークです。"
                     + "Lumen に依存しないレイトレーシングによるグローバルイルミネーションと反射、Chaos ではなく PhysX、テッセレーションに対応し、"
                     + "コンシューマー機クラスのハードウェアで 4K ネイティブ解像度と高フレームレートの両立を目標としています。",
+                heroRelease: ["最新", "ueVite26 September Major — C++20、.NET、Embree 4.4.1", "uevite26-septembermajor.html"],
                 heroStats: [
                     ["最大 2.5 倍", "UE 5.7 比の実ゲーム FPS"],
                     ["4K ネイティブ", "PS5 クラス GPU で 60 FPS"],
-                    ["300 件以上", "UE5 からのバックポート"],
-                    ["PhysX 採用", "Chaos は不採用"]
+                    ["4.75 倍", "Chaos 比のエンジン内物理フレームレート"],
+                    ["300 件以上", "UE5 からのバックポート"]
                 ],
                 heroActions: [
                     ["はじめる", "getting-started.html", true],
@@ -766,7 +828,7 @@
             for (const [label, href, external] of t.links) {
                 const anchor = document.createElement("a");
                 anchor.className = "vite-primary-nav__link";
-                anchor.href = href;
+                anchor.href = resolveHref(href);
                 anchor.textContent = label;
                 if (external) {
                     anchor.target = "_blank";
@@ -801,6 +863,20 @@
 
             const hero = document.createElement("section");
             hero.className = "vite-hero";
+
+            if (t.heroRelease) {
+                const [tag, label, href] = t.heroRelease;
+                const release = document.createElement("a");
+                release.className = "vite-hero__release";
+                release.href = href;
+                const releaseTag = document.createElement("span");
+                releaseTag.className = "vite-hero__release-tag";
+                releaseTag.textContent = tag;
+                const releaseLabel = document.createElement("span");
+                releaseLabel.textContent = label;
+                release.append(releaseTag, releaseLabel);
+                hero.append(release);
+            }
 
             const eyebrow = document.createElement("p");
             eyebrow.className = "vite-hero__eyebrow";

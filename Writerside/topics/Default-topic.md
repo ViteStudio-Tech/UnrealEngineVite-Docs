@@ -16,8 +16,8 @@ Welcome to the Unreal Engine Vite manual. This site documents the engine fork it
 what it changes relative to stock Unreal Engine 4.27, which rendering and physics systems it adds, and
 how to get a project shipping on it.
 
-Vite is aimed at teams in active production. It is not a research branch or a Tech demonstration. Every feature
-documented here is expected to survive cooking, packaging and shipping on real hardware, and the
+Vite is aimed at teams in active production. It is not a research branch or a tech demonstration. Every
+feature documented here is expected to survive cooking, packaging and shipping on real hardware, and the
 manual is written with that assumption throughout.
 
 <img src="StylizedRTDemo.png" alt="Stylized scene lit by Dynamic DDGI with the frame counter reading 811 FPS" border-effect="line"/>
@@ -43,6 +43,37 @@ feature set, and it is backed by measurements rather than assertion &mdash; see
 
 [![Vite ray-traced GI and ray-traced reflections](https://img.youtube.com/vi/2vfG3W-Gy5E/maxresdefault.jpg)](https://youtu.be/2vfG3W-Gy5E)
 
+## Measured, not promised
+
+Every figure below is a like-for-like comparison in the same scene, expressed as a speed multiple. The
+methodology for each is on the linked page.
+
+| Measurement | Vite | Comparison | Result |
+|---|---:|---:|---:|
+| [Dynamic DDGI scene](Global-Illumination.md), RTX 4080 Super, 1440p native | 811 FPS | 324 FPS, Lumen in UE 5.7 | **2.5&times;** |
+| [3,000 simulated cubes in engine](Physics.md) | 157.88 FPS | 33.26 FPS, Chaos in UE 5.7 | **4.75&times;** |
+| [10,005-body solver benchmark](Physics.md), 6 threads | 11.76 ms | 791.97 ms, Chaos | **67&times;** |
+| [Same benchmark against stock PhysX 3.4](Physics.md), 1&ndash;6 threads | 11.76&ndash;35.60 ms | 15.82&ndash;49.61 ms, NVIDIA PhysX 3.4 | **1.34&ndash;1.39&times;** |
+| [Shading-model gating](ueVite26-JulyMajor.md), UT Vite scene, 1440p | 264.44 FPS | 235.56 FPS before gating | **+12.3%** |
+
+## Latest release
+
+<deflist>
+<def title="ueVite26 September Major">
+The current release: an initial C++20 upgrade, a .NET upgrade for the engine's C# tooling, Embree 4.4.1 in
+Lightmass and a faster SSGI path. See <a href="ueVite26-SeptemberMajor.md">ueVite26 September Major</a>.
+</def>
+<def title="ueVite26 August Major">
+The largest release so far, with 438 changes: UE5 editor and memory backports, ray-traced reflection and
+specular-occlusion work, a Gameplay Ability System update and a macOS port. See
+<a href="ueVite26-AugustMajor.md">ueVite26 August Major</a>.
+</def>
+<def title="Every release">
+From the LTS base through each monthly major, with upgrade notes and full commit history. See
+<a href="Release-Notes.md">Release Notes</a>.
+</def>
+</deflist>
+
 ## Where to start
 
 Pick the entry point that matches what you are doing right now.
@@ -54,6 +85,7 @@ Pick the entry point that matches what you are doing right now.
 | Compile the engine from source | [Building from Source](Build-From-Source.md) |
 | Fix a compile or setup error | [Build Troubleshooting](Build-Troubleshooting.md) |
 | Move an existing UE5 project onto Vite | [Migrating from Unreal Engine 5](Migrating-From-UE5.md) |
+| See what changed in a release | [Release Notes](Release-Notes.md) |
 | Light a scene without Lumen | [Global Illumination](Global-Illumination.md) |
 | Replace Chaos with PhysX in my gameplay code | [PhysX](PhysX.md) |
 | Find a console variable | [Console Variables](Console-Variables.md) |
@@ -153,6 +185,10 @@ cache management, and Compiler Explorer for MSVC versus Clang codegen. See
 Downloadable sample projects and benchmark scenes, with the hardware numbers they were captured on. See
 <a href="ProjectsAndDemos.md">Projects and Demos</a>.
 </def>
+<def title="Release Notes">
+Every public release from the LTS base onward: highlights, upgrade notes and the full commit history of
+each release branch. See <a href="Release-Notes.md">Release Notes</a>.
+</def>
 <def title="Contributing">
 Coding guidelines, commit and pull request conventions, and the backporting workflow used to bring UE5
 changes into the fork. See <a href="Contributing.md">Contributing</a>.
@@ -162,6 +198,14 @@ Console variable reference, compile-time switches, licence and copyright, glossa
 <a href="Reference.md">Reference</a>.
 </def>
 </deflist>
+
+## Vite Technology
+
+The rendering, physics and geometry research behind the engine is presented as a product suite on the
+[Vite Technology](https://vitestudio-tech.github.io/UnrealEngineVite-Docs/tech/) site: **Vite ReSTIR** for
+real-time global illumination and path tracing, **ViteX Physics**, **Vite BRDF**, **Vite Vertis** for
+geometry, and **Vite Hair FX**. It is the place to start for studios evaluating the technology for
+licensing or partnership.
 
 ## Community and project links
 
