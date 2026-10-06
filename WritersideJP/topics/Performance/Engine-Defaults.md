@@ -74,7 +74,7 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 [コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/33fe7c638829b8120e8a02ecc639acda761df835)
 
-### ライトマップ UV の生成は無効
+### ライトマップ UV の生成は無効 {id="generate-lightmap-uvs-disabled"}
 
 スタティックメッシュのインポートで、既定ではライトマップ UV を生成しなくなりました。
 
@@ -136,19 +136,9 @@ devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: 標準の 4.27 の値に
 [コミット 1](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e9aebc2ef9f8acb7326a7e989f288ef68969342f) &middot;
 [コミット 2](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
 
-## ティックの最適化
+## 無効にできるティック
 
-### SpeedTree のティック
-
-`LevelTick.cpp` の SpeedTree のティックが最適化されています。SpeedTree のティックはプロジェクトが SpeedTree のアセットを使っているかどうかに関係なく実行されるため、これはすべてのプロジェクトが得られる節約です。
-
-<img src="SpeedTreeTick.png" alt="ワールドのティック内の UpdateSpeedTreeWind の呼び出しを示す LevelTick.cpp" border-effect="line"/>
-
-*ワールドのティック内の `Scene->UpdateSpeedTreeWind`。標準の 4.27 では無条件に実行されます。*
-
-[ソース](https://github.com/GapingPixel/UE5-PhysX-Vite/blob/3e4a16aa89de4f4c37da300c945d6a14dc62edd7/Engine/Source/Runtime/Engine/Private/LevelTick.cpp#L1709)
-
-### Niagara のティック
+### Niagara
 
 Niagara はプラグインが有効であれば常にティックします。使わない場合はプロジェクトレベルで Niagara のプラグインを無効にしてください。4.27 では Cascade も引き続き利用できます。
 
@@ -170,15 +160,20 @@ r.RayTracing.Culling.Angle=1
 UE5 の <code>r.RayTracing.Culling.UseMinDrawDistance</code> は、4.27 にも Vite にも存在しません。
 </note>
 
-## エディタの使い勝手
+## エディタの既定値
 
-これらは実行時の性能には影響しませんが、エディタの挙動を変えます。
+これらは実行時の性能には影響しませんが、エディタの挙動を変えます。`Engine/Config/BaseEditorSettings.ini` と `BaseEditorPerProjectUserSettings.ini` で設定されています。
 
-- アニメーションのアセットは常に新しいタブで開きます（[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/8bdae919e6eae61a27ef8d09d38027592a473d8c)）
-- 新しいプラグインのポップアップを無効にする設定変数（[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/9af0349c1832b7094ceae7f47ba8ca5d261e0e69)）
-- `bDisableAllTutorialAlerts=True`
-  （[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/d9fd593e11581fd93d0ff60b2933794f150b4780)）
-- 後のエンジンバージョンからの安全なバックポートをいくつか（[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/fe7a6f4d7c54d8725d6308820d5b4fd546b9ff49)）
+| 設定 | Vite の既定値 | 効果 |
+|---|---|---|
+| `bDisableAllTutorialAlerts` | `True` | エディタでチュートリアルの案内を表示しない |
+| `bShowNewPluginsPopup` | `True` | `False` にすると「新しいプラグインがあります」のポップアップを止められる |
+| `bSendUsageData`、`bSendUnattendedBugReports` | `False` | エディタは使用状況のデータも無人のクラッシュレポートも送信しない |
+| `bEnableAsyncTextureCompilation` | `True` | テクスチャをエディタを止めずにバックグラウンドでコンパイルする |
+| `bCopyStarterContentPreference` | `False` | 新しいプロジェクトは Starter Content なしで始まる |
+| `bGenerateLightmapUVs` | `False` | [ライトマップ UV の生成は無効](#generate-lightmap-uvs-disabled) を参照 |
+
+エディタのニュースフィードも取り除かれています。
 
 ## 自分で行える任意のデブロート
 

@@ -90,7 +90,7 @@ set.*
 
 [Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/33fe7c638829b8120e8a02ecc639acda761df835)
 
-### Generate Lightmap UVs disabled
+### Generate Lightmap UVs disabled {id="generate-lightmap-uvs-disabled"}
 
 Static mesh import no longer generates lightmap UVs by default.
 
@@ -168,20 +168,9 @@ plays video through Media Framework on Windows.
 [Commit 1](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/e9aebc2ef9f8acb7326a7e989f288ef68969342f) &middot;
 [Commit 2](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/6c5948bf12ea61f82784193ccaa5d43c4f574ae9)
 
-## Tick optimisations
+## Ticking you can turn off
 
-### SpeedTree tick
-
-The SpeedTree tick in `LevelTick.cpp` is optimised. SpeedTree ticking runs regardless of whether a project
-uses SpeedTree assets, so this is a saving every project gets.
-
-<img src="SpeedTreeTick.png" alt="LevelTick.cpp showing the UpdateSpeedTreeWind call inside the world tick" border-effect="line"/>
-
-*`Scene->UpdateSpeedTreeWind` in the world tick &mdash; unconditional in stock 4.27.*
-
-[Source](https://github.com/GapingPixel/UE5-PhysX-Vite/blob/3e4a16aa89de4f4c37da300c945d6a14dc62edd7/Engine/Source/Runtime/Engine/Private/LevelTick.cpp#L1709)
-
-### Niagara tick
+### Niagara
 
 Niagara ticks whenever the plugin is enabled. Disable the Niagara plugin at project level if you do not use
 it; Cascade remains available in 4.27.
@@ -210,18 +199,21 @@ casters behind the player after enabling it.
 UE5's <code>r.RayTracing.Culling.UseMinDrawDistance</code> does not exist in 4.27 or in Vite.
 </note>
 
-## Editor quality-of-life
+## Editor defaults
 
-These do not affect runtime performance but change editor behaviour:
+These do not affect runtime performance but change editor behaviour. They are set in
+`Engine/Config/BaseEditorSettings.ini` and `BaseEditorPerProjectUserSettings.ini`:
 
-- Animation assets always open in a new tab
-  ([commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/8bdae919e6eae61a27ef8d09d38027592a473d8c))
-- A config variable to disable the new plugins popup
-  ([commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/9af0349c1832b7094ceae7f47ba8ca5d261e0e69))
-- `bDisableAllTutorialAlerts=True`
-  ([commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/d9fd593e11581fd93d0ff60b2933794f150b4780))
-- Assorted safe backports from later engine versions
-  ([commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/fe7a6f4d7c54d8725d6308820d5b4fd546b9ff49))
+| Setting | Vite default | Effect |
+|---|---|---|
+| `bDisableAllTutorialAlerts` | `True` | No tutorial prompts in the editor |
+| `bShowNewPluginsPopup` | `True` | Set to `False` to stop the "new plugins available" popup |
+| `bSendUsageData`, `bSendUnattendedBugReports` | `False` | The editor does not send usage data or unattended crash reports |
+| `bEnableAsyncTextureCompilation` | `True` | Textures compile in the background instead of blocking the editor |
+| `bCopyStarterContentPreference` | `False` | New projects start without Starter Content |
+| `bGenerateLightmapUVs` | `False` | See [Generate Lightmap UVs disabled](#generate-lightmap-uvs-disabled) |
+
+The editor news feed is also removed.
 
 ## Optional debloat you can do yourself
 
