@@ -30,8 +30,8 @@ FPU-bound work (PhysX 3.4, animation SIMD) — further-cut Zen 2 versus Series X
 roughly an RDNA2 RX 6700 / RTX 2080 for the GPU. The 4700S GPU is fused off. The 6700 is close enough
 in RDNA2 compiler behaviour; it is not PS5 RDNA2. See [PS5 CPU FPU](PS5-CPU-FPU.md).
 
-Real-time path tracing is also available in the codebase, using the NVIDIA path tracing technology featured
-in Black Myth: Wukong; see [Path Tracing](Path-Tracing.md).
+The codebase also contains a path tracer for reference imagery, compiled out by default; see
+[Path Tracing](Path-Tracing.md). A real-time path tracer is in development as part of Vite ReSTIR.
 
 ## The comparison being made
 
