@@ -95,8 +95,8 @@ Lumen-integrated version found in UE 5.1 and later NvRTX branches.
 overhead.
 
 **[Full ray tracing suite](Ray-Tracing.md).** Reflections, ambient occlusion, shadows, skylight,
-translucency, caustics, direct lighting, per-pixel ray-traced GI and path tracing &mdash; the rendering
-stack Black Myth: Wukong shipped on.
+translucency, caustics, direct lighting, per-pixel ray-traced GI and path tracing, from NVIDIA's RTX
+branches &mdash; the technology family behind Black Myth: Wukong's full ray tracing mode.
 
 For the complete list, see [Release Notes](Release-Notes.md).
 

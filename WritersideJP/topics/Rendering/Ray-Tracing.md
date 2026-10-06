@@ -41,7 +41,7 @@ Vite のレイトレーシングは、特定の手法に依存しないパイプ
 
 動的 DDGI は `r.RayTracing.*` のグループではなく `r.GlobalIllumination.ExperimentalPlugin` で有効にする別のシステムで、デブロートのスイッチの影響を **受けません**。[動的 DDGI](DDGI-Dynamic.md) を参照してください。
 
-これは Black Myth: Wukong が出荷に使ったレンダリングスタックです。
+これらのエフェクトは NVIDIA の Unreal Engine 向け RTX ブランチに由来し、Black Myth: Wukong が UE5 で搭載したフルレイトレーシングモードと同じ技術の系統です。
 
 [![Black Myth: Wukong のレイトレーシング比較](https://img.youtube.com/vi/A5boaueGopg/0.jpg)](https://www.youtube.com/watch?v=A5boaueGopg)
 

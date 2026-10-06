@@ -57,7 +57,8 @@ Dynamic DDGI is a separate system, enabled through `r.GlobalIllumination.Experim
 `r.RayTracing.*` group, and is **not** affected by the debloat switch. See
 [Dynamic DDGI](DDGI-Dynamic.md).
 
-This is the rendering stack Black Myth: Wukong shipped on.
+These effects come from NVIDIA's RTX branches of Unreal Engine, the same technology family behind the full
+ray tracing mode Black Myth: Wukong shipped on UE5.
 
 [![Black Myth: Wukong ray tracing comparison](https://img.youtube.com/vi/A5boaueGopg/0.jpg)](https://www.youtube.com/watch?v=A5boaueGopg)
 
