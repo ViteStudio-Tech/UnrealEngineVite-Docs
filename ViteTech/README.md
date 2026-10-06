@@ -28,8 +28,10 @@ ViteTech/
 
 1. Edit a fragment in `src/pages/<locale>/`. Keep English and Japanese pages
    structurally identical: same sections, same images, same numbers.
-2. Run `python ViteTech/build.py` (standard library only).
-3. Preview with `python -m http.server 8642 --directory ViteTech/public`.
+2. After editing Japanese pages, run `python Tools/join_cjk_lines.py` so that
+   wrapped lines do not render as stray spaces (see `WritersideJP/README.md`).
+3. Run `python ViteTech/build.py` (standard library only).
+4. Preview with `python -m http.server 8642 --directory ViteTech/public`.
 
 The docs workflow runs `build.py` again before publishing, so `public/` is
 always regenerated from `src/` on deploy.
