@@ -23,9 +23,9 @@ Unreal Engine 4.27 は同じ見た目をより軽量なシェーダーで実現�
     placeholder existed), so it rendered as a broken image. Add the PNG to
     Writerside/images and restore:
 
-    <img src="ShaderInstructionCount.png" alt="Shader instruction count for equivalent material work compared across Unreal Engine versions" border-effect="line"/>
+    <img src="ShaderInstructionCount.png" alt="同等のマテリアルの処理に必要なシェーダーの命令数を Unreal Engine のバージョン間で比較したグラフ" border-effect="line"/>
 
-    *Shader instruction count for equivalent material work, by engine version.*
+    *同等のマテリアルの処理に必要なシェーダーの命令数（エンジンのバージョン別）。*
 -->
 
 ## 物理
