@@ -84,6 +84,10 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 [コミット](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
 
+### アニメーションは既定で ACL で圧縮
+
+`BaseEngine.ini` は、既定のボーンとカーブの圧縮設定を [Animation Compression Library](Bundled-Plugins.md)（`/ACLPlugin/ACLAnimBoneCompressionSettings` と `ACLAnimCurveCompressionSettings`）に向けているため、新しくインポートしたアニメーションは ACL を使います。ACL のプラグインが既定で有効なのも、[ViteSetup](ViteSetup.md) の Express の軽量化がそれを残すのも、このためです。既存のアニメーションは、保存されたときの圧縮設定を保ちます。
+
 ### スタンドアロンとパッケージ化したビルドのフレームレートを 120 に制限
 
 `Engine/Config/BaseGameUserSettings.ini` の `FrameRateLimit=120.0` により、フレームペーシングを安定させるため、スタンドアロンとパッケージ化したゲームは 120&nbsp;FPS に制限されます（[July Major](ueVite26-JulyMajor.md) 以降）。

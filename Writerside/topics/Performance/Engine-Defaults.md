@@ -104,6 +104,14 @@ the setting in the static mesh import options.
 
 [Commit](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/acce6fbe432fe9fe5a2536f0979befd5dcd741d1)
 
+### Animations compress with ACL by default
+
+`BaseEngine.ini` points the default bone and curve compression settings at the
+[Animation Compression Library](Bundled-Plugins.md) (`/ACLPlugin/ACLAnimBoneCompressionSettings` and
+`ACLAnimCurveCompressionSettings`), so newly imported animations use ACL. This is why the ACL plugin is on by
+default and why the [ViteSetup](ViteSetup.md) Express strip-down keeps it. Existing animations keep the
+compression settings they were saved with.
+
 ### Frame rate capped at 120 in standalone and packaged builds
 
 `FrameRateLimit=120.0` in `Engine/Config/BaseGameUserSettings.ini` caps standalone and packaged games at
