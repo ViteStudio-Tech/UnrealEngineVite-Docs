@@ -2,8 +2,8 @@
 
 <tldr>
 <p>
-Assets move down with the <a href="Proposed-Plugins.md">UE Downgrader</a> plugin, which supports UE 5.8 and
-below back to 4.27. Code moves more easily than on stock 4.27, because Vite backports many UE5 container,
+Assets move down with the <a href="Proposed-Plugins.md">Asset Downgrader</a> plugin, which converts assets
+from UE 5.8 back to 4.27. Code moves more easily than on stock 4.27, because Vite backports many UE5 container,
 game framework and GAS APIs. Features that do not exist in 4.27 &mdash; Nanite, Lumen, VSM, World Partition
 &mdash; have no equivalent and need design decisions, not conversion.
 </p>
@@ -16,7 +16,7 @@ out what transfers cleanly, what needs replacing, and in what order to do it.
 
 | UE5 feature | Status on Vite | What to do |
 |---|----------------|---|
-| Static meshes, textures, materials, animations | Transfers      | Downgrade with the UE Downgrader plugin |
+| Static meshes, textures, materials, animations | Transfers      | Downgrade with the Asset Downgrader plugin |
 | Blueprints | Transfers      | Downgrade; re-test node-for-node, some UE5-only nodes have no target |
 | C++ gameplay code | Transfers      | Vite backports many UE5 APIs; see below |
 | Gameplay Ability System | Transfers      | Vite includes GAS updates backported from UE5 |
@@ -35,8 +35,8 @@ out what transfers cleanly, what needs replacing, and in what order to do it.
 
 ## Downgrading assets
 
-The UE Downgrader plugin converts assets from UE 5.8 and below back to 4.27 and 4.26. It works by first
-upgrading assets to its source version (usually the latest UE5), then applying patches to the `.uasset` files so they are readable by
+The Asset Downgrader plugin converts assets from UE 5.8 and below back to 4.27 and 4.26. It works by first
+upgrading assets to its source version (5.8 at the time of writing), then applying patches to the `.uasset` files so they are readable by
 the target version, minus the data the older format cannot represent. Nanite data, for instance, is stripped
 during a 4.27 downgrade.
 

@@ -98,8 +98,8 @@ The de facto standard audio middleware for games, with hundreds of shipped title
 
 ### Asset Downgrader &mdash; paid
 
-Downgrades assets to 5.6.1, 5.5.4, 5.4.4, 5.3.2, 5.2.1, 5.1.1, 5.0.3, 4.27 and 4.26. It first upgrades
-assets to the source version (5.6), then applies patches to the `.uasset` files to make them compatible
+Downgrades assets to 5.7.4, 5.6.1, 5.5.4, 5.4.4, 5.3.2, 5.2.1, 5.1.1, 5.0.3, 4.27 and 4.26. It first
+upgrades assets to its source version (5.8 at the time of writing), then applies patches to the `.uasset` files to make them compatible
 with the target version, minus the newer data &mdash; Nanite data is stripped for a 4.27 downgrade, for
 example.
 
@@ -108,9 +108,9 @@ Features that do not exist in the older version cannot be ported: Nanite on mask
 nodes and new Niagara modules among them. The downgrader moves data, not capability.
 </warning>
 
-<img src="AssetDwongrader.png" alt="Asset Downgrader plugin interface showing target version selection" border-effect="line"/>
+<img src="AssetDwongrader.png" alt="Asset Downgrader product banner" border-effect="line"/>
 
-*Target versions the downgrader supports, from 5.6.1 down to 4.26.*
+*Asset Downgrader by Ciprian Stanciu. The [Fab listing](https://www.fab.com/listings/86a0ce48-ff38-493c-906d-8d2297067ee6) has the current target versions.*
 
 This is the practical route for using UE5 marketplace content in Vite. See
 [Migrating from UE5](Migrating-From-UE5.md). The author, Ciprian Stanciu, is active on the Vite Discord and
