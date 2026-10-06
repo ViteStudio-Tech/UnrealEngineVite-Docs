@@ -62,8 +62,8 @@ On top of that base:
 - Epic's UE 4.27 Plus branch is fully merged.
 - NVIDIA's NvRTX 5.0 branch is merged.
 - Rendering features from AMD's engine branches are integrated.
-- More than 300 backports from UE 5.0 through the 5.8 era are in the release branch, with over 1,200
-  integrated in internal staging branches.
+- More than 300 backports from UE 5.0 through the 5.8 era are in the release branches, with more than
+  1,000 integrated in internal staging branches.
 
 The integration work is done by engine programmers with extensive Unreal Engine source experience, using
 proper code guards, managed shader permutations, and manual adaptation of each cherry-picked UE5 change to

@@ -73,8 +73,9 @@ Vite is not frozen at its base. The following are fully merged:
 | AMD GPUOpen engine branches | FSR, AMD-specific rendering optimisations highly relevant to console GPUs             |
 | UE 5.0&ndash;5.8 | 300+ backports in release; 1,000+ at internal staging                                 |
 
-Backports are generally not straight cherry-picks. They are adapted to the Vite codebase by engineers with
-several years of experience maintaining private Unreal Engine forks. The
+Backports are not merged blindly. Each upstream change is cherry-picked with its original authorship and
+adapted to the Vite codebase where it does not apply cleanly (an `[Adapted Backport]` commit), by engineers
+with several years of experience maintaining private Unreal Engine forks. The
 [Backporting Workflow](Backporting.md) page documents the process.
 
 ## The counter-argument, and the answer
