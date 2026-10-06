@@ -62,14 +62,17 @@ setting rather than a second lighting pass through every level.
         density authoring is shared.
     </step>
     <step>
-        Switch the volume to its static mode.
+        Switch the volume to its static mode: tick <b>Runtime Static</b> under <b>GI Volume</b> (advanced
+        properties) in the volume's details.
     </step>
     <step>
         Finalise your lighting. Anything that changes after the bake will not be reflected in the probes.
     </step>
     <step>
-        Bake. Iterate freely &mdash; the bake is fast enough that you can treat it as part of the
-        lighting loop rather than an overnight job.
+        Bake: let the probes converge in the editor viewport, then save the level. A Runtime Static volume
+        keeps the lighting values it had when the level was saved and stops updating during gameplay.
+        Iterate freely &mdash; the bake is fast enough that you can treat it as part of the lighting loop
+        rather than an overnight job.
     </step>
     <step>
         Verify with moving objects in the scene, since that is where Static DDGI most visibly beats
