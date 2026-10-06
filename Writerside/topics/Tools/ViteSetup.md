@@ -87,8 +87,8 @@ The Custom path offers setup profiles instead:
 | Win64 + Linux | Adds Linux and cross-compile dependencies |
 | Full setup | Passes no `-exclude` argument to `Setup.bat` |
 
-Dependencies are cached in `UE4_Source_Cache` and fetched with 20 threads, so re-running setup does not
-download them again.
+Dependencies are fetched with 20 threads through a temporary `UE4_Source_Cache` folder, which the assistant
+deletes once setup succeeds so it does not sit on disk afterwards.
 
 ## Step 5 &mdash; build
 
@@ -174,7 +174,7 @@ machine needs.
 | Editor executable | `Engine\Binaries\Win64\UE4Editor.exe` |
 | Installed build staging | `LocalBuilds\Engine\Windows` |
 | Installed build archive | `LocalBuilds\Engine\UE_ViteFork.rar` (or `.7z` with 7-Zip) |
-| Dependency cache | `UE4_Source_Cache` |
+| Temporary download cache | `UE4_Source_Cache` (deleted after a successful setup) |
 | Strip recovery folder | `..\ViteDebloat_Moved` |
 | Engine association | `UE_ViteFork` |
 

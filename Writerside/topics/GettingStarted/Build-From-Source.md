@@ -19,8 +19,9 @@ is still the best background reading.
 ## Guided build with ViteSetup
 
 The repository root ships `ViteSetup.bat`, an assistant that runs the whole flow in order: environment
-check, toolchain enforcement, dependency setup with platform selection, project file generation, source or
-binary build, engine registration, desktop shortcut, and optional debloat.
+check and toolchain enforcement, a choice of build path (Express, recommended; Custom; or a precompiled
+binary), dependency setup with platform selection, project file generation, the build, a strip-down of
+unused content, engine registration and a desktop shortcut.
 
 ```batch
 ViteSetup.bat
@@ -104,7 +105,8 @@ Engine\Build\BatchFiles\Build.bat ShaderCompileWorker Win64 Development -WaitMut
 Engine\Build\BatchFiles\Build.bat UnrealLightmass Win64 Development -WaitMutex
 ```
 
-All three targets are needed for a working editor. `ViteSetup.bat` builds them in this order.
+All three targets are needed for a working editor. `ViteSetup.bat` builds them in this order, followed by
+`UnrealInsights` for profiling.
 
 ### 4. Register the engine
 

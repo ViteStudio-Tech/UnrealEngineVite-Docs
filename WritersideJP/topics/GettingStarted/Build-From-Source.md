@@ -16,7 +16,7 @@ Unreal Engine をソースからビルドしたことがない場合は、Epic �
 
 ## ViteSetup によるガイド付きビルド
 
-リポジトリのルートには `ViteSetup.bat` が同梱されています。これは環境チェック、ツールチェーンの検証、プラットフォームを選んでの依存関係のセットアップ、プロジェクトファイルの生成、ソースまたはバイナリのビルド、エンジンの登録、デスクトップショートカットの作成、そして任意のデブロートまで、一連の流れを順に実行するアシスタントです。
+リポジトリのルートには `ViteSetup.bat` が同梱されています。これは環境チェックとツールチェーンの検証、ビルド方法の選択（推奨の Express、Custom、ビルド済みバイナリ）、プラットフォームを選んでの依存関係のセットアップ、プロジェクトファイルの生成、ビルド、エンジンの軽量化、エンジンの登録、デスクトップショートカットの作成まで、一連の流れを順に実行するアシスタントです。
 
 ```batch
 ViteSetup.bat
@@ -93,7 +93,7 @@ Engine\Build\BatchFiles\Build.bat ShaderCompileWorker Win64 Development -WaitMut
 Engine\Build\BatchFiles\Build.bat UnrealLightmass Win64 Development -WaitMutex
 ```
 
-エディタを正しく動作させるには 3 つのターゲットすべてが必要です。`ViteSetup.bat` はこの順序でビルドします。
+エディタを正しく動作させるには 3 つのターゲットすべてが必要です。`ViteSetup.bat` はこの順序でビルドし、続けてプロファイリング用の `UnrealInsights` をビルドします。
 
 ### 4. エンジンの登録
 

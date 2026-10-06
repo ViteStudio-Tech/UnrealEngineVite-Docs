@@ -68,7 +68,7 @@ Custom の経路では、代わりにセットアッププロファイルを選�
 | Win64 + Linux | Linux とクロスコンパイルの依存関係を追加 |
 | Full setup | `Setup.bat` に `-exclude` 引数を渡さない |
 
-依存関係は `UE4_Source_Cache` にキャッシュされ、20 スレッドで取得されるため、セットアップを再実行しても再びダウンロードされることはありません。
+依存関係は一時的な `UE4_Source_Cache` フォルダーを通じて 20 スレッドで取得されます。セットアップが成功するとアシスタントがこのフォルダーを削除するため、その後ディスクに残ることはありません。
 
 ## ステップ 5 &mdash; ビルド
 
@@ -140,7 +140,7 @@ Express の経路は、ドライランの確認の後で次のものを移動し
 | エディタの実行ファイル | `Engine\Binaries\Win64\UE4Editor.exe` |
 | インストール済みビルドのステージング | `LocalBuilds\Engine\Windows` |
 | インストール済みビルドのアーカイブ | `LocalBuilds\Engine\UE_ViteFork.rar`（7-Zip の場合は `.7z`） |
-| 依存関係のキャッシュ | `UE4_Source_Cache` |
+| 一時的なダウンロードのキャッシュ | `UE4_Source_Cache`（セットアップの成功後に削除） |
 | 軽量化の回復用フォルダー | `..\ViteDebloat_Moved` |
 | エンジン関連付け | `UE_ViteFork` |
 
