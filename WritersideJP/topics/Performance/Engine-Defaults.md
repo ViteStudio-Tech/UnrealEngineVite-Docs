@@ -184,18 +184,28 @@ devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: 標準の 4.27 の値に
 Niagara はプラグインが有効であれば常にティックします。使わない場合はプロジェクトレベルで Niagara のプラグインを
 無効にしてください。4.27 では Cascade も引き続き利用できます。
 
-## レイトレーシングのカリング
+## レイトレーシングのカリング: 変更なし、有効にする価値あり {id="ray-tracing-culling"}
 
-レイトレーシングのカリングは、各プリミティブの最小描画距離を考慮します。
+ここで Vite は標準の 4.27 の挙動を維持しています。`r.RayTracing.Culling` の既定値は `0` で、レイトレーシングの対象の
+プリミティブは、カメラとの位置関係に関係なくすべてアクセラレーション構造に残ります。大きなシーンでは、これを有効に
+することが最も安価なレイトレーシングの節約の 1 つです。
 
-```c++
-GEngine->Exec(nullptr, TEXT("r.RayTracing.Culling.UseMinDrawDistance 1"));
+```ini
+; Config/DefaultEngine.ini
+[SystemSettings]
+r.RayTracing.Culling=1
+r.RayTracing.Culling.Radius=10000
+r.RayTracing.Culling.Angle=1
 ```
 
-描画するには小さすぎるジオメトリはアクセラレーション構造でも影響がないほど小さいため、小さなディテールメッシュが多い
-シーンでは、安価で一般に安全な効果が得られます。
+カリングを有効にすると、**カメラの後ろ** にあるオブジェクトのうち、`r.RayTracing.Culling.Radius`（既定 10000、
+100&nbsp;m）より遠いもの、または投影された角度が `r.RayTracing.Culling.Angle` より小さいものが除外されます。カメラの前に
+あるものは決してカリングされないため直接見える画面は変わりませんが、カリングされたオブジェクトは反射とレイトレーシングの
+シャドウから消えます。有効にした後は、プレイヤーの後ろにある鏡や大きなシャドウの投影元を確認してください。
 
-[コミット](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/595f376f6de0912606b05768739aa3d24ac4f61a)
+<note>
+UE5 の <code>r.RayTracing.Culling.UseMinDrawDistance</code> は、4.27 にも Vite にも存在しません。
+</note>
 
 ## エディタの使い勝手
 
@@ -214,8 +224,10 @@ GEngine->Exec(nullptr, TEXT("r.RayTracing.Culling.UseMinDrawDistance 1"));
 
 これらは互換性のためにフォークのリリースブランチでは無効にできませんが、個々のプロジェクトでは利用できます。
 
-**Vite のプラグインの削除。** 追加された Vite のプラグインを取り除くと、コンパイル時間が短くなります。Ryzen 9 9950X3D
-での計測では、リポジトリ全体で 15 分、Vite のプラグインなしで 12 分でした。単一で最も大きな要因は Houdini です。
+**Vite のプラグインの削除。** 追加された Vite のプラグインを取り除くと、コンパイル時間が短くなります。Houdini Engine が
+まだ同梱されていた時期の Ryzen 9 9950X3D での計測では、リポジトリ全体で 15 分、Vite のプラグインなしで 12 分で、単一で
+最も大きな要因は Houdini でした。[June Major](ueVite26-JuneMajor.md) で Houdini が外されたため、現在のリリースでは差は
+より小さくなっています。
 
 ツールについては [デブロートガイド](Debloat-Guide.md) を参照してください。
 

@@ -1,40 +1,43 @@
-# Platforms
+# 対応プラットフォーム
 
 <tldr>
 <p>
-Vite main target is Windows 64-bit on DirectX 12. Other platforms inherit 4.27 support.
+Vite の主な対象は DirectX 12 の 64 ビット Windows で、すべての機能がそこでビルドされ、計測されます。Android と Linux には
+対象を絞った修正が入り、その他のプラットフォームは標準の 4.27 の対応を引き継ぎます。コンソールの作業は非公開です。
 </p>
 </tldr>
 
-Vite is a focused fork. The features that distinguish it &mdash; the NvRTX ray tracing suite, DDGI, RTXDI,
-DLSS and its alternatives, HBAO+, hardware tessellation &mdash; are Deferred Path GPU features. Mean mainly for Desktop and 9th Gen Consoles
+Vite は目的を絞ったフォークです。Vite を特徴づける機能（NvRTX のレイトレーシング一式、DDGI、RTXDI、DLSS とその代替、
+HBAO+、ハードウェアテッセレーション）は、デスクトップ PC と現世代のコンソールを対象とした、ディファードレンダラーの
+GPU 機能です。Windows 以外のプラットフォームの作業は、そこでプロジェクトを出荷し続けるために必要なもの、つまり
+ツールチェーン、コンパイルの修正、フォワード（モバイル）レンダラーに集中しています。
 
-## Support levels
+## 対応レベル
 
-| Platform | Level | Notes                                                                  |
-|---|---|------------------------------------------------------------------------|
-| Windows 64-bit | **Primary** | What everything is built and measured against                          |
-| Windows 32-bit | Support files only | Required by Win64 tooling; not a shipping target                       |
-| Linux | Inherited | Stock 4.27 support. Ray tracing suite untested.                        |
-| Mac | Inherited | Stock 4.27 support. No DXR, so the ray tracing suite does not apply.   |
-| Android | Inherited | Inherits Vite updates to Forward Path.                                 |
-| iOS / tvOS | Inherited | Inherits Vite updates to Forward Path.                                 |
-| HTML5 | Inherited | Stock 4.27 support, long deprecated upstream                           |
-| Consoles | Not addressed | Requires platform SDKs Vite cannot make console related changes public |
+| プラットフォーム | レベル | 備考 |
+|---|---|---|
+| Windows 64 ビット | **主要** | すべてのビルドと計測の基準 |
+| Windows 32 ビット | サポートファイルのみ | Win64 のツールが必要とするもので、出荷の対象ではない |
+| Android | 保守対象 | C++20 の修正を伴う Android NDK 29、arm32 の修正、エディタでの Android Vulkan のプレビュー（[March Major](ueVite26-MarchMajor.md)）。Meta Quest のデバイスプロファイルとパッケージ化の修正（[LTS](ueVite25-LTS.md)）。NEON の演算の改良（[June Major](ueVite26-JuneMajor.md)） |
+| Linux | サーバー向けに保守 | サーバーのツールチェーンの修正（March）、専用サーバーのプラグインの更新（[August Major](ueVite26-AugustMajor.md)）、Unix のファイル層のロックの修正（[September Major](ueVite26-SeptemberMajor.md)）。レイトレーシング一式は未テスト |
+| Mac | 継承 | 標準の 4.27 の対応。DXR がないため、レイトレーシング一式は対象外 |
+| iOS / tvOS | 継承 | 標準の 4.27 の対応と、共通のフォワードレンダラーの変更 |
+| HTML5 | 利用不可 | Epic は 4.24 で HTML5 をエンジンから切り離し、コミュニティが保守する拡張に移しました。この名前は、セットアップのスクリプトで依存関係を絞り込む条件としてだけ残っています。 |
+| コンソール | 非公開 | コンソールの SDK は NDA の対象であり、コンソール固有の変更はこのリポジトリで公開できません |
 
-"Inherited" means the stock 4.27 code is present and has not been deliberately broken, but Vite does not
-test it and the fork's rendering features are unavailable or unvalidated there.
+「継承」とは、標準の 4.27 のコードが存在し、意図的に壊されてはいないものの、Vite がテストしておらず、フォークの
+レンダリング機能が使えないか未検証であることを意味します。「保守対象」とは、レンダリング機能一式を約束するものでは
+ないものの、Vite がそのプラットフォームのツールチェーンとビルドを修正・更新していることを意味します。
 
+## 他のプラットフォームを有効にする
 
-## Enabling other platforms
+プラットフォームの依存関係は、セットアップ時に選んで追加します。
 
-Platform dependencies are opt-in at setup time.
+[ViteSetup](ViteSetup.md) では、Express の経路のプラットフォームの選択画面でチェックを入れるか、Custom の経路で
+**Win64 + Android** または **Win64 + Linux** のプロファイルを選ぶか、step-by-step assistant でプラットフォームを個別に
+切り替えます。**Full setup** は `Setup.bat` に `-exclude` 引数を渡さず、すべてをダウンロードします。
 
-Through [ViteSetup](ViteSetup.md), choose the **Win64 + Android** or **Win64 + Linux** profile, or use the
-step-by-step assistant to toggle platforms individually. **Full setup** passes no `-exclude` argument to
-`Setup.bat` and downloads everything.
-
-For the debloat scripts, uncomment the relevant line in `devops\config.txt`:
+デブロートのスクリプトでは、`devops\config.txt` の該当する行のコメントを外します。
 
 ```ini
 # Win64 is always kept. Uncomment a platform to ALSO download and keep
@@ -43,73 +46,71 @@ For the debloat scripts, uncomment the relevant line in `devops\config.txt`:
 #KEEP_PLATFORM=IOS
 #KEEP_PLATFORM=Linux
 #KEEP_PLATFORM=Mac
-#KEEP_PLATFORM=HTML5
 ```
 
 <warning>
-Adding a platform after the fact requires re-running dependency setup and rebuilding. Decide before your
-first build if you can.
+後からプラットフォームを追加するには、依存関係のセットアップの再実行と再ビルドが必要です。できれば最初のビルドの前に
+決めてください。
 </warning>
 
-## Graphics APIs
+## グラフィックス API
 
-| API | Status | Notes |
+| API | 状況 | 備考 |
 |---|---|---|
-| DirectX 12 | **Primary** | Required for DXR, and therefore for everything ray-traced |
-| DirectX 11 | Supported | HBAO+ works here; ray tracing does not |
-| Vulkan | Inherited | Stock 4.27 support; Vite's ray tracing suite is DXR-based |
-| Metal | Inherited | Mac only |
-| OpenGL ES | Inherited | Mobile |
+| DirectX 12 | **主要** | DXR に必要で、したがってレイトレーシングのすべてに必要 |
+| DirectX 11 | 対応 | ラスターの機能は動作し、レイトレーシングは動作しない |
+| Vulkan | 継承 | 標準の 4.27 の対応に、Vite の安定性の修正（August Major）を加えたもの。Vite のレイトレーシング一式は DXR ベース |
+| Metal | 継承 | Mac と iOS |
+| OpenGL ES / モバイルの Vulkan | 保守対象 | Android |
 
-### What requires DX12
+### DX12 が必要なもの
 
-Everything ray-traced needs DXR, which in Vite means DirectX 12:
+レイトレーシングはすべて DXR を必要とし、Vite ではそれは DirectX 12 を意味します。
 
-- [Ray-traced reflections](RT-Reflections.md), shadows, ambient occlusion and sky light
-- [Dynamic DDGI](DDGI-Dynamic.md) and per-pixel ray-traced GI
-- [RTXDI](RTXDI.md) and [path tracing](Path-Tracing.md), if you rebuild with `VITE_RT_PSO_DEBLOAT=0`
-- [Translucency and caustics](RT-Translucency-And-Caustics.md), same condition
+- [レイトレーシング反射](RT-Reflections.md)、シャドウ、アンビエントオクルージョン、スカイライト
+- [動的 DDGI](DDGI-Dynamic.md)
+- ピクセルごとのレイトレーシング GI、[RTXDI](RTXDI.md)、[パストレーシング](Path-Tracing.md)、
+  [半透明とコースティクス](RT-Translucency-And-Caustics.md)（`VITE_RT_PSO_DEBLOAT=0` で再ビルドした場合）
 
-[FSR 4](Upscalers.md) is also DX12-only, independently of ray tracing.
+[FSR 4](Upscalers.md) も、レイトレーシングとは無関係に DX12 専用です。
 
-### What works on DX11
+### DX11 で動作するもの
 
-- [HBAO+](Ambient-Occlusion.md) &mdash; despite the console variable help text claiming DX11-only, it has a
-  D3D12 implementation too
+- [HBAO+](Ambient-Occlusion.md)。コンソール変数のヘルプの記述に反して、June Major 以降は D3D12 のバックエンドもあります
 - [SMAA](Anti-Aliasing.md)
-- [SSGI](SSGI.md) and [static DDGI](DDGI-Static.md)
-- [Hardware tessellation](Tessellation.md)
-- The [Callisto BRDF and Toon shading models](Shading-Models.md)
+- [SSGI](SSGI.md)
+- [ハードウェアテッセレーション](Tessellation.md)
+- [Callisto BRDF と Toon のシェーディングモデル](Shading-Models.md)（コンパイルに含めた場合）
 
-A DX11 target is viable if you are willing to give up ray tracing. It is the right choice for a project
-whose [performance targets](Performance-Targets.md) do not leave budget for DXR.
+レイトレーシングを諦めてよいなら、DX11 を対象にすることも十分に可能です。[パフォーマンス目標](Performance-Targets.md)
+に DXR の予算の余地がないプロジェクトには、それが適した選択です。
 
-## Hardware
+## ハードウェア
 
-See [System Requirements](System-Requirements.md) for development and runtime hardware.
+開発用と実行用のハードウェアについては [動作環境](System-Requirements.md) を参照してください。
 
-PS5 CPU FPU-bound code — especially the PhysX 3.4 modernisation — is timed on the AMD 4700S (further-cut
-Zen 2 FPU versus Series X: `FP3` gone, `FP2` store-only, one FMA pipe). GPU compiler checks use a
-discrete RX 6700; 4700S/4800S GPUs are fused off, and BC-250 is not a Windows D3D12 box. Detail is in
-[PS5 CPU FPU](PS5-CPU-FPU.md). Console platform code stays private.
+PS5 クラスの CPU の作業、とりわけ PhysX 3.4 の近代化は、Series X より FPU がさらに削減された Zen 2（`FP3` がなく、
+`FP2` はストア専用、FMA パイプは 1 本）を持つ AMD 4700S で計測します。GPU のコンパイラの確認にはディスクリートの RX 6700 を
+使います。4700S と 4800S の GPU は無効化されており、BC-250 には使える Windows の D3D12 のドライバーがないためです。詳しくは
+[PS5 CPU の FPU](PS5-CPU-FPU.md) を参照してください。
 
+## パッケージ化
 
-## Packaging
-
-The [installed build](Installed-Builds.md) is produced with Development and Shipping game configurations
-for Win64. If you need other configurations or platforms, edit the `RunUAT.bat` BuildGraph arguments:
+[インストール済みビルド](Installed-Builds.md) は、Win64 向けに Development と Shipping のゲーム構成で作成されます。
+ViteSetup では、チェックを入れれば Linux も追加されます。他の構成やプラットフォームが必要な場合は、`RunUAT.bat` の
+BuildGraph の引数を編集してください。
 
 ```
 -set:WithLinux=true
 -set:GameConfigurations=Development;Test;Shipping
 ```
 
-Each additional platform and configuration lengthens an already long build considerably.
+プラットフォームや構成を追加するごとに、もともと長いビルドがさらに大幅に長くなります。
 
-## See also
+## 関連項目
 
-- [System Requirements](System-Requirements.md)
-- [Installed Builds](Installed-Builds.md)
-- [ViteSetup Assistant](ViteSetup.md)
-- [Ray Tracing](Ray-Tracing.md)
-- [Debloat Guide](Debloat-Guide.md)
+- [動作環境](System-Requirements.md)
+- [インストール済みビルド](Installed-Builds.md)
+- [ViteSetup](ViteSetup.md)
+- [レイトレーシング](Ray-Tracing.md)
+- [デブロートガイド](Debloat-Guide.md)

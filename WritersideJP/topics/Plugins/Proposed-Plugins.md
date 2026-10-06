@@ -1,177 +1,188 @@
-# Proposed Plugins
+# 提案中のプラグイン
 
 <tldr>
 <p>
-Candidates for bundling into the engine, plus recommended plugins that projects should add themselves.
-Everything here must be compatible with UE 4.21&ndash;4.27 &mdash; UE5-only plugins are out of scope.
+エンジンへの同梱の候補と、プロジェクトが自分で追加すべき推奨プラグインです。ここにあるものはすべて UE 4.21&ndash;4.27 と
+互換である必要があり、UE5 専用のプラグインは対象外です。
 </p>
 </tldr>
 
-Not everything useful belongs in the engine repository. A plugin bundled with Vite increases the size of
-every clone, the length of every build and the surface area of every integration. This page tracks what has
-been proposed and which tier it belongs in.
+役に立つものがすべてエンジンのリポジトリに入るべきとは限りません。Vite に同梱したプラグインは、すべてのクローンの
+サイズ、すべてのビルドの時間、すべての統合の対象範囲を増やします。このページでは、何が提案され、どの階層に属するかを
+記録します。
 
-<img src="Plugins1.png" alt="Explorer view of Engine/Plugins/Runtime/VitePlugins showing the integrated plugin folders" border-effect="line"/>
+<img src="Plugins1.png" alt="統合済みのプラグインのフォルダーを示す Engine/Plugins/Runtime/VitePlugins のエクスプローラー表示" border-effect="line"/>
 
-*Plugins already integrated live in `Engine\Plugins\Runtime\VitePlugins`.*
+*すでに統合されたプラグインは `Engine\Plugins\Runtime\VitePlugins` にあります。*
 
-## Tiers
+## 階層
 
 <deflist>
-<def title="Engine repository">
-Core functionality and native runtime. Small, fast to compile, useful to nearly everyone. These get
-bundled &mdash; see <a href="Bundled-Plugins.md">Bundled Plugins</a>.
+<def title="エンジンのリポジトリ">
+中核の機能とネイティブのランタイム。小さく、コンパイルが速く、ほぼ全員の役に立つもの。これらは同梱されます。
+<a href="Bundled-Plugins.md">同梱プラグイン</a> を参照してください。
 </def>
-<def title="Staples">
-Relevant to general game production, frequently used in AAA, representing major functionality. Worth
-bundling if licensing and size allow; otherwise documented so teams can add them.
+<def title="定番">
+一般的なゲーム制作に関係し、AAA で頻繁に使われ、主要な機能を担うもの。ライセンスとサイズが許せば同梱する価値があり、
+そうでなければチームが追加できるように文書化します。
 </def>
-<def title="Common use">
-Non-essential or high-level tooling, typically Blueprint extensions. Projects add these themselves.
+<def title="一般的な用途">
+必須ではないもの、または高レベルのツール。多くはブループリントの拡張です。プロジェクトが自分で追加します。
 </def>
 </deflist>
 
-## Staple plugins
+## 定番のプラグイン
 
-### PhysX Instanced Subsystem &mdash; integrated, free
+### PhysX Instanced Subsystem &mdash; 統合済み、無料
 
-A world subsystem plus instanced actor workflow for managing large numbers of PhysX-backed instanced
-bodies. Instead of spawning thousands of separate `AActor` / `UPrimitiveComponent` objects, you keep one or
-a few instanced mesh actors for rendering while the subsystem creates and updates per-instance PhysX rigid
-bodies, writing their poses back into ISM/HISM instance transforms.
+大量の PhysX ベースのインスタンス化ボディを管理するための、ワールドサブシステムとインスタンス化アクターのワークフロー
+です。何千もの個別の `AActor` / `UPrimitiveComponent` を生成する代わりに、描画用には 1 つまたは少数のインスタンス化
+メッシュのアクターを保ち、サブシステムがインスタンスごとの PhysX の剛体を作成・更新して、そのポーズを ISM/HISM の
+インスタンスのトランスフォームに書き戻します。
 
-Integrated at version 1.11. See [Instanced Physics](Instanced-Physics.md).
+バージョン 1.11 で統合されました。[インスタンス化物理](Instanced-Physics.md) を参照してください。
 
-[Repository](https://github.com/Dragomirson/PhysXInstancedSubsystem) ·
-[Demo project](https://drive.google.com/file/d/1NulunBP2Qre5vLyYnkiqywovsycNuWdQ/view)
+[リポジトリ](https://github.com/Dragomirson/PhysXInstancedSubsystem) ·
+[デモプロジェクト](https://drive.google.com/file/d/1NulunBP2Qre5vLyYnkiqywovsycNuWdQ/view)
 
-### Houdini Engine &mdash; integrated, commercial/free use
+### Houdini Engine &mdash; 以前は同梱、商用／無料利用
 
-Procedural workflow through Houdini Digital Assets. Artists adjust asset parameters interactively in the
-editor and use Unreal assets as inputs; Houdini's procedural engine cooks the asset and the result appears
-in the editor without baking.
+[LTS](ueVite25-LTS.md) から [March Major](ueVite26-MarchMajor.md) までは同梱されていましたが、
+[June Major](ueVite26-JuneMajor.md) で一時的に外されました。戻るまでは、SideFX の 4.27 のブランチからプロジェクトごとに
+追加してください。
 
-[HoudiniEngineForUnreal, Houdini 20.0 / Unreal 4.27 branch](https://github.com/sideeffects/HoudiniEngineForUnreal/tree/Houdini20.0-Unreal4.27)
+Houdini Digital Assets によるプロシージャルなワークフローです。アーティストはエディタ上でアセットのパラメーターを対話的に
+調整し、Unreal のアセットを入力として使えます。Houdini のプロシージャルエンジンがアセットをクックし、その結果がベイクなしで
+エディタに表示されます。
 
-### Motion Symphony &mdash; integrated
+[HoudiniEngineForUnreal、Houdini 20.0 / Unreal 4.27 のブランチ](https://github.com/sideeffects/HoudiniEngineForUnreal/tree/Houdini20.0-Unreal4.27)
 
-Ubisoft-style motion matching and pose matching. Bundled at 1.09; see
-[Bundled Plugins](Bundled-Plugins.md).
+### Motion Symphony &mdash; 統合済み
 
-### PopcornFX &mdash; commercial/free use
+Ubisoft 方式のモーションマッチングとポーズマッチング。1.09 で同梱されています。[同梱プラグイン](Bundled-Plugins.md) を
+参照してください。
 
-Proprietary particle system used in several AAA titles including Blizzard games and racing titles. Version
-2.18.6 is the latest fully 4.27-compatible release. Better GPU performance than Niagara.
+### Flecs ECS &mdash; 開発中
 
-[Repository](https://github.com/PopcornFX/UnrealEnginePopcornFXPlugin) ·
-[v2.18.6 download](https://github.com/PopcornFX/UnrealEnginePopcornFXPlugin/archive/refs/tags/v2.18.6.zip)
+[Flecs](https://github.com/SanderMertens/flecs) のエンティティコンポーネントシステムのエンジンレベルの統合です。ワールド
+サブシステム、ブループリントのエンティティハンドル、ISM による描画のデモ、任意の Flecs Explorer 対応を備えます。アクターを
+エンティティごとに持つオーバーヘッドがボトルネックになる場合を対象としています。コアクラスの基本コストについては
+[UE4 と UE5 のコスト分析](UE4-Versus-UE5-Cost-Analysis.md) を参照してください。社内のブランチにあり、まだ公開リリースには
+含まれていません。
 
-A patched build by bunnyofficial fixes a compile error:
-[patched version](https://drive.google.com/file/d/1hckpY_1zSLsW6mBqBlDeEgPVSijg9Z_y/view?usp=drive_link).
+### PopcornFX &mdash; 商用／無料利用
 
-### Azure PlayFab &mdash; commercial/free use
+Blizzard のゲームやレースゲームなど、いくつもの AAA タイトルで使われている独自のパーティクルシステムです。バージョン
+2.18.6 が、4.27 と完全に互換な最新のリリースです。Niagara より GPU の性能に優れます。
 
-Backend platform for live games: player authentication, data storage, matchmaking, multiplayer networking,
-analytics and LiveOps such as events and A/B testing, on Azure infrastructure.
+[リポジトリ](https://github.com/PopcornFX/UnrealEnginePopcornFXPlugin) ·
+[v2.18.6 のダウンロード](https://github.com/PopcornFX/UnrealEnginePopcornFXPlugin/archive/refs/tags/v2.18.6.zip)
 
-<img src="Plugins2.png" alt="Azure PlayFab backend services overview" border-effect="line"/>
+bunnyofficial による修正版のビルドで、コンパイルエラーが直されています:
+[修正版](https://drive.google.com/file/d/1hckpY_1zSLsW6mBqBlDeEgPVSijg9Z_y/view?usp=drive_link)。
+
+### Azure PlayFab &mdash; 商用／無料利用
+
+ライブゲーム向けのバックエンドプラットフォームです。プレイヤーの認証、データの保存、マッチメイキング、マルチプレイヤーの
+ネットワーク、分析、そしてイベントや A/B テストといった LiveOps を、Azure のインフラ上で提供します。
+
+<img src="Plugins2.png" alt="Azure PlayFab のバックエンドサービスの概要" border-effect="line"/>
 
 [PlayFab Unreal Marketplace Plugin](https://github.com/PlayFab/UnrealMarketplacePlugin)
 
-### Wwise &mdash; commercial/free use
+### Wwise &mdash; 商用／無料利用
 
-The de facto standard audio middleware for games, with hundreds of shipped titles.
+ゲームのオーディオミドルウェアの事実上の標準で、数百の出荷タイトルがあります。
 
-[Wwise Unreal integration](https://www.audiokinetic.com/en/public-library/2025.1.3_9039/?source=UE4&id=index.html)
+[Wwise の Unreal 統合](https://www.audiokinetic.com/en/public-library/2025.1.3_9039/?source=UE4&id=index.html)
 
-### Asset Downgrader &mdash; paid
+### Asset Downgrader &mdash; 有料
 
-Downgrades assets to 5.6.1, 5.5.4, 5.4.4, 5.3.2, 5.2.1, 5.1.1, 5.0.3, 4.27 and 4.26. It first upgrades
-assets to the source version (5.6), then applies patches to the `.uasset` files to make them compatible
-with the target version, minus the newer data &mdash; Nanite data is stripped for a 4.27 downgrade, for
-example.
+アセットを 5.6.1、5.5.4、5.4.4、5.3.2、5.2.1、5.1.1、5.0.3、4.27、4.26 にダウングレードします。まずアセットを元の
+バージョン（5.6）にアップグレードし、その後 `.uasset` ファイルにパッチを当てて、新しいデータを除いたうえで対象の
+バージョンと互換にします。たとえば 4.27 へのダウングレードでは Nanite のデータが取り除かれます。
 
 <warning>
-Features that do not exist in the older version cannot be ported: Nanite on masked materials, new material
-nodes and new Niagara modules among them. The downgrader moves data, not capability.
+古いバージョンに存在しない機能は移植できません。マスクマテリアルでの Nanite、新しいマテリアルノード、新しい Niagara の
+モジュールなどです。ダウングレーダーが移すのはデータであって、機能ではありません。
 </warning>
 
-<img src="AssetDwongrader.png" alt="Asset Downgrader plugin interface showing target version selection" border-effect="line"/>
+<img src="AssetDwongrader.png" alt="対象のバージョンの選択を示す Asset Downgrader のプラグインの画面" border-effect="line"/>
 
-*Target versions the downgrader supports, from 5.6.1 down to 4.26.*
+*ダウングレーダーが対応する対象のバージョン（5.6.1 から 4.26 まで）。*
 
-This is the practical route for using UE5 marketplace content in Vite. See
-[Migrating from UE5](Migrating-From-UE5.md). The author, Ciprian Stanciu, is active on the Vite Discord and
-has provided direct help on several Vite projects.
+これは、UE5 のマーケットプレイスのコンテンツを Vite で使うための実用的な方法です。[UE5 からの移行](Migrating-From-UE5.md)
+を参照してください。作者の Ciprian Stanciu は Vite の Discord で活動しており、いくつもの Vite のプロジェクトを直接支援して
+きました。
 
-<img src="CiprianStanciu.png" alt="Asset Downgrader author on the Vite Discord" border-effect="line"/>
+<img src="CiprianStanciu.png" alt="Vite の Discord での Asset Downgrader の作者" border-effect="line"/>
 
-### HTN Planner &mdash; FAB / paid
+### HTN Planner &mdash; FAB／有料
 
-Hierarchical Task Network AI framework for Unreal. Goal-driven strategy built by separating *what* to do
-from *how* to do it. Version 1.18.3 was recently backported to 4.27.
+Unreal 向けの階層型タスクネットワーク（HTN）の AI フレームワークです。*何を* するかと *どう* するかを分けることで、
+目標駆動の戦略を構築します。バージョン 1.18.3 が最近 4.27 にバックポートされました。
 
-<img src="HTN.png" alt="HTN Planner task network in the Unreal editor" border-effect="line"/>
+<img src="HTN.png" alt="Unreal エディタでの HTN Planner のタスクネットワーク" border-effect="line"/>
 
-*A hierarchical task network separates the goal from the method used to reach it, which is what makes plans
-composable across agents.*
+*階層型タスクネットワークは目標とそれを達成する方法を分けます。これにより、計画をエージェントをまたいで組み合わせられる
+ようになります。*
 
-[HTN plugin for Unreal Engine](https://maksmaisak.github.io/htn/front.html)
+[Unreal Engine 向けの HTN プラグイン](https://maksmaisak.github.io/htn/front.html)
 
-## Common use plugins
+## 一般的な用途のプラグイン
 
-These are recommended but not bundled. Add them per project.
+推奨はしますが、同梱はしていません。プロジェクトごとに追加してください。
 
 ### FFMPEG Media Player
 
-Support for more video formats and alpha videos than the stock media framework.
+標準のメディアフレームワークより多くの動画形式とアルファ付きの動画に対応します。
 
 [bakjos/FFMPEGMedia](https://github.com/bakjos/FFMPEGMedia)
 
 ### UI Navigation
 
-Blueprint-driven UI navigation for gamepad and keyboard menu traversal.
+ゲームパッドとキーボードでメニューを移動するための、ブループリントで駆動する UI のナビゲーションです。
 
-[goncasmage1/UINavigation, 4.27 branch](https://github.com/goncasmage1/UINavigation/tree/4.27_3.0)
+[goncasmage1/UINavigation、4.27 のブランチ](https://github.com/goncasmage1/UINavigation/tree/4.27_3.0)
 
-### Multiplayer Movement (SMN2)
+### Multiplayer Movement（SMN2）
 
-Blueprint multiplayer movement. Officially supported to 4.26 but compiles and works on 4.27, and can be
-extended further. Deprecated upstream.
+ブループリントのマルチプレイヤーの移動です。公式には 4.26 まで対応ですが、4.27 でもコンパイルでき動作し、さらに拡張も
+できます。上流では非推奨になっています。
 
 [Reddy-dev/SMN2](https://github.com/Reddy-dev/SMN2)
 
 ### Root Motion Source
 
-Fully functional on 4.26 and 4.27, and effectively the 4.x equivalent of UE5's Motion Warping. In stock
-UE4, root motion source is only correctly networked through GAS; this plugin overrides that and exposes
-full root motion source functionality directly in Blueprints.
+4.26 と 4.27 で完全に機能し、実質的に UE5 の Motion Warping に相当する 4.x のものです。標準の UE4 では、ルートモーション
+ソースは GAS を通じてしか正しくネットワーク同期されません。このプラグインはそれを上書きし、ルートモーションソースの機能
+すべてをブループリントで直接使えるようにします。
 
-Field testing on a laggy network reports that following normal CMC logic gives clean results without
-jitter or server-side corrections during root motion animations.
+遅延の大きいネットワークでの実地テストでは、通常の CMC のロジックに従えば、ルートモーションのアニメーション中にも
+ジッターやサーバー側の補正のないきれいな結果が得られると報告されています。
 
-<img src="Plugins3.png" alt="Root Motion Source Blueprint nodes" border-effect="line"/>
+<img src="Plugins3.png" alt="Root Motion Source のブループリントのノード" border-effect="line"/>
 
 [VJien/RootMotionSource](https://github.com/VJien/RootMotionSource) ·
-[write-up](https://supervj.top/2022/03/24/RootMotionSource/?highlight=root+motion+source)
+[解説記事](https://supervj.top/2022/03/24/RootMotionSource/?highlight=root+motion+source)
 
-## Proposing a plugin
+## プラグインを提案する
 
-Before proposing, check:
+提案する前に、次を確認してください。
 
-| Criterion | Requirement |
+| 基準 | 要件 |
 |---|---|
-| Engine version | Compatible with 4.21&ndash;4.27. UE5-only is out of scope. |
-| Licensing | Redistributable, or clearly documented as something users obtain themselves |
-| Size | Bundled plugins are cloned by everyone. Large binary dependencies need justification. |
-| Compile cost | Adds to every engine build. See [Shader Compilation and PSO](Shader-Compilation-And-PSO.md). |
-| Overlap | Does it duplicate something already bundled or stock? |
+| エンジンのバージョン | 4.21&ndash;4.27 と互換であること。UE5 専用は対象外 |
+| ライセンス | 再配布できること、またはユーザーが自分で入手するものとして明確に文書化されていること |
+| サイズ | 同梱したプラグインは全員がクローンします。大きなバイナリの依存関係には正当な理由が必要です |
+| コンパイルのコスト | すべてのエンジンのビルドに加わります。[シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md) を参照 |
+| 重複 | すでに同梱されているもの、または標準のものと重複していないか |
 
-Then say which tier you think it belongs in and why.
+そのうえで、どの階層に属すると考えるか、その理由を添えてください。
 
-## See also
+## 関連項目
 
-- [Bundled Plugins](Bundled-Plugins.md)
-- [Plugins](Plugins.md)
-- [Migrating from UE5](Migrating-From-UE5.md)
-- [Contributing](Contributing.md)
+- [同梱プラグイン](Bundled-Plugins.md)
+- [プラグイン](Plugins.md)
+- [UE5 からの移行](Migrating-From-UE5.md)
+- [コントリビュート](Contributing.md)

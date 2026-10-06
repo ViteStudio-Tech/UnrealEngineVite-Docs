@@ -1,4 +1,4 @@
-﻿# 400 Characters CMC Bench
+# 400 Characters CMC Bench
 
 <tldr>
 <p>
@@ -63,8 +63,8 @@ If this benchmark's shape matches your bottleneck:
 - **Budget animation.** The Animation Budget Allocator plugin is stock 4.27 and directly targets this.
 - **Consider not using CMC.** For crowds that do not need networked prediction, a simpler custom movement
   path avoids most of the cost.
-- **Consider ECS.** For very large entity counts, the bundled [Flecs ECS](Bundled-Plugins.md) integration
-  sidesteps actor-per-entity overhead entirely.
+- **Consider ECS.** For very large entity counts, an entity component system sidesteps actor-per-entity
+  overhead entirely. Vite's [Flecs ECS integration](Proposed-Plugins.md) is in development.
 
 ## See also
 

@@ -53,14 +53,16 @@ permutations.
 
 ## Compile times
 
-Reference figures from the Vite repository, measured on a Ryzen 9 9950X3D:
+Reference figures from the Vite repository, measured on a Ryzen 9 9950X3D while Houdini Engine was still
+bundled (up to the [March Major](ueVite26-MarchMajor.md)):
 
 | Configuration | Full engine build |
 |---|---|
 | Full repository | ~15 minutes |
 | Without Vite plugins | ~12 minutes |
 
-Houdini is the single largest contributor among the added plugins. See the
+Houdini was the single largest contributor among the added plugins, and the
+[June Major](ueVite26-JuneMajor.md) removed it, so current releases sit closer to the lower figure. See the
 [Debloat Guide](Debloat-Guide.md) for how to strip plugins you do not need.
 
 To speed up shader compilation specifically:

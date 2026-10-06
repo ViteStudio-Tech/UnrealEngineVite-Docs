@@ -184,8 +184,9 @@ than a full wipe. If neither helps, run `WipeShaderCache.bat`. See
 
 ### A feature is missing from the editor
 
-Check whether its plugin is enabled. Most bundled plugins default to off. Only RTXGI, NRD and the custom
-splash screen are on by default. See [Bundled Plugins](Bundled-Plugins.md).
+Check whether its plugin is enabled. Most bundled plugins default to off. Only RTXGI, ACL and the custom
+splash screen are on by default. If the plugin's folder is missing altogether, the ViteSetup Express path
+may have moved it to `ViteDebloat_Moved`. See [Bundled Plugins](Bundled-Plugins.md).
 
 ### Can I get plugin X bundled?
 

@@ -90,12 +90,19 @@ r.RayTracing.Translucency=0
 レイトレーシングのコストはアクセラレーション構造に含まれるジオメトリの量に比例するため、エフェクトの品質を下げる前に
 まずカリングを検討します。
 
-```c++
-GEngine->Exec(nullptr, TEXT("r.RayTracing.Culling.UseMinDrawDistance 1"));
+```ini
+; Config/DefaultEngine.ini
+[SystemSettings]
+r.RayTracing.Culling=1
+r.RayTracing.Culling.Radius=10000
+r.RayTracing.Culling.Angle=1
 ```
 
-これにより、レイトレーシングのカリングが各プリミティブの最小描画距離を考慮するようになります。小さなディテール用
-メッシュの多いシーンでは、安価で一般に安全な改善です。
+標準の 4.27 と同じく、カリングは既定で無効です。有効にすると、カメラの後ろにあるオブジェクトのうち、半径（ここでは
+100&nbsp;m）より遠いもの、または角度のしきい値より小さいものがアクセラレーション構造から外れます。直接見える画面は
+影響を受けませんが、それらのオブジェクトの反射とレイトレーシングのシャドウは影響を受けるため、プレイヤーの後ろにある鏡や
+大きなシャドウの投影元を確認してください。[エンジンの既定値の変更](Engine-Defaults.md#ray-tracing-culling) を参照して
+ください。
 
 カリング以外の標準的な手段を、おおよそ効果の大きい順に示します。
 

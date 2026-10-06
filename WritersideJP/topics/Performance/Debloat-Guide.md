@@ -257,7 +257,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File devops\ueVite-debloat-Valida
 存在していても無効なプラグインは、実行時に一切コストがかかりません。
 
 実行時の性能については [プロファイリング](Profiling.md) と [エンジンの既定値の変更](Engine-Defaults.md) を参照してください。
-ビルド時間については、追加された Vite のプラグインを取り除くと、15 分のフルビルドのうち約 3 分を節約できます。
+ビルド時間については、Houdini Engine が同梱されていた時期には、追加された Vite のプラグインを取り除くと 15 分の
+フルビルドのうち約 3 分を節約できました。June Major で Houdini が外されてからは、その差は小さくなっています。
 [シェーダーコンパイルと PSO](Shader-Compilation-And-PSO.md) を参照してください。
 
 ## 関連項目

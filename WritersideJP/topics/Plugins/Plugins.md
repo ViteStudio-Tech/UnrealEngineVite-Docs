@@ -1,46 +1,48 @@
-# Plugins
+# プラグイン
 
 <tldr>
 <p>
-Vite bundles vendor technology (NVIDIA, AMD, Intel), backported UE5 plugins and third-party additions
-directly in the engine tree. Most live under <code>Engine\Plugins\Runtime\VitePlugins</code>.
+Vite は、ベンダーの技術（NVIDIA、AMD、Intel）、バックポートした UE5 のプラグイン、サードパーティの追加機能を、エンジンの
+ツリーに直接同梱しています。その多くは <code>Engine\Plugins\Runtime\VitePlugins</code> にあります。
 </p>
 </tldr>
 
-Stock UE 4.27 ships a large plugin set, most of which Vite keeps. On top of that, Vite bundles plugins that
-either do not exist for 4.27 upstream, exist only for UE5, or are vendor SDKs that normally have to be
-integrated by hand.
+標準の UE 4.27 には大量のプラグインが含まれており、Vite はその大部分を残しています。そのうえで Vite は、4.27 向けには
+上流に存在しないもの、UE5 向けにしか存在しないもの、通常は手作業で統合する必要があるベンダーの SDK を同梱しています。
 
-## In this section
+## このセクションの内容
 
-| Topic | Covers |
+| トピック | 内容 |
 |---|---|
-| [Bundled Plugins](Bundled-Plugins.md) | Everything Vite adds on top of stock 4.27, with versions and enablement state |
-| [Proposed Plugins](Proposed-Plugins.md) | Candidates for integration, and recommended external plugins |
+| [同梱プラグイン](Bundled-Plugins.md) | Vite が標準の 4.27 に追加したすべてのもの。バージョンと既定の有効状態つき |
+| [提案中のプラグイン](Proposed-Plugins.md) | 統合の候補と、推奨する外部のプラグイン |
 
-## Where plugins live
+## プラグインの場所
 
-| Directory | Contents |
+| ディレクトリ | 内容 |
 |---|---|
-| `Engine\Plugins\Runtime\VitePlugins` | Vite's own additions: FSR 4, XeSS, ACL, ImGui, Motion Symphony, Kawaii Physics, PhysX Instanced Subsystem and others |
-| `Engine\Plugins\Runtime\Nvidia` | DLSS, Streamline, NIS, NRD, RTXGI, DeepDVC, Reflex, Ansel |
-| `Engine\Plugins\Runtime\TressFX` | AMD TressFX 5.0 hair |
-| `Engine\Plugins\GameWorks\Blast` | NVIDIA Blast destruction runtime |
-| `Engine\Plugins\Experimental\BlastPlugin` | Blast authoring tools |
-| Everywhere else | Stock 4.27 plugins |
+| `Engine\Plugins\Runtime\VitePlugins` | Vite 独自の追加: FSR 4、XeSS、ACL、ImGui、Motion Symphony、Kawaii Physics、PhysX Instanced Subsystem など |
+| `Engine\Plugins\Runtime\Nvidia` | DLSS、Streamline、NIS、NRD、RTXGI、DeepDVC、Reflex、Ansel |
+| `Engine\Plugins\Runtime\TressFX` | AMD TressFX 5.0 のヘア |
+| `Engine\Plugins\GameWorks\Blast` | NVIDIA Blast の破壊のランタイム |
+| `Engine\Plugins\Experimental\BlastPlugin` | Blast の作成ツール |
+| その他すべて | 標準の 4.27 のプラグイン |
 
-## Enabling a plugin
+[ViteSetup](ViteSetup.md) の Express の経路でセットアップした場合、`VitePlugins` には ACL と MotionSymphony だけが残り、
+それ以外はエンジンのフォルダーの隣の `ViteDebloat_Moved` にあり、いつでもコピーして戻せます。
 
-Most bundled plugins ship with `EnabledByDefault` set to `false`, so they cost nothing until you ask for
-them. Enable per project:
+## プラグインを有効にする
 
-<procedure title="Enable a bundled plugin" id="enable-plugin">
-    <step>Open <b>Edit &gt; Plugins</b> in the editor.</step>
-    <step>Find the plugin and tick <b>Enabled</b>.</step>
-    <step>Restart the editor when prompted.</step>
+同梱プラグインの多くは `EnabledByDefault` が `false` の状態で出荷されるため、必要とするまでコストはかかりません。
+プロジェクトごとに有効にしてください。
+
+<procedure title="同梱プラグインを有効にする" id="enable-plugin">
+    <step>エディタで <b>編集 &gt; プラグイン</b> を開きます。</step>
+    <step>プラグインを探して <b>Enabled</b> にチェックを入れます。</step>
+    <step>求められたらエディタを再起動します。</step>
 </procedure>
 
-Or add it to your `.uproject` directly:
+または `.uproject` に直接追加します。
 
 ```json
 {
@@ -54,35 +56,36 @@ Or add it to your `.uproject` directly:
 ```
 
 <note>
-Enabling a plugin adds its shader permutations, modules and startup cost to every build. Enable what you
-use; leave the rest off. See <a href="Shader-Compilation-And-PSO.md">Shader Compilation and PSO</a>.
+プラグインを有効にすると、そのシェーダーのパーミュテーション、モジュール、起動時のコストがすべてのビルドに加わります。
+使うものだけを有効にし、残りはオフのままにしてください。<a href="Shader-Compilation-And-PSO.md">シェーダーコンパイルと PSO</a>
+を参照してください。
 </note>
 
-## Plugins and debloating
+## プラグインとデブロート
 
-The [debloat suite](Debloat-Guide.md) can strip plugins from the engine tree using
-`ExcludedPlugins.txt`. That list is aggressive and includes plugins many projects genuinely need &mdash;
-`GameplayAbilities`, `ApexDestruction`, `HairStrands` and the NVIDIA plugins among them.
+[デブロートのスイート](Debloat-Guide.md) は、`ExcludedPlugins.txt` を使ってエンジンのツリーからプラグインを取り除けます。
+この一覧は積極的で、多くのプロジェクトが本当に必要とするプラグインも含まれています。`GameplayAbilities`、
+`ApexDestruction`、`HairStrands`、NVIDIA のプラグインなどです。
 
 <warning>
-Read <code>ExcludedPlugins.txt</code> before running a plugin strip. Removing a plugin a project depends on
-will not fail cleanly &mdash; assets referencing it fail to load.
+プラグインを取り除く前に <code>ExcludedPlugins.txt</code> を読んでください。プロジェクトが依存しているプラグインを
+取り除くと、きれいには失敗しません。それを参照しているアセットが読み込めなくなります。
 </warning>
 
-The same list is used by `LocalBuilds\CompressBuildSeparate.bat` to split plugins into their own archive,
-which is a non-destructive alternative. See [Installed Builds](Installed-Builds.md).
+同じ一覧は、`LocalBuilds\CompressBuildSeparate.bat` がプラグインを別のアーカイブに分割する際にも使われます。こちらは
+破壊的ではない代替手段です。[インストール済みビルド](Installed-Builds.md) を参照してください。
 
-## Adding your own
+## 独自のプラグインを追加する
 
-Project plugins go in `<Project>\Plugins`, as with stock Unreal. Engine plugins that the whole team should
-have go in `Engine\Plugins\Runtime\VitePlugins` and require an engine rebuild and redistribution.
+プロジェクトのプラグインは、標準の Unreal と同じく `<Project>\Plugins` に置きます。チーム全員が持つべきエンジンの
+プラグインは `Engine\Plugins\Runtime\VitePlugins` に置き、エンジンの再ビルドと再配布が必要です。
 
-If you want a plugin bundled with Vite, it must be compatible with 4.21&ndash;4.27. UE5-only plugins are
-out of scope. See [Proposed Plugins](Proposed-Plugins.md) for the criteria and the current candidate list.
+プラグインを Vite に同梱してほしい場合は、4.21&ndash;4.27 と互換である必要があります。UE5 専用のプラグインは対象外です。
+基準と現在の候補の一覧は [提案中のプラグイン](Proposed-Plugins.md) を参照してください。
 
-## See also
+## 関連項目
 
-- [Bundled Plugins](Bundled-Plugins.md)
-- [Proposed Plugins](Proposed-Plugins.md)
-- [Debloat Guide](Debloat-Guide.md)
-- [Upscalers](Upscalers.md)
+- [同梱プラグイン](Bundled-Plugins.md)
+- [提案中のプラグイン](Proposed-Plugins.md)
+- [デブロートガイド](Debloat-Guide.md)
+- [アップスケーラー](Upscalers.md)

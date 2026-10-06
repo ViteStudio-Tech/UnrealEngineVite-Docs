@@ -1,161 +1,173 @@
-# Bundled Plugins
+# 同梱プラグイン
 
 <tldr>
 <p>
-Everything Vite adds on top of stock UE 4.27, with versions and default enablement. Stock 4.27 plugins are
-not listed &mdash; only Vite's additions and the vendor integrations.
+Vite が標準の UE 4.27 に追加したすべてのものを、バージョンと既定の有効状態とともに示します。標準の 4.27 のプラグインは
+載せず、Vite の追加とベンダーの統合だけを扱います。既定で有効なのは RTXGI、ACL、カスタムのスプラッシュ画面の 3 つです。
 </p>
 </tldr>
 
-Versions are as of the July major integration. Check the `.uplugin` file for the authoritative value in
-your tree.
+バージョンと既定値は、[September Major](ueVite26-SeptemberMajor.md) のリリースの `.uplugin` ファイルから読み取ったものです。
+正確な値は、手元のツリーの `.uplugin` ファイルで確認してください。**オフ** は、プロジェクトが有効にするまでエンジンが
+プラグインを読み込まないことを意味します。記述子で `EnabledByDefault` が指定されていないプラグインも含まれ、Unreal は
+エンジンのプラグインではそれをオフとして扱います。
 
-<img src="VitePlugins.png" alt="Contents of Engine/Plugins/Runtime/VitePlugins in Explorer" border-effect="line"/>
+<img src="VitePlugins.png" alt="エクスプローラーで表示した Engine/Plugins/Runtime/VitePlugins の中身" border-effect="line"/>
 
-*Vite's own additions live under `Engine\Plugins\Runtime\VitePlugins`. Vendor integrations from NVIDIA sit
-separately under `Engine\Plugins\Runtime\Nvidia`.*
+*Vite 独自の追加は `Engine\Plugins\Runtime\VitePlugins` にあります。NVIDIA のベンダー統合は別に
+`Engine\Plugins\Runtime\Nvidia` にあります。*
 
-## Upscaling and frame generation
+<warning>
+<p>
+<a href="ViteSetup.md">ViteSetup</a> の Express の経路は、<code>Runtime\VitePlugins</code> 以下のプラグインを ACL と
+MotionSymphony を除いてすべて <code>ViteDebloat_Moved</code> に移動します。このフォルダーのプラグインがツリーにない
+場合、通常はそれが理由です。<a href="Debloat-Guide.md">デブロートガイド</a> を参照してください。
+</p>
+</warning>
 
-| Plugin | Version | Default | Path |
+## アップスケーリングとフレーム生成
+
+| プラグイン | バージョン | 既定 | パス |
 |---|---|---|---|
-| NVIDIA DLSS Super Resolution / Ray Reconstruction / DLAA | 8.7.0 (NGX 310.7.0) | Off | `Runtime\Nvidia\DLSS` |
-| NVIDIA DLSS Frame Generation (Streamline) | 1.3.0-SL2.4.0 | Off | `Runtime\Nvidia\Streamline` |
-| NVIDIA NIS | 1.2.1 | Off | `Runtime\Nvidia\NIS` |
-| NVIDIA RTX Dynamic Vibrance (DeepDVC) | 1.3.0-SL2.4.0 | Off | `Runtime\Nvidia\StreamlineDeepDVC` |
-| AMD FSR 4 | 4.1.1 | &mdash; | `Runtime\VitePlugins\FSR4-427` |
-| AMD AntiLag 2 | 2.0.4 | &mdash; | `Runtime\VitePlugins\AntiLag2.0.4` |
-| Intel XeSS | 3.0.5 | &mdash; | `Runtime\VitePlugins\XeSS_UE4.27_Plugin_v3.0.5` |
-| Movie Render Queue DLSS/DLAA support | 2.3.3 | &mdash; | `Runtime\Nvidia\DLSSMoviePipelineSupport` |
+| NVIDIA DLSS Super Resolution / Ray Reconstruction / DLAA | 8.7.0（NGX 310.7.0） | オフ | `Runtime\Nvidia\DLSS` |
+| NVIDIA DLSS Frame Generation | 1.3.0（Streamline SDK 2.12.0） | オフ | `Runtime\Nvidia\Streamline` |
+| NVIDIA NIS | 1.2.1 | オフ | `Runtime\Nvidia\NIS` |
+| NVIDIA RTX Dynamic Vibrance（DeepDVC） | 1.3.0（Streamline） | オフ | `Runtime\Nvidia\StreamlineDeepDVC` |
+| NVIDIA Reflex | 1.6 | オフ | `Runtime\Nvidia\Reflex` |
+| Movie Render Queue DLSS/DLAA Support | 2.3.3 | オフ | `Runtime\Nvidia\DLSSMoviePipelineSupport` |
+| AMD FSR 4 | 4.1.1 | オフ | `Runtime\VitePlugins\FSR4-427\FSR4` |
+| AMD Anti-Lag 2 | 2.0.4 | オフ | `Runtime\VitePlugins\AntiLag2.0.4` |
+| Intel XeSS | 3.1.0 | オフ | `Runtime\VitePlugins\XeSS_UE4.27_Plugin_v3.1.0` |
 
-FSR 4 uses the native ffx-api and is DX12-only. It was backported to 4.27 specifically for Vite. Full
-detail in [Upscalers](Upscalers.md).
+FSR 4 はネイティブの ffx-api を使い、DX12 専用です。Vite のために 4.27 へバックポートされました。以前の FSR 2 の
+プラグインは `Runtime\VitePlugins\FSR2-427` に残っていますが、記述子が `.uplugin.disabled` に名前を変えてあるため、
+読み込まれることはありません。詳しくは [アップスケーラー](Upscalers.md) を参照してください。
 
-## Ray tracing and rendering
+## レイトレーシングとレンダリング
 
-| Plugin | Version | Default | Path |
+| プラグイン | バージョン | 既定 | パス |
 |---|---|---|---|
-| NVIDIA RTX Global Illumination (RTXGI) | 1.1.50 | **On** | `Runtime\Nvidia\RTXGI` |
-| NVIDIA Real-Time Denoiser (NRD/ReLAX) | 2.10.00-relax | **On** | `Runtime\Nvidia\NRD` |
-| NVIDIA Reflex | &mdash; | &mdash; | `Runtime\Nvidia\Reflex` |
-| NVIDIA Ansel | &mdash; | &mdash; | `Runtime\Nvidia\Ansel` |
-| Graphics Card Info Utilities | 1.0 | Off | `Runtime\Nvidia\GraphicsCardInfoUtils` |
+| NVIDIA RTX Global Illumination（RTXGI） | 1.1.50 | **オン** | `Runtime\Nvidia\RTXGI` |
+| NVIDIA Real-Time Denoiser（NRD/ReLAX） | 2.10.00-relax | オフ | `Runtime\Nvidia\NRD` |
+| NVIDIA Ansel | 4251 | オフ | `Runtime\Nvidia\Ansel` |
+| Graphics Card Info Utilities | 1.0 | オフ | `Runtime\Nvidia\GraphicsCardInfoUtils` |
 
-RTXGI provides the DDGI implementation that is Vite's recommended dynamic GI solution. NRD/ReLAX denoises
-ray-traced output. Both being on by default is deliberate: they are the basis of Vite's recommended
-lighting setup. See [Global Illumination](Global-Illumination.md) and
-[Dynamic DDGI](DDGI-Dynamic.md).
+RTXGI は、Vite が推奨する動的 GI である DDGI の実装を提供するため、既定で有効です。NRD/ReLAX はレイトレーシングの出力の
+ノイズを除去します。それに依存するレイトレーシングのエフェクトを使う場合に有効にしてください。
+[グローバルイルミネーション](Global-Illumination.md) と [動的 DDGI](DDGI-Dynamic.md) を参照してください。
 
-## Hair
+## ヘア
 
-| Plugin | Version | Default | Path |
+| プラグイン | バージョン | 既定 | パス |
 |---|---|---|---|
-| TressFX 5.0 | 5.0 | &mdash; | `Runtime\TressFX` |
-| Groom (HairStrands) | 1.0 | Off | `Runtime\HairStrands` |
+| TressFX 5.0 | 5.0 | オフ | `Runtime\TressFX` |
+| Groom（HairStrands） | 1.0 | オフ | `Runtime\HairStrands` |
 
-Two independent hair systems with different authoring pipelines. See
-[Hair Rendering](Hair-Rendering.md).
+作成のパイプラインが異なる、独立した 2 つのヘアシステムです。TressFX には、エンジンを `VITE_TRESSFX=1` でビルドする
+ことも必要です。[ヘアレンダリング](Hair-Rendering.md) を参照してください。
 
-## Physics and destruction
+## 物理と破壊
 
-| Plugin | Version | Default | Path |
+| プラグイン | バージョン | 既定 | パス |
 |---|---|---|---|
-| Blast (runtime) | 1.0 | Off | `GameWorks\Blast` |
-| Blast Plugin (authoring) | 0.1 | Off | `Experimental\BlastPlugin` |
-| PhysX Instanced Subsystem | 1.11 | &mdash; | `Runtime\VitePlugins\PhysXInstancedSubsystem` |
-| Kawaii Physics | 1.18.0 | &mdash; | `Runtime\VitePlugins\KawaiiPhysics` |
+| Blast（ランタイム） | 1.0 | オフ | `GameWorks\Blast` |
+| Blast Plugin（作成） | 0.1 | オフ | `Experimental\BlastPlugin` |
+| PhysX Instanced Subsystem | 1.11 | オフ | `Runtime\VitePlugins\PhysXInstancedSubsystem` |
+| Kawaii Physics | 1.18.0 | オフ | `Runtime\VitePlugins\KawaiiPhysics` |
 
-Apex Destruction, Apex Cloth and PhysX Vehicles are stock 4.27 plugins that Vite retains &mdash; they were
-removed in UE5 when Chaos replaced PhysX. See [Destruction and Cloth](Destruction-And-Cloth.md).
+Apex Destruction、Apex Cloth、PhysX Vehicles は、Vite が残している標準の 4.27 のプラグインです。UE5 では Chaos が PhysX を
+置き換えた際に取り除かれました。`ueVite-ApplyVitePluginDefaults.bat` で適用する Vite のプラグインプロファイルは、Blast の
+作成用プラグインを有効にします。[エンジンの既定値の変更](Engine-Defaults.md#disabled-plugins) と
+[破壊とクロス](Destruction-And-Cloth.md) を参照してください。
 
-Kawaii Physics is a UE5 secondary-motion bone solver backported to Vite. It gives hair, cloth and
-accessories physical follow-through from a single animation node, far more cheaply than a full cloth
-simulation.
+Kawaii Physics は、Vite にバックポートした UE5 の二次モーション用のボーンソルバーです。1 つのアニメーションノードで、
+髪、布、アクセサリーに物理的な追従の動きを与え、完全なクロスシミュレーションよりはるかに安価です。
 
-The PhysX Instanced Subsystem manages large numbers of PhysX-backed instanced bodies through a world
-subsystem, writing poses back into ISM/HISM instance transforms rather than spawning individual actors.
-See [Instanced Physics](Instanced-Physics.md).
+PhysX Instanced Subsystem は、ワールドサブシステムを通じて大量の PhysX ベースのインスタンス化ボディを管理し、個々の
+アクターを生成するのではなく、ISM/HISM のインスタンスのトランスフォームにポーズを書き戻します。
+[インスタンス化物理](Instanced-Physics.md) を参照してください。
 
-## Animation
+## アニメーション
 
-| Plugin | Version | Path |
-|---|---|---|
-| Animation Compression Library (ACL) | 2.1.0 | `Runtime\VitePlugins\ACLPlugin` |
-| Motion Symphony | 1.09 | `Runtime\VitePlugins\MotionSymphony` |
-
-ACL replaces Unreal's built-in animation compression with a substantially better size/quality curve. On a
-project with a large animation set the memory saving is significant, and it is one of the cheapest wins
-available &mdash; see [Performance Targets](Performance-Targets.md).
-
-Motion Symphony provides motion matching and pose matching, the Ubisoft-style approach to animation
-synthesis. It is the closest 4.27 equivalent to UE5's Motion Matching.
-[Documentation](https://www.wikiful.com/@AnimationUprising/motion-symphony/motion-matching) ·
-[Sample project](https://github.com/Animation-Uprising/MotionSymphony_ExampleProject/tree/main)
-
-## Gameplay
-
-| Plugin | Version | Path |
-|---|---|---|
-| Abilities (SplashAbilities) | 1.1 | `Runtime\VitePlugins\SplashAbilities` |
-| Flecs ECS | 1.0 (Flecs 3.2.12) | `Runtime\FlecsECS` |
-
-Abilities is a lighter alternative to `GameplayAbilities` for projects that want an ability system without
-GAS's complexity and replication model.
-
-Flecs ECS is an engine-level integration of the Flecs entity component system, providing a world subsystem,
-Blueprint entity handles, an ISM-based rendering demo and optional Flecs Explorer support. It is off by
-default. Useful when actor-per-entity overhead is the bottleneck &mdash; see the
-[UE4 vs UE5 cost analysis](UE4-Versus-UE5-Cost-Analysis.md) on core class base costs.
-
-## Debug and profiling
-
-| Plugin | Version | Path |
-|---|---|---|
-| Dear ImGui | 0.1.0 | `Runtime\VitePlugins\UnrealImGui` |
-| ImGui Tools | 1.0 | `Runtime\VitePlugins\ImGuiTools` |
-| Intel GPA | 1.0 | `Runtime\VitePlugins\GPAPlugin` |
-| Automatron | 1.1a | `Runtime\VitePlugins\Automatron` |
-
-ImGui gives you immediate-mode debug UI that works in the viewport and in standalone builds, where Slate
-debug widgets are awkward. ImGui Tools builds functional development tools on top of it.
-
-The GPA plugin integrates Intel Graphics Performance Analyzers into the editor. Automatron improves
-automated testing for C++ and Blueprints. See [Profiling](Profiling.md).
-
-## Content and utilities
-
-| Plugin | Version | Default | Path |
+| プラグイン | バージョン | 既定 | パス |
 |---|---|---|---|
-| Custom Splash Preload Screen | 1.0 | **On** | `Runtime\PostSplashScreen` |
-| Impostor Baker | 1.0 | &mdash; | `Experimental\ImpostorBaker` |
-| Shallow Water | 1.0 | Off | `Experimental\ShallowWater` |
+| Animation Compression Library（ACL） | 2.1.0 | **オン** | `Runtime\VitePlugins\ACLPlugin` |
+| Motion Symphony | 1.09 | オフ | `Runtime\VitePlugins\MotionSymphony` |
 
-The splash screen plugin displays a custom screen after the system splash during engine preinit, covering
-the gap before the first frame.
+ACL は、Unreal に組み込みのアニメーション圧縮を、サイズと品質の関係がはるかに優れたものに置き換えます。大量の
+アニメーションを持つプロジェクトではメモリの節約が大きく、最も安価に得られる改善の 1 つです。
+[パフォーマンス目標](Performance-Targets.md) を参照してください。
 
-Impostor Baker generates impostors for use as distant mesh LODs &mdash; the standard technique for
-rendering large numbers of distant trees or props cheaply, and worth reaching for before accepting a draw
-call cost you cannot afford.
+Motion Symphony は、Ubisoft 方式のアニメーション合成の手法であるモーションマッチングとポーズマッチングを提供します。
+UE5 の Motion Matching に最も近い 4.27 の機能です。
+[ドキュメント](https://www.wikiful.com/@AnimationUprising/motion-symphony/motion-matching) ·
+[サンプルプロジェクト](https://github.com/Animation-Uprising/MotionSymphony_ExampleProject/tree/main)
 
-## Default enablement summary
+## ゲームプレイ
 
-Only three bundled plugins are on by default:
+| プラグイン | バージョン | 既定 | パス |
+|---|---|---|---|
+| Abilities（SplashAbilities） | 1.1 | オフ | `Runtime\VitePlugins\SplashAbilities` |
 
-| Plugin | Why |
+Abilities は、GAS の複雑さやレプリケーションのモデルを持ち込まずにアビリティシステムが欲しいプロジェクト向けの、
+`GameplayAbilities` より軽い代替です。
+
+<note>
+<p>
+Flecs ECS の統合（ワールドサブシステム、ブループリントのエンティティハンドル、ISM による描画のデモ、任意の Flecs Explorer
+対応）は社内のブランチで開発中で、まだどの公開リリースにも含まれていません。
+<a href="Proposed-Plugins.md">提案中のプラグイン</a> を参照してください。
+</p>
+</note>
+
+## デバッグとプロファイリング
+
+| プラグイン | バージョン | 既定 | パス |
+|---|---|---|---|
+| Dear ImGui | 0.1.0 | オフ | `Runtime\VitePlugins\UnrealImGui` |
+| ImGui Tools | 1.0 | オフ | `Runtime\VitePlugins\ImGuiTools` |
+| Intel GPA | 1.0 | オフ | `Runtime\VitePlugins\GPAPlugin` |
+| Automatron | 1.1a | オフ | `Runtime\VitePlugins\Automatron` |
+
+ImGui は、ビューポートでもスタンドアロンのビルドでも動作するイミディエイトモードのデバッグ UI を提供します。そうした
+場面では Slate のデバッグウィジェットは扱いにくいものです。ImGui Tools は、その上に実用的な開発用ツールを構築します。
+
+GPA プラグインは Intel Graphics Performance Analyzers をエディタに統合します。Automatron は C++ とブループリントの自動テストを
+改善します。[プロファイリング](Profiling.md) を参照してください。
+
+## コンテンツとユーティリティ
+
+| プラグイン | バージョン | 既定 | パス |
+|---|---|---|---|
+| Custom Splash Preload Screen | 1.0 | **オン** | `Runtime\PostSplashScreen` |
+| Impostor Baker | 1.0 | オフ | `Experimental\ImpostorBaker` |
+| Shallow Water | 1.0 | オフ | `Experimental\ShallowWater` |
+
+スプラッシュ画面のプラグインは、エンジンの事前初期化中にシステムのスプラッシュの後でカスタムの画面を表示し、最初の
+フレームまでの空白を埋めます。
+
+Impostor Baker は、遠景のメッシュの LOD として使うインポスターを生成します。遠くの大量の木や小物を安価に描画するための
+標準的な手法で、払えないドローコールのコストを受け入れる前に検討する価値があります。
+
+## 既定の有効状態のまとめ
+
+既定で有効な同梱プラグインは 3 つです。
+
+| プラグイン | 理由 |
 |---|---|
-| RTXGI | Provides DDGI, Vite's recommended dynamic GI |
-| NRD | Denoises ray-traced output, needed by the ray tracing suite |
-| Custom Splash Preload Screen | Cosmetic, negligible cost |
+| RTXGI | Vite が推奨する動的 GI である DDGI を提供する |
+| ACL | 実行時のコストなしに、すべてのプロジェクトでアニメーションの圧縮を改善する |
+| Custom Splash Preload Screen | 見た目のためのもので、コストはごくわずか |
 
-Everything else is opt-in. If a feature appears not to work, check that its plugin is enabled before
-debugging further &mdash; and for ray tracing features, check the
-[compile-time switch availability table](Ray-Tracing.md) as well.
+それ以外はすべて任意で有効にするものです。機能が動作していないように見える場合は、さらにデバッグする前にプラグインが
+有効になっているかを確認してください。レイトレーシングの機能については、
+[コンパイル時スイッチの利用可否の表](Ray-Tracing.md) も確認してください。
 
-## See also
+## 関連項目
 
-- [Plugins](Plugins.md)
-- [Proposed Plugins](Proposed-Plugins.md)
-- [Upscalers](Upscalers.md)
-- [Hair Rendering](Hair-Rendering.md)
-- [Instanced Physics](Instanced-Physics.md)
-- [Debloat Guide](Debloat-Guide.md)
+- [プラグイン](Plugins.md)
+- [提案中のプラグイン](Proposed-Plugins.md)
+- [アップスケーラー](Upscalers.md)
+- [ヘアレンダリング](Hair-Rendering.md)
+- [インスタンス化物理](Instanced-Physics.md)
+- [デブロートガイド](Debloat-Guide.md)

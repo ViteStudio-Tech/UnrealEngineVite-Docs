@@ -186,18 +186,29 @@ uses SpeedTree assets, so this is a saving every project gets.
 Niagara ticks whenever the plugin is enabled. Disable the Niagara plugin at project level if you do not use
 it; Cascade remains available in 4.27.
 
-## Ray tracing culling
+## Ray tracing culling: unchanged, worth enabling {id="ray-tracing-culling"}
 
-Ray tracing culling respects each primitive's minimum draw distance:
+Vite keeps the stock 4.27 behaviour here: `r.RayTracing.Culling` defaults to `0`, so every ray-traced
+primitive stays in the acceleration structure wherever it is relative to the camera. In large scenes,
+turning it on is one of the cheapest ray tracing savings available:
 
-```c++
-GEngine->Exec(nullptr, TEXT("r.RayTracing.Culling.UseMinDrawDistance 1"));
+```ini
+; Config/DefaultEngine.ini
+[SystemSettings]
+r.RayTracing.Culling=1
+r.RayTracing.Culling.Radius=10000
+r.RayTracing.Culling.Angle=1
 ```
 
-This is a cheap and generally safe win in scenes with many small detail meshes, since geometry too small to
-be drawn is also too small to matter in the acceleration structure.
+With culling on, objects **behind the camera** are dropped when they are further than
+`r.RayTracing.Culling.Radius` (default 10000, 100&nbsp;m) or their projected angle is below
+`r.RayTracing.Culling.Angle`. What is in front of the camera is never culled, so the direct view does not
+change, but culled objects disappear from reflections and ray-traced shadows. Check mirrors and large shadow
+casters behind the player after enabling it.
 
-[Commit](https://github.com/GapingPixel/UE5-PhysX-Vite/commit/595f376f6de0912606b05768739aa3d24ac4f61a)
+<note>
+UE5's <code>r.RayTracing.Culling.UseMinDrawDistance</code> does not exist in 4.27 or in Vite.
+</note>
 
 ## Editor quality-of-life
 
@@ -218,8 +229,9 @@ These cannot be disabled in the fork release branch for compatibility reasons, b
 individual projects.
 
 **Vite plugin removal.** Removing the added Vite plugins improves compile times. Measured on a Ryzen 9
-9950X3D: full repository 15 minutes, without Vite plugins 12 minutes. Houdini is the largest single
-contributor.
+9950X3D while Houdini Engine was still bundled: full repository 15 minutes, without Vite plugins 12 minutes,
+with Houdini the largest single contributor. The [June Major](ueVite26-JuneMajor.md) removed Houdini, so the
+gap is smaller in current releases.
 
 See the [Debloat Guide](Debloat-Guide.md) for the tooling.
 

@@ -29,6 +29,9 @@ integrated by hand.
 | `Engine\Plugins\Experimental\BlastPlugin` | Blast authoring tools |
 | Everywhere else | Stock 4.27 plugins |
 
+If you set up with the [ViteSetup](ViteSetup.md) Express path, `VitePlugins` keeps only ACL and
+MotionSymphony; the others are in `ViteDebloat_Moved` next to the engine folder, ready to copy back.
+
 ## Enabling a plugin
 
 Most bundled plugins ship with `EnabledByDefault` set to `false`, so they cost nothing until you ask for

@@ -258,7 +258,8 @@ performance &mdash; a plugin that is present but disabled costs nothing at runti
 
 For runtime performance, see [Profiling](Profiling.md) and
 [Engine Default Changes](Engine-Defaults.md). For build time specifically, removing the added Vite plugins
-saves roughly three minutes on a full 15-minute build; see
+saved roughly three minutes on a full 15-minute build while Houdini Engine was bundled, and less since the
+June Major removed it; see
 [Shader Compilation and PSO](Shader-Compilation-And-PSO.md).
 
 ## See also

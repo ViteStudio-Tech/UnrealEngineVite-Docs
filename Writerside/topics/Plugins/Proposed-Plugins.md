@@ -45,7 +45,11 @@ Integrated at version 1.11. See [Instanced Physics](Instanced-Physics.md).
 [Repository](https://github.com/Dragomirson/PhysXInstancedSubsystem) ·
 [Demo project](https://drive.google.com/file/d/1NulunBP2Qre5vLyYnkiqywovsycNuWdQ/view)
 
-### Houdini Engine &mdash; integrated, commercial/free use
+### Houdini Engine &mdash; previously bundled, commercial/free use
+
+Bundled from the [LTS](ueVite25-LTS.md) to the [March Major](ueVite26-MarchMajor.md); the
+[June Major](ueVite26-JuneMajor.md) removed it temporarily. Until it returns, add
+it per project from SideFX's 4.27 branch.
 
 Procedural workflow through Houdini Digital Assets. Artists adjust asset parameters interactively in the
 editor and use Unreal assets as inputs; Houdini's procedural engine cooks the asset and the result appears
@@ -57,6 +61,14 @@ in the editor without baking.
 
 Ubisoft-style motion matching and pose matching. Bundled at 1.09; see
 [Bundled Plugins](Bundled-Plugins.md).
+
+### Flecs ECS &mdash; in development
+
+An engine-level integration of the [Flecs](https://github.com/SanderMertens/flecs) entity component system:
+a world subsystem, Blueprint entity handles, an ISM-based rendering demo and optional Flecs Explorer
+support. It targets the case where actor-per-entity overhead is the bottleneck &mdash; see the
+[UE4 vs UE5 cost analysis](UE4-Versus-UE5-Cost-Analysis.md) on core class base costs. It exists on an
+internal branch and is not in a public release yet.
 
 ### PopcornFX &mdash; commercial/free use
 

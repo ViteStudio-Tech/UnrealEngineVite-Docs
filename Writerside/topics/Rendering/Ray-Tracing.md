@@ -93,12 +93,19 @@ much of your frame time ray tracing accounts for.
 Ray tracing cost scales with how much geometry is in the acceleration structure, so culling is the first
 lever to reach for before reducing effect quality.
 
-```c++
-GEngine->Exec(nullptr, TEXT("r.RayTracing.Culling.UseMinDrawDistance 1"));
+```ini
+; Config/DefaultEngine.ini
+[SystemSettings]
+r.RayTracing.Culling=1
+r.RayTracing.Culling.Radius=10000
+r.RayTracing.Culling.Angle=1
 ```
 
-This makes ray tracing culling respect each primitive's minimum draw distance, which is a cheap and
-generally safe win in scenes with a lot of small detail meshes.
+Culling is off by default, as in stock 4.27. With it on, objects behind the camera that are further than
+the radius (100&nbsp;m here) or smaller than the angle threshold leave the acceleration structure. The
+direct view is unaffected; reflections and ray-traced shadows of those objects are not, so check mirrors
+and large shadow casters behind the player. See
+[Engine Default Changes](Engine-Defaults.md#ray-tracing-culling).
 
 Beyond culling, the standard levers in rough order of effectiveness:
 
