@@ -27,7 +27,7 @@ callbacks and synchronization with engine state all contribute to the final phys
 | [Box Container Pile 10K, 6 threads](#box-pile-10k) | Unreal Chaos vs Vite PhysX 3.4 | Chaos takes **67.34× as long** per step |
 | [Box Container Pile 10K, 1–6 threads](#box-pile-10k) | Stock NVIDIA PhysX 3.4 vs Vite PhysX 3.4 | Vite needs **25.2–28.2% less** physics time (1.34–1.39×) |
 | [Box Container Pile 10K, 1–6 threads](#box-pile-10k) | Stock NVIDIA PhysX 5.6.1 (CPU) vs Vite PhysX 3.4 | Vite is **1.15–1.44× faster** at every thread count |
-| [1,425 native PhysX actors](#native-actors-1425) | Vite native actor path | **374 FPS**, 2.67 ms frame time |
+| [1,425 native PhysX actors](#native-actors-1425) | Vite native actor path, UE Vite 5.0 build | **374 FPS**, 2.67 ms frame time |
 
 Every number on this page is tied to a named workload, host and build. Read the methodology notes with each
 result before quoting it; none of them is a universal PhysX-versus-Chaos multiplier.
@@ -82,7 +82,7 @@ transform-bridge cost depends on the native integration.
 
 | Reported metric | Native PhysX actor path |
 |---|---:|
-| Engine label | UE Vite — PxActors |
+| Engine label | UE Vite 5.0 — PxActors |
 | Spawned cubes | 1,425 |
 | Rendered primitives | 1,447 |
 | FPS | 374.28 |
@@ -91,8 +91,9 @@ transform-bridge cost depends on the native integration.
 
 <warning>
 Do not calculate a direct multiplier between the native-path capture and the 3,000-cube comparison. The
-native result uses 1,425 cubes, a different engine label and a different object representation. It documents
-the lower-overhead native integration path; it is not a matched Chaos-versus-PhysX result.
+native result uses 1,425 cubes, a different object representation and a different engine: its on-screen
+label reads UE Vite 5.0, Vite's UE5-based PhysX build, not one of the 4.27 releases this manual documents.
+It illustrates the lower-overhead native integration path; it is not a matched Chaos-versus-PhysX result.
 </warning>
 
 ## Box Container Pile 10K benchmark {id="box-pile-10k"}

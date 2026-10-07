@@ -1,4 +1,4 @@
-﻿# Tech Demo Project
+# Tech Demo Project
 
 <tldr>
 <p>
@@ -7,10 +7,10 @@ Cloth. The reference project for verifying that a build works correctly.
 </p>
 </tldr>
 
-<img src="TechDemo.png" alt="Tech Demo Project scene rendered in Unreal Engine Vite" border-effect="line"/>
+<img src="TechDemo.png" alt="Apex Destruction test bed: a destructible wall breaking apart under first-person fire" border-effect="line"/>
 
-*The Tech Demo package is the reference project for verifying that a fresh build renders and simulates
-correctly.*
+*The Apex Destruction test bed from the package. Destructible walls, ragdoll palms and a first-person
+weapon make it a quick check that a fresh build still simulates correctly.*
 
 ## Contents
 

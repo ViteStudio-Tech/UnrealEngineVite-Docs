@@ -55,7 +55,7 @@ something concrete behind them. Each is a like-for-like comparison in the same s
 | DDGI test scene, RX 6600, 1080p native | 245 FPS (RTXGI) | &mdash; | &mdash; |
 | Physics stress scene, 3,000 cubes | 157 FPS (PhysX) | 33.3 FPS (Chaos 5.7.3) | ~4.7x |
 | Physics solver, 10,005 bodies, 6 threads | 11.76 ms (Vite PhysX) | 791.97 ms (Chaos) | ~67x |
-| Physics, native PhysX actor path, 1,425 cubes | 374 FPS | &mdash; | Not a matched comparison |
+| Physics, native PhysX actor path, 1,425 cubes | 374 FPS | &mdash; | Not a matched comparison; captured on the UE Vite 5.0 build |
 | Character movement and collision | 4.27 baseline | 5.6 | 2.2&ndash;2.8x faster on 4.27 |
 | Typical multiplayer map memory | ~1 GB less than 5.7 | &mdash; | &mdash; |
 

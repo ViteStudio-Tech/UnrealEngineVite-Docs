@@ -136,7 +136,8 @@ high-count simulations. See [Instanced Physics Subsystem](Instanced-Physics.md).
 
 <img src="NativePhysXActors1425.png" alt="In-engine Vite native PhysX actor test with 1,425 simulated cubes at 374 FPS" border-effect="line"/>
 
-*1,425 cubes simulated as native PhysX actors inside Unreal Engine: 374 FPS, 2.67 ms frame time.*
+*1,425 cubes simulated as native PhysX actors: 374 FPS, 2.67 ms frame time. Captured on the UE Vite 5.0
+build, not a 4.27 release; see [the benchmark notes](Physics.md#native-actors-1425).*
 
 Engine-level systems that already own compact simulation state can operate closer to native PhysX actors and
 avoid unnecessary high-level Actor/component work. This is a specialized integration path: ownership,

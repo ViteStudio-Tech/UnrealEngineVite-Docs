@@ -7,9 +7,9 @@ Vite の主要なショーケースのパッケージです。動的なグロー
 </p>
 </tldr>
 
-<img src="TechDemo.png" alt="Unreal Engine Vite で描画したテックデモプロジェクトのシーン" border-effect="line"/>
+<img src="TechDemo.png" alt="Apex Destruction のテストベッド: 一人称視点の射撃で崩れていく破壊可能な壁" border-effect="line"/>
 
-*テックデモのパッケージは、新しいビルドが正しく描画・シミュレーションできるかを確認するための基準のプロジェクトです。*
+*パッケージに含まれる Apex Destruction のテストベッド。破壊可能な壁、ラグドールのヤシの木、一人称視点の武器があり、新しいビルドが正しくシミュレーションできるかを手早く確認できます。*
 
 ## 内容
 
