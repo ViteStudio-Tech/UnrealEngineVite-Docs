@@ -123,7 +123,9 @@ threads are added, so the comparison favours Vite most on the core counts a cons
 physics.
 
 <note>
-Chaos had to be benched through Win64, not Headless as the rest of the SDKs.
+Chaos cannot be built as a standalone SDK, so it ran as a Win64 Shipping Program target built from the Unreal
+release branch, rather than through the SDK runners used for the other engines. Its report also describes a
+headless, no-graphics run.
 </note>
 
 Vite PhysX improves from 35.60 ms at one reported thread to 11.76 ms at six, a **3.03× throughput
@@ -150,8 +152,8 @@ Vite's PhysX build.
 
 ### Test configuration
 
-Rendering is removed (except for Chaos), sleeping is disabled and all runs use four solver iterations, a
-60 Hz simulation step, 30 warm-up steps and 300 measured steps.
+Every report describes a headless, no-graphics run with sleeping disabled, four solver iterations, a 60 Hz
+simulation step, 30 warm-up steps and 300 measured steps.
 
 <note>
 This is purely a performance test; simulation precision and SDK features should be evaluated separately.
@@ -172,8 +174,8 @@ This is purely a performance test; simulation precision and SDK features should 
 <note>
 The reports use the same host and high-level workload settings, but not identical executables: Chaos is a
 Win64 Shipping Chaos Program target, NVIDIA PhysX is a Visual Studio 2026 MSBuild Release SDK runner, and
-Vite PhysX is a clang-cl 22 Release runtime build. Chaos had to be tested as Win64 because it cannot be
-compiled independently of UE5. Cite these values as the <b>reported Box Container Pile 10K result</b>, not
+Vite PhysX is a clang-cl 22 Release runtime build. Chaos had to be built as a Win64 Program target because it
+cannot be compiled independently of UE5. Cite these values as the <b>reported Box Container Pile 10K result</b>, not
 as a universal PhysX-versus-Chaos multiplier.
 </note>
 
