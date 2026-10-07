@@ -165,7 +165,7 @@ Subsystem->AddRadialImpulse(
 
 `APhysXInstancedMeshActor` は 6 つのマルチキャストデリゲートを公開しています。`OnInstancePreRemove`、`OnInstancePostRemove`、`OnInstancePreConvert`、`OnInstancePostConvert`、`OnInstancePrePhysics`、`OnInstancePostPhysics` です。
 
-イベントはアクターの **Instance Event Mask** のビットマスクで制御されます。実際にバインドしない限りマスクは空のままにしてください。何も受け取らないのに数千のインスタンスにブロードキャストするのは無駄な処理です。削除と変換のイベントは、理由（`Explicit`、`Expired`、`AutoStop`、`KillZ`、`Lost`）とその時点のワールドトランスフォームを伝えます。破片が落ち着いたときにパーティクルエフェクトを出したりサウンドを鳴らしたりするのに必要な情報です。
+イベントはアクターの **Instance Event Mask** のビットマスクで制御されます。実際にバインドしない限りマスクは空のままにしてください。何も受け取らないのに数千のインスタンスにブロードキャストするのは無駄な処理です。マスクは既定で空なので、バインドするイベントのビットを設定するまで、どのイベントも発生しません。削除のイベントは、理由（`Explicit`、`Expired`、`AutoStop`、`KillZ`、`Lost`）とその時点のワールドトランスフォームを伝えます。変換のイベントは独自の理由（`Explicit`、`AutoStop`、`Expired`）、変換元と変換先のアクター、トランスフォームを伝えます。破片が落ち着いたときにパーティクルエフェクトを出したりサウンドを鳴らしたりするのに必要な情報です。
 
 ## パフォーマンスの調整
 
@@ -176,6 +176,12 @@ Subsystem->AddRadialImpulse(
 | `MaxLifetimeExpirationsPerTick` | `4096` | Tick ごとに処理するライフタイムの期限切れの数。`0` は無制限。 |
 
 3 つともサブシステムの設定プロパティなので、`DefaultGame.ini` で設定し、プラットフォームごとに調整できます。
+
+```ini
+[/Script/PhysXInstancedSubsystem.PhysXInstancedWorldSubsystem]
+MaxAddActorsPerFrame=32
+MaxInstanceTasksPerFrame=2048
+```
 
 最初に調整すべきは `MaxAddActorsPerFrame` です。PhysX のボディをシーンに追加するのは軽い処理ではなく、生成の集中はヒッチの最も起こりやすい原因です。値を下げるとコストが分散し、上げると新しく生成した破片が動き出すまでの遅れが短くなります。
 

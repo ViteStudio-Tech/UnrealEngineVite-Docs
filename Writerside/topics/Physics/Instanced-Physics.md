@@ -206,9 +206,11 @@ query is not hitting what you expect.
 `OnInstancePreConvert`, `OnInstancePostConvert`, `OnInstancePrePhysics` and `OnInstancePostPhysics`.
 
 Events are gated by the **Instance Event Mask** bitmask on the actor. Leave the mask empty unless you are
-actually binding, since broadcasting to nothing across thousands of instances is wasted work. Remove and
-convert events carry a reason (`Explicit`, `Expired`, `AutoStop`, `KillZ`, `Lost`) and the world transform
-at the time, which is what you need to spawn a particle effect or play a sound as debris settles.
+actually binding, since broadcasting to nothing across thousands of instances is wasted work. The mask
+defaults to empty, so no event fires until you set the bits you bind. Remove events carry a reason
+(`Explicit`, `Expired`, `AutoStop`, `KillZ`, `Lost`) and the world transform at the time; convert events
+carry their own reason (`Explicit`, `AutoStop`, `Expired`), the source and destination actors and the
+transform. That is what you need to spawn a particle effect or play a sound as debris settles.
 
 ## Performance tuning
 
@@ -219,7 +221,13 @@ at the time, which is what you need to spawn a particle effect or play a sound a
 | `MaxLifetimeExpirationsPerTick` | `4096` | Lifetime expirations processed per tick. `0` means no limit. |
 
 All three are config properties on the subsystem, so they can be set in `DefaultGame.ini` and tuned per
-platform.
+platform:
+
+```ini
+[/Script/PhysXInstancedSubsystem.PhysXInstancedWorldSubsystem]
+MaxAddActorsPerFrame=32
+MaxInstanceTasksPerFrame=2048
+```
 
 `MaxAddActorsPerFrame` is the one to adjust first. Adding a PhysX body to a scene is not cheap, and a burst
 of spawns is the most likely source of a hitch. Lowering it spreads the cost; raising it reduces the delay
