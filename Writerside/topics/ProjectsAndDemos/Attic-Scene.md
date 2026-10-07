@@ -7,7 +7,7 @@ how global illumination handles high-contrast interiors.
 </p>
 </tldr>
 
-<img src="AtticScene.png" alt="Attic interior with strong directional sunlight entering through a small window" border-effect="line"/>
+<img src="AtticScene.png" alt="Attic interior with strong directional sunlight entering through lattice windows" border-effect="line"/>
 
 *Direct sun and deep shadow in the same frame, with a large volume of dim indirect light between them.*
 

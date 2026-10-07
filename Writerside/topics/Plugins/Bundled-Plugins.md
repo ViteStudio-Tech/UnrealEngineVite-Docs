@@ -13,10 +13,26 @@ Versions and defaults are read from the `.uplugin` files of the
 in your tree. **Off** means the engine does not load the plugin until a project enables it; that includes
 plugins whose descriptor leaves `EnabledByDefault` unset, which Unreal treats as off for engine plugins.
 
-<img src="VitePlugins.png" alt="Contents of Engine/Plugins/Runtime/VitePlugins in Explorer" border-effect="line"/>
+```
+Engine\Plugins\Runtime\VitePlugins
+├── ACLPlugin
+├── AntiLag2.0.4
+├── Automatron
+├── FSR2-427                  (descriptors ship as .uplugin.disabled)
+├── FSR4-427
+├── GPAPlugin
+├── ImGuiTools
+├── KawaiiPhysics
+├── MotionSymphony
+├── PhysXInstancedSubsystem
+├── SplashAbilities
+├── UnrealImGui
+└── XeSS_UE4.27_Plugin_v3.1.0
+```
 
-*Vite's own additions live under `Engine\Plugins\Runtime\VitePlugins`. Vendor integrations from NVIDIA sit
-separately under `Engine\Plugins\Runtime\Nvidia`.*
+Vite's own additions live under `Engine\Plugins\Runtime\VitePlugins`; the listing above is the September
+Major tree. Vendor integrations from NVIDIA (DLSS, Streamline, Reflex, NIS, NRD, RTXGI and others) sit
+separately under `Engine\Plugins\Runtime\Nvidia`.
 
 <warning>
 <p>

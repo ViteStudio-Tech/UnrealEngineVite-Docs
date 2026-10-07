@@ -18,10 +18,10 @@ material pins for retroreflection, diffuse Fresnel and terminator control.
 
 *Male demo character. Retroreflection and diffuse Fresnel are doing the work at grazing angles.*
 
-<img src="CallistoFemale.png" alt="Female character rendered with the Callisto BRDF shading model" border-effect="line"/>
+<img src="CallistoFemale.png" alt="Two side-by-side captures of the female demo character, both labelled Callisto BRDF Showcase (Experimental)" border-effect="line"/>
 
-*Female demo character. Smooth Terminator softens the shadow line across the curved surfaces of the face
-and arms.*
+*Female demo character, two captures. Smooth Terminator softens the shadow line across the curved surfaces
+of the face and neck.*
 
 ## What Callisto BRDF does
 

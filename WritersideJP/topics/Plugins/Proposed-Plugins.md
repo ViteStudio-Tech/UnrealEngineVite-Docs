@@ -8,9 +8,7 @@
 
 役に立つものがすべてエンジンのリポジトリに入るべきとは限りません。Vite に同梱したプラグインは、すべてのクローンのサイズ、すべてのビルドの時間、すべての統合の対象範囲を増やします。このページでは、何が提案され、どの階層に属するかを記録します。
 
-<img src="Plugins1.png" alt="統合済みのプラグインのフォルダーを示す Engine/Plugins/Runtime/VitePlugins のエクスプローラー表示" border-effect="line"/>
-
-*すでに統合されたプラグインは `Engine\Plugins\Runtime\VitePlugins` にあります。*
+すでに統合されたプラグインは `Engine\Plugins\Runtime\VitePlugins` にあります。現在の一覧は [同梱プラグイン](Bundled-Plugins.md) を参照してください。
 
 ## 階層
 
@@ -70,7 +68,7 @@ bunnyofficial による修正版のビルドで、コンパイルエラーが直
 
 ライブゲーム向けのバックエンドプラットフォームです。プレイヤーの認証、データの保存、マッチメイキング、マルチプレイヤーのネットワーク、分析、そしてイベントや A/B テストといった LiveOps を、Azure のインフラ上で提供します。
 
-<img src="Plugins2.png" alt="Azure PlayFab のバックエンドサービスの概要" border-effect="line"/>
+<img src="Plugins2.png" alt="PlayFab のウェブサイト: Rainbow Six Siege、Idle Miner Tycoon、Sea of Thieves の事例と対応プラットフォーム" border-effect="line"/>
 
 [PlayFab Unreal Marketplace Plugin](https://github.com/PlayFab/UnrealMarketplacePlugin)
 
@@ -135,7 +133,7 @@ Unreal 向けの階層型タスクネットワーク（HTN）の AI フレーム
 
 遅延の大きいネットワークでの実地テストでは、通常の CMC のロジックに従えば、ルートモーションのアニメーション中にもジッターやサーバー側の補正のないきれいな結果が得られると報告されています。
 
-<img src="Plugins3.png" alt="Root Motion Source のブループリントのノード" border-effect="line"/>
+<img src="Plugins3.png" alt="RootMotionSource の解説記事のプレビュー。Apply Root Motion のブループリントのノードが写っている" border-effect="line"/>
 
 [VJien/RootMotionSource](https://github.com/VJien/RootMotionSource) ·
 [解説記事](https://supervj.top/2022/03/24/RootMotionSource/?highlight=root+motion+source)

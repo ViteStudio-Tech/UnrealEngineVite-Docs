@@ -6,7 +6,7 @@
 </p>
 </tldr>
 
-<img src="AtticScene.png" alt="小さな窓から強い太陽光が差し込む屋根裏の屋内" border-effect="line"/>
+<img src="AtticScene.png" alt="格子窓から強い太陽光が差し込む屋根裏の屋内" border-effect="line"/>
 
 *同じフレームに直射日光と深い影があり、その間に薄暗い間接光が大量に満ちています。*
 

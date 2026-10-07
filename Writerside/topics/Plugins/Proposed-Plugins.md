@@ -11,9 +11,8 @@ Not everything useful belongs in the engine repository. A plugin bundled with Vi
 every clone, the length of every build and the surface area of every integration. This page tracks what has
 been proposed and which tier it belongs in.
 
-<img src="Plugins1.png" alt="Explorer view of Engine/Plugins/Runtime/VitePlugins showing the integrated plugin folders" border-effect="line"/>
-
-*Plugins already integrated live in `Engine\Plugins\Runtime\VitePlugins`.*
+Plugins already integrated live in `Engine\Plugins\Runtime\VitePlugins`; see
+[Bundled Plugins](Bundled-Plugins.md) for the current list.
 
 ## Tiers
 
@@ -86,7 +85,7 @@ A patched build by bunnyofficial fixes a compile error:
 Backend platform for live games: player authentication, data storage, matchmaking, multiplayer networking,
 analytics and LiveOps such as events and A/B testing, on Azure infrastructure.
 
-<img src="Plugins2.png" alt="Azure PlayFab backend services overview" border-effect="line"/>
+<img src="Plugins2.png" alt="PlayFab website: case studies for Rainbow Six Siege, Idle Miner Tycoon and Sea of Thieves, and supported platforms" border-effect="line"/>
 
 [PlayFab Unreal Marketplace Plugin](https://github.com/PlayFab/UnrealMarketplacePlugin)
 
@@ -162,7 +161,7 @@ full root motion source functionality directly in Blueprints.
 Field testing on a laggy network reports that following normal CMC logic gives clean results without
 jitter or server-side corrections during root motion animations.
 
-<img src="Plugins3.png" alt="Root Motion Source Blueprint nodes" border-effect="line"/>
+<img src="Plugins3.png" alt="Preview of the RootMotionSource write-up, showing its Apply Root Motion Blueprint nodes" border-effect="line"/>
 
 [VJien/RootMotionSource](https://github.com/VJien/RootMotionSource) ·
 [write-up](https://supervj.top/2022/03/24/RootMotionSource/?highlight=root+motion+source)

@@ -17,9 +17,9 @@ Vite 独自の Callisto BRDF のシェーディングモデルを示す 2 つの
 
 *男性のデモキャラクター。かすめる角度では、再帰反射とディフューズのフレネルが効いています。*
 
-<img src="CallistoFemale.png" alt="Callisto BRDF のシェーディングモデルで描画した女性キャラクター" border-effect="line"/>
+<img src="CallistoFemale.png" alt="女性のデモキャラクターを並べた 2 枚のキャプチャ。どちらにも Callisto BRDF Showcase (Experimental) と表示されている" border-effect="line"/>
 
-*女性のデモキャラクター。Smooth Terminator が、顔と腕の曲面にかかる影の境界を和らげています。*
+*女性のデモキャラクターの 2 枚のキャプチャ。Smooth Terminator が、顔と首の曲面にかかる影の境界を和らげています。*
 
 ## Callisto BRDF の役割
 

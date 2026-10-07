@@ -8,10 +8,24 @@ Vite が標準の UE 4.27 に追加したすべてのものを、バージョン
 
 バージョンと既定値は、[September Major](ueVite26-SeptemberMajor.md) のリリースの `.uplugin` ファイルから読み取ったものです。正確な値は、手元のツリーの `.uplugin` ファイルで確認してください。**オフ** は、プロジェクトが有効にするまでエンジンがプラグインを読み込まないことを意味します。記述子で `EnabledByDefault` が指定されていないプラグインも含まれ、Unreal はエンジンのプラグインではそれをオフとして扱います。
 
-<img src="VitePlugins.png" alt="エクスプローラーで表示した Engine/Plugins/Runtime/VitePlugins の中身" border-effect="line"/>
+```
+Engine\Plugins\Runtime\VitePlugins
+├── ACLPlugin
+├── AntiLag2.0.4
+├── Automatron
+├── FSR2-427                  （記述子は .uplugin.disabled として同梱）
+├── FSR4-427
+├── GPAPlugin
+├── ImGuiTools
+├── KawaiiPhysics
+├── MotionSymphony
+├── PhysXInstancedSubsystem
+├── SplashAbilities
+├── UnrealImGui
+└── XeSS_UE4.27_Plugin_v3.1.0
+```
 
-*Vite 独自の追加は `Engine\Plugins\Runtime\VitePlugins` にあります。NVIDIA のベンダー統合は別に
-`Engine\Plugins\Runtime\Nvidia` にあります。*
+Vite 独自の追加は `Engine\Plugins\Runtime\VitePlugins` にあります。上の一覧は September Major のツリーです。NVIDIA のベンダー統合（DLSS、Streamline、Reflex、NIS、NRD、RTXGI など）は別に `Engine\Plugins\Runtime\Nvidia` にあります。
 
 <warning>
 <p>
