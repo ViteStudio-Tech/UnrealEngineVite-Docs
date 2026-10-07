@@ -19,7 +19,7 @@ July はパフォーマンスのゲーティングと製品化への備えに重
 
 <deflist>
 <def title="既定で 12.3% 高速化">
-Toon、Callisto、FSR 2 のリアクティブのシェーディングパスは、プロジェクトが有効にしない限りゲーティングで無効になりました。RTX 4080 Super、1440p の Unreal Tournament Vite シーンでは、フレームレートが 235.56 FPS から
+Toon、Callisto、FSR 2 のリアクティブのシェーディングパスは、それぞれのスイッチを有効にしてエンジンをビルドしない限りコンパイルされなくなりました。RTX 4080 Super、1440p の Unreal Tournament Vite シーンでは、フレームレートが 235.56 FPS から
 264.44 FPS に向上します。<a href="Shading-Models.md">シェーディングモデル</a> を参照してください。
 </def>
 <def title="NVIDIA Blast の更新">

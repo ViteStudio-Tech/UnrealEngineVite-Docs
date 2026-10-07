@@ -21,7 +21,8 @@ Branch <code>ueVite26-JulyMajor-release</code> &middot; builds on
 
 <deflist>
 <def title="12.3% faster by default">
-The Toon, Callisto and FSR 2 reactive shading paths are gated off unless a project enables them. On the
+The Toon, Callisto and FSR 2 reactive shading paths are compiled out unless the engine is built with their
+switches. On the
 Unreal Tournament Vite scene at 1440p on an RTX 4080 Super this raises the frame rate from 235.56 to
 264.44 FPS. See <a href="Shading-Models.md">Shading Models</a>.
 </def>
