@@ -79,9 +79,10 @@ Place an `APhysXInstancedMeshActor` in the level and configure it in the details
     </step>
 </procedure>
 
-If no collision mesh is specified for Convex or Triangle shapes, the render mesh is used. Mass is computed
-from the physical material's density on the collision mesh, converted from g/cm³ to kg/m³, and scaled by the
-component's mass scale.
+If no collision mesh is specified for Convex or Triangle shapes, the render mesh is used. Mass, linear and
+angular damping are taken from the body instance of the actor's instanced mesh component when the subsystem
+creates each PhysX body: **Override Instance Mass** with **Instance Mass In Kg** when set, otherwise the
+mass Unreal derives for that body instance. Triangle-mesh instances are kinematic and get no mass.
 
 ## Auto-stop
 
