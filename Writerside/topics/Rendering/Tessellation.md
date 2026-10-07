@@ -2,21 +2,23 @@
 
 <tldr>
 <p>
-Hardware tessellation with true world displacement, removed in Unreal Engine 5, is fully present in Vite.
-Set the material's <b>Tessellation Mode</b> and drive the <b>World Displacement</b> and
-<b>Tessellation Multiplier</b> pins.
+Hardware tessellation with world displacement, deprecated in 4.26 and removed in Unreal Engine 5, still works
+in Vite. Set the material's <b>D3D11 Tessellation Mode</b> and drive the <b>World Displacement</b> and
+<b>Tessellation Multiplier</b> pins. Ray tracing sees the undisplaced base mesh.
 </p>
 </tldr>
 
 Tessellation subdivides geometry on the GPU and displaces the resulting vertices along a displacement map,
-producing real geometric detail: silhouettes change, surfaces self-occlude and self-shadow correctly, and
-ray-traced effects intersect the displaced surface rather than the flat one.
+producing real geometric detail in the rasterised passes: silhouettes change, and surfaces self-occlude and
+cast displaced shadow-map shadows. Ray-traced effects are the exception; see
+[Interaction with ray tracing](#interaction-with-ray-tracing).
 
 ## Why this page exists
 
-Unreal Engine 5 removed hardware tessellation. Nanite is offered as the replacement, but Nanite solves a
-different problem: it renders extremely dense authored meshes efficiently. It does not let you take a
-moderate-density mesh and add procedural or texture-driven detail at runtime.
+Epic deprecated hardware tessellation in 4.26 and Unreal Engine 5.0 removed it. Nanite solves a different
+problem: it renders very dense authored meshes efficiently. Later UE5 releases added an experimental Nanite
+tessellation path for displacement, but it works only on Nanite meshes and the UE5 renderer, neither of which
+4.27 has.
 
 The workflows that break without tessellation:
 
@@ -32,24 +34,25 @@ Vite keeps the entire 4.27 tessellation pipeline intact, which means these workf
 
 ## Enabling tessellation on a material
 
+The settings are in the material's **Tessellation** category.
+
 <procedure title="Set up a displaced material" id="setup-tessellation">
     <step>
-        Open the material and set <b>Tessellation Mode</b> in the details panel:
-        <b>Flat Tessellation</b> subdivides without smoothing the base surface; <b>PN Triangles</b>
-        smooths the base surface as it subdivides. PN Triangles is usually what you want on organic
-        shapes; Flat is correct when the base silhouette should be preserved exactly.
+        Set <b>D3D11 Tessellation Mode</b>. <b>Flat Tessellation</b> subdivides without smoothing the base
+        surface; <b>PN Triangles</b> smooths the base surface as it subdivides. PN Triangles is usually what
+        you want on organic shapes; Flat is correct when the base silhouette should be preserved exactly.
     </step>
     <step>
         Connect a scalar to <b>Tessellation Multiplier</b>. This controls how much subdivision the surface
         receives. Drive it from distance so that far geometry is not subdivided.
     </step>
     <step>
-        Connect a vector to <b>World Displacement</b>. The usual form is your surface normal multiplied by
-        a heightmap sample multiplied by a displacement scale.
+        Connect a vector to <b>World Displacement</b>. The usual form is the vertex normal multiplied by a
+        heightmap sample multiplied by a displacement scale.
     </step>
     <step>
-        Enable <b>Adaptive Tessellation</b> on the material if you want the engine to scale subdivision by
-        screen-space triangle size.
+        Leave <b>Adaptive Tessellation</b> on (the default) to scale subdivision by screen-space triangle
+        size, and turn on <b>Crack Free Displacement</b> if the mesh shows cracks along its UV seams.
     </step>
 </procedure>
 
@@ -57,7 +60,7 @@ Vite keeps the entire 4.27 tessellation pipeline intact, which means these workf
 
 | CVar | Default | Effect |
 |---|---|---|
-| `r.TessellationAdaptivePixelsPerTriangle` | `48.0` | Global tessellation factor multiplier. Target screen-space triangle size in pixels when adaptive tessellation is enabled. |
+| `r.TessellationAdaptivePixelsPerTriangle` | `48.0` | Target screen-space triangle area in pixels for materials using adaptive tessellation |
 
 Lowering the value produces smaller triangles and more subdivision; raising it produces fewer. It is a
 useful global scalability lever: expose it through your scalability groups so that lower quality presets
@@ -75,25 +78,38 @@ distance falloff so that only nearby surfaces are subdivided:
 - Compute distance, remap it through a `Divide` and `Saturate` into a 0&ndash;1 falloff.
 - Multiply the falloff into the tessellation multiplier.
 
-**Watch triangle density directly.** The wireframe view mode and the `Shader Complexity` view mode both
-reveal runaway subdivision immediately. Add `stat rhi` to check triangle counts.
+**Watch triangle density directly.** The wireframe view mode shows runaway subdivision immediately, and
+`stat rhi` reports the triangles drawn.
 
 **Displacement cracks** appear at UV seams and mesh boundaries where adjacent vertices displace by
-different amounts. Fix them by making the heightmap continuous across the seam, or by masking displacement
-to zero at boundaries.
+different amounts. Turn on **Crack Free Displacement** in the material (off by default), make the heightmap
+continuous across the seam, or mask displacement to zero at boundaries.
 
-## Interaction with ray tracing
+**Culling.** Bounds come from the undisplaced mesh, so geometry displaced far outside them can pop out at the
+edge of the screen or in shadows. Raise the component's **Bounds Scale** for strongly displaced meshes.
 
-Displaced geometry participates in ray tracing correctly, which is a meaningful advantage over the
-parallax-mapping alternatives. A parallax-occlusion-mapped brick wall looks displaced from the primary view
-but is flat to every ray-traced [reflection](RT-Reflections.md), [shadow](RT-Shadows-And-Ambient-Occlusion.md)
-and [DDGI](DDGI-Dynamic.md) probe ray. A tessellated and displaced one is genuinely displaced to all of
-them.
+## Interaction with ray tracing {id="interaction-with-ray-tracing"}
 
-The cost is that ray tracing acceleration structures must be built for the displaced geometry, which
-increases BLAS build cost for dynamically tessellated surfaces. For large static displaced surfaces this is
-paid once; for surfaces whose displacement animates every frame it is paid continuously. Budget
-accordingly.
+Ray tracing does not see tessellation. The acceleration structure is built from the base mesh; for static
+meshes it can evaluate World Position Offset (when the component's **Evaluate World Position Offset** ray
+tracing setting is on), but it never runs the tessellation stages or applies World Displacement. To
+ray-traced [reflections](RT-Reflections.md), [shadows](RT-Shadows-And-Ambient-Occlusion.md) and
+[DDGI](DDGI-Dynamic.md) probe rays, a tessellated brick wall is as flat as a parallax-mapped one.
+
+What that means in practice:
+
+- **Reflections** show the flat base surface. At glancing angles on a strongly displaced surface the
+  mismatch with the primary view is visible.
+- **Ray-traced shadows** are cast by the flat surface and land on the displaced one, so strong displacement
+  can show self-shadowing errors and light leaks where the two disagree. Keep displacement amplitude modest
+  on surfaces that receive ray-traced shadows, or turn off **Cast Ray Tracing Shadows** on the light that
+  shows the problem so it uses shadow maps, which do see the displacement.
+- **DDGI** probe rays work at probe resolution, where the difference rarely matters.
+- If the flat stand-in is worse than nothing, untick **Visible in Ray Tracing** on the component to remove it
+  from ray-traced effects entirely.
+
+When ray-traced effects must see the shape, author it into the mesh, or for large, smooth deformation use
+World Position Offset with the component's ray tracing evaluation enabled.
 
 ## Alternatives
 
@@ -102,9 +118,9 @@ Tessellation is the right tool when you need real geometry. When you do not:
 | Technique | When it is enough |
 |---|---|
 | Normal mapping | Lighting detail only; silhouette and self-occlusion do not matter |
-| Parallax occlusion mapping | Convincing depth from the primary view, flat to rays, no geometry cost |
+| Parallax occlusion mapping | Convincing depth from the primary view, no geometry cost |
 | Authored high-poly meshes | Static detail, known in advance, memory budget allows it |
-| **Tessellation** | Silhouette matters, displacement is dynamic, or ray-traced effects must see the detail |
+| **Tessellation** | Silhouette or shadow-map shadows matter, or displacement changes at runtime. Ray tracing still sees the base mesh. |
 
 ## See also
 

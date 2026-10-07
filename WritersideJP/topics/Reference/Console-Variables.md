@@ -157,7 +157,7 @@ HBAO+ には、ポストプロセスボリュームにボリュームごとの�
 
 | 変数 | 既定値 | 用途 |
 |---|---|---|
-| `r.TessellationAdaptivePixelsPerTriangle` | 48.0 | テッセレーションの係数の全体の倍率。小さいほど三角形が増えます。 |
+| `r.TessellationAdaptivePixelsPerTriangle` | 48.0 | 適応的テッセレーションで目標とする三角形の面積（ピクセル）。小さいほど三角形が増えます。 |
 
 [テッセレーション](Tessellation.md) を参照してください。
 

@@ -167,7 +167,7 @@ working D3D12 implementation. See <a href="Ambient-Occlusion.md">Ambient Occlusi
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `r.TessellationAdaptivePixelsPerTriangle` | 48.0 | Global tessellation factor multiplier. Lower means more triangles. |
+| `r.TessellationAdaptivePixelsPerTriangle` | 48.0 | Target triangle area in pixels for adaptive tessellation. Lower means more triangles. |
 
 See [Tessellation](Tessellation.md).
 
