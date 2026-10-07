@@ -40,6 +40,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Broken links, missing images, unbalanced tags and EN/JP tree drift fail
+      # here in seconds instead of inside the Writerside build. One leg is enough;
+      # the script checks both modules.
+      - name: Check docs sources
+        if: matrix.locale == 'en'
+        run: python3 Tools/check_docs.py
+
       # Images and the theme live once, in the English module, and are copied
       # into the Japanese module at build time so the two cannot drift.
       - name: Sync shared assets into the Japanese module

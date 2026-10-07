@@ -28,6 +28,8 @@ Tools/                 Release-notes generator and the Japanese line joiner (see
 - Images and the theme live only in `Writerside/`; the workflow copies them into `WritersideJP/`.
 - After editing Japanese text, run `python Tools/join_cjk_lines.py` so wrapped lines do not render as stray
   spaces.
+- Before committing, run `python Tools/check_docs.py`. It catches broken links, missing images, unbalanced
+  Writerside tags and English/Japanese tree drift in a few seconds.
 - Ground technical claims in the engine source of the latest public release branch. The contribution guide
   in the manual, *Contributing to the Documentation*, covers conventions and the build pipeline.
 

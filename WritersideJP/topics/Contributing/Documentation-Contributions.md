@@ -41,6 +41,9 @@
     <step>
         <code>WritersideJP\topics\</code> の同じパスに日本語のページを作成し、<code>WritersideJP\jp.tree</code> の同じ位置に日本語の <code>toc-title</code> とともに追加します。まだ翻訳できない場合は、2 つのツリーが一致するように英語のページをコピーしておきます。
     </step>
+    <step>
+        <code>python Tools/check_docs.py</code> を実行します。リンク切れ、見つからない画像、対応の取れていない Writerside のタグ、英語と日本語のツリーの違いを報告します。ワークフローもビルドの前にこれを実行します。
+    </step>
     <step><code>main</code> にプッシュします。ワークフローが自動でビルドしてデプロイします。</step>
 </procedure>
 

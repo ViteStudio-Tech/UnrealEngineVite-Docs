@@ -7,6 +7,7 @@ the Python 3 standard library only.
 |---|---|
 | `ReleaseNotes/generate_release_notes.py` | Regenerates the commit record on every release notes page, between `<!-- BEGIN GENERATED COMMIT RECORD -->` and `<!-- END GENERATED COMMIT RECORD -->`. Hand-written summaries above the block are left alone. |
 | `join_cjk_lines.py` | Joins hard-wrapped lines in the Japanese sources where the break would render as a stray space. Run after editing any Japanese page; the docs workflow also runs it. |
+| `check_docs.py` | Checks both manuals without a Writerside build: tree files parse, every topic is in its tree, local links and images resolve, Writerside tags balance, and the Japanese tree matches the English one topic for topic. Exits 1 on any error; the docs workflow runs it before building. |
 
 ## Release notes
 

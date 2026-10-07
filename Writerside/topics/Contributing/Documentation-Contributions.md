@@ -47,6 +47,11 @@ same pass.
         <code>WritersideJP\jp.tree</code> in the same position, with a Japanese <code>toc-title</code>.
         If you cannot translate it yet, copy the English page so the two trees stay identical.
     </step>
+    <step>
+        Run <code>python Tools/check_docs.py</code>. It reports broken links, missing images, unbalanced
+        Writerside tags and any difference between the English and Japanese trees, and the workflow runs it
+        before building.
+    </step>
     <step>Push to <code>main</code>. The workflow builds and deploys automatically.</step>
 </procedure>
 
