@@ -2,7 +2,7 @@
 
 <tldr>
 <p>
-<code>r.RayTracing.Shadows 1</code> と <code>r.RayTracing.AmbientOcclusion 1</code> です。どちらも既定のビルドに含まれていますが、無効の状態で始まります（既定値はどちらも <code>0</code>）。目標に余裕があれば有効にしてください。より安価な代替手段がはるかに少ないコストで近い結果を出せるため、フレームタイムが必要になったときに最初に外すのがこの 2 つです。
+<code>r.RayTracing.Shadows 1</code> と <code>r.RayTracing.AmbientOcclusion 1</code> です。どちらも既定のビルドに含まれていますが、無効の状態で始まります（既定値はどちらも <code>0</code> で、標準の 4.27 ではそれぞれ <code>1</code> と <code>-1</code>）。<code>0</code> のときは、ポストプロセスボリュームで RTAO を有効にすることもできません。目標に余裕があれば有効にしてください。より安価な代替手段がはるかに少ないコストで近い結果を出せるため、フレームタイムが必要になったときに最初に外すのがこの 2 つです。
 </p>
 </tldr>
 

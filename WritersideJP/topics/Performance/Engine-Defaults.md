@@ -158,6 +158,28 @@ devops\ueVite-ApplyVitePluginDefaults.bat --stock    :: 標準の 4.27 の値に
 
 Niagara はプラグインが有効であれば常にティックします。使わない場合はプロジェクトレベルで Niagara のプラグインを無効にしてください。4.27 では Cascade も引き続き利用できます。
 
+## レイトレーシングのエフェクトは無効で始まる {id="ray-traced-effects-off"}
+
+標準の 4.27 では、レイトレーシングの反射、半透明、アンビエントオクルージョンを実行するかはポストプロセスボリュームが決め（`-1`）、レイトレーシングのシャドウは有効（`1`）です。Vite では 4 つとも `0` です。
+
+| CVar | 標準の 4.27 | Vite |
+|---|---|---|
+| `r.RayTracing.Reflections` | `-1`（ポストプロセスボリュームが決定） | `0` |
+| `r.RayTracing.Translucency` | `-1`（ポストプロセスボリュームが決定） | `0` |
+| `r.RayTracing.AmbientOcclusion` | `-1`（ポストプロセスボリュームが決定） | `0` |
+| `r.RayTracing.Shadows` | `1` | `0` |
+
+`0` のときは、これらのエフェクトに関するポストプロセスボリュームの設定は無視されます。そのため、ボリュームでこれらを有効にしていたプロジェクトは、Vite に移ると何も表示されなくなります。標準の挙動に戻すには CVar を `-1` に、エフェクトを強制的に有効にするには `1` に設定してください。
+
+```ini
+; Config/DefaultEngine.ini
+[/Script/Engine.RendererSettings]
+r.RayTracing.Reflections=-1
+r.RayTracing.AmbientOcclusion=-1
+```
+
+レイトレーシングの半透明は既定でコンパイル対象からも外れている（`VITE_RT_PSO_DEBLOAT`）ため、その CVar が意味を持つのはこのスイッチを無効にしたビルドだけです。ヘルプテキストは今も `-1` を既定値と表示していますが、コード上の値は `0` です。
+
 ## レイトレーシングのカリング: 変更なし、有効にする価値あり {id="ray-tracing-culling"}
 
 ここで Vite は標準の 4.27 の挙動を維持しています。`r.RayTracing.Culling` の既定値は `0` で、レイトレーシングの対象のプリミティブは、カメラとの位置関係に関係なくすべてアクセラレーション構造に残ります。大きなシーンでは、これを有効にすることが最も安価なレイトレーシングの節約の 1 つです。
@@ -213,6 +235,9 @@ UE5 の <code>r.RayTracing.Culling.UseMinDrawDistance</code> は、4.27 にも V
     </step>
     <step>プロジェクトに必要なプラグイン、特に VR と WMF Media を再び有効にします。</step>
     <step>Low、High、Epic、Cinematic のシャドウが標準と異なるため、スケーラビリティの設定を見直します。</step>
+    <step>
+        レイトレーシングの反射、半透明、AO をポストプロセスボリュームで制御している場合は、それらの CVar を <code>-1</code> に設定します。<a href="#ray-traced-effects-off">レイトレーシングのエフェクトは無効で始まる</a> を参照してください。
+    </step>
 </procedure>
 
 ## 関連項目

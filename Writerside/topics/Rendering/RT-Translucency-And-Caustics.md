@@ -108,7 +108,11 @@ physically correct behaviour and a large fidelity win on glass and liquids. Abso
 option, so objects with and without it render together.
 
 <procedure title="Enable translucent absorption" id="enable-absorption">
-    <step>Ensure ray-traced translucency is enabled.</step>
+    <step>
+        Ensure ray-traced translucency is enabled: set <code>r.RayTracing.Translucency</code> to
+        <code>1</code>, <code>2</code> or <code>3</code>. At its default of <code>0</code> the post process
+        volume setting is ignored.
+    </step>
     <step>Set <code>r.RayTracing.Translucency.EnableAbsorption 1</code>, or check <b>Enable Absorption</b> in the post process volume.</step>
     <step>In the material editor, check <b>Ray Traced Translucency Absorption</b> on each material that should use it.</step>
 </procedure>

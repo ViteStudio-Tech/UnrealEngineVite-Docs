@@ -35,7 +35,7 @@ Vite のレイトレーシングは、特定の手法に依存しないパイプ
 
 コンパイル対象外のものを使うには、`VITE_RT_PSO_DEBLOAT=0` で再ビルドしてください。[コンパイル時スイッチ](Compile-Time-Switches.md) を参照してください。
 
-**利用可能であることと有効であることは別です。** 現行のリリースでは、`r.RayTracing.Reflections`、`r.RayTracing.Shadows`、`r.RayTracing.AmbientOcclusion`、`r.RayTracing.Translucency` の既定値はすべて `0` です。これらのエフェクトはコンパイルに含まれていても無効の状態で始まり、プロジェクトやポストプロセスボリュームで有効にします。例外は動的 DDGI で、`BaseEngine.ini` の `r.GlobalIllumination.ExperimentalPlugin=True` により既定で有効です。
+**利用可能であることと有効であることは別です。** 現行のリリースでは、`r.RayTracing.Reflections`、`r.RayTracing.Shadows`、`r.RayTracing.AmbientOcclusion`、`r.RayTracing.Translucency` の既定値はすべて `0` で、利用可能なエフェクトも無効の状態で始まります。標準の 4.27 では、反射、アンビエントオクルージョン、半透明は `-1`（ポストプロセスボリュームが決定）、シャドウは `1` です。`0` のときはポストプロセスボリュームの設定が無視されます。エフェクトを有効にするには CVar を `1` に、ポストプロセスボリュームに任せるには `-1` に設定してください。[エンジンの既定値の変更](Engine-Defaults.md#ray-traced-effects-off) を参照してください。例外は動的 DDGI で、`BaseEngine.ini` の `r.GlobalIllumination.ExperimentalPlugin=True` により既定で有効です。
 
 反射には、利用可能な場合でももう 1 つ注意点があります。デブロートのスイッチは、ソート済みのディファード反射のアルゴリズムを強制し、古い非ディファードのパスをコンパイル対象から外します。
 

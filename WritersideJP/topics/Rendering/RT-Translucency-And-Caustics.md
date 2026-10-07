@@ -86,7 +86,9 @@ r.RayTracing.Translucency.MaxRefractionRays 5
 吸収を有効にすると、同じマテリアルでできた厚いオブジェクトほど透明度が下がって見えます。これは物理的に正しい挙動で、ガラスや液体で大きな品質の向上になります。吸収はマテリアルごとのオプションなので、吸収を使うオブジェクトと使わないオブジェクトを一緒に描画できます。
 
 <procedure title="半透明の吸収を有効にする" id="enable-absorption">
-    <step>レイトレーシング半透明が有効であることを確認します。</step>
+    <step>
+        レイトレーシング半透明が有効であることを確認します。<code>r.RayTracing.Translucency</code> を <code>1</code>、<code>2</code>、<code>3</code> のいずれかに設定してください。既定値の <code>0</code> では、ポストプロセスボリュームの設定は無視されます。
+    </step>
     <step><code>r.RayTracing.Translucency.EnableAbsorption 1</code> を設定するか、ポストプロセスボリュームで <b>Enable Absorption</b> にチェックを入れます。</step>
     <step>マテリアルエディタで、吸収を使うマテリアルごとに <b>Ray Traced Translucency Absorption</b> にチェックを入れます。</step>
 </procedure>

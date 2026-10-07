@@ -45,8 +45,11 @@ To use anything in the compiled-out set, rebuild with `VITE_RT_PSO_DEBLOAT=0`. S
 [Compile-Time Switches](Compile-Time-Switches.md).
 
 **Available is not the same as enabled.** In the current release, `r.RayTracing.Reflections`,
-`r.RayTracing.Shadows`, `r.RayTracing.AmbientOcclusion` and `r.RayTracing.Translucency` all default to `0`:
-the effects are compiled in but start disabled, and a project or post-process volume turns them on.
+`r.RayTracing.Shadows`, `r.RayTracing.AmbientOcclusion` and `r.RayTracing.Translucency` all default to `0`,
+so the available effects start disabled. Stock 4.27 uses `-1` for reflections, ambient occlusion and
+translucency, which lets post-process volumes decide, and `1` for shadows. At `0` the post-process volume
+settings are ignored: set a CVar to `1` to turn the effect on, or to `-1` to hand it back to post-process
+volumes. See [Engine Default Changes](Engine-Defaults.md#ray-traced-effects-off).
 Dynamic DDGI is the exception and is enabled by default through
 `r.GlobalIllumination.ExperimentalPlugin=True` in `BaseEngine.ini`.
 

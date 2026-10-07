@@ -3,9 +3,10 @@
 <tldr>
 <p>
 <code>r.RayTracing.Shadows 1</code> and <code>r.RayTracing.AmbientOcclusion 1</code>. Both are compiled
-into a default build but start disabled (both default to <code>0</code>). Enable them when your target has
-room; they are the first to drop when a project needs frame time, because cheaper alternatives get close for
-much less.
+into a default build but start disabled (both default to <code>0</code>, where stock 4.27 uses <code>1</code>
+and <code>-1</code>), and at <code>0</code> a post-process volume cannot turn RTAO on. Enable them when your
+target has room; they are the first to drop when a project needs frame time, because cheaper alternatives get
+close for much less.
 </p>
 </tldr>
 

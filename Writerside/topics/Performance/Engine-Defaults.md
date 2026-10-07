@@ -203,6 +203,32 @@ plays video through Media Framework on Windows.
 Niagara ticks whenever the plugin is enabled. Disable the Niagara plugin at project level if you do not use
 it; Cascade remains available in 4.27.
 
+## Ray-traced effects start off {id="ray-traced-effects-off"}
+
+Stock 4.27 lets post-process volumes decide whether ray-traced reflections, translucency and ambient
+occlusion run (`-1`), and turns ray-traced shadows on (`1`). Vite sets all four to `0`:
+
+| CVar | Stock 4.27 | Vite |
+|---|---|---|
+| `r.RayTracing.Reflections` | `-1` (post-process volume decides) | `0` |
+| `r.RayTracing.Translucency` | `-1` (post-process volume decides) | `0` |
+| `r.RayTracing.AmbientOcclusion` | `-1` (post-process volume decides) | `0` |
+| `r.RayTracing.Shadows` | `1` | `0` |
+
+At `0` the post-process volume settings for these effects are ignored, so a project that enabled them in
+its volumes gets none of them after moving to Vite. Set the CVar to `-1` to restore the stock behaviour, or to
+`1` to force the effect on:
+
+```ini
+; Config/DefaultEngine.ini
+[/Script/Engine.RendererSettings]
+r.RayTracing.Reflections=-1
+r.RayTracing.AmbientOcclusion=-1
+```
+
+Ray-traced translucency is also compiled out by default (`VITE_RT_PSO_DEBLOAT`), so its CVar only matters in
+a build with that switch off. Its help text still labels `-1` as the default; the value in the code is `0`.
+
 ## Ray tracing culling: unchanged, worth enabling {id="ray-tracing-culling"}
 
 Vite keeps the stock 4.27 behaviour here: `r.RayTracing.Culling` defaults to `0`, so every ray-traced
@@ -273,6 +299,10 @@ See the [Debloat Guide](Debloat-Guide.md) for the tooling.
     </step>
     <step>Re-enable any plugins your project needs, VR and WMF Media in particular.</step>
     <step>Review scalability settings, since Low, High, Epic and Cinematic shadows now differ from stock.</step>
+    <step>
+        If the project relies on post-process volumes for ray-traced reflections, translucency or AO, set
+        those CVars to <code>-1</code>; see <a href="#ray-traced-effects-off">Ray-traced effects start off</a>.
+    </step>
 </procedure>
 
 ## See also
