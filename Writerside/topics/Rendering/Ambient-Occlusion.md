@@ -19,8 +19,8 @@ result as the stock path at lower cost, and is enabled by default.
 
 | Control | Default | Notes |
 |---|---|---|
-| `VITE_O_SSAO` (compile-time) | `1` | Shipping builds are locked to this value |
-| `r.Vite.SSAO` (runtime) | `VITE_O_SSAO` | Development builds only. `0` = stock UE path, `1` = optimised path |
+| `VITE_O_SSAO` (compile-time) | `1` | Shipping and Test builds are locked to this value |
+| `r.Vite.SSAO` (runtime) | `VITE_O_SSAO` | Debug and Development builds only. `0` = stock UE path, `1` = optimised path |
 
 The runtime CVar exists so you can A/B the optimised path against stock during development, which is how the
 optimisation was validated. In Shipping the CVar does not exist at all &mdash; the path is compiled in.
