@@ -108,6 +108,10 @@ The script only clears the default location. If the `UE-LocalDataCachePath` envi
 On an [installed build](Installed-Builds.md) the local DDC lives under `%LOCALAPPDATA%`, so the script does
 not clear it at all.
 
+On the [LTS](ueVite25-LTS.md) the local DDC was per project, in `<Project>\DerivedDataCache`;
+[March Major](ueVite26-MarchMajor.md) moved it back to the engine folder, as in stock 4.27. On the LTS, wipe
+the project's folder instead.
+
 <note>
 If your team uses a shared network DDC, wiping locally is usually pointless: the local cache repopulates
 from the share, including whatever stale entries prompted the wipe. Confirm the shared DDC's state before
