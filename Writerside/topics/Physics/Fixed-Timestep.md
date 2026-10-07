@@ -13,8 +13,8 @@ By default, Unreal steps physics with the frame's delta time. A frame that took 
 rate, which means the same input produces different outcomes on different hardware, and a replay recorded on
 one machine does not reproduce on another.
 
-Vite's fixed timestep mode decouples the two. Physics always advances in identical increments; the renderer
-interpolates between the two most recent physics states to keep motion smooth.
+Vite's fixed timestep mode decouples the two. Physics always advances in identical increments, and
+components are placed between the two most recent physics states to keep motion smooth.
 
 ## Enabling
 
@@ -56,16 +56,20 @@ All of these exist only when `VITE_PHYSX_FIXED_TIMESTEP` is compiled in.
 
 ## How it works
 
-The implementation maintains a time accumulator. Each game tick adds the frame's delta to the accumulator,
-then runs as many whole fixed steps as fit. The remainder stays in the accumulator for next frame.
+The implementation keeps a time bank. Each game tick adds the frame's delta to the bank, then runs as many
+whole fixed steps as fit. The remainder stays in the bank for the next tick.
 
-Because a fast frame may fit zero fixed steps and a slow frame may fit several, the system has to handle two
-things carefully.
+Because a fast frame may fit zero fixed steps and a slow frame may fit several, three things are handled
+differently from stock substepping.
 
 **Buffers are not rotated on frames with no physics step.** Standard substepping swaps the physics target
-buffers unconditionally. In fixed-step mode the swap is deferred until a step actually happens, which
-preserves one-shot forces, kinematic targets and custom physics callbacks that were queued during a frame
-that did not step. Without this, an impulse applied on a zero-step frame would be silently discarded.
+buffers every tick. In fixed-step mode the swap happens only when a step will run, so one-shot forces,
+kinematic targets and custom physics callbacks queued during a zero-step frame wait for the next step instead
+of being discarded.
+
+**Custom physics callbacks are queued once.** Because the buffer can now live across several frames, a
+component that registers the same custom physics delegate every frame would otherwise stack up copies of it.
+Fixed-step mode adds each delegate to a body's queue only once.
 
 **Results are only fetched when a step occurred.** `fetchResults` is skipped on frames with no simulation,
 avoiding redundant work and stale transform reads.
@@ -73,40 +77,53 @@ avoiding redundant work and stale transform reads.
 ## Overload handling
 
 If the game cannot keep up &mdash; a long hitch, or a physics load too heavy for the fixed rate &mdash; the
-accumulator grows faster than it drains. Left alone this becomes a death spiral: each frame takes longer,
-which queues more steps, which makes the next frame longer still.
+bank grows faster than it drains. Left alone this becomes a death spiral: each frame takes longer, which
+queues more steps, which makes the next frame longer still.
 
-Two limits prevent that. `MaxTimesteps` caps steps per tick. Overload beyond that cap accumulates against
-`MaxCumulativeExtraSteps`, and when that budget is exhausted, `LimitType` decides what happens:
+`MaxTimesteps` is the number of steps a tick may run without counting as overload. Every step beyond it adds
+one to an overload counter, and every tick that runs fewer steps pays the counter back down. While the
+counter stays within `MaxCumulativeExtraSteps`, all the steps that fit in the bank run. When a tick would push
+it past that budget, `LimitType` decides what happens, and the log reports `Fixed Timestep limits exceeded`:
 
 | `LimitType` | Behaviour | Use when |
 |---|---|---|
-| `0` &mdash; Clamp | Discard excess accumulated time. Simulation falls behind wall-clock time. | Determinism matters more than real-time correspondence: replays, deterministic tests |
-| `1` &mdash; Variable substeps | Fall back to normal variable-step substepping until caught up. | Real-time correspondence matters more: general gameplay |
+| `0` &mdash; Clamp | Runs only the steps the budget allows (at most `MaxTimesteps` once the budget is used up). The rest of the time stays in the bank and is stepped through on later ticks. | Every step must have the same size: replays, deterministic tests |
+| `1` &mdash; Variable substeps | Empties the bank and steps this tick with Unreal's normal variable substeps, using **Max Substep Delta Time** and **Max Substeps** from the physics settings. Fixed stepping resumes once the counter drops back under the budget. | Keeping up with real time matters more: general gameplay |
 
-Clamping means physics runs in slow motion under sustained overload but remains bit-identical for a given
-step sequence. Falling back to variable substeps keeps things real-time but sacrifices determinism for the
-frames where it engages.
+Under sustained overload, Clamp makes physics fall behind real time and then catch up, at most
+`MaxTimesteps` steps per tick, once the load drops. Every step keeps the same size. Variable substeps keep
+physics in step with real time but break the fixed step size for the ticks where the fallback engages.
 
 ## Render interpolation
 
 Fixed stepping at 60&nbsp;Hz while rendering at 120&nbsp;fps would show each physics state twice without
-interpolation, producing visible judder. The system stores the two most recent completed transforms per body
-(`PreviousPhysicsTransform` and `LatestPhysicsTransform`) and blends between them using the accumulator's
-fractional remainder.
+interpolation, producing visible judder. Each body stores its two most recent stepped transforms
+(`PreviousPhysicsTransform` and `LatestPhysicsTransform`). When physics results are synced back to
+components, an interpolated component is placed between the two by the fraction of a step left in the bank.
+The component therefore lags the simulation by up to one step: `GetComponentLocation` returns the blended
+position, while the body itself stays at the latest physics state. Location is interpolated linearly and
+rotation spherically; scale is not interpolated. Teleports and other explicit `SetBodyTransform` calls reset both stored transforms, so a
+teleported body does not smear across the jump.
 
-`InterpolationMode` controls how widely this applies:
+`InterpolationMode` controls which components are interpolated:
 
-- **`0` Disabled.** No interpolation. Bodies snap to the latest physics state. Cheapest, and correct if your
-  render rate matches your fixed step rate exactly.
-- **`1` Per component (default).** Interpolates only bodies whose `bInterpolateWhenSubStepping` flag is set.
-  The engine clears this flag for bodies where interpolation cannot be observed &mdash; kinematic
-  query-only bodies, for instance &mdash; so this mode gets the visual benefit without paying for bodies
-  that do not need it.
-- **`2` Always.** Interpolates every body unconditionally.
+- **`0` Disabled.** Bodies snap to the latest physics state. Cheapest, and correct if your render rate
+  matches your fixed step rate exactly.
+- **`1` Per component (default).** Interpolates only components whose `bInterpolateFixedTimestep` is set.
+  It is a C++ member of `UPrimitiveComponent`, off by default and not exposed to Blueprint or the Details
+  panel, so with the default mode nothing interpolates until your code turns it on for the components that
+  need it.
+- **`2` Always.** Interpolates every simulated body.
 
-Interpolation applies to both rigid bodies and the skeletal mesh physics blend, so ragdolls and
-physics-blended animation stay smooth.
+Skeletal mesh physics blending reads the same interpolated transforms, so ragdolls and physics-blended
+animation follow the skeletal mesh component's setting.
+
+```cpp
+// In the constructor of an actor whose simulated mesh should move smoothly under fixed stepping
+#if VITE_PHYSX_FIXED_TIMESTEP
+    Mesh->bInterpolateFixedTimestep = true;
+#endif
+```
 
 ## Choosing a step rate
 
@@ -130,11 +147,15 @@ rate to solve isolated tunnelling problems.
 
 ## When to use this
 
-**Use fixed timestep for** deterministic replays, networked physics where client and server must agree,
-automated tests that assert on physics outcomes, and any game where identical input must produce identical
-results across machines.
+**Use fixed timestep for** replays, automated tests that assert on physics outcomes, networked physics that
+compares client and server results, and anything else where the same input should give the same simulation.
 
-**Do not use it for** projects with no determinism requirement. The default variable-step path is cheaper
+A fixed step removes frame rate from the equation, but PhysX still only repeats a result exactly for the same
+sequence of API calls on the same platform and build. Also turn on **Enable Enhanced Determinism** in
+**Project Settings &gt; Engine &gt; Physics**, so that adding or removing unrelated actors does not change
+the outcome, and do not count on bit-identical results across different CPUs or platforms.
+
+**Do not use it for** projects with no reproducibility requirement. The default variable-step path is cheaper
 and the compile-time switch defaults to off for that reason.
 
 ## See also

@@ -1,9 +1,10 @@
-﻿# PhysX Test
+# PhysX Test
 
 <tldr>
 <p>
-General PhysX behaviour and stability test project. Useful for verifying that a build's physics layer is
-intact after engine changes.
+Five PhysX test levels for 4.27: wrecking ball, dominoes, a stirred box of spheres, stacking towers and
+falling cubes. Use them to check that a build's physics still behaves after engine changes, and to compare
+cost between builds.
 </p>
 </tldr>
 
@@ -13,21 +14,29 @@ intact after engine changes.
 
 ## What it covers
 
-A broad exercise of PhysX behaviour rather than a throughput benchmark: collision response, constraints,
-stacking stability, sleeping and waking, and the general question of whether the solver behaves the way it
-should.
+Each level has its own game mode that spawns the scene from C++, so Blueprint overhead does not distort the
+timing, and exposes its counts, masses and sizes as properties. An on-screen readout shows the object count
+and elapsed time.
 
-<img src="PhysXTest1.png" alt="PhysX test project, collision and constraint scenario" border-effect="line"/>
+| Level | Scenario | What it stresses |
+|---|---|---|
+| `L_WreckingBall` | A heavy ball hits a brick wall, or the wall collapses under gravity | Impulse transfer, a large simultaneous collapse |
+| `L_Domino` | A curved chain of dominoes | Sequential contact propagation and timing |
+| `L_FluidParticle` | 500 small spheres in a container, stirred | Broadphase load from many simultaneous contacts |
+| `L_TowerStacking` | Cubes dropped from above until the towers collapse, up to 1000+ bodies | Stacking stability, body count |
+| `L_CubeFalls` | Basic cube spawning | A baseline |
 
-<img src="PhysXTest2.png" alt="PhysX test project, stacking stability scenario" border-effect="line"/>
+<img src="PhysXTest1.png" alt="Wrecking Ball level: a ball breaking through a 300-brick wall" border-effect="line"/>
 
-<img src="PhysXTest3.png" alt="PhysX test project, sleeping and waking scenario" border-effect="line"/>
+<img src="PhysXTest2.png" alt="Domino level: 200 dominoes falling along an S-curve" border-effect="line"/>
 
-*Scenarios from the test project. Each isolates one behaviour so a regression shows up as a visible
-difference rather than as a number that moved.*
+<img src="PhysXTest3.png" alt="Fluid Particle level: 500 spheres settling in a container" border-effect="line"/>
 
-This is the project to run when you have changed something physics-adjacent and want to know whether you
-broke it, as opposed to how fast it is.
+*Wrecking Ball, Domino and Fluid Particle in the editor. Each shows a regression as a visible difference
+as well as a number.*
+
+Run it when you have changed something physics-adjacent and want to know whether you broke it; the larger
+levels also make a quick before-and-after cost comparison.
 
 ## Relevance to Vite
 
@@ -46,12 +55,13 @@ should be verified here before it is considered done. See
 ## Fixed timestep testing
 
 If you are evaluating [fixed timestep physics](Fixed-Timestep.md), this project is a reasonable place to
-observe the difference. Run it at an unlocked frame rate and then with `t.MaxFPS` set to various values:
-with the default variable timestep the simulation result changes with frame rate, and with fixed timestep
-it should not.
+observe the difference. Run Domino or Wrecking Ball at an unlocked frame rate and then with `t.MaxFPS` set to
+various values: with the default variable timestep the outcome changes with frame rate, and with fixed
+timestep it should not. Avoid Tower Stacking for this comparison when it is set to random cube sizes, since
+that changes the result on its own.
 
-Remember that fixed timestep is a compile-time feature. Without `VITE_PHYSX_FIXED_TIMESTEP=1` in the
-build, `p.VitePhysXFixedTimestep.Enabled` does nothing.
+Fixed timestep is a compile-time feature that also needs substepping turned on. Without
+`VITE_PHYSX_FIXED_TIMESTEP=1` in the build, the `p.VitePhysXFixedTimestep.*` variables do not exist.
 
 ## See also
 

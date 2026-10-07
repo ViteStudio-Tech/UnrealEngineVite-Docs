@@ -139,9 +139,10 @@ Cloth &mdash; both removed in UE5 &mdash; available. See [PhysX](PhysX.md).
 
 ### How do I get deterministic physics?
 
-Rebuild with `VITE_PHYSX_FIXED_TIMESTEP=1`, then enable
-`p.VitePhysXFixedTimestep.Enabled`. Without the compile-time switch the console variables do nothing. See
-[Fixed Timestep](Fixed-Timestep.md).
+Rebuild with `VITE_PHYSX_FIXED_TIMESTEP=1`, turn on substepping and **Enable Enhanced Determinism** in the
+physics project settings, then set `p.VitePhysXFixedTimestep.Enabled 1`. Without the compile-time switch the
+console variables do not exist. This makes results repeatable on the same platform and build; PhysX does not
+promise bit-identical results across different CPUs. See [Fixed Timestep](Fixed-Timestep.md).
 
 ### I need thousands of physics objects
 

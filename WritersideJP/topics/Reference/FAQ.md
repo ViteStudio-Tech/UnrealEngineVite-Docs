@@ -105,7 +105,7 @@ Vite が対象とする負荷では PhysX のほうが速く予測しやすく�
 
 ### 決定的な物理を得るには
 
-`VITE_PHYSX_FIXED_TIMESTEP=1` で再ビルドしてから、`p.VitePhysXFixedTimestep.Enabled` を有効にします。コンパイル時のスイッチがなければ、コンソール変数は何もしません。[固定タイムステップ](Fixed-Timestep.md) を参照してください。
+`VITE_PHYSX_FIXED_TIMESTEP=1` で再ビルドし、物理のプロジェクト設定でサブステップと **Enable Enhanced Determinism** をオンにしてから、`p.VitePhysXFixedTimestep.Enabled 1` を設定します。コンパイル時のスイッチがなければ、コンソール変数は存在しません。これにより同じプラットフォームと同じビルドでは結果が再現されますが、PhysX は異なる CPU の間でビット単位で同一の結果を保証しません。[固定タイムステップ](Fixed-Timestep.md) を参照してください。
 
 ### 何千もの物理オブジェクトが必要
 
