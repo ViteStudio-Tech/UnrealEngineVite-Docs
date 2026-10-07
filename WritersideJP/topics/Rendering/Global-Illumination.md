@@ -34,11 +34,11 @@ Dynamic Diffuse Global Illumination は、イラディアンスをプローブ�
 ソフトウェア Lumen と比べると、DDGI はより高品質なバウンスと少ない光漏れを実現します。ハードウェア Lumen と比べると、バウンスの品質は同等で、一般におよそ 2 倍の速度で動作します。これは GI 単体のコストではなく、シーン全体のフレームレートで測った値です。RTX 4080 Super、1440p ネイティブの代表的なテストシーンでは、DDGI が 811 FPS、Lumen 5.7 が 324 FPS でした。AMD のハードウェアでも良好で、同じ種類のテストシーンが RX 6600 で 1080p ネイティブ
 245 FPS で動作します。
 
-DDGI は実験的な技術でもありません。その実装は Metro Exodus、Overwatch 2、The Finals、Control、The Witcher 3、Warhammer 40,000: Darktide、DOOM: The Dark Ages、Indiana Jones and the Great Circle、007 First Light、Ghost of Yotei、そして Switch 2 版を含む Star Wars Outlaws で出荷されています。Anvil や Snowdrop といった AAA エンジンも、レイトレーシング GI のパイプラインの一部として DDGI のプローブを使っています。この手法は幅広いハードウェアに対応するよう設計されており、静的モードは Xbox One S の GPU から、動的な RT モードは GTX 1060 クラスの GPU から動作します。
+DDGI は実験的な技術でもありません。[Metro Exodus Enhanced Edition](https://wccftech.com/metro-exodus-enhanced-edition-impressions-4a-games-delivers-the-most-advanced-lighting-yet-without-sacrificing-performance/amp/) はマルチバウンスの GI をこれで構築し、[The Witcher 3 の次世代アップデート](https://www.nvidia.com/en-gb/geforce/news/witcher-3-wild-hunt-dlss-rtx-ray-tracing-free-update-out-now/) は PC 版で、[The Finals](https://www.nvidia.com/en-gb/geforce/news/the-finals-geforce-game-ready-driver/) はすべてのプラットフォームで NVIDIA の RTXGI の実装を使っています。[Overwatch 2](https://enginearchitecture.org/downloads/REAC_2025_Overwatch.pdf) は、マップの GI を Enlighten から DDGI ベースの手法に移行しつつあります。この手法は幅広いハードウェアに対応するよう設計されており、静的モードは Xbox One S の GPU から、動的な RT モードは GTX 1060 クラスの GPU から動作します。
 
-<img src="DDGIEmissiveSurfaces.png" alt="エミッシブサーフェスが DDGI に寄与してライティングされた室内" border-effect="line"/>
+<img src="DDGIEmissiveSurfaces.png" alt="屋根裏の建物を外から見たエディターの画面。横に大きなエミッシブの平面が選択されている" border-effect="line"/>
 
-*エミッシブマテリアルは DDGI に直接寄与するため、ライトアクターを配置しなくてもエミッシブなジオメトリでシーンを照らせます。*
+*屋根裏の横に置いた大きなエミッシブの平面（選択中）。エミッシブマテリアルは DDGI に直接寄与するため、ライトアクターを配置しなくてもエミッシブなジオメトリでシーンを照らせます。*
 
 ## DDGI と SSGI を組み合わせる理由
 

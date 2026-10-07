@@ -49,8 +49,7 @@ PhysX と、DDGI と SSGI を組み合わせたライティングパイプライ
 
 **[動的 DDGI](DDGI-Dynamic.md)。** Lumen に代わる、ノイズのないグローバルイルミネーションです。ソフトウェア Lumen
 より高品質なバウンスと少ない光漏れを実現し、バウンス品質はハードウェア Lumen と同等で、フレームレートは一般に約
-2 倍です。DDGI の実装は Metro Exodus、Overwatch 2、The Finals、Control、The Witcher 3、Warhammer 40,000: Darktide、DOOM: The Dark Ages、Indiana Jones and the Great Circle、007 First Light、Ghost of Yotei、そして Switch 2 版を含む
-Star Wars Outlaws で出荷されています。
+2 倍です。DDGI は Metro Exodus Enhanced Edition、The Witcher 3 の次世代アップデートの PC 版、The Finals、Overwatch 2 で出荷されています。[グローバルイルミネーション](Global-Illumination.md) を参照してください。
 
 **[静的 DDGI](DDGI-Static.md)。** ほぼ一瞬で終わるベイク、従来のベイクライティングより高精度なバウンス、動くオブジェクトへのより良いカバレッジを備えたベイクモードで、レイトレーシング非対応の GPU でも利用できます。
 

@@ -46,16 +46,16 @@ In one representative test scene at 1440p native on an RTX 4080 Super, DDGI meas
 On AMD hardware the technique holds up well: the same class of test scene runs at 245 FPS at 1080p native on an
 RX 6600.
 
-DDGI is also not experimental technology. Implementations ship in Metro Exodus, Overwatch 2, The Finals,
-Control, The Witcher 3, Warhammer 40,000: Darktide, DOOM: The Dark Ages, Indiana Jones and the Great Circle,
-007 First Light, Ghost of Yotei and Star Wars Outlaws including its Switch 2 version. AAA engines including
-Anvil and Snowdrop use DDGI probes as part of their ray-traced GI pipelines. The technique was designed to
-scale across a wide hardware range, starting from Xbox One S GPU for Static Mode and GTX 1060 class GPUs for Dynamic RT mode.
+DDGI is also not experimental technology. [Metro Exodus Enhanced Edition](https://wccftech.com/metro-exodus-enhanced-edition-impressions-4a-games-delivers-the-most-advanced-lighting-yet-without-sacrificing-performance/amp/)
+built its multi-bounce GI on it; [The Witcher 3's next-gen update](https://www.nvidia.com/en-gb/geforce/news/witcher-3-wild-hunt-dlss-rtx-ray-tracing-free-update-out-now/) uses NVIDIA's RTXGI implementation on
+PC and [The Finals](https://www.nvidia.com/en-gb/geforce/news/the-finals-geforce-game-ready-driver/) on every platform; and [Overwatch 2](https://enginearchitecture.org/downloads/REAC_2025_Overwatch.pdf) is moving its maps from Enlighten to a
+DDGI-based solution. The technique was designed to scale across a wide hardware range, starting from Xbox One
+S GPU for Static Mode and GTX 1060 class GPUs for Dynamic RT mode.
 
-<img src="DDGIEmissiveSurfaces.png" alt="Interior lit by emissive surfaces contributing to DDGI" border-effect="line"/>
+<img src="DDGIEmissiveSurfaces.png" alt="Editor view of the attic building from outside, with a large emissive plane selected alongside it" border-effect="line"/>
 
-*Emissive materials contribute to DDGI directly, so a scene can be lit from emissive geometry without
-placing light actors for it.*
+*A large emissive plane (selected) placed alongside the attic. Emissive materials contribute to DDGI
+directly, so a scene can be lit from emissive geometry without placing light actors for it.*
 
 ## Why pair DDGI with SSGI
 

@@ -132,10 +132,12 @@ The settings that matter most, roughly in order of impact:
 cost proportionally more in both rays traced and memory. Interior spaces with lots of small rooms need more
 probes than open exteriors.
 
-<img src="DDGIProbeDensity.png" alt="Comparison of probe density showing how lighting detail changes with probe spacing" border-effect="line"/>
+<img src="DDGIProbeDensity.png" alt="A small DDGI volume with a dense probe grid, nested inside a coarser volume, its probes tinted by a green light in the attic" border-effect="line"/>
 
-*Probe density against resolved lighting detail. Detail finer than the probe spacing does not exist in the
-representation at any quality setting &mdash; that is what [SSGI](SSGI.md) is for.*
+*A small, densely probed volume (orange bounds) nested inside a coarser one. Its probes pick up the green
+light's bounce around the chair; the large probes outside it are too far apart to. Detail finer than the probe
+spacing does not exist in the representation at any quality setting &mdash; that is what [SSGI](SSGI.md) is
+for.*
 
 **Volume placement and count.** Several tightly-fitted volumes usually beat one large loose one. A volume
 that spans a whole level at low density wastes probes on solid geometry and starves the spaces that matter.

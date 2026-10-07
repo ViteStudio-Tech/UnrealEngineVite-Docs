@@ -76,9 +76,8 @@ Engine build used for the launch of *The Finals*.
 
 **[Dynamic DDGI](DDGI-Dynamic.md).** A noise-free global illumination alternative to Lumen. Higher quality
 bounce and less light leaking than software Lumen, comparable to hardware Lumen for bounce, and typically
-around twice the frame rate. DDGI implementations ship in Metro Exodus, Overwatch 2, The Finals, Control,
-The Witcher 3, Warhammer 40,000: Darktide, DOOM: The Dark Ages, Indiana Jones and the Great Circle,
-007 First Light, Ghost of Yotei and Star Wars Outlaws including its Switch 2 version.
+around twice the frame rate. DDGI ships in Metro Exodus Enhanced Edition, The Witcher 3's next-gen update
+on PC, The Finals and Overwatch 2; see [Global Illumination](Global-Illumination.md).
 
 **[Static DDGI](DDGI-Static.md).** A baked mode with near-instant bake times, higher bounce fidelity than
 traditional baked lighting and better coverage of moving objects, viable on GPUs without ray tracing
