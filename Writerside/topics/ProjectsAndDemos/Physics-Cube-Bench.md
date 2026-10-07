@@ -1,4 +1,4 @@
-﻿# Physics Cube Bench
+# Physics Cube Bench
 
 <tldr>
 <p>
@@ -42,7 +42,7 @@ directly.
 |---|---|
 | `stat physics` | Solver time |
 | `stat game` | Actor tick and component overhead |
-| `p.showConstraints 1` | Constraint visualisation |
+| `show Collision` | Collision shapes, to confirm what the solver is simulating |
 
 If **Game** exceeds **Physics** by a wide margin, actor overhead rather than the solver is your limit,
 and the instanced path is the answer.

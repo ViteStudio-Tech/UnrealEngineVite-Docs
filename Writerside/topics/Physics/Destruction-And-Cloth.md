@@ -45,7 +45,9 @@ Instructional video on Apex Destruction [![Instructional video by MeanLemur](htt
 ## Apex Cloth
 
 Apex Cloth is the PhysX-era clothing system, authored either through the in-editor Clothing Tool or imported
-from APEX clothing assets produced in external DCC tools.
+from APEX clothing assets produced in external DCC tools. In 4.27 the solver underneath is NVIDIA NvCloth,
+APEX Clothing's successor (`ClothingSystemRuntimeNv`); imported APEX assets are converted into the same
+clothing data.
 
 | Detail | Value |
 |---|---|

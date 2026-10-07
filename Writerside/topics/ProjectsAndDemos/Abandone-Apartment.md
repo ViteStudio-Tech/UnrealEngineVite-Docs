@@ -1,4 +1,4 @@
-﻿# Abandoned Apartment
+# Abandoned Apartment
 
 <tldr>
 <p>
@@ -7,10 +7,10 @@ useful place to evaluate it.
 </p>
 </tldr>
 
-<img src="AbandonedAppartment.png" alt="Abandoned apartment interior lit entirely by indirect bounce light" border-effect="line"/>
+<img src="AbandonedAppartment.png" alt="Overgrown abandoned apartment, sunlight entering through a collapsed ceiling onto plants and the floor" border-effect="line"/>
 
-*Almost every surface visible here is lit by bounce rather than by the sun directly. That is what makes
-interiors the honest test of a GI solution.*
+*Direct sun reaches only the plants and the patch of floor under the opening; the walls, ceiling and the
+room beyond the doorway are lit by bounce. That is what makes interiors the honest test of a GI solution.*
 
 ## Download
 

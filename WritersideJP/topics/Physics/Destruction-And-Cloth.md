@@ -37,7 +37,7 @@ Apex Destruction の解説動画 [![MeanLemur による解説動画](https://img
 
 ## Apex Cloth
 
-Apex Cloth は PhysX 時代の衣服システムで、エディタ内の Clothing Tool で作成するか、外部の DCC ツールで作成した APEX の衣服アセットをインポートします。
+Apex Cloth は PhysX 時代の衣服システムで、エディタ内の Clothing Tool で作成するか、外部の DCC ツールで作成した APEX の衣服アセットをインポートします。4.27 で内部のソルバーとして動いているのは、APEX Clothing の後継である NVIDIA NvCloth（`ClothingSystemRuntimeNv`）です。インポートした APEX のアセットは同じ衣服データに変換されます。
 
 | 項目 | 値 |
 |---|---|

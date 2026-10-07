@@ -1,4 +1,4 @@
-﻿# Crash Bandicoot: Timetwister
+# Crash Bandicoot: Timetwister
 
 <tldr>
 <p>
@@ -41,11 +41,15 @@ conversion. Expect to resolve some asset and API differences; the 4.26 to 4.27 g
 This is a much easier conversion than coming from UE5, which requires the Asset Downgrader &mdash; see
 [Migrating from UE5](Migrating-From-UE5.md).
 
+The project turns on the experimental **Water** and **ShallowWater** plugins. Both ship with Vite, are off by
+default, and are not touched by the Vite plugin profile or the setup strip, so the project's own `.uproject`
+enables them.
+
 ## Licensing
 
-This is a third-party community project, not a Vite deliverable. It is a fan remake of copyrighted
-material; treat it as a reference to study rather than a source of assets to reuse. See the repository for
-its own terms.
+This is a third-party community project, not a Vite deliverable. The repository is MIT-licensed, but it is
+a fan remake of a level and characters owned by others; treat it as a reference to study rather than a
+source of assets to ship.
 
 ## See also
 
