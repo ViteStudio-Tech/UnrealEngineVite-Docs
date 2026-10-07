@@ -22,7 +22,7 @@ image: assets/img/brdf-portrait.jpg
             <div><span class="stat__value"><em>2</em>&nbsp;ローブ</span><span class="stat__label">単一または 2 ローブの GGX スペキュラー</span></div>
             <div><span class="stat__value"><em>5</em>&nbsp;つの制御</span><span class="stat__label">標準の PBR の入力に加えて</span></div>
             <div><span class="stat__value"><em>0</em>&nbsp;個の新しいピン</span><span class="stat__label">既存のマテリアルの入力を流用</span></div>
-            <div><span class="stat__value">任意で<em>有効</em></span><span class="stat__label">使うプロジェクトにだけコンパイル</span></div>
+            <div><span class="stat__value">任意で<em>有効</em></span><span class="stat__label">有効にしたエンジンのビルドにだけコンパイル</span></div>
         </div>
     </div>
 </section>
@@ -54,7 +54,7 @@ image: assets/img/brdf-portrait.jpg
             <div class="feature"><div class="feature__icon">{{icon:face}}</div><h3 class="h3">スムーズターミネーター</h3><p>全体のシェーディングを平坦にすることなく、曲面上の影の境界をまたぐ光のターミネーターを和らげます。</p></div>
             <div class="feature"><div class="feature__icon">{{icon:target}}</div><h3 class="h3">再帰反射</h3><p>光源の方向へ返る光を、独自の減衰カーブとともに。肌、ほこり、細かな繊維の後方散乱を表現します。</p></div>
             <div class="feature"><div class="feature__icon">{{icon:eye}}</div><h3 class="h3">ディフューズのフレネル</h3><p>かすめる角度に向かうディフューズの明るさを、減衰の制御とともに。完全なサブサーフェスのモデルなしで肌と布を表現します。</p></div>
-            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">使うときだけ払う</h3><p>コンパイル時のスイッチの背後にあります。Vite の追加のシェーディングモデルをゲートしたことで基準シーンが 12.3% 向上したため、使わないプロジェクトは何も失いません。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">使うときだけ払う</h3><p>エンジンのビルドスイッチ <code>VITE_SHADINGMODEL_CALLISTO</code> の背後にあります。Vite の追加のシェーディングモデルをゲートしたことで基準シーンが 12.3% 向上したため、これを含めないビルドは何も失いません。</p></div>
         </div>
     </div>
 </section>

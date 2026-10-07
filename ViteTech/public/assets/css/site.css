@@ -76,6 +76,12 @@ html[lang="ja"] body {
     line-break: strict;
 }
 
+code {
+    font-family: var(--mono);
+    font-size: .88em;
+    overflow-wrap: anywhere;
+}
+
 img,
 svg {
     display: block;

@@ -21,7 +21,7 @@ image: assets/img/hairfx-strands.svg
         <div class="stats">
             <div><span class="stat__value"><em>ストランド</em></span><span class="stat__label">カードではなく、繊維ごとにシミュレーションして描画</span></div>
             <div><span class="stat__value">新しい <em>BRDF</em></span><span class="stat__label">髪に特化したハイライトと光の透過</span></div>
-            <div><span class="stat__value">任意で<em>有効</em></span><span class="stat__label">ストランドのヘアを使うプロジェクトにだけコンパイル</span></div>
+            <div><span class="stat__value">任意で<em>有効</em></span><span class="stat__label">有効にしたエンジンのビルドにだけコンパイル</span></div>
         </div>
     </div>
 </section>
@@ -65,7 +65,7 @@ image: assets/img/hairfx-strands.svg
             <div class="feature"><div class="feature__icon">{{icon:spark}}</div><h3 class="h3">新しいヘアの BRDF</h3><p>より自然な一次と二次のハイライト、そしてストランドを透過する光のための、髪に特化したシェーディングモデル。</p></div>
             <div class="feature"><div class="feature__icon">{{icon:wind}}</div><h3 class="h3">安定したシミュレーション</h3><p>ストランドは速いキャラクターの動きに遅れずに追従し、減衰によってソルバーが落ち着き、髪が震え続けることがありません。</p></div>
             <div class="feature"><div class="feature__icon">{{icon:strand}}</div><h3 class="h3">デバッグ表示</h3><p>シミュレーション用ストランド、ガイドの影響、根元の UV、ストランドの寸法を可視化し、作成の問題を数秒で見つけます。</p></div>
-            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">コンパイル時のゲート</h3><p>Hair FX はプロジェクトが有効にしたときにだけコンパイルされるため、ストランドの髪を使わないタイトルはそのシェーダーを一切持ちません。</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">コンパイル時のゲート</h3><p>Hair FX は <code>VITE_TRESSFX</code> を有効にしてエンジンをビルドしたときにだけコンパイルされるため、ストランドの髪を使わないタイトル向けのビルドはそのシェーダーを一切持ちません。</p></div>
             <div class="feature"><div class="feature__icon">{{icon:layers}}</div><h3 class="h3">Vite の技術と連携</h3><p>Vite のライティングと SSGI に統合し、細いジオメトリに適したアンチエイリアシングのモードについてはマニュアルで案内しています。</p></div>
         </div>
     </div>

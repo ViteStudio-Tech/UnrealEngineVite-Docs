@@ -25,7 +25,7 @@ image: assets/img/brdf-portrait.jpg
             <div><span class="stat__value"><em>2</em> lobes</span><span class="stat__label">Single- or dual-lobe GGX specular</span></div>
             <div><span class="stat__value"><em>5</em> controls</span><span class="stat__label">Beyond the standard PBR inputs</span></div>
             <div><span class="stat__value"><em>0</em> new pins</span><span class="stat__label">Repurposes existing material inputs</span></div>
-            <div><span class="stat__value">Opt-<em>in</em></span><span class="stat__label">Compiled only into projects that use it</span></div>
+            <div><span class="stat__value">Opt-<em>in</em></span><span class="stat__label">Compiled into engine builds that switch it on</span></div>
         </div>
     </div>
 </section>
@@ -59,7 +59,7 @@ image: assets/img/brdf-portrait.jpg
             <div class="feature"><div class="feature__icon">{{icon:face}}</div><h3 class="h3">Smooth terminator</h3><p>Softens the light terminator across the shadow boundary on curved surfaces, without flattening the overall shading.</p></div>
             <div class="feature"><div class="feature__icon">{{icon:target}}</div><h3 class="h3">Retroreflection</h3><p>Light returned toward its source, with its own falloff curve, for the back-scatter of skin, dust and fine fibres.</p></div>
             <div class="feature"><div class="feature__icon">{{icon:eye}}</div><h3 class="h3">Diffuse Fresnel</h3><p>Diffuse brightening toward grazing angles, with a falloff control, for skin and fabric without a full subsurface model.</p></div>
-            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">Pay only if used</h3><p>Behind a compile-time switch. Gating Vite's extra shading models raised a reference scene by 12.3%, so projects that skip it lose nothing.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">Pay only if used</h3><p>Behind the <code>VITE_SHADINGMODEL_CALLISTO</code> engine build switch. Gating Vite's extra shading models raised a reference scene by 12.3%, so builds without it lose nothing.</p></div>
         </div>
     </div>
 </section>

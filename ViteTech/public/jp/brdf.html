@@ -20,7 +20,7 @@
 <link rel="icon" type="image/png" sizes="64x64" href="../assets/img/favicon-64.png">
 <link rel="apple-touch-icon" href="../assets/img/touch-icon-180.png">
 <link rel="preload" href="../assets/fonts/ViteVector-Regular.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="../assets/css/site.css?v=289dc5b919">
+<link rel="stylesheet" href="../assets/css/site.css?v=39df6de13d">
 </head>
 <body data-product="brdf">
 <a class="skip-link" href="#main">本文へスキップ</a>
@@ -62,7 +62,7 @@
             <div><span class="stat__value"><em>2</em>&nbsp;ローブ</span><span class="stat__label">単一または 2 ローブの GGX スペキュラー</span></div>
             <div><span class="stat__value"><em>5</em>&nbsp;つの制御</span><span class="stat__label">標準の PBR の入力に加えて</span></div>
             <div><span class="stat__value"><em>0</em>&nbsp;個の新しいピン</span><span class="stat__label">既存のマテリアルの入力を流用</span></div>
-            <div><span class="stat__value">任意で<em>有効</em></span><span class="stat__label">使うプロジェクトにだけコンパイル</span></div>
+            <div><span class="stat__value">任意で<em>有効</em></span><span class="stat__label">有効にしたエンジンのビルドにだけコンパイル</span></div>
         </div>
     </div>
 </section>
@@ -94,7 +94,7 @@
             <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><path d="M8.8 14.6c1.8 1.8 4.6 1.8 6.4 0"/><circle cx="9" cy="10" r=".9"/><circle cx="15" cy="10" r=".9"/></svg></div><h3 class="h3">スムーズターミネーター</h3><p>全体のシェーディングを平坦にすることなく、曲面上の影の境界をまたぐ光のターミネーターを和らげます。</p></div>
             <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1"/></svg></div><h3 class="h3">再帰反射</h3><p>光源の方向へ返る光を、独自の減衰カーブとともに。肌、ほこり、細かな繊維の後方散乱を表現します。</p></div>
             <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></div><h3 class="h3">ディフューズのフレネル</h3><p>かすめる角度に向かうディフューズの明るさを、減衰の制御とともに。完全なサブサーフェスのモデルなしで肌と布を表現します。</p></div>
-            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2.5" y="7" width="19" height="10" rx="5"/><circle cx="16.5" cy="12" r="3"/></svg></div><h3 class="h3">使うときだけ払う</h3><p>コンパイル時のスイッチの背後にあります。Vite の追加のシェーディングモデルをゲートしたことで基準シーンが 12.3% 向上したため、使わないプロジェクトは何も失いません。</p></div>
+            <div class="feature"><div class="feature__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="2.5" y="7" width="19" height="10" rx="5"/><circle cx="16.5" cy="12" r="3"/></svg></div><h3 class="h3">使うときだけ払う</h3><p>エンジンのビルドスイッチ <code>VITE_SHADINGMODEL_CALLISTO</code> の背後にあります。Vite の追加のシェーディングモデルをゲートしたことで基準シーンが 12.3% 向上したため、これを含めないビルドは何も失いません。</p></div>
         </div>
     </div>
 </section>

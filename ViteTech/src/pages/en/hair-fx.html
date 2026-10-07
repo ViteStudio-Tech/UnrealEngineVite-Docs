@@ -24,7 +24,7 @@ image: assets/img/hairfx-strands.svg
         <div class="stats">
             <div><span class="stat__value"><em>Strands</em></span><span class="stat__label">Simulated and rendered per fibre, not as cards</span></div>
             <div><span class="stat__value">New <em>BRDF</em></span><span class="stat__label">Hair-specific highlights and light transmission</span></div>
-            <div><span class="stat__value">Opt-<em>in</em></span><span class="stat__label">Compiled only into projects that use strand hair</span></div>
+            <div><span class="stat__value">Opt-<em>in</em></span><span class="stat__label">Compiled into engine builds that switch it on</span></div>
         </div>
     </div>
 </section>
@@ -72,7 +72,7 @@ image: assets/img/hairfx-strands.svg
             <div class="feature"><div class="feature__icon">{{icon:spark}}</div><h3 class="h3">New hair BRDF</h3><p>A hair-specific shading model for more natural primary and secondary highlights and light transmitted through strands.</p></div>
             <div class="feature"><div class="feature__icon">{{icon:wind}}</div><h3 class="h3">Stable simulation</h3><p>Strands follow fast character motion without lagging, and damping settles the solver instead of leaving hair jittering.</p></div>
             <div class="feature"><div class="feature__icon">{{icon:strand}}</div><h3 class="h3">Debug views</h3><p>Visualise simulation strands, guide influence, root UVs and strand dimensions to find authoring problems in seconds.</p></div>
-            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">Compile-time gating</h3><p>Hair FX compiles in only when a project enables it, so titles without strand hair carry none of its shaders.</p></div>
+            <div class="feature"><div class="feature__icon">{{icon:switch}}</div><h3 class="h3">Compile-time gating</h3><p>Hair FX compiles in only when the engine is built with <code>VITE_TRESSFX</code>, so builds for titles without strand hair carry none of its shaders.</p></div>
             <div class="feature"><div class="feature__icon">{{icon:layers}}</div><h3 class="h3">Works with Vite's stack</h3><p>Integrated with Vite's lighting and SSGI, with manual guidance on the anti-aliasing modes that suit thin geometry.</p></div>
         </div>
     </div>
