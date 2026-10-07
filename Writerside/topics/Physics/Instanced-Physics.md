@@ -120,9 +120,10 @@ right when you want the object to remain but never move again.
 
 Two additional rules catch instances that will never stop on their own:
 
-- **Max Fall Time** fires the stop action after an instance has been falling continuously for longer than
-  the threshold. Catches objects that fell through world geometry.
-- **Max Distance From Actor** fires when an instance travels further than the threshold from its owner.
+- **Max Fall Time** (off by default; 10 s when enabled) fires the stop action after an instance has been
+  falling continuously for longer than the threshold. Catches objects that fell through world geometry.
+- **Max Distance From Actor** (off by default; 50,000 cm when enabled) fires when an instance travels
+  further than the threshold from its owner.
   Catches objects launched by a bad impulse.
 
 Separately, **Use Custom Kill Z** with a **Custom Kill Z** height and a **Lost Instance Action** handles
@@ -148,8 +149,8 @@ modes:
 | Auto (by velocity) | Enabled above **Min CCD Velocity** (default 2000 cm/s), optionally capped by **Max CCD Velocity** |
 | All bodies | Always |
 
-Auto by velocity is the right default for debris: slow-moving chunks skip CCD entirely, and only the fast
-ones pay for it.
+The plugin defaults to **Off**. Auto by velocity is the better setting for debris: slow-moving chunks skip
+CCD entirely, and only the fast ones pay for it.
 
 ## Runtime API
 
