@@ -206,7 +206,8 @@ it; Cascade remains available in 4.27.
 ## Ray-traced effects start off {id="ray-traced-effects-off"}
 
 Stock 4.27 lets post-process volumes decide whether ray-traced reflections, translucency and ambient
-occlusion run (`-1`), and turns ray-traced shadows on (`1`). Vite sets all four to `0`:
+occlusion run (`-1`), and turns ray-traced shadows on (`1`). Every Vite release since the
+[LTS](ueVite25-LTS.md) sets all four to `0`:
 
 | CVar | Stock 4.27 | Vite |
 |---|---|---|
