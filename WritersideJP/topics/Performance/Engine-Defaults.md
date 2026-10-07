@@ -60,8 +60,10 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 | `bHasCustomNavigableGeometry` | `Yes` | `No` |
 | `bDisablePostProcessBlueprint` | `false` | `true` |
 | `bUpdateOverlapsOnAnimationFinalize` | `true` | `false` |
+| `bSkipKinematicUpdateWhenInterpolating` | `false` | `true` |
+| `bSkipBoundsUpdateWhenInterpolating` | `false` | `true` |
 
-<img src="SkeletalMeshesOptimizedConfig.png" alt="SkeletalMeshComponent.cpp で 5 つの既定値を Epic の元の値と並べて変更しているコミットの差分" border-effect="line"/>
+<img src="SkeletalMeshesOptimizedConfig.png" alt="SkeletalMeshComponent.cpp の既定値を変更し、Epic の元の値を末尾のコメントに残しているコミットの差分" border-effect="line"/>
 
 *変更した各行には Epic の元の値が末尾のコメントとして残されているため、上流を参照しなくても標準の挙動に戻せます。*
 
@@ -70,9 +72,11 @@ Vite は性能のために、標準の Unreal Engine 4.27 の既定値をいく�
 
 2 つ目は `bDisablePostProcessBlueprint = true` です。IK やボーンの補正によく使われるポストプロセスのアニメーションブループリントは、コンポーネントごとに再び有効にしない限り実行されなくなります。
 
-<img src="SkeletalMeshDefault.png" alt="既定値のブロック全体を示す SkeletalMeshComponent.cpp のコンストラクター" border-effect="line"/>
+2 つの `bSkip...WhenInterpolating` フラグが効くのは、Vite が同じくオンにしている更新レートの最適化を使う場合だけです。アニメーションを評価せずに補間するフレームでは、キネマティックの物理ボディとバウンドが更新されず、次に評価する Tick で追いつきます。至近距離のヒット判定に使うものなど、キネマティックのボディが毎フレームポーズに追従しなければならないコンポーネントでは、これらをオフにしてください。
 
-*これらの既定値が設定されている場所の文脈として、`SkeletalMeshComponent.cpp` のコンストラクターの該当ブロック。*
+<img src="SkeletalMeshDefault.png" alt="Epic の元の既定値が入った SkeletalMeshComponent.cpp のコンストラクターのブロック" border-effect="line"/>
+
+*Epic の元の値（`bEnableUpdateRateOptimizations = false` など）が入った同じコンストラクターのブロック。これらの既定値が設定されている場所の文脈として示します。*
 
 [コミット](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/33fe7c638829b8120e8a02ecc639acda761df835)
 

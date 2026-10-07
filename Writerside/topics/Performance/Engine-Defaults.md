@@ -73,8 +73,10 @@ path as the default and opting into the expensive options where they are needed 
 | `bHasCustomNavigableGeometry` | `Yes` | `No` |
 | `bDisablePostProcessBlueprint` | `false` | `true` |
 | `bUpdateOverlapsOnAnimationFinalize` | `true` | `false` |
+| `bSkipKinematicUpdateWhenInterpolating` | `false` | `true` |
+| `bSkipBoundsUpdateWhenInterpolating` | `false` | `true` |
 
-<img src="SkeletalMeshesOptimizedConfig.png" alt="Commit diff in SkeletalMeshComponent.cpp showing the five changed defaults against Epic's originals" border-effect="line"/>
+<img src="SkeletalMeshesOptimizedConfig.png" alt="Commit diff in SkeletalMeshComponent.cpp showing changed defaults with Epic's original values in trailing comments" border-effect="line"/>
 
 *Each changed line keeps Epic's original value in a trailing comment, so the stock behaviour is recoverable
 without consulting upstream.*
@@ -87,10 +89,15 @@ the component back to `AlwaysTickPose` or `AlwaysTickPoseAndRefreshBones`.
 `bDisablePostProcessBlueprint = true` is the second: post-process anim Blueprints, commonly used for IK
 and bone corrections, no longer run unless re-enabled per component.
 
-<img src="SkeletalMeshDefault.png" alt="SkeletalMeshComponent.cpp constructor showing the surrounding default block" border-effect="line"/>
+The two `bSkip...WhenInterpolating` flags only matter with update rate optimisations, which Vite also turns
+on: on frames where the animation is interpolated rather than evaluated, kinematic physics bodies and bounds
+are not updated, and catch up on the next evaluated tick. Turn them off on a component whose kinematic bodies
+must track the pose every frame, such as one used for hit detection at close range.
 
-*The surrounding constructor block in `SkeletalMeshComponent.cpp`, for context on where these defaults are
-set.*
+<img src="SkeletalMeshDefault.png" alt="SkeletalMeshComponent.cpp constructor block with Epic's original default values" border-effect="line"/>
+
+*The same constructor block with Epic's original values (`bEnableUpdateRateOptimizations = false` and so
+on), for context on where these defaults are set.*
 
 [Commit](https://github.com/GapingPixel/UnrealEngineVite-PhysX/commit/33fe7c638829b8120e8a02ecc639acda761df835)
 
