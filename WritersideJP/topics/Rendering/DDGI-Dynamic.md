@@ -87,13 +87,13 @@ Vite の DDGI は、標準の 4.27 向けランチャー版プラグインでは
 
 ### ボリュームの設定
 
-<img src="DDGISettingsVolume.png" alt="DDGI ボリュームの設定パネル" border-effect="line"/>
+<img src="DDGISettingsVolume.png" alt="GI Volume の設定: Enable Volume、Update Priority、Lighting Priority、Blending Distance、Clear Probes、Runtime Static" border-effect="line"/>
 
-<img src="DDGISettingsProbes.png" alt="軸ごとのプローブ数とプローブの間隔を設定する DDGI のプローブ設定パネル" border-effect="line"/>
+<img src="DDGISettingsProbes.png" alt="GI Probes の設定: Rays Per Probe は 720、Probe Counts は 8 × 8 × 8、Probe Max Ray Distance、Probe History Weight は 0.97、各プローブのしきい値" border-effect="line"/>
 
-<img src="DDGISettingsLighting.png" alt="DDGI のライティング設定パネル" border-effect="line"/>
+<img src="DDGISettingsLighting.png" alt="GI Lighting の設定: Sky Light Type on Ray Miss、View Bias 40、Normal Bias 10、Light と Emissive の Multiplier、Lighting Channels" border-effect="line"/>
 
-*DDGI ボリュームのアクターのボリューム、プローブ、ライティングの設定。軸ごとのプローブ数が、メモリとフレームごとのレイのコストの両方を左右する設定です。*
+*DDGI ボリュームのアクターのボリューム、プローブ、ライティングの設定。軸ごとのプローブ数が、メモリとフレームごとのレイのコストの両方を左右する設定です。このキャプチャでは、Rays Per Probe を既定の 288 から 720 に上げています。*
 
 ## 調整
 

@@ -115,14 +115,15 @@ dynamic objects can actually go.*
 
 ### Volume settings
 
-<img src="DDGISettingsVolume.png" alt="DDGI volume settings panel" border-effect="line"/>
+<img src="DDGISettingsVolume.png" alt="GI Volume settings: Enable Volume, Update Priority, Lighting Priority, Blending Distance, Clear Probes and Runtime Static" border-effect="line"/>
 
-<img src="DDGISettingsProbes.png" alt="DDGI probe settings panel showing counts per axis and probe spacing controls" border-effect="line"/>
+<img src="DDGISettingsProbes.png" alt="GI Probes settings: Rays Per Probe set to 720, Probe Counts 8 by 8 by 8, Probe Max Ray Distance, Probe History Weight 0.97 and the probe thresholds" border-effect="line"/>
 
-<img src="DDGISettingsLighting.png" alt="DDGI lighting settings panel" border-effect="line"/>
+<img src="DDGISettingsLighting.png" alt="GI Lighting settings: Sky Light Type on Ray Miss, View Bias 40, Normal Bias 10, Light and Emissive Multipliers, and Lighting Channels" border-effect="line"/>
 
 *Volume, probe and lighting settings on the DDGI volume actor. Probe counts per axis are the control that
-drives both memory and per-frame ray cost.*
+drives both memory and per-frame ray cost. In this capture Rays Per Probe has been raised to 720 from its
+default of 288.*
 
 ## Tuning
 
